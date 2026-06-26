@@ -26,7 +26,7 @@ for raw_line in text.splitlines():
         continue
     if upper.startswith("COMMENT ON COLUMN "):
         continue
-    if stripped in {"in TS_FACT", "in TS_IBS", "in TS_REP", "in TS_PUB"}:
+    if re.fullmatch(r"in\s+TS_[A-Z_]+\s*;?", stripped, flags=re.IGNORECASE):
         continue
 
     line = re.sub(r"\)\s*in\s+TS_[A-Z_]+\s*$", ")", line, flags=re.IGNORECASE)

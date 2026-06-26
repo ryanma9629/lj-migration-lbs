@@ -61,7 +61,6 @@ CREATE TABLE cst.SYS_C_GB_T4754 (
     GBT4754_NM_PY                      VARCHAR(50)          NOT NULL    ,
      GBT4754_NM_DESC                      VARCHAR(500)              ,
  GBT4754_VSN                     VARCHAR(4)          NOT NULL                  )
-in TS_FACT   ;
 -- CREATE TABLE cst.SYS_C_PER_DSPL
 CREATE TABLE cst.SYS_C_PER_DSPL (
     USER_ID                        VARCHAR(32)         NOT NULL    ,
@@ -4495,7 +4494,6 @@ CREATE TABLE ibs.T9_FNC_TXN_CD (
     TXN_CGY_CD                     VARCHAR(8)          NOT NULL    ,
     TXN_CGY_NM                     VARCHAR(64)                     ,
     STA_FLAG                       VARCHAR(2)                      )
-in TS_SINGLE   ;
 
 -- CREATE TABLE ibs.T9_FUND_TXN_CD
 CREATE TABLE ibs.T9_FUND_TXN_CD (
@@ -4504,7 +4502,6 @@ CREATE TABLE ibs.T9_FUND_TXN_CD (
     TXN_CGY_CD                     VARCHAR(8)          NOT NULL    ,
     TXN_CGY_NM                     VARCHAR(64)                     ,
     STA_FLAG                       VARCHAR(2)                      )
-in TS_SINGLE   ;
 
 -- CREATE TABLE ibs.T9_MANAGER_Y_SCORE_TYPE
 CREATE TABLE ibs.T9_MANAGER_Y_SCORE_TYPE (
@@ -4965,7 +4962,6 @@ Create table PUB.BIZ_TP (
     SRC_STM_ID                     SMALLINT                        ,
     JOB_SEQ_ID                     INT                         ,
     LAST_ETL_ACG_DT                DATE                            )
-in TS_SINGLE   ;
 
 
 -- Create Table PUB.CL
@@ -4990,7 +4986,6 @@ Create table PUB.CL (
     ETL_FL_NM                      VARCHAR(128)                    ,
     PPN_TMSTAMP                    DATETIME                       ,
     JOB_SEQ_ID                     INT                         )
-in TS_SINGLE   ;
 -- Create Table PUB.DEP_AR_SMY
 Create table PUB.DEP_AR_SMY (
     AR_ID                          CHAR(20)            NOT NULL    ,
@@ -5299,7 +5294,6 @@ Create table DIM.DIM_LN_FIVE_TIER_CL_TP (
     LN_FIVE_TIER_CL_TP_NM          VARCHAR(32)                     ,
     PERF_STS_TP_ID                 INT                         ,
     PERF_STS_TP_NM                 VARCHAR(32)                     )
-in TS_SINGLE   ;
 -- Create Table DIM.DIM_OU
 Create table DIM.DIM_OU (
     OU_SUR_ID                      CHAR(18)            NOT NULL    ,
@@ -5316,7 +5310,6 @@ Create table DIM.DIM_OU (
     COUNTY_FLG                     VARCHAR(2)                      ,
     FM_FLG                         VARCHAR(2)                      ,
     JILUZT                         VARCHAR(20)                     )
-in TS_SINGLE
 -- Create Table DIM.DIM_OU_DTIL
 Create table DIM.DIM_OU_DTIL (
     OU_SUR_ID                      CHAR(18)            NOT NULL    ,
@@ -5328,5 +5321,4 @@ Create table DIM.DIM_OU_DTIL (
     OU_IP_ID                       INT             NOT NULL    ,
     EFF_DT                         DATE                            ,
     OU_SEQ                         CHAR(8)                         )
-in TS_SINGLE
 
