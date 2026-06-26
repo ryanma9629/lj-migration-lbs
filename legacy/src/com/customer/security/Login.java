@@ -16,14 +16,29 @@ import com.wabacus.config.Config;
 import com.wabacus.util.DesEncryptTools;
 
 public class Login {
+	private String safeTrim(String value) {
+		return value == null ? "" : value.trim();
+	}
+
 	@SuppressWarnings("static-access")
 	public String checkPrivilege(String user_id, String password, HttpServletRequest request, HttpServletResponse response) throws SQLException {
 		HttpSession session = request.getSession();
 		String isLegal = "passErr";
 		//第一步，取出客户相关信息 增加ip地址作为记录
 		Connection conn = Config.getInstance().getDataSource("").getConnection();
-		//String sql = "SELECT a.user_id, a.user_name, a.org_id as usr_org_id, b.org_nm as usr_org_nm, a.is_enable, a.password, a.is_enable, b.org_id, b.branch_org_id,b.BRANCH_ORG_NM,og.HEAD_ORG_ID,og.ORG_LEVEL_ID FROM cst.sys_c_sec_user a left join ibs.t5_emp b on a.user_id=b.emp_id left join IBS.T5_ORG og on og.ORG_ID=a.org_id and og.ORG_TYPE_ID='EO' WHERE user_id=? AND password=?";
-		String sql = "SELECT a.user_id, a.user_name, a.org_id as usr_org_id, b.org_nm as usr_org_nm, a.is_enable, a.password, a.is_enable, b.org_id, b.branch_org_id,b.BRANCH_ORG_NM,og.HEAD_ORG_ID,og.ORG_LEVEL_ID FROM cst.sys_c_sec_user a left join ibs.t5_emp b on a.user_id=b.emp_id left join IBS.T5_ORG og on og.ORG_ID=a.org_id and og.ORG_TYPE_ID='EO' WHERE user_id=? ";
+		String sql =
+				"SELECT a.user_id, a.user_name, a.org_id AS usr_org_id, " +
+				"COALESCE(b.org_nm, a.org_id, '') AS usr_org_nm, " +
+				"a.is_enable, a.password, " +
+				"COALESCE(b.org_id, a.org_id, '') AS org_id, " +
+				"COALESCE(b.branch_org_id, a.org_id, '') AS branch_org_id, " +
+				"COALESCE(b.BRANCH_ORG_NM, b.org_nm, '') AS BRANCH_ORG_NM, " +
+				"COALESCE(og.HEAD_ORG_ID, a.org_id, '') AS HEAD_ORG_ID, " +
+				"COALESCE(og.ORG_LEVEL_ID, '01') AS ORG_LEVEL_ID " +
+				"FROM cst.sys_c_sec_user a " +
+				"LEFT JOIN ibs.t5_emp b ON a.user_id=b.emp_id " +
+				"LEFT JOIN ibs.T5_ORG og ON og.ORG_ID=a.org_id AND og.ORG_TYPE_ID='EO' " +
+				"WHERE user_id=?";
 		
 		PreparedStatement pstmt = null;
 		
@@ -34,15 +49,15 @@ public class Login {
 			//pstmt.setString(2, DesEncryptTools.encrypt(password));
 			ResultSet rs = pstmt.executeQuery();
 			while (rs.next()) {
-				String user_name = rs.getString("user_name").trim();
-				String usr_org_nm = rs.getString("usr_org_nm").trim();
+				String user_name = safeTrim(rs.getString("user_name"));
+				String usr_org_nm = safeTrim(rs.getString("usr_org_nm"));
 				// String group_id = rs.getString("group_id");
-				String usr_org_id = rs.getString("usr_org_id").trim();
-				String org_id = rs.getString("org_id").trim();
-				String branch_id = rs.getString("branch_org_id").trim();
-				String branch_idNm = rs.getString("BRANCH_ORG_NM").trim();
-				String head_id = rs.getString("HEAD_ORG_ID").trim();
-				String org_lev_id=rs.getString("ORG_LEVEL_ID").trim();
+				String usr_org_id = safeTrim(rs.getString("usr_org_id"));
+				String org_id = safeTrim(rs.getString("org_id"));
+				String branch_id = safeTrim(rs.getString("branch_org_id"));
+				String branch_idNm = safeTrim(rs.getString("BRANCH_ORG_NM"));
+				String head_id = safeTrim(rs.getString("HEAD_ORG_ID"));
+				String org_lev_id = safeTrim(rs.getString("ORG_LEVEL_ID"));
 				System.out.println("user_name="+user_name+";org_id=" + org_id + ";branch_id="+branch_id+";branch_idNm="+branch_idNm+";head_id="+head_id+";org_lev_id="+org_lev_id);
 
 				if ("Y".equals(rs.getString("is_enable"))) {

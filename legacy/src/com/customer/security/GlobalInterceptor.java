@@ -122,31 +122,27 @@ public class GlobalInterceptor extends AbsPageInterceptor {
 //根据user_id生成导航菜单
 	public String createMenu(String user_id, Connection conn, ReportRequest rrequest) {
 		String login_user = (String) rrequest.getRequest().getSession().getAttribute("user_name");
-		String sql ="SELECT ROW_NUMBER() OVER(ORDER BY MENU_SEQ,MT_SEQ,PAGE_ID) AS NUM,rOW_NUMBER() OVER(PARTITION BY MENU_ID  ORDER BY MENU_SEQ,MT_SEQ,PAGE_ID) AS SEQ,MENU_ID,MENU_TYPE,MENU_NAME,MENU_SEQ,PAGE_ID,PAGE_NAME,URL_PARAM,MT_SEQ  		"
-		+"	FROM (                                                                                                                                                                                                                        "
-		+" SELECT B.MENU_ID,C.MENU_TYPE,C.MENU_NAME,C.SEQ AS MENU_SEQ,B.PAGE_ID,B.PAGE_NAME,B.URL_PARAM as URL_PARAM,B.SEQ AS MT_SEQ                                                      "
-		+"	  FROM CST.SYS_C_SEC_USER A                                                                                                                                     "
-		+"                                                                                                                                                                  "
-		+"    LEFT JOIN CST.SYS_C_SEC_USER_GROUP A1 ON A.USER_ID=A1.USER_ID       LEFT JOIN CST.SYS_C_SEC_GROP A2 ON A1.GROUP_ID=A2.GROUP_ID                                "                                  
-		+"	  LEFT JOIN CST.SYS_C_APP_MNLT B                                                                                                                                "
-		+"	  ON A2.GROUP_ID=B.GROUP_ID                                                                                                                                     "
-		+"	  LEFT JOIN CST.SYS_C_APP_MENU C                                                                                                                                "
-		+"	  ON B.MENU_ID=C.MENU_ID                                                                                                                                        "
-		+"	  WHERE A.USER_ID=? AND A.IS_ENABLE='Y' AND C.MENU_TYPE='normal' AND B.IS_SHOW='Y'   AND C.SERVICE_ID='060' AND A2.SERVICE_ID='060' " 
-		//+"    group by B.MENU_ID,C.MENU_TYPE,C.MENU_NAME,C.SEQ,B.PAGE_ID,B.PAGE_NAME,coalesce(B.URL_PARAM,'') "
-		+"	  				UNION                                                                                                                                                 "                                                                  
-		+"	  				SELECT 'FAVOR' AS MENU_ID,'normal' AS MENU_TYPE,'我的收藏' AS MENU_NAME,999999 AS MENU_SEQ,MT.PAGE_ID,MT.PAGE_NAME,MT.URL_PARAM,MT.SEQ AS MT_SEQ          "                                                                  
-		+"	  				FROM CST.SYS_C_APP_MNLT MT                                                                                                                            "
-		+" LEFT JOIN CST.SYS_C_SEC_GROP A                                                                                                                                    "
-		+" ON MT.GROUP_ID=A.GROUP_ID                                                                                                                                         "
-		+"                         LEFT JOIN CST.SYS_C_SEC_USER_GROUP A1 ON MT.GROUP_ID=A1.GROUP_ID                                                                         "
-		+"                                                                                                                                                                  "                                                                       
-		+"	  				LEFT JOIN CST.SYS_C_SEC_USER U ON U.USER_ID=A1.USER_ID AND U.IS_ENABLE='Y'                                                                            "                                                                
-		+"	  				LEFT JOIN CST.SYS_C_APP_MENU M ON MT.MENU_ID=M.MENU_ID AND M.SERVICE_ID='060'                                                                         "                                                                  
-		+"	  				LEFT JOIN CST.SYS_C_SEC_PAGE P ON MT.PAGE_ID=P.PAGE_ID  AND P.SERVICE_ID='060'                                                                        "                                                                  
-		+"	  				RIGHT JOIN CST.SYS_C_PER_FVOR F ON MT.PAGE_ID=F.PAGE_ID AND F.USER_ID=U.USER_ID                                                                       "                                                                  
-		+"	  			  WHERE U.USER_ID=? AND MT.IS_SHOW='Y' AND A.SERVICE_ID='060'                                                                                           "                                                                                  
-		+"	  			   ) LIST ORDER BY MENU_SEQ,MT_SEQ,PAGE_ID                                                                                                                                    ";
+		String sql =
+				"SELECT MENU_ID, MENU_TYPE, MENU_NAME, MENU_SEQ, PAGE_ID, PAGE_NAME, URL_PARAM, MT_SEQ " +
+				"FROM (" +
+				" SELECT B.MENU_ID, C.MENU_TYPE, C.MENU_NAME, C.SEQ AS MENU_SEQ, B.PAGE_ID, B.PAGE_NAME, B.URL_PARAM AS URL_PARAM, B.SEQ AS MT_SEQ " +
+				" FROM CST.SYS_C_SEC_USER A " +
+				" LEFT JOIN CST.SYS_C_SEC_USER_GROUP A1 ON A.USER_ID=A1.USER_ID " +
+				" LEFT JOIN CST.SYS_C_SEC_GROP A2 ON A1.GROUP_ID=A2.GROUP_ID " +
+				" LEFT JOIN CST.SYS_C_APP_MNLT B ON A2.GROUP_ID=B.GROUP_ID " +
+				" LEFT JOIN CST.SYS_C_APP_MENU C ON B.MENU_ID=C.MENU_ID " +
+				" WHERE A.USER_ID=? AND A.IS_ENABLE='Y' AND C.MENU_TYPE='normal' AND B.IS_SHOW='Y' AND C.SERVICE_ID='060' AND A2.SERVICE_ID='060' " +
+				" UNION ALL " +
+				" SELECT 'FAVOR' AS MENU_ID, 'normal' AS MENU_TYPE, '我的收藏' AS MENU_NAME, 999999 AS MENU_SEQ, MT.PAGE_ID, MT.PAGE_NAME, MT.URL_PARAM, MT.SEQ AS MT_SEQ " +
+				" FROM CST.SYS_C_APP_MNLT MT " +
+				" LEFT JOIN CST.SYS_C_SEC_GROP A ON MT.GROUP_ID=A.GROUP_ID " +
+				" LEFT JOIN CST.SYS_C_SEC_USER_GROUP A1 ON MT.GROUP_ID=A1.GROUP_ID " +
+				" LEFT JOIN CST.SYS_C_SEC_USER U ON U.USER_ID=A1.USER_ID AND U.IS_ENABLE='Y' " +
+				" LEFT JOIN CST.SYS_C_APP_MENU M ON MT.MENU_ID=M.MENU_ID AND M.SERVICE_ID='060' " +
+				" LEFT JOIN CST.SYS_C_SEC_PAGE P ON MT.PAGE_ID=P.PAGE_ID AND P.SERVICE_ID='060' " +
+				" RIGHT JOIN CST.SYS_C_PER_FVOR F ON MT.PAGE_ID=F.PAGE_ID AND F.USER_ID=U.USER_ID " +
+				" WHERE U.USER_ID=? AND MT.IS_SHOW='Y' AND A.SERVICE_ID='060' " +
+				") LIST ORDER BY MENU_SEQ, MT_SEQ, PAGE_ID";
 		System.out.println("根据user_id生成导航菜单"+sql);
 		PreparedStatement pstmt = null;
 		StringBuffer sb = new StringBuffer();
@@ -180,37 +176,52 @@ public class GlobalInterceptor extends AbsPageInterceptor {
 			pstmt.setString(1, user_id);
 			pstmt.setString(2, user_id);
 			ResultSet rs = pstmt.executeQuery();
-			String temp_menu_type="";
+			String currentMenuId = null;
+			int menuRowIndex = 0;
+			int rowIndex = 0;
+			boolean submenuOpen = false;
 			while (rs.next()) {
-				String seq = rs.getString("seq");
-				String num = rs.getString("num");
 				String menu_type = rs.getString("menu_type");
-				
-				if("url".equals(menu_type)){
-					sb.append("normal".equals(temp_menu_type)?"						</ul></div></div></li>\n":"");
-					sb.append("					<li class='nav-item no-subnav' id='nav-item_"+ rs.getString("menu_id")+"'><a href='"+rs.getString("page_id").substring(4)+"'><span class='primary-link'>"+ rs.getString("menu_name") +"</span></a></li>\n");
-				}else  if ("1".equals(seq) && "1".equals(num)) {
-					sb.append("					<li class='nav-item' id='nav-item_" + rs.getString("menu_id") + "'><a href='javascript:void(0)'><span class='primary-link'>" + rs.getString("menu_name") + "</span></a>\n");
-					sb.append("						<div class='subnav' id='subnav_" + rs.getString("menu_id")	+ "'><div class='subnav-inner'><ul class='one'>\n");
-					sb.append("						    <li class='nav-item-li'><a href='ShowReport.wx?PAGEID=" + rs.getString("page_id") + (rs.getString("url_param") ==null?"":rs.getString("url_param"))+ "'>" + rs.getString("page_name") + "</a></li>\n");
-				} else if ("1".equals(seq) && !"1".equals(num)) {
-					sb.append("url".equals(temp_menu_type)?"":"						</ul></div></div></li>\n");
-					sb.append("					<li class='nav-item' id='nav-item_" + rs.getString("menu_id") + "'><a href='javascript:void(0)'><span class='primary-link'>" + rs.getString("menu_name") + "</span></a>\n");
-					sb.append("						<div class='subnav' id='subnav_" + rs.getString("menu_id") + "'><div class='subnav-inner'><ul class='one'>\n");
-					sb.append("						    <li class='nav-item-li'><a href='ShowReport.wx?PAGEID=" + rs.getString("page_id") + (rs.getString("url_param") ==null?"":rs.getString("url_param")) + "'>" + rs.getString("page_name") + "</a></li>\n");
-				} else if (!"1".equals(seq) && !"1".equals(num)) {
-					sb.append("						    <li class='nav-item-li'><a href='ShowReport.wx?PAGEID=" + rs.getString("page_id") + (rs.getString("url_param") ==null?"":rs.getString("url_param")) + "'>" + rs.getString("page_name") + "</a></li>\n");
+				String menuId = rs.getString("menu_id");
+				String urlParam = rs.getString("url_param") == null ? "" : rs.getString("url_param");
+				rowIndex++;
+
+				if ("url".equals(menu_type)) {
+					if (submenuOpen) {
+						sb.append("						</ul></div></div></li>\n");
+						submenuOpen = false;
+					}
+					currentMenuId = menuId;
+					menuRowIndex = 1;
+					sb.append("					<li class='nav-item no-subnav' id='nav-item_" + menuId + "'><a href='" + rs.getString("page_id").substring(4) + "'><span class='primary-link'>" + rs.getString("menu_name") + "</span></a></li>\n");
+					continue;
 				}
 
-				temp_menu_type = rs.getString("menu_type");
+				if (!menuId.equals(currentMenuId)) {
+					if (submenuOpen) {
+						sb.append("						</ul></div></div></li>\n");
+					}
+					currentMenuId = menuId;
+					menuRowIndex = 1;
+					sb.append("					<li class='nav-item' id='nav-item_" + menuId + "'><a href='javascript:void(0)'><span class='primary-link'>" + rs.getString("menu_name") + "</span></a>\n");
+					sb.append("						<div class='subnav' id='subnav_" + menuId + "'><div class='subnav-inner'><ul class='one'>\n");
+					submenuOpen = true;
+				} else {
+					menuRowIndex++;
+				}
+
+				if (submenuOpen && menuRowIndex >= 1 && rowIndex >= 1) {
+					sb.append("						    <li class='nav-item-li'><a href='ShowReport.wx?PAGEID=" + rs.getString("page_id") + urlParam + "'>" + rs.getString("page_name") + "</a></li>\n");
+				}
+			}
+			if (submenuOpen) {
+				sb.append("						</ul></div></div></li>\n");
 			}
 			rs.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {
 		}
-
-		sb.append("						</ul></div></div></li>\n");
 		sb.append("				</ul>\n");
 		sb.append("			</div>\n");
 		sb.append("		</div>\n");

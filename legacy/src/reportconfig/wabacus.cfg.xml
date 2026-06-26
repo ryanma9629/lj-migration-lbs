@@ -29,45 +29,24 @@
 	</system>
 	<!--生产环境 -->
 	<datasources default="ds_db2">
-		<!--修改参数后 -->
-		<!-- 生产-->
-		<!--
-		<datasource name="ds_db2" type="com.wabacus.config.database.datasource.C3P0DataSource" 
-			dbtype="com.wabacus.config.database.type.DB2"> <property name="driver">com.ibm.db2.jcc.DB2Driver</property> 
-			<property name="url"><![CDATA[jdbc:db2://81.17.49.230:50100/LJDM]]></property> 
-			<property name="user"></property><property name="password"></property> 
-			<property name="max_size">100</property> <property name="min_size">3</property> 
-			<property name="timeout">300</property> <property name="max_statements">100</property> 
-			<property name="idle_test_period">50</property> <property name="acquire_increment">2</property> 
+		<datasource
+			name="ds_db2"
+			type="com.customer.util.DruidDataSourceUtil"
+			dbtype="com.wabacus.config.database.type.MySql">
+			<property name="driver">com.mysql.jdbc.Driver</property>
+			<property name="url"><![CDATA[jdbc:mysql://mysql:3306/cst?useUnicode=true&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai]]></property>
+			<property name="user">wabacus</property>
+			<property name="password">wabacus</property>
+			<property name="initialSize">2</property>
+			<property name="minIdle">2</property>
+			<property name="maxActive">20</property>
+			<property name="maxWait">60000</property>
+			<property name="validationQuery">select 1</property>
+			<property name="testWhileIdle">true</property>
+			<property name="testOnBorrow">false</property>
+			<property name="testOnReturn">false</property>
+			<property name="poolPreparedStatements">false</property>
 		</datasource>
-		-->
-		
-		   
-		<!-- 本地测试环境 -->
-        <!--
-		-->
-		<datasource name="ds_db2" 
-			type="com.wabacus.config.database.datasource.C3P0DataSource" dbtype="com.wabacus.config.database.type.DB2">
-			<property name="driver">com.ibm.db2.jcc.DB2Driver</property>
-			<property name="url"><![CDATA[jdbc:db2://81.33.13.106:50010/LJDM]]></property>
-			<property name="user">dmuat</property>
-			<property name="password">dmuat</property>
-			<property name="max_size">100</property>
-			<property name="min_size">3</property>
-			<property name="timeout">100</property>
-			<property name="max_statements">100</property>
-			<property name="idle_test_period">50</property>
-			<property name="acquire_increment">2</property>
-		</datasource>
-		
-
-		<!-- JNDI方式配置的数据源 -->
-		<!-- 		
-		<datasource name="ds_db2"
-			type="com.wabacus.config.database.datasource.JNDIDataSource" dbtype="com.wabacus.config.database.type.DB2">
-			<property name="jndi">61LJDM</property>
-		</datasource> 
-		 -->   
 	</datasources>
 
 	<inputbox-types />
