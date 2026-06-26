@@ -132,7 +132,7 @@ public class GlobalInterceptor extends AbsPageInterceptor {
 				" LEFT JOIN CST.SYS_C_APP_MNLT B ON A2.GROUP_ID=B.GROUP_ID " +
 				" LEFT JOIN CST.SYS_C_APP_MENU C ON B.MENU_ID=C.MENU_ID " +
 				" WHERE A.USER_ID=? AND A.IS_ENABLE='Y' AND C.MENU_TYPE='normal' AND B.IS_SHOW='Y' AND C.SERVICE_ID='060' AND A2.SERVICE_ID='060' " +
-				" UNION ALL " +
+				" UNION " +
 				" SELECT 'FAVOR' AS MENU_ID, 'normal' AS MENU_TYPE, '我的收藏' AS MENU_NAME, 999999 AS MENU_SEQ, MT.PAGE_ID, MT.PAGE_NAME, MT.URL_PARAM, MT.SEQ AS MT_SEQ " +
 				" FROM CST.SYS_C_APP_MNLT MT " +
 				" LEFT JOIN CST.SYS_C_SEC_GROP A ON MT.GROUP_ID=A.GROUP_ID " +
@@ -142,7 +142,7 @@ public class GlobalInterceptor extends AbsPageInterceptor {
 				" LEFT JOIN CST.SYS_C_SEC_PAGE P ON MT.PAGE_ID=P.PAGE_ID AND P.SERVICE_ID='060' " +
 				" RIGHT JOIN CST.SYS_C_PER_FVOR F ON MT.PAGE_ID=F.PAGE_ID AND F.USER_ID=U.USER_ID " +
 				" WHERE U.USER_ID=? AND MT.IS_SHOW='Y' AND A.SERVICE_ID='060' " +
-				") LIST ORDER BY MENU_SEQ, MT_SEQ, PAGE_ID";
+				") LIST ORDER BY MENU_SEQ, MENU_ID, MT_SEQ, PAGE_ID";
 		System.out.println("根据user_id生成导航菜单"+sql);
 		PreparedStatement pstmt = null;
 		StringBuffer sb = new StringBuffer();
@@ -177,14 +177,11 @@ public class GlobalInterceptor extends AbsPageInterceptor {
 			pstmt.setString(2, user_id);
 			ResultSet rs = pstmt.executeQuery();
 			String currentMenuId = null;
-			int menuRowIndex = 0;
-			int rowIndex = 0;
 			boolean submenuOpen = false;
 			while (rs.next()) {
 				String menu_type = rs.getString("menu_type");
 				String menuId = rs.getString("menu_id");
 				String urlParam = rs.getString("url_param") == null ? "" : rs.getString("url_param");
-				rowIndex++;
 
 				if ("url".equals(menu_type)) {
 					if (submenuOpen) {
@@ -192,7 +189,6 @@ public class GlobalInterceptor extends AbsPageInterceptor {
 						submenuOpen = false;
 					}
 					currentMenuId = menuId;
-					menuRowIndex = 1;
 					sb.append("					<li class='nav-item no-subnav' id='nav-item_" + menuId + "'><a href='" + rs.getString("page_id").substring(4) + "'><span class='primary-link'>" + rs.getString("menu_name") + "</span></a></li>\n");
 					continue;
 				}
@@ -202,15 +198,12 @@ public class GlobalInterceptor extends AbsPageInterceptor {
 						sb.append("						</ul></div></div></li>\n");
 					}
 					currentMenuId = menuId;
-					menuRowIndex = 1;
 					sb.append("					<li class='nav-item' id='nav-item_" + menuId + "'><a href='javascript:void(0)'><span class='primary-link'>" + rs.getString("menu_name") + "</span></a>\n");
 					sb.append("						<div class='subnav' id='subnav_" + menuId + "'><div class='subnav-inner'><ul class='one'>\n");
 					submenuOpen = true;
-				} else {
-					menuRowIndex++;
 				}
 
-				if (submenuOpen && menuRowIndex >= 1 && rowIndex >= 1) {
+				if (submenuOpen) {
 					sb.append("						    <li class='nav-item-li'><a href='ShowReport.wx?PAGEID=" + rs.getString("page_id") + urlParam + "'>" + rs.getString("page_name") + "</a></li>\n");
 				}
 			}

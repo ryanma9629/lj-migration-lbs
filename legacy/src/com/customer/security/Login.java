@@ -34,7 +34,7 @@ public class Login {
 				"COALESCE(b.branch_org_id, a.org_id, '') AS branch_org_id, " +
 				"COALESCE(b.BRANCH_ORG_NM, b.org_nm, '') AS BRANCH_ORG_NM, " +
 				"COALESCE(og.HEAD_ORG_ID, a.org_id, '') AS HEAD_ORG_ID, " +
-				"COALESCE(og.ORG_LEVEL_ID, '01') AS ORG_LEVEL_ID " +
+				"COALESCE(og.ORG_LEVEL_ID, '1') AS ORG_LEVEL_ID " +
 				"FROM cst.sys_c_sec_user a " +
 				"LEFT JOIN ibs.t5_emp b ON a.user_id=b.emp_id " +
 				"LEFT JOIN ibs.T5_ORG og ON og.ORG_ID=a.org_id AND og.ORG_TYPE_ID='EO' " +
