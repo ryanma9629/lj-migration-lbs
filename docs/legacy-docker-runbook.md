@@ -46,3 +46,36 @@ docker compose up --build
 - Java compilation failures from unresolved third-party classes
 - MySQL DDL statements that still contain DB2-only syntax
 - Page-specific SQL incompatibilities outside the initial validation set
+
+## Bring-up Evidence
+
+### 2026-06-26 attempt
+
+Executed from `/Users/ryanma/work/lj-migration-lbs`:
+
+```bash
+python3 scripts/convert_db2_schema_to_mysql.py
+docker compose up --build
+docker compose logs mysql
+docker compose logs app
+```
+
+Observed results:
+
+- `python3 scripts/convert_db2_schema_to_mysql.py` exited successfully and regenerated `docker/mysql/init/01-schema.sql`.
+- `docker compose up --build` failed before either service started with:
+
+```text
+Image mysql:5.7 Pulling
+Image mysql:5.7 Error no matching manifest for linux/arm64/v8 in the manifest list entries: no match for platform in manifest: not found
+Error response from daemon: no matching manifest for linux/arm64/v8 in the manifest list entries: no match for platform in manifest: not found
+```
+
+- `docker compose logs mysql` produced no output.
+- `docker compose logs app` produced no output.
+
+Interpretation:
+
+- The first concrete blocker is platform-level, not schema-level or application-level: the configured `mysql:5.7` image could not be pulled for `linux/arm64/v8` on this machine.
+- Because the failure occurs before container creation, there is no MySQL startup log, no app startup log, and no basis to run `./scripts/smoke-check.sh`.
+- This blocker is outside the allowed file scope for Task 6. Resolving it would require changing compose/image platform strategy or using a compatible MySQL image, neither of which is permitted in this task.
