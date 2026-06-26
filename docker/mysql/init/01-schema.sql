@@ -1,4 +1,3 @@
--- CREATE TABLE cst.UPDATE_LOG
 CREATE TABLE cst.UPDATE_LOG (
     KEHHAO                         VARCHAR(10)         NOT NULL    ,
     KAZLCS                         VARCHAR(5)                      ,
@@ -13,9 +12,8 @@ CREATE TABLE cst.UPDATE_LOG (
     LXDIAH                         VARCHAR(20)                     ,
     XINYDJ                         VARCHAR(2)                      ,
     DSDJZH                         VARCHAR(100)                    ,
-    GSDJZH                         VARCHAR(100)                    )
+    GSDJZH                         VARCHAR(100)                    );
 
--- CREATE TABLE cst.SYS_C_APP_CONSTS
 CREATE TABLE cst.SYS_C_APP_CONSTS (
     CONST_TYPE                     VARCHAR(32)                     ,
     CONST_NAME                     VARCHAR(32)         NOT NULL    ,
@@ -24,9 +22,8 @@ CREATE TABLE cst.SYS_C_APP_CONSTS (
     CONST_DESCRIPTION              VARCHAR(64)                     ,
     SEQ                            INT                         ,
     LM_USER                        VARCHAR(32)                     ,
-    LM_TIME                        DATETIME                       )
+    LM_TIME                        DATETIME                       );
 
--- CREATE TABLE cst.SYS_C_APP_MENU
 CREATE TABLE cst.SYS_C_APP_MENU (
     MENU_ID                        VARCHAR(64)         NOT NULL    ,
     MENU_NAME                      VARCHAR(64)         NOT NULL    ,
@@ -34,9 +31,8 @@ CREATE TABLE cst.SYS_C_APP_MENU (
     SEQ                            INT                         ,
     LM_USER                        VARCHAR(32)                     ,
     LM_TIME                        DATETIME                       ,
-    MENU_TYPE                      VARCHAR(128)                    )
+    MENU_TYPE                      VARCHAR(128)                    );
 
--- CREATE TABLE cst.SYS_C_APP_MNLT
 CREATE TABLE cst.SYS_C_APP_MNLT (
     ID                             VARCHAR(64)         NOT NULL    ,
     MENU_ID                        VARCHAR(64)         NOT NULL    ,
@@ -47,7 +43,7 @@ CREATE TABLE cst.SYS_C_APP_MNLT (
     SEQ                            INT                         ,
     IS_SHOW                        VARCHAR(8)          NOT NULL    ,
     LM_USER                        VARCHAR(32)                     ,
-    LM_TIME                        DATETIME                       )
+    LM_TIME                        DATETIME                       );
 
 CREATE TABLE cst.SYS_C_GB_T4754 (
     GBT4754_FST_CD                             char(1)   NOT NULL    ,
@@ -60,52 +56,44 @@ CREATE TABLE cst.SYS_C_GB_T4754 (
     GBT4754_NM                        VARCHAR(100)          NOT NULL    ,
     GBT4754_NM_PY                      VARCHAR(50)          NOT NULL    ,
      GBT4754_NM_DESC                      VARCHAR(500)              ,
- GBT4754_VSN                     VARCHAR(4)          NOT NULL                  )
--- CREATE TABLE cst.SYS_C_PER_DSPL
+ GBT4754_VSN                     VARCHAR(4)          NOT NULL                  );
+
 CREATE TABLE cst.SYS_C_PER_DSPL (
     USER_ID                        VARCHAR(32)         NOT NULL    ,
     PAGE_ID                        VARCHAR(64)         NOT NULL    ,
     REPORT_ID                      VARCHAR(64)         NOT NULL    ,
     PERSONALIZE_TYPE               VARCHAR(32)         NOT NULL    ,
-    PERSONALIZE_VALUE              VARCHAR(1000)                   )
--- CREATE TABLE cst.SYS_C_PER_FVOR
+    PERSONALIZE_VALUE              VARCHAR(1000)                   );
+
 CREATE TABLE cst.SYS_C_PER_FVOR (
     USER_ID                        VARCHAR(32)         NOT NULL    ,
     PAGE_ID                        VARCHAR(64)         NOT NULL    ,
     SERVICE_ID                     VARCHAR(64)                     ,
     URL_PARAM                      VARCHAR(64)                     ,
     SEQ                            INT                         ,
-    LM_TIME                        DATETIME                       )
+    LM_TIME                        DATETIME                       );
 
 CREATE TABLE cst.SYS_C_SEC_GPPC (
     GROUP_ID                        VARCHAR(32)         NOT NULL    ,
     CHLID_GROUP_ID                        VARCHAR(64)         NOT NULL    ,
     SEQ                            INT                         ,
         LM_USER                        VARCHAR(32)                     ,
-    LM_TIME                        DATETIME                                    )
+    LM_TIME                        DATETIME                                    );
 
-
-
--- CREATE TABLE cst.SYS_C_SEC_GPPV
 CREATE TABLE cst.SYS_C_SEC_GPPV (
     GROUP_ID                       VARCHAR(64)         NOT NULL    ,
     PRIVILEGE_ID                   VARCHAR(64)         NOT NULL    ,
     SERVICE_ID                     VARCHAR(64)                     ,
     LM_USER                        VARCHAR(32)                     ,
-    LM_TIME                        DATETIME                       )
+    LM_TIME                        DATETIME                       );
 
-
--- CREATE TABLE cst.SYS_C_SEC_GROP
 CREATE TABLE cst.SYS_C_SEC_GROP (
     GROUP_ID                       VARCHAR(64)         NOT NULL    ,
     GROUP_DESCRIPTION              VARCHAR(64)                     ,
     SERVICE_ID                     VARCHAR(64)                     ,
     LM_USER                        VARCHAR(32)                     ,
-    LM_TIME                        DATETIME                       )
+    LM_TIME                        DATETIME                       );
 
-
-
--- CREATE TABLE cst.SYS_C_SEC_PAGE
 CREATE TABLE cst.SYS_C_SEC_PAGE (
     PAGE_ID                        VARCHAR(64)         NOT NULL    ,
     PAGE_NAME                      VARCHAR(64)                     ,
@@ -113,20 +101,16 @@ CREATE TABLE cst.SYS_C_SEC_PAGE (
     SERVICE_ID                     VARCHAR(64)                     ,
     HITS                           INT                         ,
     LM_USER                        VARCHAR(32)                     ,
-    LM_TIME                        DATETIME                       )
+    LM_TIME                        DATETIME                       );
 
-
-
--- CREATE TABLE cst.SYS_C_SEC_PRIV
 CREATE TABLE cst.SYS_C_SEC_PRIV (
     PRIVILEGE_ID                   VARCHAR(64)         NOT NULL    ,
     PRIORITY                       INT                         ,
     PRIVILEGE_DESCRIPTION          VARCHAR(64)                     ,
     SERVICE_ID                     VARCHAR(64)                     ,
     LM_USER                        VARCHAR(32)                     ,
-    LM_TIME                        DATETIME                       )
+    LM_TIME                        DATETIME                       );
 
--- CREATE TABLE cst.SYS_C_SEC_PVLT
 CREATE TABLE cst.SYS_C_SEC_PVLT (
     ID                             VARCHAR(64)         NOT NULL    ,
     PRIVILEGE_ID                   VARCHAR(64)         NOT NULL    ,
@@ -137,10 +121,8 @@ CREATE TABLE cst.SYS_C_SEC_PVLT (
     PERMISSION_TYPE                VARCHAR(32)                     ,
     PERMISSION_VALUE               VARCHAR(32)                     ,
     LM_USER                        VARCHAR(32)                     ,
-    LM_TIME                        DATETIME                       )
+    LM_TIME                        DATETIME                       );
 
-
--- CREATE TABLE cst.SYS_C_SEC_USER
 CREATE TABLE cst.SYS_C_SEC_USER (
     USER_ID                        VARCHAR(32)         NOT NULL    ,
     USER_NAME                      VARCHAR(64)                     ,
@@ -151,19 +133,15 @@ CREATE TABLE cst.SYS_C_SEC_USER (
     LM_TIME                        DATETIME                       ,
     PASSWORD                       VARCHAR(64)                     ,
     DEPARTMENT                     VARCHAR(64)                     ,
-    DEPT_ID                        VARCHAR(20)                     )
+    DEPT_ID                        VARCHAR(20)                     );
 
-
--- CREATE TABLE cst.SYS_C_SEC_USER_GROUP
 CREATE TABLE cst.SYS_C_SEC_USER_GROUP (
     USER_ID                        VARCHAR(32)         NOT NULL    ,
     GROUP_ID                       VARCHAR(64)         NOT NULL    ,
     LM_USER                        VARCHAR(32)                     ,
     LM_TIME                        DATETIME                       ,
-    UR_NO                          VARCHAR(64)                     )
+    UR_NO                          VARCHAR(64)                     );
 
-
--- CREATE TABLE cst.SYS_C_SET_PARM
 CREATE TABLE cst.SYS_C_SET_PARM (
     PARAM_TYPE                     VARCHAR(64)         NOT NULL    ,
     PARAM_NAME                     VARCHAR(64)                     ,
@@ -171,9 +149,8 @@ CREATE TABLE cst.SYS_C_SET_PARM (
     PARAM_VALUE                    VARCHAR(64)                     ,
     SEQ                            INT                         ,
     LM_USER                        VARCHAR(32)                     ,
-    LM_TIME                        DATETIME                       )
+    LM_TIME                        DATETIME                       );
 
--- CREATE TABLE ibs.CST_DEP_RELA
 CREATE TABLE ibs.CST_DEP_RELA (
     CST_ID                         VARCHAR(20)                     ,
     CST_NM                         VARCHAR(64)                     ,
@@ -186,13 +163,11 @@ CREATE TABLE ibs.CST_DEP_RELA (
     REMARK2                        VARCHAR(256)                    ,
     REMARK3                        VARCHAR(256)                    ,
     REMARK4                        VARCHAR(256)                    ,
-    REMARK5                        VARCHAR(256)                    )
+    REMARK5                        VARCHAR(256)                    );
 
--- CREATE TABLE ibs.EMP_LOBBY_TEST
 CREATE TABLE ibs.EMP_LOBBY_TEST (
-    EMP_ID                         VARCHAR(20)         NOT NULL    )
+    EMP_ID                         VARCHAR(20)         NOT NULL    );
 
--- CREATE TABLE ibs.GOLD_EMP_RELA
 CREATE TABLE ibs.GOLD_EMP_RELA (
     TXN_RUN_NBR                    VARCHAR(16)         NOT NULL    ,
     VUCH_NBR                       VARCHAR(20)                     ,
@@ -219,9 +194,8 @@ CREATE TABLE ibs.GOLD_EMP_RELA (
     PRD_NUM                        INT                         ,
     PRD_CD                         VARCHAR(32)                     ,
     PRD_NM                         VARCHAR(64)                     ,
-    MID_INC                        DECIMAL(20,3)                   )
+    MID_INC                        DECIMAL(20,3)                   );
 
--- CREATE TABLE ibs.GOLD_EMP_RELA_BAK20250205
 CREATE TABLE ibs.GOLD_EMP_RELA_BAK20250205 (
     TXN_RUN_NBR                    VARCHAR(16)         NOT NULL    ,
     VUCH_NBR                       VARCHAR(20)                     ,
@@ -248,9 +222,8 @@ CREATE TABLE ibs.GOLD_EMP_RELA_BAK20250205 (
     PRD_NUM                        INT                         ,
     PRD_CD                         VARCHAR(32)                     ,
     PRD_NM                         VARCHAR(64)                     ,
-    MID_INC                        DECIMAL(20,3)                   )
+    MID_INC                        DECIMAL(20,3)                   );
 
--- CREATE TABLE ibs.GOLD_EMP_SMY
 CREATE TABLE ibs.GOLD_EMP_SMY (
     TXN_DT                         DATE                NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -264,9 +237,8 @@ CREATE TABLE ibs.GOLD_EMP_SMY (
     TXN_AMT                        DECIMAL(20,3)                   ,
     PRD_NUM                        INT                         ,
     YJ_INC                         DECIMAL(20,3)                   ,
-    CST_CNT                        INT                       With Default 0  )
+    CST_CNT                        INT                       DEFAULT 0  );
 
--- CREATE TABLE ibs.T1_ACC_PROFIT_DETAIL
 CREATE TABLE ibs.T1_ACC_PROFIT_DETAIL (
     ACC_ID                         VARCHAR(64)         NOT NULL    ,
     MEASURE_DT                     DATE                NOT NULL    ,
@@ -292,10 +264,8 @@ CREATE TABLE ibs.T1_ACC_PROFIT_DETAIL (
     YTD_AVG_BAL                    DECIMAL(18,3)                   ,
     PROFIT                         DECIMAL(18,3)                   ,
     LN_AMT                         DECIMAL(18,3)                   ,
-    PROFIT_OLD                     DECIMAL(18,3)                   )
-Compress Yes;
+    PROFIT_OLD                     DECIMAL(18,3)                   );
 
--- CREATE TABLE ibs.T1_ACC_PROFIT_DETAIL_20160308
 CREATE TABLE ibs.T1_ACC_PROFIT_DETAIL_20160308 (
     ACC_ID                         VARCHAR(20)         NOT NULL    ,
     MEASURE_DT                     DATE                NOT NULL    ,
@@ -320,10 +290,8 @@ CREATE TABLE ibs.T1_ACC_PROFIT_DETAIL_20160308 (
     QTD_AVG_BAL                    DECIMAL(18,3)                   ,
     YTD_AVG_BAL                    DECIMAL(18,3)                   ,
     PROFIT                         DECIMAL(18,3)                   ,
-    LN_AMT                         DECIMAL(18,3)                   )
-Compress Yes;
+    LN_AMT                         DECIMAL(18,3)                   );
 
--- CREATE TABLE ibs.T1_ACC_PROFIT_DETAIL_CJ
 CREATE TABLE ibs.T1_ACC_PROFIT_DETAIL_CJ (
     ACC_ID                         VARCHAR(20)         NOT NULL    ,
     MEASURE_DT                     DATE                NOT NULL    ,
@@ -349,10 +317,8 @@ CREATE TABLE ibs.T1_ACC_PROFIT_DETAIL_CJ (
     YTD_AVG_BAL                    DECIMAL(18,3)                   ,
     PROFIT                         DECIMAL(18,3)                   ,
     LN_AMT                         DECIMAL(18,3)                   ,
-    PROFIT_OLD                     DECIMAL(18,3)                   )
-Compress Yes;
+    PROFIT_OLD                     DECIMAL(18,3)                   );
 
--- CREATE TABLE ibs.T1_ACC_PROFIT_DETAIL_D20161207
 CREATE TABLE ibs.T1_ACC_PROFIT_DETAIL_D20161207 (
     ACC_ID                         VARCHAR(20)         NOT NULL    ,
     MEASURE_DT                     DATE                NOT NULL    ,
@@ -377,10 +343,8 @@ CREATE TABLE ibs.T1_ACC_PROFIT_DETAIL_D20161207 (
     QTD_AVG_BAL                    DECIMAL(18,3)                   ,
     YTD_AVG_BAL                    DECIMAL(18,3)                   ,
     PROFIT                         DECIMAL(18,3)                   ,
-    LN_AMT                         DECIMAL(18,3)                   )
-Compress Yes;
+    LN_AMT                         DECIMAL(18,3)                   );
 
--- CREATE TABLE ibs.T1_ACC_PROFIT_DETAIL_OLDTO20201231
 CREATE TABLE ibs.T1_ACC_PROFIT_DETAIL_OLDTO20201231 (
     ACC_ID                         VARCHAR(20)         NOT NULL    ,
     MEASURE_DT                     DATE                NOT NULL    ,
@@ -406,10 +370,8 @@ CREATE TABLE ibs.T1_ACC_PROFIT_DETAIL_OLDTO20201231 (
     YTD_AVG_BAL                    DECIMAL(18,3)                   ,
     PROFIT                         DECIMAL(18,3)                   ,
     LN_AMT                         DECIMAL(18,3)                   ,
-    PROFIT_OLD                     DECIMAL(18,3)                   )
-Compress Yes;
+    PROFIT_OLD                     DECIMAL(18,3)                   );
 
--- CREATE TABLE ibs.T1_ACC_PROFIT_DETAIL_TMP
 CREATE TABLE ibs.T1_ACC_PROFIT_DETAIL_TMP (
     ACC_ID                         VARCHAR(20)         NOT NULL    ,
     MEASURE_DT                     DATE                NOT NULL    ,
@@ -435,10 +397,8 @@ CREATE TABLE ibs.T1_ACC_PROFIT_DETAIL_TMP (
     YTD_AVG_BAL                    DECIMAL(18,3)                   ,
     PROFIT                         DECIMAL(18,3)                   ,
     LN_AMT                         DECIMAL(18,3)                   ,
-    PROFIT_OLD                     DECIMAL(18,3)                   )
-Compress Yes;
+    PROFIT_OLD                     DECIMAL(18,3)                   );
 
--- CREATE TABLE ibs.T1_CORE_BCKYX
 CREATE TABLE ibs.T1_CORE_BCKYX (
     KEHUZH                         CHAR(20)                        ,
     KHZHLX                         CHAR(1)                         ,
@@ -452,9 +412,8 @@ CREATE TABLE ibs.T1_CORE_BCKYX (
     BEIYZF                         CHAR(20)                        ,
     BEIY40                         CHAR(40)                        ,
     JILUZT                         CHAR(1)                         ,
-    SHJNCH                         INT                         )
+    SHJNCH                         INT                         );
 
--- CREATE TABLE ibs.T1_DF_SLRY_EMP_RELA
 CREATE TABLE ibs.T1_DF_SLRY_EMP_RELA (
     AGENT_NO                       VARCHAR(15)         NOT NULL    ,
     ENT_ID                         VARCHAR(8)                      ,
@@ -479,9 +438,8 @@ CREATE TABLE ibs.T1_DF_SLRY_EMP_RELA (
     EMP_NM                         VARCHAR(64)                     ,
     EMP_ORG_ID                     CHAR(4)                         ,
     EMP_ORG_NM                     VARCHAR(64)                     ,
-    DEP_LINE_NM                    VARCHAR(64)                     )
+    DEP_LINE_NM                    VARCHAR(64)                     );
 
--- CREATE TABLE ibs.T1_FNC_PD_SMY_Q
 CREATE TABLE ibs.T1_FNC_PD_SMY_Q (
     OFF_BST_AR_ID                  VARCHAR(20)         NOT NULL    ,
     MSR_PRD_ID                     INT             NOT NULL    ,
@@ -523,9 +481,8 @@ CREATE TABLE ibs.T1_FNC_PD_SMY_Q (
     CLS_BAL                        DECIMAL(20,3)                   ,
     MTD_AVG_BAL                    DECIMAL(20,3)                   ,
     QTD_AVG_BAL                    DECIMAL(20,3)                   ,
-    YTD_AVG_BAL                    DECIMAL(20,3)                   )
+    YTD_AVG_BAL                    DECIMAL(20,3)                   );
 
--- CREATE TABLE ibs.T1_FNC_PD_SMY_Q_CJ
 CREATE TABLE ibs.T1_FNC_PD_SMY_Q_CJ (
     OFF_BST_AR_ID                  VARCHAR(20)         NOT NULL    ,
     MSR_PRD_ID                     INT             NOT NULL    ,
@@ -567,9 +524,8 @@ CREATE TABLE ibs.T1_FNC_PD_SMY_Q_CJ (
     CLS_BAL                        DECIMAL(20,3)                   ,
     MTD_AVG_BAL                    DECIMAL(20,3)                   ,
     QTD_AVG_BAL                    DECIMAL(20,3)                   ,
-    YTD_AVG_BAL                    DECIMAL(20,3)                   )
+    YTD_AVG_BAL                    DECIMAL(20,3)                   );
 
--- CREATE TABLE ibs.T1_FNC_TXN_EMP_RELA
 CREATE TABLE ibs.T1_FNC_TXN_EMP_RELA (
     TXN_NO                         VARCHAR(32)         NOT NULL    ,
     VUCH_NBR                       VARCHAR(32)                     ,
@@ -599,9 +555,8 @@ CREATE TABLE ibs.T1_FNC_TXN_EMP_RELA (
     CLIENT_NO                      VARCHAR(20)                     ,
     FNC_TYP                        VARCHAR(20)                     ,
     ORG_RATIO                      DECIMAL(6,2)                    ,
-    ORG_EMP_ID                     VARCHAR(50)                     )
+    ORG_EMP_ID                     VARCHAR(50)                     );
 
--- CREATE TABLE ibs.T1_FUND_CST_EMP_RELA
 CREATE TABLE ibs.T1_FUND_CST_EMP_RELA (
     CUS_NO                         VARCHAR(20)         NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -619,9 +574,8 @@ CREATE TABLE ibs.T1_FUND_CST_EMP_RELA (
     TXN_DT                         DATE                            ,
     EMP_NM                         VARCHAR(64)                     ,
     EMP_ORG_ID                     CHAR(4)                         ,
-    EMP_ORG_NM                     VARCHAR(64)                     )
+    EMP_ORG_NM                     VARCHAR(64)                     );
 
--- CREATE TABLE ibs.T1_FUND_CST_FEE
 CREATE TABLE ibs.T1_FUND_CST_FEE (
     MSR_PRD_DT                     DATE                NOT NULL    ,
     IN_CUS_NO                      VARCHAR(20)         NOT NULL    ,
@@ -629,9 +583,8 @@ CREATE TABLE ibs.T1_FUND_CST_FEE (
     PRD_NM                         VARCHAR(64)                     ,
     SUM_VOL                        DECIMAL(20,3)                   ,
     TRA_FEE                        DECIMAL(20,2)                   ,
-    SL_FEE                         DECIMAL(20,2)                   )
+    SL_FEE                         DECIMAL(20,2)                   );
 
--- CREATE TABLE ibs.T1_FUND_DT_EMP_RELA
 CREATE TABLE ibs.T1_FUND_DT_EMP_RELA (
     SERIAL_NO                      VARCHAR(32)         NOT NULL    ,
     VUCH_NBR                       VARCHAR(32)                     ,
@@ -653,9 +606,8 @@ CREATE TABLE ibs.T1_FUND_DT_EMP_RELA (
     EMP_NM                         VARCHAR(64)                     ,
     EMP_ORG_ID                     CHAR(4)                         ,
     EMP_ORG_NM                     VARCHAR(64)                     ,
-    TXN_AMT                        DECIMAL(20,3)                   )
+    TXN_AMT                        DECIMAL(20,3)                   );
 
--- CREATE TABLE ibs.T1_FUND_TXN_EMP_RELA
 CREATE TABLE ibs.T1_FUND_TXN_EMP_RELA (
     TXN_NO                         VARCHAR(32)         NOT NULL    ,
     VUCH_NBR                       VARCHAR(32)                     ,
@@ -681,18 +633,16 @@ CREATE TABLE ibs.T1_FUND_TXN_EMP_RELA (
     PRD_CD                         VARCHAR(32)                     ,
     PRD_NM                         VARCHAR(64)                     ,
     MID_INC                        DECIMAL(20,3)                   ,
-    SERIAL_NO                      VARCHAR(32)                     )
+    SERIAL_NO                      VARCHAR(32)                     );
 
--- CREATE TABLE ibs.T1_LN_LOBBY_MANAGER_RELA
 CREATE TABLE ibs.T1_LN_LOBBY_MANAGER_RELA (
     BIZ_DIL_NBR                    VARCHAR(64)         NOT NULL    ,
     EMP_ID                         VARCHAR(20)                     ,
     CLAIM_DT                       DATE                            ,
     MANAGER_EMP_ID                 VARCHAR(20)                     ,
     VERIFY_DT                      DATE                            ,
-    VERIFY_EMP_ID                  VARCHAR(20)                     )
+    VERIFY_EMP_ID                  VARCHAR(20)                     );
 
--- CREATE TABLE ibs.T1_MIDDLE_BUSI_SBJ
 CREATE TABLE ibs.T1_MIDDLE_BUSI_SBJ (
     FNC_ACG_SBJ_CD                 VARCHAR(40)         NOT NULL    ,
     FNC_ACG_SBJ_ID                 CHAR(40)            NOT NULL    ,
@@ -703,9 +653,8 @@ CREATE TABLE ibs.T1_MIDDLE_BUSI_SBJ (
     SEQ                            INT                         ,
     DR                             INT                         ,
     CR                             INT                         ,
-    MNG_NM                         VARCHAR(64)                     )
+    MNG_NM                         VARCHAR(64)                     );
 
--- CREATE TABLE ibs.T1_MIDDLE_BUSI_SBJ_20221110
 CREATE TABLE ibs.T1_MIDDLE_BUSI_SBJ_20221110 (
     FNC_ACG_SBJ_CD                 VARCHAR(40)         NOT NULL    ,
     FNC_ACG_SBJ_ID                 CHAR(40)            NOT NULL    ,
@@ -713,9 +662,8 @@ CREATE TABLE ibs.T1_MIDDLE_BUSI_SBJ_20221110 (
     CORE_BIZ_SBJ_ID                INT             NOT NULL    ,
     DSC                            VARCHAR(256)                    ,
     SBJ_CGY_NM                     CHAR(64)                        ,
-    SEQ                            INT                         )
+    SEQ                            INT                         );
 
--- CREATE TABLE ibs.T1_MIDDLE_BUSI_SBJ_20230425
 CREATE TABLE ibs.T1_MIDDLE_BUSI_SBJ_20230425 (
     FNC_ACG_SBJ_CD                 VARCHAR(40)         NOT NULL    ,
     FNC_ACG_SBJ_ID                 CHAR(40)            NOT NULL    ,
@@ -725,9 +673,8 @@ CREATE TABLE ibs.T1_MIDDLE_BUSI_SBJ_20230425 (
     SBJ_CGY_NM                     CHAR(64)                        ,
     SEQ                            INT                         ,
     DR                             INT                         ,
-    CR                             INT                         )
+    CR                             INT                         );
 
--- CREATE TABLE ibs.T1_MIDDLE_BUSI_SBJ_20231031
 CREATE TABLE ibs.T1_MIDDLE_BUSI_SBJ_20231031 (
     FNC_ACG_SBJ_CD                 VARCHAR(40)         NOT NULL    ,
     FNC_ACG_SBJ_ID                 CHAR(40)            NOT NULL    ,
@@ -737,9 +684,8 @@ CREATE TABLE ibs.T1_MIDDLE_BUSI_SBJ_20231031 (
     SBJ_CGY_NM                     CHAR(64)                        ,
     SEQ                            INT                         ,
     DR                             INT                         ,
-    CR                             INT                         )
+    CR                             INT                         );
 
--- CREATE TABLE ibs.T1_MIDDLE_BUSI_SBJ_20240326
 CREATE TABLE ibs.T1_MIDDLE_BUSI_SBJ_20240326 (
     FNC_ACG_SBJ_CD                 VARCHAR(40)         NOT NULL    ,
     FNC_ACG_SBJ_ID                 CHAR(40)            NOT NULL    ,
@@ -749,9 +695,8 @@ CREATE TABLE ibs.T1_MIDDLE_BUSI_SBJ_20240326 (
     SBJ_CGY_NM                     CHAR(64)                        ,
     SEQ                            INT                         ,
     DR                             INT                         ,
-    CR                             INT                         )
+    CR                             INT                         );
 
--- CREATE TABLE ibs.T1_MIDDLE_BUSI_SBJ_20250116
 CREATE TABLE ibs.T1_MIDDLE_BUSI_SBJ_20250116 (
     FNC_ACG_SBJ_CD                 VARCHAR(40)         NOT NULL    ,
     FNC_ACG_SBJ_ID                 CHAR(40)            NOT NULL    ,
@@ -762,9 +707,8 @@ CREATE TABLE ibs.T1_MIDDLE_BUSI_SBJ_20250116 (
     SEQ                            INT                         ,
     DR                             INT                         ,
     CR                             INT                         ,
-    MNG_NM                         VARCHAR(64)                     )
+    MNG_NM                         VARCHAR(64)                     );
 
--- CREATE TABLE ibs.T1_MIDDLE_BUSI_SBJ_20250124
 CREATE TABLE ibs.T1_MIDDLE_BUSI_SBJ_20250124 (
     FNC_ACG_SBJ_CD                 VARCHAR(40)         NOT NULL    ,
     FNC_ACG_SBJ_ID                 CHAR(40)            NOT NULL    ,
@@ -775,9 +719,8 @@ CREATE TABLE ibs.T1_MIDDLE_BUSI_SBJ_20250124 (
     SEQ                            INT                         ,
     DR                             INT                         ,
     CR                             INT                         ,
-    MNG_NM                         VARCHAR(64)                     )
+    MNG_NM                         VARCHAR(64)                     );
 
--- CREATE TABLE ibs.T1_MIDDLE_BUSI_SBJ_20260210
 CREATE TABLE ibs.T1_MIDDLE_BUSI_SBJ_20260210 (
     FNC_ACG_SBJ_CD                 VARCHAR(40)         NOT NULL    ,
     FNC_ACG_SBJ_ID                 CHAR(40)            NOT NULL    ,
@@ -788,9 +731,8 @@ CREATE TABLE ibs.T1_MIDDLE_BUSI_SBJ_20260210 (
     SEQ                            INT                         ,
     DR                             INT                         ,
     CR                             INT                         ,
-    MNG_NM                         VARCHAR(64)                     )
+    MNG_NM                         VARCHAR(64)                     );
 
--- CREATE TABLE ibs.T1_MIDDLE_BUSI_SBJ_BKP_20260316
 CREATE TABLE ibs.T1_MIDDLE_BUSI_SBJ_BKP_20260316 (
     FNC_ACG_SBJ_CD                 VARCHAR(40)         NOT NULL    ,
     FNC_ACG_SBJ_ID                 CHAR(40)            NOT NULL    ,
@@ -801,10 +743,8 @@ CREATE TABLE ibs.T1_MIDDLE_BUSI_SBJ_BKP_20260316 (
     SEQ                            INT                         ,
     DR                             INT                         ,
     CR                             INT                         ,
-    MNG_NM                         VARCHAR(64)                     )
-in USERSPACE1
+    MNG_NM                         VARCHAR(64)                     );
 
--- CREATE TABLE ibs.T1_MIDDLE_BUSI_SBJ_INCO
 CREATE TABLE ibs.T1_MIDDLE_BUSI_SBJ_INCO (
     MEASURE_DT                     DATE                NOT NULL    ,
     ORG_ID                         CHAR(4)             NOT NULL    ,
@@ -812,9 +752,8 @@ CREATE TABLE ibs.T1_MIDDLE_BUSI_SBJ_INCO (
     BRANCH_ORG_ID                  CHAR(4)             NOT NULL    ,
     BRANCH_ORG_NM                  VARCHAR(64)                     ,
     BIZ_SBJ_ID                     INT             NOT NULL    ,
-    CLS_BAL                        DECIMAL(18,2)                   )
+    CLS_BAL                        DECIMAL(18,2)                   );
 
--- CREATE TABLE ibs.T1_MIDDLE_BUSI_SBJ_INCO_20210811
 CREATE TABLE ibs.T1_MIDDLE_BUSI_SBJ_INCO_20210811 (
     MEASURE_DT                     DATE                NOT NULL    ,
     ORG_ID                         CHAR(4)             NOT NULL    ,
@@ -822,9 +761,8 @@ CREATE TABLE ibs.T1_MIDDLE_BUSI_SBJ_INCO_20210811 (
     BRANCH_ORG_ID                  CHAR(4)             NOT NULL    ,
     BRANCH_ORG_NM                  VARCHAR(64)                     ,
     BIZ_SBJ_ID                     INT             NOT NULL    ,
-    CLS_BAL                        DECIMAL(18,2)                   )
+    CLS_BAL                        DECIMAL(18,2)                   );
 
--- CREATE TABLE ibs.T1_MIDDLE_BUSI_SBJ_INCO_20230425
 CREATE TABLE ibs.T1_MIDDLE_BUSI_SBJ_INCO_20230425 (
     MEASURE_DT                     DATE                NOT NULL    ,
     ORG_ID                         CHAR(4)             NOT NULL    ,
@@ -832,9 +770,8 @@ CREATE TABLE ibs.T1_MIDDLE_BUSI_SBJ_INCO_20230425 (
     BRANCH_ORG_ID                  CHAR(4)             NOT NULL    ,
     BRANCH_ORG_NM                  VARCHAR(64)                     ,
     BIZ_SBJ_ID                     INT             NOT NULL    ,
-    CLS_BAL                        DECIMAL(18,2)                   )
+    CLS_BAL                        DECIMAL(18,2)                   );
 
--- CREATE TABLE ibs.T1_MIDDLE_BUSI_SBJ_INCO_20231018
 CREATE TABLE ibs.T1_MIDDLE_BUSI_SBJ_INCO_20231018 (
     MEASURE_DT                     DATE                NOT NULL    ,
     ORG_ID                         CHAR(4)             NOT NULL    ,
@@ -842,9 +779,8 @@ CREATE TABLE ibs.T1_MIDDLE_BUSI_SBJ_INCO_20231018 (
     BRANCH_ORG_ID                  CHAR(4)             NOT NULL    ,
     BRANCH_ORG_NM                  VARCHAR(64)                     ,
     BIZ_SBJ_ID                     INT             NOT NULL    ,
-    CLS_BAL                        DECIMAL(18,2)                   )
+    CLS_BAL                        DECIMAL(18,2)                   );
 
--- CREATE TABLE ibs.T1_MIDDLE_BUSI_SBJ_INCO_20231031
 CREATE TABLE ibs.T1_MIDDLE_BUSI_SBJ_INCO_20231031 (
     MEASURE_DT                     DATE                NOT NULL    ,
     ORG_ID                         CHAR(4)             NOT NULL    ,
@@ -852,9 +788,8 @@ CREATE TABLE ibs.T1_MIDDLE_BUSI_SBJ_INCO_20231031 (
     BRANCH_ORG_ID                  CHAR(4)             NOT NULL    ,
     BRANCH_ORG_NM                  VARCHAR(64)                     ,
     BIZ_SBJ_ID                     INT             NOT NULL    ,
-    CLS_BAL                        DECIMAL(18,2)                   )
+    CLS_BAL                        DECIMAL(18,2)                   );
 
--- CREATE TABLE ibs.T1_MIDDLE_BUSI_SBJ_INCO_20240307
 CREATE TABLE ibs.T1_MIDDLE_BUSI_SBJ_INCO_20240307 (
     MEASURE_DT                     DATE                NOT NULL    ,
     ORG_ID                         CHAR(4)             NOT NULL    ,
@@ -862,9 +797,8 @@ CREATE TABLE ibs.T1_MIDDLE_BUSI_SBJ_INCO_20240307 (
     BRANCH_ORG_ID                  CHAR(4)             NOT NULL    ,
     BRANCH_ORG_NM                  VARCHAR(64)                     ,
     BIZ_SBJ_ID                     INT             NOT NULL    ,
-    CLS_BAL                        DECIMAL(18,2)                   )
+    CLS_BAL                        DECIMAL(18,2)                   );
 
--- CREATE TABLE ibs.T1_MIDDLE_BUSINESS_INCOME
 CREATE TABLE ibs.T1_MIDDLE_BUSINESS_INCOME (
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
     MEASURE_DT                     DATE                NOT NULL    ,
@@ -880,9 +814,8 @@ CREATE TABLE ibs.T1_MIDDLE_BUSINESS_INCOME (
     INCOME                         DECIMAL(18,2)                   ,
     MODIFY_PEOPLE                  CHAR(6)                         ,
     MODIFY_TIME                    DATETIME                       ,
-    MODIFY_IP                      CHAR(15)                        )
+    MODIFY_IP                      CHAR(15)                        );
 
--- CREATE TABLE ibs.T1_MOBILE_BANK_EMP_DETAIL
 CREATE TABLE ibs.T1_MOBILE_BANK_EMP_DETAIL (
     MB_CST_ID                      VARCHAR(32)         NOT NULL    ,
     CORE_CST_ID                    VARCHAR(20)                     ,
@@ -892,9 +825,8 @@ CREATE TABLE ibs.T1_MOBILE_BANK_EMP_DETAIL (
     SIGN_DT                        DATE                            ,
     ORG_ID                         CHAR(4)                         ,
     RECOMMEND_PEOPLE_1             VARCHAR(6)                      ,
-    RECOMMEND_PEOPLE_2             VARCHAR(6)                      )
+    RECOMMEND_PEOPLE_2             VARCHAR(6)                      );
 
--- CREATE TABLE ibs.T1_ORG_ACC_DEP_INC_DTL
 CREATE TABLE ibs.T1_ORG_ACC_DEP_INC_DTL (
     MEASURE_DT                     DATE                NOT NULL    ,
     OU_CD                          CHAR(4)             NOT NULL    ,
@@ -905,15 +837,14 @@ CREATE TABLE ibs.T1_ORG_ACC_DEP_INC_DTL (
     OPEN_DT                        DATE                            ,
     MNG_LINE_TP_ID                 INT                         ,
     MNG_LINE_TP_NM                 VARCHAR(32)                     ,
-    DEP_BAL                        DECIMAL(20,2)                 With Default 0  ,
-    CUR_RATE                       DECIMAL(16,8)                 With Default 0  ,
-    FTP_RATE                       DECIMAL(16,8)                 With Default 0  ,
-    DAY_INCOME                     DECIMAL(18,3)                 With Default 0  ,
-    MTD_INCOME                     DECIMAL(18,3)                 With Default 0  ,
-    QAR_INCOME                     DECIMAL(18,3)                 With Default 0  ,
-    YTD_INCOME                     DECIMAL(18,3)                 With Default 0  )
+    DEP_BAL                        DECIMAL(20,2)                 DEFAULT 0  ,
+    CUR_RATE                       DECIMAL(16,8)                 DEFAULT 0  ,
+    FTP_RATE                       DECIMAL(16,8)                 DEFAULT 0  ,
+    DAY_INCOME                     DECIMAL(18,3)                 DEFAULT 0  ,
+    MTD_INCOME                     DECIMAL(18,3)                 DEFAULT 0  ,
+    QAR_INCOME                     DECIMAL(18,3)                 DEFAULT 0  ,
+    YTD_INCOME                     DECIMAL(18,3)                 DEFAULT 0  );
 
--- CREATE TABLE ibs.T1_ORG_ACC_LN_INC_DTL
 CREATE TABLE ibs.T1_ORG_ACC_LN_INC_DTL (
     MEASURE_DT                     DATE                NOT NULL    ,
     OU_CD                          CHAR(4)             NOT NULL    ,
@@ -926,19 +857,18 @@ CREATE TABLE ibs.T1_ORG_ACC_LN_INC_DTL (
     LN_FIVE_ID                     INT             NOT NULL    ,
     MNG_LINE_TP_ID                 INT                         ,
     MNG_LINE_TP_NM                 VARCHAR(32)                     ,
-    LN_BAL                         DECIMAL(20,2)                 With Default 0  ,
-    CUR_RATE                       DECIMAL(16,8)                 With Default 0  ,
-    FTP_RATE                       DECIMAL(16,8)                 With Default 0  ,
-    DAY_INC                        DECIMAL(18,3)                 With Default 0  ,
-    MTD_INC                        DECIMAL(18,3)                 With Default 0  ,
-    QAR_INC                        DECIMAL(18,3)                 With Default 0  ,
-    YTD_INC                        DECIMAL(18,3)                 With Default 0  ,
-    DAY_EXC_BL_INC                 DECIMAL(18,3)                 With Default 0  ,
-    MTD_EXC_BL_INC                 DECIMAL(18,3)                 With Default 0  ,
-    QAR_EXC_BL_INC                 DECIMAL(18,3)                 With Default 0  ,
-    YTD_EXC_BL_INC                 DECIMAL(18,3)                 With Default 0  )
+    LN_BAL                         DECIMAL(20,2)                 DEFAULT 0  ,
+    CUR_RATE                       DECIMAL(16,8)                 DEFAULT 0  ,
+    FTP_RATE                       DECIMAL(16,8)                 DEFAULT 0  ,
+    DAY_INC                        DECIMAL(18,3)                 DEFAULT 0  ,
+    MTD_INC                        DECIMAL(18,3)                 DEFAULT 0  ,
+    QAR_INC                        DECIMAL(18,3)                 DEFAULT 0  ,
+    YTD_INC                        DECIMAL(18,3)                 DEFAULT 0  ,
+    DAY_EXC_BL_INC                 DECIMAL(18,3)                 DEFAULT 0  ,
+    MTD_EXC_BL_INC                 DECIMAL(18,3)                 DEFAULT 0  ,
+    QAR_EXC_BL_INC                 DECIMAL(18,3)                 DEFAULT 0  ,
+    YTD_EXC_BL_INC                 DECIMAL(18,3)                 DEFAULT 0  );
 
--- CREATE TABLE ibs.T1_SALES_DETAIL
 CREATE TABLE ibs.T1_SALES_DETAIL (
     SALE_ID                        VARCHAR(32)         NOT NULL    ,
     BONUS_TYPE_ID                  CHAR(2)             NOT NULL    ,
@@ -975,9 +905,8 @@ CREATE TABLE ibs.T1_SALES_DETAIL (
     YTD_AVG_BAL                    DECIMAL(18,3)                   ,
     VUCH_NBR                       VARCHAR(20)                     ,
     FNC_PD_CD                      VARCHAR(10)                     ,
-    FNC_PD_NM                      VARCHAR(64)                     )
+    FNC_PD_NM                      VARCHAR(64)                     );
 
--- CREATE TABLE ibs.T1_SALES_DETAIL_Q
 CREATE TABLE ibs.T1_SALES_DETAIL_Q (
     SALE_ID                        VARCHAR(32)         NOT NULL    ,
     BONUS_TYPE_ID                  CHAR(2)                         ,
@@ -1015,15 +944,14 @@ CREATE TABLE ibs.T1_SALES_DETAIL_Q (
     VUCH_NBR                       VARCHAR(20)                     ,
     FNC_PD_CD                      VARCHAR(10)                     ,
     FNC_PD_NM                      VARCHAR(64)                     ,
-    MEASURE_DT                     DATE                            )
+    MEASURE_DT                     DATE                            );
 
--- CREATE TABLE ibs.T1_THD_EMP_RELA
 CREATE TABLE ibs.T1_THD_EMP_RELA (
     TXN_RUN_NBR                    VARCHAR(16)         NOT NULL    ,
     VUCH_NBR                       VARCHAR(20)         NOT NULL    ,
     SCURT_AC                       VARCHAR(30)         NOT NULL    ,
     EMP_ID                         VARCHAR(20)                     ,
-    RATIO                          DECIMAL(6,2)                  With Default 100  ,
+    RATIO                          DECIMAL(6,2)                  DEFAULT 100  ,
     CLAIM_STATUS_ID                CHAR(2)                         ,
     CLAIM_DT                       DATE                            ,
     VERIFY_DT                      DATE                            ,
@@ -1040,23 +968,18 @@ CREATE TABLE ibs.T1_THD_EMP_RELA (
     EMP_NM                         VARCHAR(64)                     ,
     EMP_ORG_ID                     CHAR(4)                         ,
     EMP_ORG_NM                     VARCHAR(64)                     ,
-    MARKETING_NO                   VARCHAR(40)                     )
+    MARKETING_NO                   VARCHAR(40)                     );
 
--- CREATE TABLE ibs.T1_VUCH_ACC_RELA
 CREATE TABLE ibs.T1_VUCH_ACC_RELA (
     VUCH_NBR                       VARCHAR(64)         NOT NULL    ,
     ACC_ID                         VARCHAR(20)         NOT NULL    ,
-    IS_CD                          VARCHAR(20)                     )
-Compress Yes;
+    IS_CD                          VARCHAR(20)                     );
 
--- CREATE TABLE ibs.T1_VUCH_ACC_RELA_TMP
 CREATE TABLE ibs.T1_VUCH_ACC_RELA_TMP (
     VUCH_NBR                       VARCHAR(20)         NOT NULL    ,
     ACC_ID                         VARCHAR(20)         NOT NULL    ,
-    IS_CD                          VARCHAR(20)                     )
-Compress Yes;
+    IS_CD                          VARCHAR(20)                     );
 
--- CREATE TABLE ibs.T1_VUCH_DETAIL
 CREATE TABLE ibs.T1_VUCH_DETAIL (
     VUCH_NBR                       VARCHAR(64)         NOT NULL    ,
     VUCH_TYPE_ID                   CHAR(2)                         ,
@@ -1080,9 +1003,8 @@ CREATE TABLE ibs.T1_VUCH_DETAIL (
     LN_AMT                         DECIMAL(18,3)                   ,
     MARKETING_NO                   VARCHAR(40)                     ,
     EMP_ID                         VARCHAR(20)                     ,
-    CST_OPEN_DT                    DATE                            )
+    CST_OPEN_DT                    DATE                            );
 
--- CREATE TABLE ibs.T1_VUCH_DETAIL_20251204
 CREATE TABLE ibs.T1_VUCH_DETAIL_20251204 (
     VUCH_NBR                       VARCHAR(64)         NOT NULL    ,
     VUCH_TYPE_ID                   CHAR(2)                         ,
@@ -1106,10 +1028,8 @@ CREATE TABLE ibs.T1_VUCH_DETAIL_20251204 (
     LN_AMT                         DECIMAL(18,3)                   ,
     MARKETING_NO                   VARCHAR(40)                     ,
     EMP_ID                         VARCHAR(20)                     ,
-    CST_OPEN_DT                    DATE                            )
-in USERSPACE1
+    CST_OPEN_DT                    DATE                            );
 
--- CREATE TABLE ibs.T1_VUCH_DETAIL_TMP
 CREATE TABLE ibs.T1_VUCH_DETAIL_TMP (
     VUCH_NBR                       VARCHAR(64)         NOT NULL    ,
     VUCH_TYPE_ID                   CHAR(2)                         ,
@@ -1133,9 +1053,8 @@ CREATE TABLE ibs.T1_VUCH_DETAIL_TMP (
     LN_AMT                         DECIMAL(18,3)                   ,
     MARKETING_NO                   VARCHAR(40)                     ,
     EMP_ID                         VARCHAR(20)                     ,
-    CST_OPEN_DT                    DATE                            )
+    CST_OPEN_DT                    DATE                            );
 
--- CREATE TABLE ibs.T1_VUCH_EMP_RELA
 CREATE TABLE ibs.T1_VUCH_EMP_RELA (
     VUCH_NBR                       VARCHAR(64)         NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -1185,9 +1104,8 @@ CREATE TABLE ibs.T1_VUCH_EMP_RELA (
     FH_VERIFY_EMP_NM               VARCHAR(64)                     ,
     RVS_EMP_NM                     VARCHAR(64)                     ,
     RVS_CLAIM_EMP_NM               VARCHAR(64)                     ,
-    RVS_STATUS_ID                  VARCHAR(2)                    With Default ''  )
+    RVS_STATUS_ID                  VARCHAR(2)                    DEFAULT ''  );
 
--- CREATE TABLE ibs.T1_VUCH_EMP_RELA_20160407_BASELINE
 CREATE TABLE ibs.T1_VUCH_EMP_RELA_20160407_BASELINE (
     VUCH_NBR                       VARCHAR(20)         NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -1206,9 +1124,8 @@ CREATE TABLE ibs.T1_VUCH_EMP_RELA_20160407_BASELINE (
     OPEN_DT                        DATE                            ,
     EMP_NM                         VARCHAR(64)                     ,
     EMP_ORG_ID                     CHAR(4)                         ,
-    EMP_ORG_NM                     VARCHAR(64)                     )
+    EMP_ORG_NM                     VARCHAR(64)                     );
 
--- CREATE TABLE ibs.T1_VUCH_EMP_RELA_20250806
 CREATE TABLE ibs.T1_VUCH_EMP_RELA_20250806 (
     VUCH_NBR                       VARCHAR(64)         NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -1258,9 +1175,8 @@ CREATE TABLE ibs.T1_VUCH_EMP_RELA_20250806 (
     RVS_RATIO                      DECIMAL(6,2)                    ,
     FH_VERIFY_EMP_NM               VARCHAR(64)                     ,
     RVS_EMP_NM                     VARCHAR(64)                     ,
-    RVS_CLAIM_EMP_NM               VARCHAR(64)                     )
+    RVS_CLAIM_EMP_NM               VARCHAR(64)                     );
 
--- CREATE TABLE ibs.T1_VUCH_EMP_RELA_20250812
 CREATE TABLE ibs.T1_VUCH_EMP_RELA_20250812 (
     VUCH_NBR                       VARCHAR(64)         NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -1310,9 +1226,8 @@ CREATE TABLE ibs.T1_VUCH_EMP_RELA_20250812 (
     FH_VERIFY_EMP_NM               VARCHAR(64)                     ,
     RVS_EMP_NM                     VARCHAR(64)                     ,
     RVS_CLAIM_EMP_NM               VARCHAR(64)                     ,
-    RVS_STATUS_ID                  VARCHAR(2)                    With Default ''  )
+    RVS_STATUS_ID                  VARCHAR(2)                    DEFAULT ''  );
 
--- CREATE TABLE ibs.T1_VUCH_EMP_RELA_BAK
 CREATE TABLE ibs.T1_VUCH_EMP_RELA_BAK (
     VUCH_NBR                       VARCHAR(64)         NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -1362,9 +1277,8 @@ CREATE TABLE ibs.T1_VUCH_EMP_RELA_BAK (
     FH_VERIFY_EMP_NM               VARCHAR(64)                     ,
     RVS_EMP_NM                     VARCHAR(64)                     ,
     RVS_CLAIM_EMP_NM               VARCHAR(64)                     ,
-    RVS_STATUS_ID                  VARCHAR(2)                    With Default ''  )
+    RVS_STATUS_ID                  VARCHAR(2)                    DEFAULT ''  );
 
--- CREATE TABLE ibs.T1_VUCH_EMP_RELA_Q
 CREATE TABLE ibs.T1_VUCH_EMP_RELA_Q (
     VUCH_NBR                       VARCHAR(64)         NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -1393,9 +1307,8 @@ CREATE TABLE ibs.T1_VUCH_EMP_RELA_Q (
     MNG_LINE_TP_ID                 INT                         ,
     ACT_INT_INCM                   DECIMAL(15,2)                   ,
     ACR_INT_INCM                   DECIMAL(15,2)                   ,
-    RISK_FLAG                      VARCHAR(4)                      )
+    RISK_FLAG                      VARCHAR(4)                      );
 
--- CREATE TABLE ibs.T1_VUCH_EMP_RELA_Q_20220831
 CREATE TABLE ibs.T1_VUCH_EMP_RELA_Q_20220831 (
     VUCH_NBR                       VARCHAR(20)         NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -1406,9 +1319,8 @@ CREATE TABLE ibs.T1_VUCH_EMP_RELA_Q_20220831 (
     VERIFY_DT                      DATE                            ,
     VERIFY_EMP_ID                  VARCHAR(20)                     ,
     REMARK                         VARCHAR(5000)                   ,
-    MARKETING_NO                   VARCHAR(40)                     )
+    MARKETING_NO                   VARCHAR(40)                     );
 
--- CREATE TABLE ibs.T1_VUCH_EMP_RELA_Q_20231231LESS
 CREATE TABLE ibs.T1_VUCH_EMP_RELA_Q_20231231LESS (
     VUCH_NBR                       VARCHAR(64)         NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -1419,9 +1331,8 @@ CREATE TABLE ibs.T1_VUCH_EMP_RELA_Q_20231231LESS (
     VERIFY_DT                      DATE                            ,
     VERIFY_EMP_ID                  VARCHAR(20)                     ,
     REMARK                         VARCHAR(5000)                   ,
-    MARKETING_NO                   VARCHAR(40)                     )
+    MARKETING_NO                   VARCHAR(40)                     );
 
--- CREATE TABLE ibs.T1_VUCH_EMP_RELA_Q_20250528
 CREATE TABLE ibs.T1_VUCH_EMP_RELA_Q_20250528 (
     VUCH_NBR                       VARCHAR(64)         NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -1450,9 +1361,8 @@ CREATE TABLE ibs.T1_VUCH_EMP_RELA_Q_20250528 (
     MNG_LINE_TP_ID                 INT                         ,
     ACT_INT_INCM                   DECIMAL(15,2)                   ,
     ACR_INT_INCM                   DECIMAL(15,2)                   ,
-    RISK_FLAG                      VARCHAR(4)                      )
+    RISK_FLAG                      VARCHAR(4)                      );
 
--- CREATE TABLE ibs.T1_VUCH_EMP_RELA_Q_BAK_20260331
 CREATE TABLE ibs.T1_VUCH_EMP_RELA_Q_BAK_20260331 (
     VUCH_NBR                       VARCHAR(64)         NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -1481,10 +1391,8 @@ CREATE TABLE ibs.T1_VUCH_EMP_RELA_Q_BAK_20260331 (
     MNG_LINE_TP_ID                 INT                         ,
     ACT_INT_INCM                   DECIMAL(15,2)                   ,
     ACR_INT_INCM                   DECIMAL(15,2)                   ,
-    RISK_FLAG                      VARCHAR(4)                      )
-in USERSPACE1
+    RISK_FLAG                      VARCHAR(4)                      );
 
--- CREATE TABLE ibs.T1_VUCH_EMP_RELA_Q_TEST
 CREATE TABLE ibs.T1_VUCH_EMP_RELA_Q_TEST (
     VUCH_NBR                       VARCHAR(20)         NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -1513,9 +1421,8 @@ CREATE TABLE ibs.T1_VUCH_EMP_RELA_Q_TEST (
     MNG_LINE_TP_ID                 INT                         ,
     ACT_INT_INCM                   DECIMAL(15,2)                   ,
     ACR_INT_INCM                   DECIMAL(15,2)                   ,
-    RISK_FLAG                      VARCHAR(4)                      )
+    RISK_FLAG                      VARCHAR(4)                      );
 
--- CREATE TABLE ibs.T1_VUCH_EMP_RELA_Q_TMP
 CREATE TABLE ibs.T1_VUCH_EMP_RELA_Q_TMP (
     VUCH_NBR                       VARCHAR(64)         NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -1544,9 +1451,8 @@ CREATE TABLE ibs.T1_VUCH_EMP_RELA_Q_TMP (
     ACT_INT_INCM                   DECIMAL(15,2)                   ,
     ACR_INT_INCM                   DECIMAL(15,2)                   ,
     RISK_FLAG                      VARCHAR(4)                      ,
-    BIZ_TP_NM                      VARCHAR(256)                    )
+    BIZ_TP_NM                      VARCHAR(256)                    );
 
--- CREATE TABLE ibs.T1_VUCH_EMP_RELA_Q_TMP_20231201
 CREATE TABLE ibs.T1_VUCH_EMP_RELA_Q_TMP_20231201 (
     VUCH_NBR                       VARCHAR(20)         NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -1574,9 +1480,8 @@ CREATE TABLE ibs.T1_VUCH_EMP_RELA_Q_TMP_20231201 (
     MNG_LINE_TP_ID                 INT                         ,
     ACT_INT_INCM                   DECIMAL(15,2)                   ,
     ACR_INT_INCM                   DECIMAL(15,2)                   ,
-    RISK_FLAG                      VARCHAR(4)                      )
+    RISK_FLAG                      VARCHAR(4)                      );
 
--- CREATE TABLE ibs.T1_VUCH_EMP_RELA_TMP
 CREATE TABLE ibs.T1_VUCH_EMP_RELA_TMP (
     VUCH_NBR                       VARCHAR(20)         NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -1617,9 +1522,8 @@ CREATE TABLE ibs.T1_VUCH_EMP_RELA_TMP (
     MNG_LINE_TP_ID                 INT                         ,
     ACT_INT_INCM                   DECIMAL(15,2)                   ,
     ACR_INT_INCM                   DECIMAL(15,2)                   ,
-    RISK_FLAG                      VARCHAR(4)                      )
+    RISK_FLAG                      VARCHAR(4)                      );
 
--- CREATE TABLE ibs.T1_YBDB_EMP_RELA
 CREATE TABLE ibs.T1_YBDB_EMP_RELA (
     INSURE_NO                      VARCHAR(30)         NOT NULL    ,
     EMP_ID                         VARCHAR(32)         NOT NULL    ,
@@ -1668,9 +1572,8 @@ CREATE TABLE ibs.T1_YBDB_EMP_RELA (
     REMARK1                        VARCHAR(250)                    ,
     EMP_NM                         VARCHAR(64)                     ,
     EMP_ORG_ID                     CHAR(4)                         ,
-    EMP_ORG_NM                     VARCHAR(64)                     )
+    EMP_ORG_NM                     VARCHAR(64)                     );
 
--- CREATE TABLE ibs.T2_BONUS_DETAIL
 CREATE TABLE ibs.T2_BONUS_DETAIL (
     SALE_ID                        VARCHAR(32)         NOT NULL    ,
     BONUS_TYPE_ID                  CHAR(2)             NOT NULL    ,
@@ -1704,9 +1607,8 @@ CREATE TABLE ibs.T2_BONUS_DETAIL (
     BONUS_STATUS_ID                CHAR(2)                         ,
     BONUS_STATUS_NM                VARCHAR(64)                     ,
     BONUS_EFF_DT                   DATE                            ,
-    ADD_TIME                       DATETIME                       )
+    ADD_TIME                       DATETIME                       );
 
--- CREATE TABLE ibs.T2_CST_ASSET_SCORE
 CREATE TABLE ibs.T2_CST_ASSET_SCORE (
     CST_ID                         VARCHAR(20)         NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -1718,9 +1620,8 @@ CREATE TABLE ibs.T2_CST_ASSET_SCORE (
     EMP_ASSET                      DECIMAL(18,2)                   ,
     CST_ASSET                      DECIMAL(18,2)                   ,
     EMP_CNT                        INT                         ,
-    SCORE                          DECIMAL(10,2)                   )
+    SCORE                          DECIMAL(10,2)                   );
 
--- CREATE TABLE ibs.T2_EMP_BILL_INCOME
 CREATE TABLE ibs.T2_EMP_BILL_INCOME (
     MEASURE_DT                     DATE                NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -1735,9 +1636,8 @@ CREATE TABLE ibs.T2_EMP_BILL_INCOME (
     MODIFY_PEOPLE                  CHAR(6)                         ,
     MODIFY_TIME                    DATETIME                       ,
     MODIFY_IP                      CHAR(15)                        ,
-    CHG_DT                         DATE                            )
+    CHG_DT                         DATE                            );
 
--- CREATE TABLE ibs.T2_EMP_BONUS_SMY
 CREATE TABLE ibs.T2_EMP_BONUS_SMY (
     EMP_ID                         CHAR(6)             NOT NULL    ,
     MEASURE_DT                     DATE                NOT NULL    ,
@@ -1771,9 +1671,8 @@ CREATE TABLE ibs.T2_EMP_BONUS_SMY (
     M_CREDIT_CARD_BONUS            DECIMAL(18,2)                   ,
     Q_CREDIT_CARD_BONUS            DECIMAL(18,2)                   ,
     Y_CREDIT_CARD_BONUS            DECIMAL(18,2)                   ,
-    ADD_TIME                       DATETIME                       )
+    ADD_TIME                       DATETIME                       );
 
--- CREATE TABLE ibs.T2_EMP_CHG_PROFIT
 CREATE TABLE ibs.T2_EMP_CHG_PROFIT (
     MSR_PRD_DT                     DATE                NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -1784,13 +1683,12 @@ CREATE TABLE ibs.T2_EMP_CHG_PROFIT (
     PSTN_TYPE_NM                   VARCHAR(64)                     ,
     SUB_PSTN_TYPE                  VARCHAR(4)                      ,
     SUB_PSTN_TYPE_NM               VARCHAR(64)                     ,
-    PROFIT                         DECIMAL(20,2)                 With Default 0  ,
+    PROFIT                         DECIMAL(20,2)                 DEFAULT 0  ,
     RMARK                          VARCHAR(256)                    ,
     MODIFY_PEOPLE                  VARCHAR(32)                     ,
     MODIFY_TIME                    DATETIME                       ,
-    MODIFY_IP                      VARCHAR(15)                     )
+    MODIFY_IP                      VARCHAR(15)                     );
 
--- CREATE TABLE ibs.T2_EMP_DEP_LN_ACC_PROFIT_DETAIL
 CREATE TABLE ibs.T2_EMP_DEP_LN_ACC_PROFIT_DETAIL (
     ACC_ID                         VARCHAR(64)         NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -1819,10 +1717,8 @@ CREATE TABLE ibs.T2_EMP_DEP_LN_ACC_PROFIT_DETAIL (
     QTD_AVG_BAL                    DECIMAL(18,3)                   ,
     YTD_AVG_BAL                    DECIMAL(18,3)                   ,
     Q_PROFIT                       DECIMAL(18,3)                   ,
-    Y_PROFIT                       DECIMAL(18,3)                   )
-Compress Yes;
+    Y_PROFIT                       DECIMAL(18,3)                   );
 
--- CREATE TABLE ibs.T2_EMP_DEP_LN_ACC_PROFIT_DETAIL_20220823
 CREATE TABLE ibs.T2_EMP_DEP_LN_ACC_PROFIT_DETAIL_20220823 (
     ACC_ID                         VARCHAR(20)         NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -1851,11 +1747,8 @@ CREATE TABLE ibs.T2_EMP_DEP_LN_ACC_PROFIT_DETAIL_20220823 (
     QTD_AVG_BAL                    DECIMAL(18,3)                   ,
     YTD_AVG_BAL                    DECIMAL(18,3)                   ,
     Q_PROFIT                       DECIMAL(18,3)                   ,
-    Y_PROFIT                       DECIMAL(18,3)                   )
-in USERSPACE1
-Compress Yes;
+    Y_PROFIT                       DECIMAL(18,3)                   );
 
--- CREATE TABLE ibs.T2_EMP_DEP_LN_ACC_PROFIT_DETAIL_20230331
 CREATE TABLE ibs.T2_EMP_DEP_LN_ACC_PROFIT_DETAIL_20230331 (
     ACC_ID                         VARCHAR(20)         NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -1884,9 +1777,8 @@ CREATE TABLE ibs.T2_EMP_DEP_LN_ACC_PROFIT_DETAIL_20230331 (
     QTD_AVG_BAL                    DECIMAL(18,3)                   ,
     YTD_AVG_BAL                    DECIMAL(18,3)                   ,
     Q_PROFIT                       DECIMAL(18,3)                   ,
-    Y_PROFIT                       DECIMAL(18,3)                   )
+    Y_PROFIT                       DECIMAL(18,3)                   );
 
--- CREATE TABLE ibs.T2_EMP_DEP_LN_ACC_PROFIT_DETAIL_OLDTO20210818
 CREATE TABLE ibs.T2_EMP_DEP_LN_ACC_PROFIT_DETAIL_OLDTO20210818 (
     ACC_ID                         VARCHAR(20)         NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -1915,9 +1807,8 @@ CREATE TABLE ibs.T2_EMP_DEP_LN_ACC_PROFIT_DETAIL_OLDTO20210818 (
     QTD_AVG_BAL                    DECIMAL(18,3)                   ,
     YTD_AVG_BAL                    DECIMAL(18,3)                   ,
     Q_PROFIT                       DECIMAL(18,3)                   ,
-    Y_PROFIT                       DECIMAL(18,3)                   )
+    Y_PROFIT                       DECIMAL(18,3)                   );
 
--- CREATE TABLE ibs.T2_EMP_DEP_LN_ACC_PROFIT_DETAIL_TMP
 CREATE TABLE ibs.T2_EMP_DEP_LN_ACC_PROFIT_DETAIL_TMP (
     ACC_ID                         VARCHAR(64)         NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -1946,9 +1837,8 @@ CREATE TABLE ibs.T2_EMP_DEP_LN_ACC_PROFIT_DETAIL_TMP (
     QTD_AVG_BAL                    DECIMAL(18,3)                   ,
     YTD_AVG_BAL                    DECIMAL(18,3)                   ,
     Q_PROFIT                       DECIMAL(18,3)                   ,
-    Y_PROFIT                       DECIMAL(18,3)                   )
+    Y_PROFIT                       DECIMAL(18,3)                   );
 
--- CREATE TABLE ibs.T2_EMP_DEP_LN_ACC_PROFIT_DETAIL_TMP_BAK
 CREATE TABLE ibs.T2_EMP_DEP_LN_ACC_PROFIT_DETAIL_TMP_BAK (
     ACC_ID                         VARCHAR(64)         NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -1977,9 +1867,8 @@ CREATE TABLE ibs.T2_EMP_DEP_LN_ACC_PROFIT_DETAIL_TMP_BAK (
     QTD_AVG_BAL                    DECIMAL(18,3)                   ,
     YTD_AVG_BAL                    DECIMAL(18,3)                   ,
     Q_PROFIT                       DECIMAL(18,3)                   ,
-    Y_PROFIT                       DECIMAL(18,3)                   )
+    Y_PROFIT                       DECIMAL(18,3)                   );
 
--- CREATE TABLE ibs.T2_EMP_DEP_LN_ACC_PROFIT_DETAIL_ZRZZ
 CREATE TABLE ibs.T2_EMP_DEP_LN_ACC_PROFIT_DETAIL_ZRZZ (
     ACC_ID                         VARCHAR(20)         NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -2008,9 +1897,8 @@ CREATE TABLE ibs.T2_EMP_DEP_LN_ACC_PROFIT_DETAIL_ZRZZ (
     QTD_AVG_BAL                    DECIMAL(18,3)                   ,
     YTD_AVG_BAL                    DECIMAL(18,3)                   ,
     Q_PROFIT                       DECIMAL(18,3)                   ,
-    Y_PROFIT                       DECIMAL(18,3)                   )
+    Y_PROFIT                       DECIMAL(18,3)                   );
 
--- CREATE TABLE ibs.T2_EMP_DEP_LN_PROFIT_SMY
 CREATE TABLE ibs.T2_EMP_DEP_LN_PROFIT_SMY (
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
     MEASURE_DT                     DATE                NOT NULL    ,
@@ -2088,9 +1976,8 @@ CREATE TABLE ibs.T2_EMP_DEP_LN_PROFIT_SMY (
     CORP_MIDDLE_BONUS_Q            DECIMAL(18,2)                   ,
     CORP_MIDDLE_BONUS_Y            DECIMAL(18,2)                   ,
     YEAR                           CHAR(4)                         ,
-    NEW_OR_EXIST                   VARCHAR(8)          NOT NULL  With Default '无'  )
+    NEW_OR_EXIST                   VARCHAR(8)          NOT NULL  DEFAULT '无'  );
 
--- CREATE TABLE ibs.T2_EMP_DEP_LN_PROFIT_SMY_20220823
 CREATE TABLE ibs.T2_EMP_DEP_LN_PROFIT_SMY_20220823 (
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
     MEASURE_DT                     DATE                NOT NULL    ,
@@ -2167,9 +2054,8 @@ CREATE TABLE ibs.T2_EMP_DEP_LN_PROFIT_SMY_20220823 (
     LN_Q_PROFIT_MODIFY_DT          DATE                            ,
     CORP_MIDDLE_BONUS_Q            DECIMAL(18,2)                   ,
     CORP_MIDDLE_BONUS_Y            DECIMAL(18,2)                   ,
-    YEAR                           CHAR(4)                         )
+    YEAR                           CHAR(4)                         );
 
--- CREATE TABLE ibs.T2_EMP_DEP_LN_PROFIT_SMY_20230331
 CREATE TABLE ibs.T2_EMP_DEP_LN_PROFIT_SMY_20230331 (
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
     MEASURE_DT                     DATE                NOT NULL    ,
@@ -2246,9 +2132,8 @@ CREATE TABLE ibs.T2_EMP_DEP_LN_PROFIT_SMY_20230331 (
     LN_Q_PROFIT_MODIFY_DT          DATE                            ,
     CORP_MIDDLE_BONUS_Q            DECIMAL(18,2)                   ,
     CORP_MIDDLE_BONUS_Y            DECIMAL(18,2)                   ,
-    YEAR                           CHAR(4)                         )
+    YEAR                           CHAR(4)                         );
 
--- CREATE TABLE ibs.T2_EMP_DEP_LN_PROFIT_SMY_20250528
 CREATE TABLE ibs.T2_EMP_DEP_LN_PROFIT_SMY_20250528 (
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
     MEASURE_DT                     DATE                NOT NULL    ,
@@ -2326,9 +2211,8 @@ CREATE TABLE ibs.T2_EMP_DEP_LN_PROFIT_SMY_20250528 (
     CORP_MIDDLE_BONUS_Q            DECIMAL(18,2)                   ,
     CORP_MIDDLE_BONUS_Y            DECIMAL(18,2)                   ,
     YEAR                           CHAR(4)                         ,
-    NEW_OR_EXIST                   VARCHAR(8)          NOT NULL  With Default '无'  )
+    NEW_OR_EXIST                   VARCHAR(8)          NOT NULL  DEFAULT '无'  );
 
--- CREATE TABLE ibs.T2_EMP_DEP_LN_PROFIT_SMY_TMP
 CREATE TABLE ibs.T2_EMP_DEP_LN_PROFIT_SMY_TMP (
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
     MEASURE_DT                     DATE                NOT NULL    ,
@@ -2406,9 +2290,8 @@ CREATE TABLE ibs.T2_EMP_DEP_LN_PROFIT_SMY_TMP (
     CORP_MIDDLE_BONUS_Q            DECIMAL(18,2)                   ,
     CORP_MIDDLE_BONUS_Y            DECIMAL(18,2)                   ,
     YEAR                           CHAR(4)                         ,
-    NEW_OR_EXIST                   VARCHAR(8)          NOT NULL  With Default '无'  )
+    NEW_OR_EXIST                   VARCHAR(8)          NOT NULL  DEFAULT '无'  );
 
--- CREATE TABLE ibs.T2_EMP_DEP_LN_PROFIT_SMY_TMP_BAK
 CREATE TABLE ibs.T2_EMP_DEP_LN_PROFIT_SMY_TMP_BAK (
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
     MEASURE_DT                     DATE                NOT NULL    ,
@@ -2486,9 +2369,8 @@ CREATE TABLE ibs.T2_EMP_DEP_LN_PROFIT_SMY_TMP_BAK (
     CORP_MIDDLE_BONUS_Q            DECIMAL(18,2)                   ,
     CORP_MIDDLE_BONUS_Y            DECIMAL(18,2)                   ,
     YEAR                           CHAR(4)                         ,
-    NEW_OR_EXIST                   VARCHAR(8)          NOT NULL  With Default '无'  )
+    NEW_OR_EXIST                   VARCHAR(8)          NOT NULL  DEFAULT '无'  );
 
--- CREATE TABLE ibs.T2_EMP_DEP_LN_VUCH_PROFIT_DETAIL
 CREATE TABLE ibs.T2_EMP_DEP_LN_VUCH_PROFIT_DETAIL (
     VUCH_NBR                       VARCHAR(64)         NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -2521,18 +2403,16 @@ CREATE TABLE ibs.T2_EMP_DEP_LN_VUCH_PROFIT_DETAIL (
     Y_PROFIT                       DECIMAL(18,3)                   ,
     ACT_Q_PROFIT                   DECIMAL(18,3)                   ,
     ACT_Y_PROFIT                   DECIMAL(18,3)                   ,
-    HQ_BAL                         DECIMAL(18,3)                 With Default 0  ,
-    HQ_YTD_AVG_BAL                 DECIMAL(18,3)                 With Default 0  ,
-    DQ_BAL                         DECIMAL(18,3)                 With Default 0  ,
-    DQ_YTD_AVG_BAL                 DECIMAL(18,3)                 With Default 0  ,
+    HQ_BAL                         DECIMAL(18,3)                 DEFAULT 0  ,
+    HQ_YTD_AVG_BAL                 DECIMAL(18,3)                 DEFAULT 0  ,
+    DQ_BAL                         DECIMAL(18,3)                 DEFAULT 0  ,
+    DQ_YTD_AVG_BAL                 DECIMAL(18,3)                 DEFAULT 0  ,
     CLAIM_DT                       DATE                            ,
     BIZ_TP_CD                      VARCHAR(32)                     ,
     NEW_OR_EXIST                   VARCHAR(8)                      ,
     RISK_FLAG                      VARCHAR(4)                      ,
-    BIZ_TP_NM                      VARCHAR(256)                    )
-Compress Yes;
+    BIZ_TP_NM                      VARCHAR(256)                    );
 
--- CREATE TABLE ibs.T2_EMP_DEP_LN_VUCH_PROFIT_DETAIL_20220823
 CREATE TABLE ibs.T2_EMP_DEP_LN_VUCH_PROFIT_DETAIL_20220823 (
     VUCH_NBR                       VARCHAR(20)         NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -2565,14 +2445,11 @@ CREATE TABLE ibs.T2_EMP_DEP_LN_VUCH_PROFIT_DETAIL_20220823 (
     Y_PROFIT                       DECIMAL(18,3)                   ,
     ACT_Q_PROFIT                   DECIMAL(18,3)                   ,
     ACT_Y_PROFIT                   DECIMAL(18,3)                   ,
-    HQ_BAL                         DECIMAL(18,3)                 With Default 0  ,
-    HQ_YTD_AVG_BAL                 DECIMAL(18,3)                 With Default 0  ,
-    DQ_BAL                         DECIMAL(18,3)                 With Default 0  ,
-    DQ_YTD_AVG_BAL                 DECIMAL(18,3)                 With Default 0  )
-in USERSPACE1
-Compress Yes;
+    HQ_BAL                         DECIMAL(18,3)                 DEFAULT 0  ,
+    HQ_YTD_AVG_BAL                 DECIMAL(18,3)                 DEFAULT 0  ,
+    DQ_BAL                         DECIMAL(18,3)                 DEFAULT 0  ,
+    DQ_YTD_AVG_BAL                 DECIMAL(18,3)                 DEFAULT 0  );
 
--- CREATE TABLE ibs.T2_EMP_DEP_LN_VUCH_PROFIT_DETAIL_20230331
 CREATE TABLE ibs.T2_EMP_DEP_LN_VUCH_PROFIT_DETAIL_20230331 (
     VUCH_NBR                       VARCHAR(20)         NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -2605,14 +2482,11 @@ CREATE TABLE ibs.T2_EMP_DEP_LN_VUCH_PROFIT_DETAIL_20230331 (
     Y_PROFIT                       DECIMAL(18,3)                   ,
     ACT_Q_PROFIT                   DECIMAL(18,3)                   ,
     ACT_Y_PROFIT                   DECIMAL(18,3)                   ,
-    HQ_BAL                         DECIMAL(18,3)                 With Default 0  ,
-    HQ_YTD_AVG_BAL                 DECIMAL(18,3)                 With Default 0  ,
-    DQ_BAL                         DECIMAL(18,3)                 With Default 0  ,
-    DQ_YTD_AVG_BAL                 DECIMAL(18,3)                 With Default 0  )
-in USERSPACE1
-Compress Yes;
+    HQ_BAL                         DECIMAL(18,3)                 DEFAULT 0  ,
+    HQ_YTD_AVG_BAL                 DECIMAL(18,3)                 DEFAULT 0  ,
+    DQ_BAL                         DECIMAL(18,3)                 DEFAULT 0  ,
+    DQ_YTD_AVG_BAL                 DECIMAL(18,3)                 DEFAULT 0  );
 
--- CREATE TABLE ibs.T2_EMP_DEP_LN_VUCH_PROFIT_DETAIL_20250528
 CREATE TABLE ibs.T2_EMP_DEP_LN_VUCH_PROFIT_DETAIL_20250528 (
     VUCH_NBR                       VARCHAR(64)         NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -2645,19 +2519,16 @@ CREATE TABLE ibs.T2_EMP_DEP_LN_VUCH_PROFIT_DETAIL_20250528 (
     Y_PROFIT                       DECIMAL(18,3)                   ,
     ACT_Q_PROFIT                   DECIMAL(18,3)                   ,
     ACT_Y_PROFIT                   DECIMAL(18,3)                   ,
-    HQ_BAL                         DECIMAL(18,3)                 With Default 0  ,
-    HQ_YTD_AVG_BAL                 DECIMAL(18,3)                 With Default 0  ,
-    DQ_BAL                         DECIMAL(18,3)                 With Default 0  ,
-    DQ_YTD_AVG_BAL                 DECIMAL(18,3)                 With Default 0  ,
+    HQ_BAL                         DECIMAL(18,3)                 DEFAULT 0  ,
+    HQ_YTD_AVG_BAL                 DECIMAL(18,3)                 DEFAULT 0  ,
+    DQ_BAL                         DECIMAL(18,3)                 DEFAULT 0  ,
+    DQ_YTD_AVG_BAL                 DECIMAL(18,3)                 DEFAULT 0  ,
     CLAIM_DT                       DATE                            ,
     BIZ_TP_CD                      VARCHAR(32)                     ,
     NEW_OR_EXIST                   VARCHAR(8)                      ,
     RISK_FLAG                      VARCHAR(4)                      ,
-    BIZ_TP_NM                      VARCHAR(256)                    )
-in USERSPACE1
-Compress Yes;
+    BIZ_TP_NM                      VARCHAR(256)                    );
 
--- CREATE TABLE ibs.T2_EMP_DEP_LN_VUCH_PROFIT_DETAIL_BAK
 CREATE TABLE ibs.T2_EMP_DEP_LN_VUCH_PROFIT_DETAIL_BAK (
     VUCH_NBR                       VARCHAR(20)         NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -2689,9 +2560,8 @@ CREATE TABLE ibs.T2_EMP_DEP_LN_VUCH_PROFIT_DETAIL_BAK (
     Q_PROFIT                       DECIMAL(18,3)                   ,
     Y_PROFIT                       DECIMAL(18,3)                   ,
     ACT_Q_PROFIT                   DECIMAL(18,3)                   ,
-    ACT_Y_PROFIT                   DECIMAL(18,3)                   )
+    ACT_Y_PROFIT                   DECIMAL(18,3)                   );
 
--- CREATE TABLE ibs.T2_EMP_DEP_LN_VUCH_PROFIT_DETAIL_OLDTO20210818
 CREATE TABLE ibs.T2_EMP_DEP_LN_VUCH_PROFIT_DETAIL_OLDTO20210818 (
     VUCH_NBR                       VARCHAR(20)         NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -2724,12 +2594,11 @@ CREATE TABLE ibs.T2_EMP_DEP_LN_VUCH_PROFIT_DETAIL_OLDTO20210818 (
     Y_PROFIT                       DECIMAL(18,3)                   ,
     ACT_Q_PROFIT                   DECIMAL(18,3)                   ,
     ACT_Y_PROFIT                   DECIMAL(18,3)                   ,
-    HQ_BAL                         DECIMAL(18,3)                 With Default 0  ,
-    HQ_YTD_AVG_BAL                 DECIMAL(18,3)                 With Default 0  ,
-    DQ_BAL                         DECIMAL(18,3)                 With Default 0  ,
-    DQ_YTD_AVG_BAL                 DECIMAL(18,3)                 With Default 0  )
+    HQ_BAL                         DECIMAL(18,3)                 DEFAULT 0  ,
+    HQ_YTD_AVG_BAL                 DECIMAL(18,3)                 DEFAULT 0  ,
+    DQ_BAL                         DECIMAL(18,3)                 DEFAULT 0  ,
+    DQ_YTD_AVG_BAL                 DECIMAL(18,3)                 DEFAULT 0  );
 
--- CREATE TABLE ibs.T2_EMP_DEP_LN_VUCH_PROFIT_DETAIL_TMP
 CREATE TABLE ibs.T2_EMP_DEP_LN_VUCH_PROFIT_DETAIL_TMP (
     VUCH_NBR                       VARCHAR(64)         NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -2762,19 +2631,16 @@ CREATE TABLE ibs.T2_EMP_DEP_LN_VUCH_PROFIT_DETAIL_TMP (
     Y_PROFIT                       DECIMAL(18,3)                   ,
     ACT_Q_PROFIT                   DECIMAL(18,3)                   ,
     ACT_Y_PROFIT                   DECIMAL(18,3)                   ,
-    HQ_BAL                         DECIMAL(18,3)                 With Default 0  ,
-    HQ_YTD_AVG_BAL                 DECIMAL(18,3)                 With Default 0  ,
-    DQ_BAL                         DECIMAL(18,3)                 With Default 0  ,
-    DQ_YTD_AVG_BAL                 DECIMAL(18,3)                 With Default 0  ,
+    HQ_BAL                         DECIMAL(18,3)                 DEFAULT 0  ,
+    HQ_YTD_AVG_BAL                 DECIMAL(18,3)                 DEFAULT 0  ,
+    DQ_BAL                         DECIMAL(18,3)                 DEFAULT 0  ,
+    DQ_YTD_AVG_BAL                 DECIMAL(18,3)                 DEFAULT 0  ,
     CLAIM_DT                       DATE                            ,
     BIZ_TP_CD                      VARCHAR(32)                     ,
     NEW_OR_EXIST                   VARCHAR(8)                      ,
     RISK_FLAG                      VARCHAR(4)                      ,
-    BIZ_TP_NM                      VARCHAR(256)                    )
-in USERSPACE1
-Compress Yes;
+    BIZ_TP_NM                      VARCHAR(256)                    );
 
--- CREATE TABLE ibs.T2_EMP_DEP_LN_VUCH_PROFIT_DETAIL_TMP_BAK
 CREATE TABLE ibs.T2_EMP_DEP_LN_VUCH_PROFIT_DETAIL_TMP_BAK (
     VUCH_NBR                       VARCHAR(64)         NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -2807,18 +2673,15 @@ CREATE TABLE ibs.T2_EMP_DEP_LN_VUCH_PROFIT_DETAIL_TMP_BAK (
     Y_PROFIT                       DECIMAL(18,3)                   ,
     ACT_Q_PROFIT                   DECIMAL(18,3)                   ,
     ACT_Y_PROFIT                   DECIMAL(18,3)                   ,
-    HQ_BAL                         DECIMAL(18,3)                 With Default 0  ,
-    HQ_YTD_AVG_BAL                 DECIMAL(18,3)                 With Default 0  ,
-    DQ_BAL                         DECIMAL(18,3)                 With Default 0  ,
-    DQ_YTD_AVG_BAL                 DECIMAL(18,3)                 With Default 0  ,
+    HQ_BAL                         DECIMAL(18,3)                 DEFAULT 0  ,
+    HQ_YTD_AVG_BAL                 DECIMAL(18,3)                 DEFAULT 0  ,
+    DQ_BAL                         DECIMAL(18,3)                 DEFAULT 0  ,
+    DQ_YTD_AVG_BAL                 DECIMAL(18,3)                 DEFAULT 0  ,
     CLAIM_DT                       DATE                            ,
     BIZ_TP_CD                      VARCHAR(32)                     ,
     NEW_OR_EXIST                   VARCHAR(8)                      ,
-    RISK_FLAG                      VARCHAR(4)                      )
-in USERSPACE1
-Compress Yes;
+    RISK_FLAG                      VARCHAR(4)                      );
 
--- CREATE TABLE ibs.T2_EMP_DEP_LN_VUCH_PROFIT_DETAIL_TMP_TS
 CREATE TABLE ibs.T2_EMP_DEP_LN_VUCH_PROFIT_DETAIL_TMP_TS (
     VUCH_NBR                       VARCHAR(64)         NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -2851,14 +2714,11 @@ CREATE TABLE ibs.T2_EMP_DEP_LN_VUCH_PROFIT_DETAIL_TMP_TS (
     Y_PROFIT                       DECIMAL(18,3)                   ,
     ACT_Q_PROFIT                   DECIMAL(18,3)                   ,
     ACT_Y_PROFIT                   DECIMAL(18,3)                   ,
-    HQ_BAL                         DECIMAL(18,3)                 With Default 0  ,
-    HQ_YTD_AVG_BAL                 DECIMAL(18,3)                 With Default 0  ,
-    DQ_BAL                         DECIMAL(18,3)                 With Default 0  ,
-    DQ_YTD_AVG_BAL                 DECIMAL(18,3)                 With Default 0  )
-in USERSPACE1
-Compress Yes;
+    HQ_BAL                         DECIMAL(18,3)                 DEFAULT 0  ,
+    HQ_YTD_AVG_BAL                 DECIMAL(18,3)                 DEFAULT 0  ,
+    DQ_BAL                         DECIMAL(18,3)                 DEFAULT 0  ,
+    DQ_YTD_AVG_BAL                 DECIMAL(18,3)                 DEFAULT 0  );
 
--- CREATE TABLE ibs.T2_EMP_DFSLRY_SMY
 CREATE TABLE ibs.T2_EMP_DFSLRY_SMY (
     MEASURE_DT                     DATE                NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -2875,10 +2735,8 @@ CREATE TABLE ibs.T2_EMP_DFSLRY_SMY (
     QTD_TXN_AMT                    DECIMAL(20,2)                   ,
     QTD_TXN_CNT                    INT                         ,
     QTD_VUCH_CNT                   INT                         ,
-    QTD_ENT_CNT                    INT                         )
-Compress Yes;
+    QTD_ENT_CNT                    INT                         );
 
--- CREATE TABLE ibs.T2_EMP_DFSLRY_VUCH_DETAIL
 CREATE TABLE ibs.T2_EMP_DFSLRY_VUCH_DETAIL (
     MEASURE_DT                     DATE                NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -2891,10 +2749,8 @@ CREATE TABLE ibs.T2_EMP_DFSLRY_VUCH_DETAIL (
     RATIO                          DECIMAL(20,2)                   ,
     TXN_AMT                        DECIMAL(20,2)                   ,
     TXN_CNT                        INT                         ,
-    DEP_LINE_NM                    VARCHAR(64)                     )
-Compress Yes;
+    DEP_LINE_NM                    VARCHAR(64)                     );
 
--- CREATE TABLE ibs.T2_EMP_DX_SCORE
 CREATE TABLE ibs.T2_EMP_DX_SCORE (
     MSR_PRD_DT                     DATE                NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -2905,10 +2761,9 @@ CREATE TABLE ibs.T2_EMP_DX_SCORE (
     PSTN_TYPE_NM                   VARCHAR(64)                     ,
     SUB_PSTN_TYPE                  VARCHAR(4)                      ,
     SUB_PSTN_TYPE_NM               VARCHAR(64)                     ,
-    SCORE                          DECIMAL(20,2)                 With Default 0  ,
-    RMARK                          VARCHAR(256)                    )
+    SCORE                          DECIMAL(20,2)                 DEFAULT 0  ,
+    RMARK                          VARCHAR(256)                    );
 
--- CREATE TABLE ibs.T2_EMP_FNC_PD_BONUS_SMY
 CREATE TABLE ibs.T2_EMP_FNC_PD_BONUS_SMY (
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
     MEASURE_DT                     DATE                NOT NULL    ,
@@ -2932,9 +2787,8 @@ CREATE TABLE ibs.T2_EMP_FNC_PD_BONUS_SMY (
     MTD_BONUS                      DECIMAL(20,3)                   ,
     QTD_BONUS                      DECIMAL(20,3)                   ,
     YTD_BONUS                      DECIMAL(20,3)                   ,
-    RNK                            INT                         )
+    RNK                            INT                         );
 
--- CREATE TABLE ibs.T2_EMP_FUND_SMY
 CREATE TABLE ibs.T2_EMP_FUND_SMY (
     MSR_PRD_DT                     DATE                NOT NULL    ,
     TXN_DT                         DATE                NOT NULL    ,
@@ -2948,9 +2802,8 @@ CREATE TABLE ibs.T2_EMP_FUND_SMY (
     SUB_PSTN_TYPE_NM               VARCHAR(64)                     ,
     TRA_FEE                        DECIMAL(20,2)                   ,
     SL_FEE                         DECIMAL(20,2)                   ,
-    TXN_FEE                        DECIMAL(20,2)                   )
+    TXN_FEE                        DECIMAL(20,2)                   );
 
--- CREATE TABLE ibs.T2_EMP_FUND_SMY_20240730
 CREATE TABLE ibs.T2_EMP_FUND_SMY_20240730 (
     MSR_PRD_DT                     DATE                NOT NULL    ,
     TXN_DT                         DATE                NOT NULL    ,
@@ -2964,9 +2817,8 @@ CREATE TABLE ibs.T2_EMP_FUND_SMY_20240730 (
     SUB_PSTN_TYPE_NM               VARCHAR(64)                     ,
     TRA_FEE                        DECIMAL(20,2)                   ,
     SL_FEE                         DECIMAL(20,2)                   ,
-    TXN_FEE                        DECIMAL(20,2)                   )
+    TXN_FEE                        DECIMAL(20,2)                   );
 
--- CREATE TABLE ibs.T2_EMP_INSUR_BONUS_SMY
 CREATE TABLE ibs.T2_EMP_INSUR_BONUS_SMY (
     EMP_ID                         CHAR(6)             NOT NULL    ,
     MEASURE_DT                     DATE                NOT NULL    ,
@@ -2983,9 +2835,8 @@ CREATE TABLE ibs.T2_EMP_INSUR_BONUS_SMY (
     INSUR_PREMIUM_M                DECIMAL(18,2)                   ,
     INSUR_PREMIUM_Q                DECIMAL(18,2)                   ,
     INSUR_PREMIUM_Y                DECIMAL(18,2)                   ,
-    INSUR_BONUS_M                  DECIMAL(18,2)                   )
+    INSUR_BONUS_M                  DECIMAL(18,2)                   );
 
--- CREATE TABLE ibs.T2_EMP_LN_PROFIT_BL_CHG
 CREATE TABLE ibs.T2_EMP_LN_PROFIT_BL_CHG (
     MEASURE_DT                     DATE                NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -3000,10 +2851,10 @@ CREATE TABLE ibs.T2_EMP_LN_PROFIT_BL_CHG (
     ORG_CD                         CHAR(4)             NOT NULL    ,
     ORG_NM                         VARCHAR(64)                     ,
     VUCH_STS_NM                    VARCHAR(64)                     ,
-    RATIO                          DECIMAL(6,2)        NOT NULL  With Default 0  ,
-    QTD_AVG_BAL                    DECIMAL(18,3)                 With Default 0  ,
-    QTD_PROFIT                     DECIMAL(18,3)                 With Default 0  ,
-    QTD_PROFIT_OLD                 DECIMAL(18,3)                 With Default 0  ,
+    RATIO                          DECIMAL(6,2)        NOT NULL  DEFAULT 0  ,
+    QTD_AVG_BAL                    DECIMAL(18,3)                 DEFAULT 0  ,
+    QTD_PROFIT                     DECIMAL(18,3)                 DEFAULT 0  ,
+    QTD_PROFIT_OLD                 DECIMAL(18,3)                 DEFAULT 0  ,
     PERF_STS_TP_ID                 INT                         ,
     PERF_STS_TP_NM                 VARCHAR(32)                     ,
     ACG_SBJ_ID                     INT                         ,
@@ -3011,9 +2862,8 @@ CREATE TABLE ibs.T2_EMP_LN_PROFIT_BL_CHG (
     MODIFY_TIME                    DATETIME                       ,
     MODIFY_IP                      CHAR(15)                        ,
     CHG_DT                         DATE                            ,
-    QTR_FST_DT                     DATE                            )
+    QTR_FST_DT                     DATE                            );
 
--- CREATE TABLE ibs.T2_EMP_LN_PROFIT_BL_CHG_20211122
 CREATE TABLE ibs.T2_EMP_LN_PROFIT_BL_CHG_20211122 (
     MEASURE_DT                     DATE                NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -3028,10 +2878,10 @@ CREATE TABLE ibs.T2_EMP_LN_PROFIT_BL_CHG_20211122 (
     ORG_CD                         CHAR(4)             NOT NULL    ,
     ORG_NM                         VARCHAR(64)                     ,
     VUCH_STS_NM                    VARCHAR(64)                     ,
-    RATIO                          DECIMAL(6,2)        NOT NULL  With Default 0  ,
-    QTD_AVG_BAL                    DECIMAL(18,3)                 With Default 0  ,
-    QTD_PROFIT                     DECIMAL(18,3)                 With Default 0  ,
-    QTD_PROFIT_OLD                 DECIMAL(18,3)                 With Default 0  ,
+    RATIO                          DECIMAL(6,2)        NOT NULL  DEFAULT 0  ,
+    QTD_AVG_BAL                    DECIMAL(18,3)                 DEFAULT 0  ,
+    QTD_PROFIT                     DECIMAL(18,3)                 DEFAULT 0  ,
+    QTD_PROFIT_OLD                 DECIMAL(18,3)                 DEFAULT 0  ,
     PERF_STS_TP_ID                 INT                         ,
     PERF_STS_TP_NM                 VARCHAR(32)                     ,
     ACG_SBJ_ID                     INT                         ,
@@ -3039,9 +2889,8 @@ CREATE TABLE ibs.T2_EMP_LN_PROFIT_BL_CHG_20211122 (
     MODIFY_TIME                    DATETIME                       ,
     MODIFY_IP                      CHAR(15)                        ,
     CHG_DT                         DATE                            ,
-    QTR_FST_DT                     DATE                            )
+    QTR_FST_DT                     DATE                            );
 
--- CREATE TABLE ibs.T2_EMP_LN_PROFIT_BL_CHG_TMP
 CREATE TABLE ibs.T2_EMP_LN_PROFIT_BL_CHG_TMP (
     MEASURE_DT                     DATE                NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -3056,10 +2905,10 @@ CREATE TABLE ibs.T2_EMP_LN_PROFIT_BL_CHG_TMP (
     ORG_CD                         CHAR(4)                         ,
     ORG_NM                         VARCHAR(64)                     ,
     VUCH_STS_NM                    VARCHAR(64)                     ,
-    RATIO                          DECIMAL(6,2)                  With Default 0  ,
-    QTD_AVG_BAL                    DECIMAL(18,3)                 With Default 0  ,
-    QTD_PROFIT                     DECIMAL(18,3)                 With Default 0  ,
-    QTD_PROFIT_OLD                 DECIMAL(18,3)                 With Default 0  ,
+    RATIO                          DECIMAL(6,2)                  DEFAULT 0  ,
+    QTD_AVG_BAL                    DECIMAL(18,3)                 DEFAULT 0  ,
+    QTD_PROFIT                     DECIMAL(18,3)                 DEFAULT 0  ,
+    QTD_PROFIT_OLD                 DECIMAL(18,3)                 DEFAULT 0  ,
     PERF_STS_TP_ID                 INT                         ,
     PERF_STS_TP_NM                 VARCHAR(32)                     ,
     ACG_SBJ_ID                     INT                         ,
@@ -3067,27 +2916,24 @@ CREATE TABLE ibs.T2_EMP_LN_PROFIT_BL_CHG_TMP (
     MODIFY_TIME                    DATETIME                       ,
     MODIFY_IP                      CHAR(15)                        ,
     CHG_DT                         DATE                            ,
-    QTR_FST_DT                     DATE                            )
+    QTR_FST_DT                     DATE                            );
 
--- CREATE TABLE ibs.T2_EMP_OTHER_BIZ
 CREATE TABLE ibs.T2_EMP_OTHER_BIZ (
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
     EMP_NM                         VARCHAR(64)                     ,
     MEASURE_DT                     DATE                NOT NULL    ,
     BIZ_TYPE_ID                    VARCHAR(2)          NOT NULL    ,
     BIZ_TYPE_NM                    VARCHAR(32)                     ,
-    SCORE                          DECIMAL(10,2)                   )
+    SCORE                          DECIMAL(10,2)                   );
 
--- CREATE TABLE ibs.T2_EMP_OTHER_BIZ20190513
 CREATE TABLE ibs.T2_EMP_OTHER_BIZ20190513 (
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
     EMP_NM                         VARCHAR(64)                     ,
     MEASURE_DT                     DATE                NOT NULL    ,
     BIZ_TYPE_ID                    VARCHAR(2)          NOT NULL    ,
     BIZ_TYPE_NM                    VARCHAR(32)                     ,
-    SCORE                          DECIMAL(10,2)                   )
+    SCORE                          DECIMAL(10,2)                   );
 
--- CREATE TABLE ibs.T2_EMP_THD_SMY
 CREATE TABLE ibs.T2_EMP_THD_SMY (
     OPEN_DT                        DATE                NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -3098,9 +2944,8 @@ CREATE TABLE ibs.T2_EMP_THD_SMY (
     PSTN_TYPE_NM                   VARCHAR(64)                     ,
     SUB_PSTN_TYPE                  VARCHAR(4)                      ,
     SUB_PSTN_TYPE_NM               VARCHAR(64)                     ,
-    SIG_CNT                        DECIMAL(20,3)                   )
+    SIG_CNT                        DECIMAL(20,3)                   );
 
--- CREATE TABLE ibs.T2_ENT_CST_DEP_LN_PROFIT
 CREATE TABLE ibs.T2_ENT_CST_DEP_LN_PROFIT (
     MEASURE_DT                     DATE                NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -3119,9 +2964,8 @@ CREATE TABLE ibs.T2_ENT_CST_DEP_LN_PROFIT (
     LN_QTD_AVG_BAL                 DECIMAL(18,3)                   ,
     LN_YTD_AVG_BAL                 DECIMAL(18,3)                   ,
     LN_Q_PROFIT                    DECIMAL(18,3)                   ,
-    LN_Y_PROFIT                    DECIMAL(18,3)                   )
+    LN_Y_PROFIT                    DECIMAL(18,3)                   );
 
--- CREATE TABLE ibs.T2_FNC_PD_BONUS_DETAIL
 CREATE TABLE ibs.T2_FNC_PD_BONUS_DETAIL (
     OFF_BST_AR_ID                  VARCHAR(20)         NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -3160,9 +3004,8 @@ CREATE TABLE ibs.T2_FNC_PD_BONUS_DETAIL (
     BONUS                          DECIMAL(20,3)                   ,
     EMP_BONUS                      DECIMAL(20,3)                   ,
     BONUS_EFF_DT                   DATE                            ,
-    BONUS_STATUS_NM                VARCHAR(64)                     )
+    BONUS_STATUS_NM                VARCHAR(64)                     );
 
--- CREATE TABLE ibs.T2_FNC_PD_BONUS_DETAIL_TMP
 CREATE TABLE ibs.T2_FNC_PD_BONUS_DETAIL_TMP (
     OFF_BST_AR_ID                  VARCHAR(20)         NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -3201,9 +3044,8 @@ CREATE TABLE ibs.T2_FNC_PD_BONUS_DETAIL_TMP (
     BONUS                          DECIMAL(20,3)                   ,
     EMP_BONUS                      DECIMAL(20,3)                   ,
     BONUS_EFF_DT                   DATE                            ,
-    BONUS_STATUS_NM                VARCHAR(64)                     )
+    BONUS_STATUS_NM                VARCHAR(64)                     );
 
--- CREATE TABLE ibs.T2_IBS_CST_ASSET
 CREATE TABLE ibs.T2_IBS_CST_ASSET (
     CST_ID                         VARCHAR(20)         NOT NULL    ,
     MEASURE_DT                     DATE                NOT NULL    ,
@@ -3212,9 +3054,8 @@ CREATE TABLE ibs.T2_IBS_CST_ASSET (
     DEP_BAL                        DECIMAL(18,2)                   ,
     FNC_BAL                        DECIMAL(18,2)                   ,
     FUND_BAL                       DECIMAL(18,2)                   ,
-    INSUR_BAL                      DECIMAL(18,2)                   )
+    INSUR_BAL                      DECIMAL(18,2)                   );
 
--- CREATE TABLE ibs.T2_INSUR_BONUS_DETAIL
 CREATE TABLE ibs.T2_INSUR_BONUS_DETAIL (
     INSUR_PRINT_ID                 VARCHAR(40)         NOT NULL    ,
     EMP_ID                         CHAR(6)             NOT NULL    ,
@@ -3234,9 +3075,8 @@ CREATE TABLE ibs.T2_INSUR_BONUS_DETAIL (
     INSUR_PREMIUM                  DECIMAL(18,2)                   ,
     PRICE                          DECIMAL(10,4)                   ,
     RATIO                          DECIMAL(10,4)                   ,
-    BONUS                          DECIMAL(18,2)                   )
+    BONUS                          DECIMAL(18,2)                   );
 
--- CREATE TABLE ibs.T2_LN_LOBBY_MANAGER_BONUS_DETAIL
 CREATE TABLE ibs.T2_LN_LOBBY_MANAGER_BONUS_DETAIL (
     BIZ_DIL_NBR                    VARCHAR(20)         NOT NULL    ,
     LOBBY_MANAGER                  VARCHAR(20)         NOT NULL    ,
@@ -3270,9 +3110,8 @@ CREATE TABLE ibs.T2_LN_LOBBY_MANAGER_BONUS_DETAIL (
     PRICE                          DECIMAL(18,2)                   ,
     RATIO                          DECIMAL(6,3)                    ,
     BONUS                          DECIMAL(18,3)                   ,
-    BONUS_EFF_DT                   DATE                            )
+    BONUS_EFF_DT                   DATE                            );
 
--- CREATE TABLE ibs.T2_OU_DFSLRY_SMY
 CREATE TABLE ibs.T2_OU_DFSLRY_SMY (
     MEASURE_DT                     DATE                NOT NULL    ,
     ORG_ID                         CHAR(4)             NOT NULL    ,
@@ -3283,9 +3122,8 @@ CREATE TABLE ibs.T2_OU_DFSLRY_SMY (
     QTD_TXN_AMT                    DECIMAL(20,2)                   ,
     QTD_TXN_CNT                    INT                         ,
     QTD_VUCH_CNT                   INT                         ,
-    QTD_ENT_CNT                    INT                         )
+    QTD_ENT_CNT                    INT                         );
 
--- CREATE TABLE ibs.T2_YBDB_INS_DETAIL
 CREATE TABLE ibs.T2_YBDB_INS_DETAIL (
     INSURE_NO                      VARCHAR(30)         NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -3309,12 +3147,10 @@ CREATE TABLE ibs.T2_YBDB_INS_DETAIL (
     VUCH_STATUS_ID                 VARCHAR(1)                      ,
     VUCH_STATUS_NM                 VARCHAR(64)                     ,
     RATIO                          DECIMAL(6,3)                    ,
-    TXN_AMT                        DECIMAL(20,2)                 With Default 0  ,
-    MID_AMT                        DECIMAL(20,2)                 With Default 0  ,
-    PER_FEE                        DECIMAL(20,2)                 With Default 0  )
-Compress Yes;
+    TXN_AMT                        DECIMAL(20,2)                 DEFAULT 0  ,
+    MID_AMT                        DECIMAL(20,2)                 DEFAULT 0  ,
+    PER_FEE                        DECIMAL(20,2)                 DEFAULT 0  );
 
--- CREATE TABLE ibs.T3_BANUS_SHARE_RATIO
 CREATE TABLE ibs.T3_BANUS_SHARE_RATIO (
     BONUS_TYPE_ID                  CHAR(2)             NOT NULL    ,
     BRANCH_ORG_ID                  CHAR(4)             NOT NULL    ,
@@ -3324,9 +3160,8 @@ CREATE TABLE ibs.T3_BANUS_SHARE_RATIO (
     SALES_RATIO                    INT                         ,
     MODIFY_PEOPLE                  CHAR(6)                         ,
     MODIFY_TIME                    DATETIME                       ,
-    MODIFY_IP                      CHAR(15)                        )
+    MODIFY_IP                      CHAR(15)                        );
 
--- CREATE TABLE ibs.T3_COMMISSION_RATIO
 CREATE TABLE ibs.T3_COMMISSION_RATIO (
     YEAR                           CHAR(4)             NOT NULL    ,
     BRANCH_ORG_ID                  CHAR(4)             NOT NULL    ,
@@ -3337,9 +3172,8 @@ CREATE TABLE ibs.T3_COMMISSION_RATIO (
     MODIFY_PEOPLE                  CHAR(6)                         ,
     MODIFY_TIME                    DATETIME                       ,
     MODIFY_IP                      CHAR(15)                        ,
-    REMARK                         VARCHAR(5000)                   )
+    REMARK                         VARCHAR(5000)                   );
 
--- CREATE TABLE ibs.T3_CREDIT_CARD_PRICE
 CREATE TABLE ibs.T3_CREDIT_CARD_PRICE (
     BRANCH_ORG_ID                  CHAR(4)             NOT NULL    ,
     NEW_CARD_PRICE                 DECIMAL(18,10)                  ,
@@ -3347,15 +3181,13 @@ CREATE TABLE ibs.T3_CREDIT_CARD_PRICE (
     EFF_FLAG                       CHAR(1)                         ,
     MODIFY_PEOPLE                  CHAR(6)                         ,
     MODIFY_TIME                    DATETIME                       ,
-    MODIFY_IP                      CHAR(15)                        )
+    MODIFY_IP                      CHAR(15)                        );
 
--- CREATE TABLE ibs.T3_FNC_PRICE
 CREATE TABLE ibs.T3_FNC_PRICE (
     EFF_DT                         DATE                NOT NULL    ,
     PRICE                          DECIMAL(8,6)                    ,
-    EFF_F                          CHAR(1)                         )
+    EFF_F                          CHAR(1)                         );
 
--- CREATE TABLE ibs.T3_FNC_PROD_PRICE
 CREATE TABLE ibs.T3_FNC_PROD_PRICE (
     BRANCH_ORG_ID                  CHAR(4)             NOT NULL    ,
     CHANNLE_ID                     CHAR(4)             NOT NULL    ,
@@ -3365,9 +3197,8 @@ CREATE TABLE ibs.T3_FNC_PROD_PRICE (
     PRICE                          DECIMAL(18,10)                  ,
     MODIFY_PEOPLE                  CHAR(6)                         ,
     MODIFY_TIME                    DATETIME                       ,
-    MODIFY_IP                      CHAR(15)                        )
+    MODIFY_IP                      CHAR(15)                        );
 
--- CREATE TABLE ibs.T3_INSUR_PROD_PRICE
 CREATE TABLE ibs.T3_INSUR_PROD_PRICE (
     INSUR_PROD_ID                  VARCHAR(20)         NOT NULL    ,
     INSUR_PROD_NM                  VARCHAR(64)                     ,
@@ -3375,9 +3206,8 @@ CREATE TABLE ibs.T3_INSUR_PROD_PRICE (
     INSUR_CORP_NM                  VARCHAR(64)                     ,
     PAY_TYPE_ID                    CHAR(4)             NOT NULL    ,
     PAY_PERIOD                     CHAR(4)             NOT NULL    ,
-    PRICE                          DECIMAL(10,4)                   )
+    PRICE                          DECIMAL(10,4)                   );
 
--- CREATE TABLE ibs.T3_PER_FNC_QUAL
 CREATE TABLE ibs.T3_PER_FNC_QUAL (
     PER_ID                         VARCHAR(20)         NOT NULL    ,
     PER_NM                         VARCHAR(64)                     ,
@@ -3393,9 +3223,8 @@ CREATE TABLE ibs.T3_PER_FNC_QUAL (
     REMARK                         VARCHAR(1024)                   ,
     MODIFY_PEOPLE                  CHAR(6)                         ,
     MODIFY_TIME                    DATETIME                       ,
-    MODIFY_IP                      CHAR(15)                        )
+    MODIFY_IP                      CHAR(15)                        );
 
--- CREATE TABLE ibs.T3_PERSONAL_LN_PRICE
 CREATE TABLE ibs.T3_PERSONAL_LN_PRICE (
     BRANCH_ORG_ID                  CHAR(4)             NOT NULL    ,
     PROD_ID                        CHAR(10)            NOT NULL    ,
@@ -3404,9 +3233,8 @@ CREATE TABLE ibs.T3_PERSONAL_LN_PRICE (
     PRICE                          DECIMAL(18,10)                  ,
     MODIFY_PEOPLE                  CHAR(6)                         ,
     MODIFY_TIME                    DATETIME                       ,
-    MODIFY_IP                      CHAR(15)                        )
+    MODIFY_IP                      CHAR(15)                        );
 
--- CREATE TABLE ibs.T3_RESOURCE_MANAGER_EMP_SMY
 CREATE TABLE ibs.T3_RESOURCE_MANAGER_EMP_SMY (
     MEASURE_DT                     DATE                NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -3417,9 +3245,8 @@ CREATE TABLE ibs.T3_RESOURCE_MANAGER_EMP_SMY (
     XZ_MTH_AVG_BAL                 DECIMAL(18,3)                   ,
     M_PROFIT                       DECIMAL(18,3)                   ,
     KHQ_ST_DT                      DATE                NOT NULL    ,
-    KHQ_ED_DT                      DATE                NOT NULL    )
+    KHQ_ED_DT                      DATE                NOT NULL    );
 
--- CREATE TABLE ibs.T3_RESOURCE_MANAGER_EMP_SMY_BAK
 CREATE TABLE ibs.T3_RESOURCE_MANAGER_EMP_SMY_BAK (
     MEASURE_DT                     DATE                NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -3428,9 +3255,8 @@ CREATE TABLE ibs.T3_RESOURCE_MANAGER_EMP_SMY_BAK (
     CL_KHJQ_AVG_BAL                DECIMAL(18,3)                   ,
     CL_MTH_AVG_BAL                 DECIMAL(18,3)                   ,
     XZ_MTH_AVG_BAL                 DECIMAL(18,3)                   ,
-    M_PROFIT                       DECIMAL(18,3)                   )
+    M_PROFIT                       DECIMAL(18,3)                   );
 
--- CREATE TABLE ibs.T3_RESOURCE_MANAGER_EMP_SMY20210120
 CREATE TABLE ibs.T3_RESOURCE_MANAGER_EMP_SMY20210120 (
     MEASURE_DT                     DATE                NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -3439,9 +3265,8 @@ CREATE TABLE ibs.T3_RESOURCE_MANAGER_EMP_SMY20210120 (
     CL_KHJQ_AVG_BAL                DECIMAL(18,3)                   ,
     CL_MTH_AVG_BAL                 DECIMAL(18,3)                   ,
     XZ_MTH_AVG_BAL                 DECIMAL(18,3)                   ,
-    M_PROFIT                       DECIMAL(18,3)                   )
+    M_PROFIT                       DECIMAL(18,3)                   );
 
--- CREATE TABLE ibs.T3_RESOURCE_MANAGER_EMP_SMY20211011
 CREATE TABLE ibs.T3_RESOURCE_MANAGER_EMP_SMY20211011 (
     MEASURE_DT                     DATE                NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -3452,9 +3277,8 @@ CREATE TABLE ibs.T3_RESOURCE_MANAGER_EMP_SMY20211011 (
     XZ_MTH_AVG_BAL                 DECIMAL(18,3)                   ,
     M_PROFIT                       DECIMAL(18,3)                   ,
     KHQ_ST_DT                      DATE                NOT NULL    ,
-    KHQ_ED_DT                      DATE                NOT NULL    )
+    KHQ_ED_DT                      DATE                NOT NULL    );
 
--- CREATE TABLE ibs.T3_RESOURCE_MANAGER_SMY
 CREATE TABLE ibs.T3_RESOURCE_MANAGER_SMY (
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
     MEASURE_DT                     DATE                NOT NULL    ,
@@ -3478,11 +3302,10 @@ CREATE TABLE ibs.T3_RESOURCE_MANAGER_SMY (
     DEP_QTD_AVG_BAL_INCREASE       DECIMAL(18,2)                   ,
     ASSESSMENT_INCREASE            DECIMAL(18,2)                   ,
     TOTAL_PROFIT                   DECIMAL(18,2)                   ,
-    DEP_QTD_PROFIT_SJ              DECIMAL(18,2)                 With Default 0  ,
-    LN_QTD_PROFIT_SJ               DECIMAL(18,2)                 With Default 0  ,
-    LN_QTD_PROFIT_SJ_ADD           DECIMAL(18,2)                 With Default 0  )
+    DEP_QTD_PROFIT_SJ              DECIMAL(18,2)                 DEFAULT 0  ,
+    LN_QTD_PROFIT_SJ               DECIMAL(18,2)                 DEFAULT 0  ,
+    LN_QTD_PROFIT_SJ_ADD           DECIMAL(18,2)                 DEFAULT 0  );
 
--- CREATE TABLE ibs.T3_RESOURCE_MANAGER_SMY_TMP
 CREATE TABLE ibs.T3_RESOURCE_MANAGER_SMY_TMP (
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
     MEASURE_DT                     DATE                NOT NULL    ,
@@ -3506,11 +3329,10 @@ CREATE TABLE ibs.T3_RESOURCE_MANAGER_SMY_TMP (
     DEP_QTD_AVG_BAL_INCREASE       DECIMAL(18,2)                   ,
     ASSESSMENT_INCREASE            DECIMAL(18,2)                   ,
     TOTAL_PROFIT                   DECIMAL(18,2)                   ,
-    DEP_QTD_PROFIT_SJ              DECIMAL(18,2)                 With Default 0  ,
-    LN_QTD_PROFIT_SJ               DECIMAL(18,2)                 With Default 0  ,
-    LN_QTD_PROFIT_SJ_ADD           DECIMAL(18,2)                 With Default 0  )
+    DEP_QTD_PROFIT_SJ              DECIMAL(18,2)                 DEFAULT 0  ,
+    LN_QTD_PROFIT_SJ               DECIMAL(18,2)                 DEFAULT 0  ,
+    LN_QTD_PROFIT_SJ_ADD           DECIMAL(18,2)                 DEFAULT 0  );
 
--- CREATE TABLE ibs.T3_RESOURCE_MANAGER_SMY20211203
 CREATE TABLE ibs.T3_RESOURCE_MANAGER_SMY20211203 (
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
     MEASURE_DT                     DATE                NOT NULL    ,
@@ -3534,10 +3356,9 @@ CREATE TABLE ibs.T3_RESOURCE_MANAGER_SMY20211203 (
     DEP_QTD_AVG_BAL_INCREASE       DECIMAL(18,2)                   ,
     ASSESSMENT_INCREASE            DECIMAL(18,2)                   ,
     TOTAL_PROFIT                   DECIMAL(18,2)                   ,
-    DEP_QTD_PROFIT_SJ              DECIMAL(18,2)                 With Default 0  ,
-    LN_QTD_PROFIT_SJ               DECIMAL(18,2)                 With Default 0  )
+    DEP_QTD_PROFIT_SJ              DECIMAL(18,2)                 DEFAULT 0  ,
+    LN_QTD_PROFIT_SJ               DECIMAL(18,2)                 DEFAULT 0  );
 
--- CREATE TABLE ibs.T3_RESOURCE_MANAGER_VUCH_DETAIL
 CREATE TABLE ibs.T3_RESOURCE_MANAGER_VUCH_DETAIL (
     VUCH_NBR                       VARCHAR(20)         NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -3561,9 +3382,8 @@ CREATE TABLE ibs.T3_RESOURCE_MANAGER_VUCH_DETAIL (
     XZ_MTH_AVG_BAL                 DECIMAL(18,3)                   ,
     M_PROFIT                       DECIMAL(18,3)                   ,
     KHQ_ST_DT                      DATE                NOT NULL    ,
-    KHQ_ED_DT                      DATE                NOT NULL    )
+    KHQ_ED_DT                      DATE                NOT NULL    );
 
--- CREATE TABLE ibs.T3_RESOURCE_MANAGER_VUCH_DETAIL_BAK
 CREATE TABLE ibs.T3_RESOURCE_MANAGER_VUCH_DETAIL_BAK (
     VUCH_NBR                       VARCHAR(20)         NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -3585,9 +3405,8 @@ CREATE TABLE ibs.T3_RESOURCE_MANAGER_VUCH_DETAIL_BAK (
     CL_KHJQ_AVG_BAL                DECIMAL(18,3)                   ,
     CL_MTH_AVG_BAL                 DECIMAL(18,3)                   ,
     XZ_MTH_AVG_BAL                 DECIMAL(18,3)                   ,
-    M_PROFIT                       DECIMAL(18,3)                   )
+    M_PROFIT                       DECIMAL(18,3)                   );
 
--- CREATE TABLE ibs.T3_RESOURCE_MANAGER_VUCH_DETAIL_TMP
 CREATE TABLE ibs.T3_RESOURCE_MANAGER_VUCH_DETAIL_TMP (
     VUCH_NBR                       VARCHAR(20)         NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -3611,9 +3430,8 @@ CREATE TABLE ibs.T3_RESOURCE_MANAGER_VUCH_DETAIL_TMP (
     XZ_MTH_AVG_BAL                 DECIMAL(18,3)                   ,
     M_PROFIT                       DECIMAL(18,3)                   ,
     KHQ_ST_DT                      DATE                NOT NULL    ,
-    KHQ_ED_DT                      DATE                NOT NULL    )
+    KHQ_ED_DT                      DATE                NOT NULL    );
 
--- CREATE TABLE ibs.T3_RESOURCE_MANAGER_VUCH_DETAIL_TMP20211013
 CREATE TABLE ibs.T3_RESOURCE_MANAGER_VUCH_DETAIL_TMP20211013 (
     VUCH_NBR                       VARCHAR(20)         NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -3637,9 +3455,8 @@ CREATE TABLE ibs.T3_RESOURCE_MANAGER_VUCH_DETAIL_TMP20211013 (
     XZ_MTH_AVG_BAL                 DECIMAL(18,3)                   ,
     M_PROFIT                       DECIMAL(18,3)                   ,
     KHQ_ST_DT                      DATE                NOT NULL    ,
-    KHQ_ED_DT                      DATE                NOT NULL    )
+    KHQ_ED_DT                      DATE                NOT NULL    );
 
--- CREATE TABLE ibs.T3_RESOURCE_MANAGER_VUCH_DETAIL20210120
 CREATE TABLE ibs.T3_RESOURCE_MANAGER_VUCH_DETAIL20210120 (
     VUCH_NBR                       VARCHAR(20)         NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -3661,9 +3478,8 @@ CREATE TABLE ibs.T3_RESOURCE_MANAGER_VUCH_DETAIL20210120 (
     CL_KHJQ_AVG_BAL                DECIMAL(18,3)                   ,
     CL_MTH_AVG_BAL                 DECIMAL(18,3)                   ,
     XZ_MTH_AVG_BAL                 DECIMAL(18,3)                   ,
-    M_PROFIT                       DECIMAL(18,3)                   )
+    M_PROFIT                       DECIMAL(18,3)                   );
 
--- CREATE TABLE ibs.T3_SIGN_PROD_PRICE
 CREATE TABLE ibs.T3_SIGN_PROD_PRICE (
     BONUS_TYPE_ID                  CHAR(2)             NOT NULL    ,
     BRANCH_ORG_ID                  CHAR(4)             NOT NULL    ,
@@ -3672,9 +3488,8 @@ CREATE TABLE ibs.T3_SIGN_PROD_PRICE (
     EFF_FLAG                       CHAR(1)             NOT NULL    ,
     MODIFY_PEOPLE                  CHAR(6)                         ,
     MODIFY_TIME                    DATETIME                       ,
-    MODIFY_IP                      CHAR(15)                        )
+    MODIFY_IP                      CHAR(15)                        );
 
--- CREATE TABLE ibs.T3_SMALL_BUSINESS_LN_PROD_PRICE
 CREATE TABLE ibs.T3_SMALL_BUSINESS_LN_PROD_PRICE (
     BRANCH_ORG_ID                  CHAR(4)             NOT NULL    ,
     PROD_ID                        CHAR(10)            NOT NULL    ,
@@ -3682,9 +3497,8 @@ CREATE TABLE ibs.T3_SMALL_BUSINESS_LN_PROD_PRICE (
     PRICE                          DECIMAL(18,10)                  ,
     MODIFY_PEOPLE                  CHAR(6)                         ,
     MODIFY_TIME                    DATETIME                       ,
-    MODIFY_IP                      CHAR(15)                        )
+    MODIFY_IP                      CHAR(15)                        );
 
--- CREATE TABLE ibs.T4_BANUS_SHARE_RATIO_H
 CREATE TABLE ibs.T4_BANUS_SHARE_RATIO_H (
     BONUS_TYPE_ID                  CHAR(2)             NOT NULL    ,
     BRANCH_ORG_ID                  CHAR(4)             NOT NULL    ,
@@ -3692,17 +3506,15 @@ CREATE TABLE ibs.T4_BANUS_SHARE_RATIO_H (
     RECOMMEND_RATIO                INT             NOT NULL    ,
     SALES_RATIO                    INT             NOT NULL    ,
     START_DT                       DATE                NOT NULL    ,
-    END_DT                         DATE                            )
+    END_DT                         DATE                            );
 
--- CREATE TABLE ibs.T4_CREDIT_CARD_PRICE_H
 CREATE TABLE ibs.T4_CREDIT_CARD_PRICE_H (
     BRANCH_ORG_ID                  CHAR(4)             NOT NULL    ,
     NEW_CARD_PRICE                 DECIMAL(18,10)      NOT NULL    ,
     OLD_CARD_PRICE                 DECIMAL(18,10)      NOT NULL    ,
     START_DT                       DATE                NOT NULL    ,
-    END_DT                         DATE                            )
+    END_DT                         DATE                            );
 
--- CREATE TABLE ibs.T4_FNC_PROD_PRICE_H
 CREATE TABLE ibs.T4_FNC_PROD_PRICE_H (
     BRANCH_ORG_ID                  CHAR(4)             NOT NULL    ,
     CHANNLE_ID                     CHAR(4)             NOT NULL    ,
@@ -3710,35 +3522,31 @@ CREATE TABLE ibs.T4_FNC_PROD_PRICE_H (
     AMT_INTERVAL_TYPE_ID           CHAR(2)             NOT NULL    ,
     PRICE                          DECIMAL(18,10)      NOT NULL    ,
     START_DT                       DATE                NOT NULL    ,
-    END_DT                         DATE                            )
+    END_DT                         DATE                            );
 
--- CREATE TABLE ibs.T4_PERSONAL_LN_PRICE_H
 CREATE TABLE ibs.T4_PERSONAL_LN_PRICE_H (
     BRANCH_ORG_ID                  CHAR(4)             NOT NULL    ,
     PROD_ID                        CHAR(10)            NOT NULL    ,
     AMT_INTERVAL_TYPE_ID           CHAR(2)             NOT NULL    ,
     PRICE                          DECIMAL(18,10)      NOT NULL    ,
     START_DT                       DATE                NOT NULL    ,
-    END_DT                         DATE                            )
+    END_DT                         DATE                            );
 
--- CREATE TABLE ibs.T4_SIGN_PROD_PRICE_H
 CREATE TABLE ibs.T4_SIGN_PROD_PRICE_H (
     BONUS_TYPE_ID                  CHAR(2)             NOT NULL    ,
     BRANCH_ORG_ID                  CHAR(4)             NOT NULL    ,
     CHANNLE_ID                     CHAR(4)             NOT NULL    ,
     PRICE                          DECIMAL(18,2)       NOT NULL    ,
     START_DT                       DATE                NOT NULL    ,
-    END_DT                         DATE                            )
+    END_DT                         DATE                            );
 
--- CREATE TABLE ibs.T4_SMALL_BUSINESS_LN_PROD_PRICE_H
 CREATE TABLE ibs.T4_SMALL_BUSINESS_LN_PROD_PRICE_H (
     BRANCH_ORG_ID                  CHAR(4)             NOT NULL    ,
     PROD_ID                        CHAR(10)            NOT NULL    ,
     PRICE                          DECIMAL(18,10)                  ,
     START_DT                       DATE                NOT NULL    ,
-    END_DT                         DATE                            )
+    END_DT                         DATE                            );
 
--- CREATE TABLE ibs.T5_EMP
 CREATE TABLE ibs.T5_EMP (
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
     EMP_TYPE_ID                    CHAR(2)                         ,
@@ -3756,9 +3564,8 @@ CREATE TABLE ibs.T5_EMP (
     PSTN_TYPE_NM                   VARCHAR(64)                     ,
     SUB_PSTN_TYPE                  CHAR(4)                         ,
     SUB_PSTN_TYPE_NM               VARCHAR(64)                     ,
-    HR_ORG_NAME                    VARCHAR(64)                     )
+    HR_ORG_NAME                    VARCHAR(64)                     );
 
--- CREATE TABLE ibs.T5_EMP_ASSESSMENT_Q
 CREATE TABLE ibs.T5_EMP_ASSESSMENT_Q (
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
     EMP_ID_OLD                     VARCHAR(20)                     ,
@@ -3777,9 +3584,8 @@ CREATE TABLE ibs.T5_EMP_ASSESSMENT_Q (
     DAY_DEP_AVG_BAL                DECIMAL(18,2)                   ,
     MODIFY_PEOPLE                  CHAR(6)                         ,
     MODIFY_TIME                    DATETIME                       ,
-    MODIFY_IP                      CHAR(15)                        )
+    MODIFY_IP                      CHAR(15)                        );
 
--- CREATE TABLE ibs.T5_EMP_BZJX
 CREATE TABLE ibs.T5_EMP_BZJX (
     MEASURE_DT                     DATE                NOT NULL    ,
     EXAM_YEAR                      VARCHAR(4)                      ,
@@ -3791,14 +3597,14 @@ CREATE TABLE ibs.T5_EMP_BZJX (
     ORG_NM                         VARCHAR(64)                     ,
     BRANCH_ORG_ID                  VARCHAR(4)                      ,
     BRANCH_ORG_NM                  VARCHAR(64)                     ,
-    BZJX                           DECIMAL(20,2)                 With Default 0  ,
+    BZJX                           DECIMAL(20,2)                 DEFAULT 0  ,
     HEAD_ORG_ID                    VARCHAR(4)                      ,
     HEAD_ORG_NM                    VARCHAR(64)                     ,
     PSTN_TYPE                      VARCHAR(4)                      ,
     PSTN_TYPE_NM                   VARCHAR(64)                     ,
     SUB_PSTN_TYPE                  VARCHAR(4)                      ,
     SUB_PSTN_TYPE_NM               VARCHAR(64)                     ,
-    EXS_XZ                         DECIMAL(20,2)                 With Default 0  ,
+    EXS_XZ                         DECIMAL(20,2)                 DEFAULT 0  ,
     MODIFY_PEOPLE                  CHAR(6)                         ,
     MODIFY_TIME                    DATETIME                       ,
     MODIFY_IP                      CHAR(15)                        ,
@@ -3806,10 +3612,9 @@ CREATE TABLE ibs.T5_EMP_BZJX (
     VERIFY_TIME                    DATETIME                       ,
     VERIFY_IP                      CHAR(15)                        ,
     VERIFY_REMARK                  VARCHAR(256)                    ,
-    STUS                           VARCHAR(2)          NOT NULL  With Default '0'  ,
-    IS_EXAM                        VARCHAR(2)                      )
+    STUS                           VARCHAR(2)          NOT NULL  DEFAULT '0'  ,
+    IS_EXAM                        VARCHAR(2)                      );
 
--- CREATE TABLE ibs.T5_EMP_CERTIFICATE
 CREATE TABLE ibs.T5_EMP_CERTIFICATE (
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
     EMP_NM                         VARCHAR(64)                     ,
@@ -3824,9 +3629,8 @@ CREATE TABLE ibs.T5_EMP_CERTIFICATE (
     SUB_PSTN_TYPE                  CHAR(4)                         ,
     SUB_PSTN_TYPE_NM               VARCHAR(64)                     ,
     YEAR                           CHAR(4)                         ,
-    GRADE                          CHAR(20)                        )
+    GRADE                          CHAR(20)                        );
 
--- CREATE TABLE ibs.T5_EMP_CERTIFICATE_20211022
 CREATE TABLE ibs.T5_EMP_CERTIFICATE_20211022 (
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
     EMP_NM                         VARCHAR(64)                     ,
@@ -3841,9 +3645,8 @@ CREATE TABLE ibs.T5_EMP_CERTIFICATE_20211022 (
     SUB_PSTN_TYPE                  CHAR(4)                         ,
     SUB_PSTN_TYPE_NM               VARCHAR(64)                     ,
     YEAR                           CHAR(4)                         ,
-    GRADE                          CHAR(20)                        )
+    GRADE                          CHAR(20)                        );
 
--- CREATE TABLE ibs.T5_EMP_CERTIFICATE_20211122
 CREATE TABLE ibs.T5_EMP_CERTIFICATE_20211122 (
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
     EMP_NM                         VARCHAR(64)                     ,
@@ -3858,9 +3661,8 @@ CREATE TABLE ibs.T5_EMP_CERTIFICATE_20211122 (
     SUB_PSTN_TYPE                  CHAR(4)                         ,
     SUB_PSTN_TYPE_NM               VARCHAR(64)                     ,
     YEAR                           CHAR(4)                         ,
-    GRADE                          CHAR(20)                        )
+    GRADE                          CHAR(20)                        );
 
--- CREATE TABLE ibs.T5_EMP_CERTIFICATE_20211228
 CREATE TABLE ibs.T5_EMP_CERTIFICATE_20211228 (
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
     EMP_NM                         VARCHAR(64)                     ,
@@ -3875,9 +3677,8 @@ CREATE TABLE ibs.T5_EMP_CERTIFICATE_20211228 (
     SUB_PSTN_TYPE                  CHAR(4)                         ,
     SUB_PSTN_TYPE_NM               VARCHAR(64)                     ,
     YEAR                           CHAR(4)                         ,
-    GRADE                          CHAR(20)                        )
+    GRADE                          CHAR(20)                        );
 
--- CREATE TABLE ibs.T5_EMP_CERTIFICATE_20220822
 CREATE TABLE ibs.T5_EMP_CERTIFICATE_20220822 (
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
     EMP_NM                         VARCHAR(64)                     ,
@@ -3892,9 +3693,8 @@ CREATE TABLE ibs.T5_EMP_CERTIFICATE_20220822 (
     SUB_PSTN_TYPE                  CHAR(4)                         ,
     SUB_PSTN_TYPE_NM               VARCHAR(64)                     ,
     YEAR                           CHAR(4)                         ,
-    GRADE                          CHAR(20)                        )
+    GRADE                          CHAR(20)                        );
 
--- CREATE TABLE ibs.T5_EMP_CERTIFICATE_20230601
 CREATE TABLE ibs.T5_EMP_CERTIFICATE_20230601 (
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
     EMP_NM                         VARCHAR(64)                     ,
@@ -3909,9 +3709,8 @@ CREATE TABLE ibs.T5_EMP_CERTIFICATE_20230601 (
     SUB_PSTN_TYPE                  CHAR(4)                         ,
     SUB_PSTN_TYPE_NM               VARCHAR(64)                     ,
     YEAR                           CHAR(4)                         ,
-    GRADE                          CHAR(20)                        )
+    GRADE                          CHAR(20)                        );
 
--- CREATE TABLE ibs.T5_EMP_CERTIFICATE_20231228
 CREATE TABLE ibs.T5_EMP_CERTIFICATE_20231228 (
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
     EMP_NM                         VARCHAR(64)                     ,
@@ -3926,9 +3725,8 @@ CREATE TABLE ibs.T5_EMP_CERTIFICATE_20231228 (
     SUB_PSTN_TYPE                  CHAR(4)                         ,
     SUB_PSTN_TYPE_NM               VARCHAR(64)                     ,
     YEAR                           CHAR(4)                         ,
-    GRADE                          CHAR(20)                        )
+    GRADE                          CHAR(20)                        );
 
--- CREATE TABLE ibs.T5_EMP_CERTIFICATE_20240220
 CREATE TABLE ibs.T5_EMP_CERTIFICATE_20240220 (
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
     EMP_NM                         VARCHAR(64)                     ,
@@ -3943,9 +3741,8 @@ CREATE TABLE ibs.T5_EMP_CERTIFICATE_20240220 (
     SUB_PSTN_TYPE                  CHAR(4)                         ,
     SUB_PSTN_TYPE_NM               VARCHAR(64)                     ,
     YEAR                           CHAR(4)                         ,
-    GRADE                          CHAR(20)                        )
+    GRADE                          CHAR(20)                        );
 
--- CREATE TABLE ibs.T5_EMP_CERTIFICATE_20240513
 CREATE TABLE ibs.T5_EMP_CERTIFICATE_20240513 (
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
     EMP_NM                         VARCHAR(64)                     ,
@@ -3960,9 +3757,8 @@ CREATE TABLE ibs.T5_EMP_CERTIFICATE_20240513 (
     SUB_PSTN_TYPE                  CHAR(4)                         ,
     SUB_PSTN_TYPE_NM               VARCHAR(64)                     ,
     YEAR                           CHAR(4)                         ,
-    GRADE                          CHAR(20)                        )
+    GRADE                          CHAR(20)                        );
 
--- CREATE TABLE ibs.T5_EMP_CERTIFICATE_20240919
 CREATE TABLE ibs.T5_EMP_CERTIFICATE_20240919 (
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
     EMP_NM                         VARCHAR(64)                     ,
@@ -3977,9 +3773,8 @@ CREATE TABLE ibs.T5_EMP_CERTIFICATE_20240919 (
     SUB_PSTN_TYPE                  CHAR(4)                         ,
     SUB_PSTN_TYPE_NM               VARCHAR(64)                     ,
     YEAR                           CHAR(4)                         ,
-    GRADE                          CHAR(20)                        )
+    GRADE                          CHAR(20)                        );
 
--- CREATE TABLE ibs.T5_EMP_CERTIFICATE_BAK
 CREATE TABLE ibs.T5_EMP_CERTIFICATE_BAK (
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
     EMP_NM                         VARCHAR(64)                     ,
@@ -3994,9 +3789,8 @@ CREATE TABLE ibs.T5_EMP_CERTIFICATE_BAK (
     SUB_PSTN_TYPE                  CHAR(4)                         ,
     SUB_PSTN_TYPE_NM               VARCHAR(64)                     ,
     YEAR                           CHAR(4)                         ,
-    GRADE                          CHAR(20)                        )
+    GRADE                          CHAR(20)                        );
 
--- CREATE TABLE ibs.T5_EMP_GDQ_OR_GZ
 CREATE TABLE ibs.T5_EMP_GDQ_OR_GZ (
     EXAM_YEAR                      VARCHAR(4)          NOT NULL    ,
     EXAM_Q                         VARCHAR(2)          NOT NULL    ,
@@ -4028,9 +3822,8 @@ CREATE TABLE ibs.T5_EMP_GDQ_OR_GZ (
     VERIFY_PEOPLE                  VARCHAR(32)                     ,
     VERIFY_TIME                    DATETIME                       ,
     VERIFY_IP                      VARCHAR(32)                     ,
-    MEASURE_DT                     VARCHAR(10)                     )
+    MEASURE_DT                     VARCHAR(10)                     );
 
--- CREATE TABLE ibs.T5_EMP_Q
 CREATE TABLE ibs.T5_EMP_Q (
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
     MEASURE_DT                     DATE                NOT NULL    ,
@@ -4053,9 +3846,8 @@ CREATE TABLE ibs.T5_EMP_Q (
     ACTION                         VARCHAR(20)                     ,
     EFFDT                          DATE                            ,
     PROBATION_DT                   DATE                            ,
-    COMPRATE                       DECIMAL(20,2)                   )
+    COMPRATE                       DECIMAL(20,2)                   );
 
--- CREATE TABLE ibs.T5_EMP_RESOURCE_MANAGER
 CREATE TABLE ibs.T5_EMP_RESOURCE_MANAGER (
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
     EMP_ID_OLD                     VARCHAR(20)                     ,
@@ -4076,9 +3868,8 @@ CREATE TABLE ibs.T5_EMP_RESOURCE_MANAGER (
     KHQ_ED_DT                      DATE                NOT NULL    ,
     MODIFY_PEOPLE                  CHAR(6)                         ,
     MODIFY_TIME                    DATETIME                       ,
-    MODIFY_IP                      CHAR(15)                        )
+    MODIFY_IP                      CHAR(15)                        );
 
--- CREATE TABLE ibs.T5_LOBBY_MANAGER_SCORE_Q
 CREATE TABLE ibs.T5_LOBBY_MANAGER_SCORE_Q (
     MEASURE_DT                     DATE                NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -4098,9 +3889,8 @@ CREATE TABLE ibs.T5_LOBBY_MANAGER_SCORE_Q (
     MODIFY_TIME                    DATETIME                       ,
     MODIFY_IP                      CHAR(15)                        ,
     EXAM_Y                         DECIMAL(4)          NOT NULL    ,
-    EXAM_Q                         CHAR(15)            NOT NULL    )
+    EXAM_Q                         CHAR(15)            NOT NULL    );
 
--- CREATE TABLE ibs.T5_MANAGER_Y_SCORE
 CREATE TABLE ibs.T5_MANAGER_Y_SCORE (
     MEASURE_DT                     DATE                NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -4118,9 +3908,8 @@ CREATE TABLE ibs.T5_MANAGER_Y_SCORE (
     SCORE_TYPE_ID                  CHAR(2)                         ,
     MODIFY_PEOPLE                  CHAR(6)                         ,
     MODIFY_TIME                    DATETIME                       ,
-    MODIFY_IP                      CHAR(15)                        )
+    MODIFY_IP                      CHAR(15)                        );
 
--- CREATE TABLE ibs.T5_ORG
 CREATE TABLE ibs.T5_ORG (
     ORG_ID                         CHAR(4)             NOT NULL    ,
     ORG_TYPE_ID                    CHAR(2)             NOT NULL    ,
@@ -4130,9 +3919,8 @@ CREATE TABLE ibs.T5_ORG (
     BRANCH_ORG_ID                  CHAR(4)                         ,
     BRANCH_ORG_NM                  VARCHAR(64)                     ,
     HEAD_ORG_ID                    CHAR(4)                         ,
-    HEAD_ORG_NM                    VARCHAR(64)                     )
+    HEAD_ORG_NM                    VARCHAR(64)                     );
 
--- CREATE TABLE ibs.T5_ORG_MEG
 CREATE TABLE ibs.T5_ORG_MEG (
     ORG_ID                         CHAR(4)             NOT NULL    ,
     ORG_TYPE_ID                    CHAR(2)             NOT NULL    ,
@@ -4145,18 +3933,16 @@ CREATE TABLE ibs.T5_ORG_MEG (
     HEAD_ORG_NM                    VARCHAR(64)                     ,
     ORG_ID_MEG                     CHAR(4)             NOT NULL    ,
     ORG_IP_ID_MEG                  INT                         ,
-    ORG_NM_MEG                     VARCHAR(64)                     )
+    ORG_NM_MEG                     VARCHAR(64)                     );
 
--- CREATE TABLE ibs.T5_YBDB_PER_FEE_RATION
 CREATE TABLE ibs.T5_YBDB_PER_FEE_RATION (
     PER_FEE_RATION                 DECIMAL(20,2)       NOT NULL    ,
     ST_DT                          DATE                NOT NULL    ,
     ED_DT                          DATE                NOT NULL    ,
     MODIFY_PEOPLE                  CHAR(6)                         ,
     MODIFY_TIME                    DATETIME                       ,
-    MODIFY_IP                      CHAR(15)                        )
+    MODIFY_IP                      CHAR(15)                        );
 
--- CREATE TABLE ibs.T6_SALES_DISTRIBUTE_LOG
 CREATE TABLE ibs.T6_SALES_DISTRIBUTE_LOG (
     SALE_ID                        VARCHAR(32)         NOT NULL    ,
     BONUS_TYPE_ID                  CHAR(2)             NOT NULL    ,
@@ -4172,9 +3958,8 @@ CREATE TABLE ibs.T6_SALES_DISTRIBUTE_LOG (
     SALES_PEOPLE                   CHAR(6)                         ,
     MODIFY_PEOPLE                  CHAR(6)                         ,
     MODIFY_IP                      CHAR(15)                        ,
-    REMARK                         VARCHAR(500)                    )
+    REMARK                         VARCHAR(500)                    );
 
--- CREATE TABLE ibs.T6_SALES_DISTRIBUTE_LOG_CJ
 CREATE TABLE ibs.T6_SALES_DISTRIBUTE_LOG_CJ (
     SALE_ID                        VARCHAR(32)         NOT NULL    ,
     BONUS_TYPE_ID                  CHAR(2)             NOT NULL    ,
@@ -4190,9 +3975,8 @@ CREATE TABLE ibs.T6_SALES_DISTRIBUTE_LOG_CJ (
     SALES_PEOPLE                   CHAR(6)                         ,
     MODIFY_PEOPLE                  CHAR(6)                         ,
     MODIFY_IP                      CHAR(15)                        ,
-    REMARK                         VARCHAR(500)                    )
+    REMARK                         VARCHAR(500)                    );
 
--- CREATE TABLE ibs.T6_VUCH_EMP_RELA_CHANGE_LOG
 CREATE TABLE ibs.T6_VUCH_EMP_RELA_CHANGE_LOG (
     VUCH_NBR                       VARCHAR(64)         NOT NULL    ,
     OLD_EMP_ID                     VARCHAR(20)                     ,
@@ -4212,7 +3996,7 @@ CREATE TABLE ibs.T6_VUCH_EMP_RELA_CHANGE_LOG (
     CHANGE_TYPE                    CHAR(2)                         ,
     NEW_FIN_VERIFY_DT              DATETIME                       ,
     NEW_FIN_VERIFY_EMP_ID          VARCHAR(20)                     ,
-    CHANGE_FLAG                    VARCHAR(4)                    With Default '0'  ,
+    CHANGE_FLAG                    VARCHAR(4)                    DEFAULT '0'  ,
     NEW_VERIFY_EMP_NM              VARCHAR(64)                     ,
     NEW_FIN_VERIFY_EMP_NM          VARCHAR(64)                     ,
     CST_NM                         VARCHAR(64)                     ,
@@ -4221,9 +4005,8 @@ CREATE TABLE ibs.T6_VUCH_EMP_RELA_CHANGE_LOG (
     OLD_FH_VERIFY_DT               DATE                            ,
     OLD_FH_VERIFY_EMP_ID           VARCHAR(20)                     ,
     OLD_FH_VERIFY_EMP_NM           VARCHAR(64)                     ,
-    BIZ_TYPE_NM                    VARCHAR(64)                     )
+    BIZ_TYPE_NM                    VARCHAR(64)                     );
 
--- CREATE TABLE ibs.T6_VUCH_EMP_RELA_CHANGE_LOG_20250812
 CREATE TABLE ibs.T6_VUCH_EMP_RELA_CHANGE_LOG_20250812 (
     VUCH_NBR                       VARCHAR(64)         NOT NULL    ,
     OLD_EMP_ID                     VARCHAR(20)                     ,
@@ -4243,7 +4026,7 @@ CREATE TABLE ibs.T6_VUCH_EMP_RELA_CHANGE_LOG_20250812 (
     CHANGE_TYPE                    CHAR(2)                         ,
     NEW_FIN_VERIFY_DT              DATETIME                       ,
     NEW_FIN_VERIFY_EMP_ID          VARCHAR(20)                     ,
-    CHANGE_FLAG                    VARCHAR(4)                    With Default '0'  ,
+    CHANGE_FLAG                    VARCHAR(4)                    DEFAULT '0'  ,
     NEW_VERIFY_EMP_NM              VARCHAR(64)                     ,
     NEW_FIN_VERIFY_EMP_NM          VARCHAR(64)                     ,
     CST_NM                         VARCHAR(64)                     ,
@@ -4252,9 +4035,8 @@ CREATE TABLE ibs.T6_VUCH_EMP_RELA_CHANGE_LOG_20250812 (
     OLD_FH_VERIFY_DT               DATE                            ,
     OLD_FH_VERIFY_EMP_ID           VARCHAR(20)                     ,
     OLD_FH_VERIFY_EMP_NM           VARCHAR(64)                     ,
-    BIZ_TYPE_NM                    VARCHAR(64)                     )
+    BIZ_TYPE_NM                    VARCHAR(64)                     );
 
--- CREATE TABLE ibs.T7_CST_MARKETING_DETAIL
 CREATE TABLE ibs.T7_CST_MARKETING_DETAIL (
     MEASURE_DT                     DATE                NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -4262,9 +4044,8 @@ CREATE TABLE ibs.T7_CST_MARKETING_DETAIL (
     CCY_ID                         INT                         ,
     CURRENT_PERSONNEL_DEP_BAL      DECIMAL(18,3)                   ,
     FIXED_PERSONNEL_DEP_BAL        DECIMAL(18,3)                   ,
-    TOTAL_PERSONNEL_DEP_BAL        DECIMAL(18,3)                   )
+    TOTAL_PERSONNEL_DEP_BAL        DECIMAL(18,3)                   );
 
--- CREATE TABLE ibs.T7_EMP_SMY
 CREATE TABLE ibs.T7_EMP_SMY (
     MEASURE_DT                     DATE                NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -4278,9 +4059,8 @@ CREATE TABLE ibs.T7_EMP_SMY (
     RECOMMEND_BONUS2               DECIMAL(18,3)                   ,
     FNC_Q_PROFIT                   DECIMAL(18,3)                   ,
     GRADE                          VARCHAR(20)                     ,
-    RESOURCE_MANAGER_F             CHAR(1)                         )
+    RESOURCE_MANAGER_F             CHAR(1)                         );
 
--- CREATE TABLE ibs.T7_EMP_SMY_20240606
 CREATE TABLE ibs.T7_EMP_SMY_20240606 (
     MEASURE_DT                     DATE                NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -4294,10 +4074,8 @@ CREATE TABLE ibs.T7_EMP_SMY_20240606 (
     RECOMMEND_BONUS2               DECIMAL(18,3)                   ,
     FNC_Q_PROFIT                   DECIMAL(18,3)                   ,
     GRADE                          VARCHAR(20)                     ,
-    RESOURCE_MANAGER_F             CHAR(1)                         )
-in USERSPACE1
+    RESOURCE_MANAGER_F             CHAR(1)                         );
 
--- CREATE TABLE ibs.T7_EMP_SMY_20241125
 CREATE TABLE ibs.T7_EMP_SMY_20241125 (
     MEASURE_DT                     DATE                NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -4311,9 +4089,8 @@ CREATE TABLE ibs.T7_EMP_SMY_20241125 (
     RECOMMEND_BONUS2               DECIMAL(18,3)                   ,
     FNC_Q_PROFIT                   DECIMAL(18,3)                   ,
     GRADE                          VARCHAR(20)                     ,
-    RESOURCE_MANAGER_F             CHAR(1)                         )
+    RESOURCE_MANAGER_F             CHAR(1)                         );
 
--- CREATE TABLE ibs.T7_EMP_SMY_BAK
 CREATE TABLE ibs.T7_EMP_SMY_BAK (
     MEASURE_DT                     DATE                NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -4327,9 +4104,8 @@ CREATE TABLE ibs.T7_EMP_SMY_BAK (
     RECOMMEND_BONUS2               DECIMAL(18,3)                   ,
     FNC_Q_PROFIT                   DECIMAL(18,3)                   ,
     GRADE                          VARCHAR(20)                     ,
-    RESOURCE_MANAGER_F             CHAR(1)                         )
+    RESOURCE_MANAGER_F             CHAR(1)                         );
 
--- CREATE TABLE ibs.T7_EMP_SMY_TMP
 CREATE TABLE ibs.T7_EMP_SMY_TMP (
     MEASURE_DT                     DATE                NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -4343,9 +4119,8 @@ CREATE TABLE ibs.T7_EMP_SMY_TMP (
     RECOMMEND_BONUS2               DECIMAL(18,3)                   ,
     FNC_Q_PROFIT                   DECIMAL(18,3)                   ,
     GRADE                          VARCHAR(20)                     ,
-    RESOURCE_MANAGER_F             CHAR(1)                         )
+    RESOURCE_MANAGER_F             CHAR(1)                         );
 
--- CREATE TABLE ibs.T7_EMP_SMY_TMP_RESULT
 CREATE TABLE ibs.T7_EMP_SMY_TMP_RESULT (
     MEASURE_DT                     DATE                NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -4359,9 +4134,8 @@ CREATE TABLE ibs.T7_EMP_SMY_TMP_RESULT (
     RECOMMEND_BONUS2               DECIMAL(18,3)                   ,
     FNC_Q_PROFIT                   DECIMAL(18,3)                   ,
     GRADE                          VARCHAR(20)                     ,
-    RESOURCE_MANAGER_F             CHAR(1)                         )
+    RESOURCE_MANAGER_F             CHAR(1)                         );
 
--- CREATE TABLE ibs.T7_EMP_SMY_TMP20231205
 CREATE TABLE ibs.T7_EMP_SMY_TMP20231205 (
     MEASURE_DT                     DATE                NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -4375,9 +4149,8 @@ CREATE TABLE ibs.T7_EMP_SMY_TMP20231205 (
     RECOMMEND_BONUS2               DECIMAL(18,3)                   ,
     FNC_Q_PROFIT                   DECIMAL(18,3)                   ,
     GRADE                          VARCHAR(20)                     ,
-    RESOURCE_MANAGER_F             CHAR(1)                         )
+    RESOURCE_MANAGER_F             CHAR(1)                         );
 
--- CREATE TABLE ibs.T7_EMP_SMY20220331
 CREATE TABLE ibs.T7_EMP_SMY20220331 (
     MEASURE_DT                     DATE                NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -4391,9 +4164,8 @@ CREATE TABLE ibs.T7_EMP_SMY20220331 (
     RECOMMEND_BONUS2               DECIMAL(18,3)                   ,
     FNC_Q_PROFIT                   DECIMAL(18,3)                   ,
     GRADE                          VARCHAR(20)                     ,
-    RESOURCE_MANAGER_F             CHAR(1)                         )
+    RESOURCE_MANAGER_F             CHAR(1)                         );
 
--- CREATE TABLE ibs.T7_EMP_SMY20221114
 CREATE TABLE ibs.T7_EMP_SMY20221114 (
     MEASURE_DT                     DATE                NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -4407,9 +4179,8 @@ CREATE TABLE ibs.T7_EMP_SMY20221114 (
     RECOMMEND_BONUS2               DECIMAL(18,3)                   ,
     FNC_Q_PROFIT                   DECIMAL(18,3)                   ,
     GRADE                          VARCHAR(20)                     ,
-    RESOURCE_MANAGER_F             CHAR(1)                         )
+    RESOURCE_MANAGER_F             CHAR(1)                         );
 
--- CREATE TABLE ibs.T7_LOBBY_MANAGER_SMY
 CREATE TABLE ibs.T7_LOBBY_MANAGER_SMY (
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
     MEASURE_DT                     DATE                NOT NULL    ,
@@ -4422,19 +4193,16 @@ CREATE TABLE ibs.T7_LOBBY_MANAGER_SMY (
     FUND_BONUS                     DECIMAL(18,2)                   ,
     INSUR_BONUS                    DECIMAL(18,2)                   ,
     OTHER_SCORE                    DECIMAL(18,2)                   ,
-    SERVICE_SCORE                  DECIMAL(18,2)                   )
+    SERVICE_SCORE                  DECIMAL(18,2)                   );
 
--- CREATE TABLE ibs.T7_TMP
 CREATE TABLE ibs.T7_TMP (
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
-    LN_Q_PROFIT                    DECIMAL(18,3)                   )
+    LN_Q_PROFIT                    DECIMAL(18,3)                   );
 
--- CREATE TABLE ibs.T8_DATA_DT
 CREATE TABLE ibs.T8_DATA_DT (
     DATA_DT                        DATE                NOT NULL    ,
-    ADD_TIME                       DATETIME                       )
+    ADD_TIME                       DATETIME                       );
 
--- CREATE TABLE ibs.T8_TBP
 CREATE TABLE ibs.T8_TBP (
     TBSPC_NAME                     VARCHAR(128)                    ,
     TOTAL_P                        BIGINT                          ,
@@ -4445,162 +4213,136 @@ CREATE TABLE ibs.T8_TBP (
     FREE_G                         BIGINT                          ,
     PERCENT                        BIGINT                          ,
     HIGH_WATER_MARK                BIGINT                          ,
-    CUR_TIME                       DATETIME           NOT NULL    )
+    CUR_TIME                       DATETIME           NOT NULL    );
 
--- CREATE TABLE ibs.T9_AMT_INTERVAL_TYPE
 CREATE TABLE ibs.T9_AMT_INTERVAL_TYPE (
     AMT_INTERVAL_TYPE_ID           CHAR(2)             NOT NULL    ,
     AMT_INTERVAL_TYPE_NM           VARCHAR(64)                     ,
     UPPER_LIMIT                    DECIMAL(18)                     ,
     LOWER_LIMIT                    DECIMAL(18)                     ,
-    REMARK                         VARCHAR(256)                    )
+    REMARK                         VARCHAR(256)                    );
 
--- CREATE TABLE ibs.T9_BIZ_TYPE
 CREATE TABLE ibs.T9_BIZ_TYPE (
     BIZ_TYPE_ID                    CHAR(2)             NOT NULL    ,
     BIZ_TYPE_NM                    VARCHAR(64)                     ,
     BIZ_TYPE_NM_NEW                VARCHAR(64)                     ,
-    BIZ_TYPE_CGY                   VARCHAR(32)                     )
+    BIZ_TYPE_CGY                   VARCHAR(32)                     );
 
--- CREATE TABLE ibs.T9_BONUS_STATUS
 CREATE TABLE ibs.T9_BONUS_STATUS (
     BONUS_STATUS_ID                CHAR(2)             NOT NULL    ,
-    BONUS_STATUS_NM                VARCHAR(64)                     )
+    BONUS_STATUS_NM                VARCHAR(64)                     );
 
--- CREATE TABLE ibs.T9_BONUS_TYPE
 CREATE TABLE ibs.T9_BONUS_TYPE (
     BONUS_TYPE_ID                  CHAR(2)             NOT NULL    ,
-    BONUS_TYPE_NM                  VARCHAR(64)                     )
+    BONUS_TYPE_NM                  VARCHAR(64)                     );
 
--- CREATE TABLE ibs.T9_CERTIFICATE
 CREATE TABLE ibs.T9_CERTIFICATE (
     TYPE                           CHAR(4)             NOT NULL    ,
-    VALUE                          VARCHAR(64)                     )
+    VALUE                          VARCHAR(64)                     );
 
--- CREATE TABLE ibs.T9_CHANNEL
 CREATE TABLE ibs.T9_CHANNEL (
     CHANNLE_ID                     CHAR(4)             NOT NULL    ,
-    CHANNLE_NM                     VARCHAR(64)                     )
+    CHANNLE_NM                     VARCHAR(64)                     );
 
--- CREATE TABLE ibs.T9_CLAIM_STATUS_TYPE
 CREATE TABLE ibs.T9_CLAIM_STATUS_TYPE (
     CLAIM_STATUS_ID                CHAR(2)             NOT NULL    ,
-    CLAIM_STATUS_NM                VARCHAR(64)                     )
+    CLAIM_STATUS_NM                VARCHAR(64)                     );
 
--- CREATE TABLE ibs.T9_FNC_TXN_CD
 CREATE TABLE ibs.T9_FNC_TXN_CD (
     TXN_CD                         VARCHAR(8)          NOT NULL    ,
     TXN_NM                         VARCHAR(64)                     ,
     TXN_CGY_CD                     VARCHAR(8)          NOT NULL    ,
     TXN_CGY_NM                     VARCHAR(64)                     ,
-    STA_FLAG                       VARCHAR(2)                      )
+    STA_FLAG                       VARCHAR(2)                      );
 
--- CREATE TABLE ibs.T9_FUND_TXN_CD
 CREATE TABLE ibs.T9_FUND_TXN_CD (
     TXN_CD                         VARCHAR(8)          NOT NULL    ,
     TXN_NM                         VARCHAR(64)                     ,
     TXN_CGY_CD                     VARCHAR(8)          NOT NULL    ,
     TXN_CGY_NM                     VARCHAR(64)                     ,
-    STA_FLAG                       VARCHAR(2)                      )
+    STA_FLAG                       VARCHAR(2)                      );
 
--- CREATE TABLE ibs.T9_MANAGER_Y_SCORE_TYPE
 CREATE TABLE ibs.T9_MANAGER_Y_SCORE_TYPE (
     SCORE_TYPE_ID                  CHAR(2)             NOT NULL    ,
-    SCORE_TYPE_NM                  VARCHAR(64)                     )
+    SCORE_TYPE_NM                  VARCHAR(64)                     );
 
--- CREATE TABLE ibs.T9_MARKETING_TYPE
 CREATE TABLE ibs.T9_MARKETING_TYPE (
     MARKETING_NO                   CHAR(20)            NOT NULL    ,
-    MARKETING_NM                   VARCHAR(64)                     )
+    MARKETING_NM                   VARCHAR(64)                     );
 
--- CREATE TABLE ibs.T9_ORG_LEVEL
 CREATE TABLE ibs.T9_ORG_LEVEL (
     ORG_LEVEL_ID                   CHAR(2)             NOT NULL    ,
-    ORG_LEVEL_NM                   VARCHAR(64)                     )
+    ORG_LEVEL_NM                   VARCHAR(64)                     );
 
--- CREATE TABLE ibs.T9_ORG_TYPE
 CREATE TABLE ibs.T9_ORG_TYPE (
     ORG_TYPE_ID                    CHAR(2)             NOT NULL    ,
-    ORG_TYPE_NM                    VARCHAR(64)                     )
+    ORG_TYPE_NM                    VARCHAR(64)                     );
 
--- CREATE TABLE ibs.T9_PER_TYPE
 CREATE TABLE ibs.T9_PER_TYPE (
     PER_TYPE                       VARCHAR(8)                      ,
-    PER_TYPE_NAME                  VARCHAR(64)                     )
+    PER_TYPE_NAME                  VARCHAR(64)                     );
 
--- CREATE TABLE ibs.T9_PSTN_TYPE
 CREATE TABLE ibs.T9_PSTN_TYPE (
     PSTN_TYPE                      CHAR(2)                         ,
     PSTN_TYPE_NM                   VARCHAR(64)                     ,
     SUB_PSTN_TYPE                  CHAR(4)                         ,
-    SUB_PSTN_TYPE_NM               VARCHAR(64)                     )
+    SUB_PSTN_TYPE_NM               VARCHAR(64)                     );
 
--- CREATE TABLE ibs.T9_RECOMMEND_TYPE
 CREATE TABLE ibs.T9_RECOMMEND_TYPE (
     RECOMMEND_TYPE_ID              CHAR(2)             NOT NULL    ,
-    RECOMMEND_TYPE_NM              VARCHAR(64)                     )
+    RECOMMEND_TYPE_NM              VARCHAR(64)                     );
 
--- CREATE TABLE ibs.T9_RVS_STATUS_TYPE
 CREATE TABLE ibs.T9_RVS_STATUS_TYPE (
     RVS_STATUS_ID                  CHAR(2)             NOT NULL    ,
-    RVS_STATUS_NM                  VARCHAR(64)                     )
+    RVS_STATUS_NM                  VARCHAR(64)                     );
 
--- CREATE TABLE ibs.T9_SP_GROUPID
 CREATE TABLE ibs.T9_SP_GROUPID (
     GROUP_ID                       VARCHAR(64)         NOT NULL    ,
     GROUP_NM                       VARCHAR(128)                    ,
     BIZ_TYP                        VARCHAR(64)         NOT NULL    ,
     IS_CS                          VARCHAR(4)          NOT NULL    ,
     IS_FS                          VARCHAR(4)          NOT NULL    ,
-    SP_TYP                         VARCHAR(64)         NOT NULL    )
+    SP_TYP                         VARCHAR(64)         NOT NULL    );
 
--- CREATE TABLE ibs.T9_TERM_INTERVAL_TYPE
 CREATE TABLE ibs.T9_TERM_INTERVAL_TYPE (
     TERM_INTERVAL_TYPE_ID          CHAR(2)             NOT NULL    ,
     TERM_INTERVAL_TYPE_NM          VARCHAR(64)                     ,
     UPPER_LIMIT                    DECIMAL(18)                     ,
-    LOWER_LIMIT                    DECIMAL(18)                     )
+    LOWER_LIMIT                    DECIMAL(18)                     );
 
--- CREATE TABLE ibs.T9_VUCH_TYPE
 CREATE TABLE ibs.T9_VUCH_TYPE (
     VUCH_TYPE_ID                   CHAR(2)             NOT NULL    ,
-    VUCH_TYPE_NM                   VARCHAR(64)                     )
+    VUCH_TYPE_NM                   VARCHAR(64)                     );
 
--- CREATE TABLE ibs.T9_YEAR_Q
 CREATE TABLE ibs.T9_YEAR_Q (
     QTD                            VARCHAR(2)          NOT NULL    ,
     QTD_NM                         VARCHAR(64)                     ,
-    QTD_CD                         VARCHAR(10)                     )
+    QTD_CD                         VARCHAR(10)                     );
 
--- CREATE TABLE ibs.T99_EMP_RELA_Q_SWITCH
 CREATE TABLE ibs.T99_EMP_RELA_Q_SWITCH (
     MEASURE_DT                     DATE                NOT NULL    ,
     SWITCH_F                       CHAR(1)                         ,
-    REMARK                         VARCHAR(64)                     )
+    REMARK                         VARCHAR(64)                     );
 
--- CREATE TABLE ibs.T99_HELP
 CREATE TABLE ibs.T99_HELP (
     ID                             VARCHAR(2)          NOT NULL    ,
     MSG_DT                         DATE                NOT NULL    ,
     MSE_STATE                      CHAR(1)                         ,
     MSG_PER                        VARCHAR(20)                     ,
     QUESTION                       VARCHAR(500)                    ,
-    ANSWER                         VARCHAR(500)                    )
+    ANSWER                         VARCHAR(500)                    );
 
--- CREATE TABLE ibs.T99_MIDDLE_INCOME_SWITCH
 CREATE TABLE ibs.T99_MIDDLE_INCOME_SWITCH (
     MEASURE_DT                     DATE                NOT NULL    ,
     SWITCH_F                       CHAR(1)                         ,
-    REMARK                         VARCHAR(64)                     )
+    REMARK                         VARCHAR(64)                     );
 
--- CREATE TABLE ibs.T99_NEW_MEGS
 CREATE TABLE ibs.T99_NEW_MEGS (
     MSG_DT                         DATE                NOT NULL    ,
     MSE_STATE                      CHAR(1)                         ,
     MSG_PER                        VARCHAR(20)                     ,
-    MSG_INFO                       VARCHAR(500)                    )
+    MSG_INFO                       VARCHAR(500)                    );
 
--- CREATE TABLE ibs.T99_RESOURCE_MANAGER_PROFIT
 CREATE TABLE ibs.T99_RESOURCE_MANAGER_PROFIT (
     WORK_DT                        DATETIME           NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -4612,9 +4354,8 @@ CREATE TABLE ibs.T99_RESOURCE_MANAGER_PROFIT (
     DEP_AVG_BAL                    DECIMAL(18,2)                   ,
     VUCH_CNT                       INT                         ,
     REMARK1                        VARCHAR(200)                    ,
-    REMARK2                        VARCHAR(200)                    )
+    REMARK2                        VARCHAR(200)                    );
 
--- CREATE TABLE ibs.T99_RESOURCE_MANAGER_PROFIT_DETAIL
 CREATE TABLE ibs.T99_RESOURCE_MANAGER_PROFIT_DETAIL (
     ACC_ID                         VARCHAR(20)         NOT NULL    ,
     CST_NM                         VARCHAR(64)                     ,
@@ -4624,17 +4365,15 @@ CREATE TABLE ibs.T99_RESOURCE_MANAGER_PROFIT_DETAIL (
     CCY_NM                         VARCHAR(10)                     ,
     DEP_AVG_BAL                    DECIMAL(18,2)                   ,
     REMARK1                        VARCHAR(250)                    ,
-    WORK_DT                        DATETIME                       )
+    WORK_DT                        DATETIME                       );
 
--- CREATE TABLE ibs.T99_VUCH_BAL
 CREATE TABLE ibs.T99_VUCH_BAL (
     VUCH_NBR                       VARCHAR(20)                     ,
     CST_NM                         VARCHAR(64)                     ,
     OPEN_DT                        DATE                            ,
     BAL                            DECIMAL(18,2)                   ,
-    AVG_BAL                        DECIMAL(18,2)                   )
+    AVG_BAL                        DECIMAL(18,2)                   );
 
--- CREATE TABLE ibs.TLER_ACC
 CREATE TABLE ibs.TLER_ACC (
     TLER_ID                        VARCHAR(20)         NOT NULL    ,
     ACC_ID                         VARCHAR(25)         NOT NULL    ,
@@ -4651,27 +4390,23 @@ CREATE TABLE ibs.TLER_ACC (
     ACC_AGREET                     VARCHAR(10)                     ,
     ACC_FLAG                       BIGINT                          ,
     ADD_TIME                       DATETIME                       ,
-    PRO_ID                         VARCHAR(30)                     )
+    PRO_ID                         VARCHAR(30)                     );
 
--- CREATE TABLE ibs.TMP
 CREATE TABLE ibs.TMP (
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
-    LN_Q_PROFIT                    DECIMAL(18,3)                   )
+    LN_Q_PROFIT                    DECIMAL(18,3)                   );
 
--- CREATE TABLE ibs.TMP_EMP_CERTIFICATE
 CREATE TABLE ibs.TMP_EMP_CERTIFICATE (
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
     EMP_NM                         VARCHAR(64)                     ,
     YEAR                           CHAR(4)                         ,
-    GRADE                          CHAR(20)                        )
+    GRADE                          CHAR(20)                        );
 
--- CREATE TABLE ibs.TMP_EMP_RELA
 CREATE TABLE ibs.TMP_EMP_RELA (
     VUCH_NBR                       VARCHAR(20)         NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
-    RATIO                          DECIMAL(6,2)                    )
+    RATIO                          DECIMAL(6,2)                    );
 
--- CREATE TABLE ibs.TMP_T1_VUCH_DETAIL_GGPZ
 CREATE TABLE ibs.TMP_T1_VUCH_DETAIL_GGPZ (
     VUCH_NBR                       VARCHAR(20)         NOT NULL    ,
     VUCH_TYPE_ID                   CHAR(2)                         ,
@@ -4685,9 +4420,8 @@ CREATE TABLE ibs.TMP_T1_VUCH_DETAIL_GGPZ (
     CLOSE_DT                       DATE                            ,
     VUCH_STATUS_ID                 INT                         ,
     VUCH_STATUS_NM                 VARCHAR(64)                     ,
-    RANK                           INT                         )
+    RANK                           INT                         );
 
--- CREATE TABLE ibs.TMP_T2_BONUS_DETAIL1
 CREATE TABLE ibs.TMP_T2_BONUS_DETAIL1 (
     SALE_ID                        VARCHAR(32)                     ,
     BONUS_TYPE_ID                  CHAR(2)                         ,
@@ -4698,15 +4432,13 @@ CREATE TABLE ibs.TMP_T2_BONUS_DETAIL1 (
     BRANCH_ORG_ID                  CHAR(4)                         ,
     CCY_ID                         INT                         ,
     BONUS                          DECIMAL(18,2)                   ,
-    BONUS_EFF_DT                   DATE                            )
+    BONUS_EFF_DT                   DATE                            );
 
--- CREATE TABLE ibs.TMP_T2_EMP_DEP_LN_ACC_PROFIT_DETAIL
 CREATE TABLE ibs.TMP_T2_EMP_DEP_LN_ACC_PROFIT_DETAIL (
     ACC_ID                         VARCHAR(32)                     ,
     MEASURE_DT                     DATE                            ,
-    Q_PROFIT                       DECIMAL(18,3)                   )
+    Q_PROFIT                       DECIMAL(18,3)                   );
 
--- CREATE TABLE ibs.TMP_T2_EMP_DEP_LN_PROFIT_SMY
 CREATE TABLE ibs.TMP_T2_EMP_DEP_LN_PROFIT_SMY (
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
     MEASURE_DT                     DATE                NOT NULL    ,
@@ -4783,17 +4515,15 @@ CREATE TABLE ibs.TMP_T2_EMP_DEP_LN_PROFIT_SMY (
     LN_Q_PROFIT_MODIFY_DT          DATE                            ,
     CORP_MIDDLE_BONUS_Q            DECIMAL(18,2)                   ,
     CORP_MIDDLE_BONUS_Y            DECIMAL(18,2)                   ,
-    YEAR                           CHAR(4)                         )
+    YEAR                           CHAR(4)                         );
 
--- CREATE TABLE ibs.TMP_T2_EMP_OTHER_BIZ_CST_DEP
 CREATE TABLE ibs.TMP_T2_EMP_OTHER_BIZ_CST_DEP (
     CST_ID                         VARCHAR(20)         NOT NULL    ,
     MEASURE_DT                     DATE                NOT NULL    ,
     DEP_BAL                        DECIMAL(18,2)                   ,
     FNC_BAL                        DECIMAL(18,2)                   ,
-    EMP_CNT                        INT                         )
+    EMP_CNT                        INT                         );
 
--- CREATE TABLE ibs.TMP_T2_EMP_OTHER_BIZ_CST_EMP_DEP
 CREATE TABLE ibs.TMP_T2_EMP_OTHER_BIZ_CST_EMP_DEP (
     CST_ID                         VARCHAR(20)         NOT NULL    ,
     EMP_ID                         VARCHAR(20)         NOT NULL    ,
@@ -4802,9 +4532,8 @@ CREATE TABLE ibs.TMP_T2_EMP_OTHER_BIZ_CST_EMP_DEP (
     CST_OPEN_DT                    DATE                            ,
     EMP_DEP_BAL                    DECIMAL(18,2)                   ,
     EMP_FNC_BAL                    DECIMAL(18,2)                   ,
-    EMP_CNT                        INT                         )
+    EMP_CNT                        INT                         );
 
--- CREATE TABLE ibs.TS_CORP_CST_DEPT_RELA
 CREATE TABLE ibs.TS_CORP_CST_DEPT_RELA (
     CST_ID                         VARCHAR(20)         NOT NULL    ,
     CST_NM                         VARCHAR(64)         NOT NULL    ,
@@ -4813,9 +4542,8 @@ CREATE TABLE ibs.TS_CORP_CST_DEPT_RELA (
     ORG_NM                         VARCHAR(64)                     ,
     BRANCH_NM                      VARCHAR(64)                     ,
     REMARK1                        VARCHAR(254)                    ,
-    REMARK2                        VARCHAR(254)                    )
+    REMARK2                        VARCHAR(254)                    );
 
--- CREATE TABLE ibs.TS_CORP_CST_DEPT_RELA1
 CREATE TABLE ibs.TS_CORP_CST_DEPT_RELA1 (
     CST_ID                         VARCHAR(20)         NOT NULL    ,
     CST_NM                         VARCHAR(64)         NOT NULL    ,
@@ -4824,9 +4552,8 @@ CREATE TABLE ibs.TS_CORP_CST_DEPT_RELA1 (
     ORG_NM                         VARCHAR(20)                     ,
     BRANCH_NM                      VARCHAR(10)                     ,
     REMARK1                        VARCHAR(254)                    ,
-    REMARK2                        VARCHAR(254)                    )
+    REMARK2                        VARCHAR(254)                    );
 
--- CREATE TABLE ibs.TS_CORP_CST_FX
 CREATE TABLE ibs.TS_CORP_CST_FX (
     WORK_DT                        DATETIME           NOT NULL    ,
     CST_ID                         VARCHAR(20)         NOT NULL    ,
@@ -4858,17 +4585,15 @@ CREATE TABLE ibs.TS_CORP_CST_FX (
     LN_BAL_2016                    DECIMAL(18,2)                   ,
     LN_AVG_BAL_2014                DECIMAL(18,2)                   ,
     LN_AVG_BAL_2015                DECIMAL(18,2)                   ,
-    LN_AVG_BAL_2016                DECIMAL(18,2)                   )
+    LN_AVG_BAL_2016                DECIMAL(18,2)                   );
 
--- CREATE TABLE ibs.TS_DEP_AR_SMY_ZYL
 CREATE TABLE ibs.TS_DEP_AR_SMY_ZYL (
     AR_ID                          VARCHAR(40)         NOT NULL    ,
     MSR_PRD_ID                     INT             NOT NULL    ,
     ORIG_CCY_ID                    INT                         ,
     CCY_NM                         VARCHAR(64)                     ,
-    CLS_BAL                        DECIMAL(18,3)                   )
+    CLS_BAL                        DECIMAL(18,3)                   );
 
--- CREATE TABLE ibs.TS_DEP_AR_ZYL
 CREATE TABLE ibs.TS_DEP_AR_ZYL (
     AR_ID                          VARCHAR(40)                     ,
     EMP_ID                         VARCHAR(20)                     ,
@@ -4876,18 +4601,16 @@ CREATE TABLE ibs.TS_DEP_AR_ZYL (
     BIZ_TYPE_NM                    VARCHAR(64)                     ,
     CST_NM                         VARCHAR(64)                     ,
     OPEN_DT                        DATE                            ,
-    RATIO                          INT                         )
+    RATIO                          INT                         );
 
--- CREATE TABLE ibs.TS_T1_ACC_PROFIT_DETAIL_ZYL
 CREATE TABLE ibs.TS_T1_ACC_PROFIT_DETAIL_ZYL (
     AR_ID                          VARCHAR(40)                     ,
     MSR_PRD_ID                     DATE                            ,
     ORIG_CCY_ID                    INT                         ,
     CLS_BAL                        DECIMAL(18,3)                   ,
     YTD_AVG_BAL                    DECIMAL(18,3)                   ,
-    PROFIT                         DECIMAL(18,3)                   )
+    PROFIT                         DECIMAL(18,3)                   );
 
--- CREATE TABLE ibs.TS_VUCH_BAL
 CREATE TABLE ibs.TS_VUCH_BAL (
     VUCH_NBR                       VARCHAR(20)         NOT NULL    ,
     VUCH_TYPE_NM                   VARCHAR(20)                     ,
@@ -4903,9 +4626,8 @@ CREATE TABLE ibs.TS_VUCH_BAL (
     RATIO                          DECIMAL(5,2)                    ,
     DEP_BAL                        DECIMAL(18,2)                   ,
     DEP_AVG_BAL                    DECIMAL(18,2)                   ,
-    REMARK1                        VARCHAR(200)                    )
+    REMARK1                        VARCHAR(200)                    );
 
--- CREATE TABLE ibs.XNB_CST
 CREATE TABLE ibs.XNB_CST (
     CST_ID                         VARCHAR(20)         NOT NULL    ,
     CST_NM                         VARCHAR(64)                     ,
@@ -4919,9 +4641,8 @@ CREATE TABLE ibs.XNB_CST (
     LN_BAL                         DECIMAL(18,2)                   ,
     LN_AVG_BAL                     DECIMAL(18,2)                   ,
     FNC_AVG                        DECIMAL(18,2)                   ,
-    FNC_AVG_BAL                    DECIMAL(18,2)                   )
+    FNC_AVG_BAL                    DECIMAL(18,2)                   );
 
--- CREATE TABLE ibs.XNB_VUCH
 CREATE TABLE ibs.XNB_VUCH (
     VUCH_NBR                       VARCHAR(20)         NOT NULL    ,
     VUCH_TYPE_ID                   CHAR(2)                         ,
@@ -4945,380 +4666,4 @@ CREATE TABLE ibs.XNB_VUCH (
     LN_AMT                         DECIMAL(18,3)                   ,
     MARKETING_NO                   VARCHAR(40)                     ,
     EMP_ID                         VARCHAR(20)                     ,
-    CST_OPEN_DT                    DATE                            )
-
-
-
-
-- Create Table PUB.BIZ_TP
-Create table PUB.BIZ_TP (
-    BIZ_TP_ID                      INT             NOT NULL    ,
-    BIZ_TP_CD                      VARCHAR(32)         NOT NULL    ,
-    BIZ_TP_NM                      VARCHAR(256)                    ,
-    IS_IN_USE_F                    SMALLINT                        ,
-    DEL_F                          SMALLINT                        ,
-    PPN_TMSTAMP                    DATETIME                       ,
-    ETL_FL_NM                      CHAR(18)                        ,
-    SRC_STM_ID                     SMALLINT                        ,
-    JOB_SEQ_ID                     INT                         ,
-    LAST_ETL_ACG_DT                DATE                            )
-
-
--- Create Table PUB.CL
-Create table PUB.CL (
-    CL_ID                          INT             NOT NULL    ,
-    SRC_STM_ID                     SMALLINT                        ,
-    CL_SCM_ID                      INT             NOT NULL    ,
-    CL_SCM_SEQ_NO                  SMALLINT            NOT NULL    ,
-    ROOT_CL_SCM_ID                 INT                         ,
-    GRP_CL_ID                      INT                         ,
-    MGN_IP_ID                      BIGINT                          ,
-    EFF_DT                         DATE                            ,
-    END_DT                         DATE                            ,
-    CL_UTLZ_F                      INT                         ,
-    CL_CODE                        CHAR(64)                        ,
-    SHRT_NM                        CHAR(18)                        ,
-    GEN_NO                         SMALLINT                        ,
-    NM                             CHAR(64)                        ,
-    DSC                            VARCHAR(256)                    ,
-    LOWEST_F                       CHAR(1)                         ,
-    DM_DIM_F                       SMALLINT                        ,
-    ETL_FL_NM                      VARCHAR(128)                    ,
-    PPN_TMSTAMP                    DATETIME                       ,
-    JOB_SEQ_ID                     INT                         )
--- Create Table PUB.DEP_AR_SMY
-Create table PUB.DEP_AR_SMY (
-    AR_ID                          CHAR(20)            NOT NULL    ,
-    MSR_PRD_ID                     INT             NOT NULL    ,
-    AR_NM                          VARCHAR(150)                    ,
-    AR_TP_ID                       INT             NOT NULL    ,
-    DEP_TP_ID                      INT             NOT NULL    ,
-    ORIG_CCY_ID                    INT                         ,
-    CCY_NM                         VARCHAR(256)                    ,
-    PRIM_CST_ID                    VARCHAR(20)                     ,
-    BIZ_SBJ_ID                     INT                         ,
-    BIZ_SBJ_CD                     CHAR(4)                         ,
-    ACG_STC_ITM_ID                 INT                         ,
-    ACG_SBJ_CD                     VARCHAR(10)                     ,
-    ACG_SBJ_NM                     VARCHAR(256)                    ,
-    OPN_BK_BAL                     DECIMAL(15,2)                   ,
-    CLS_BAL                        DECIMAL(15,2)                   ,
-    INTL_AMT                       DECIMAL(15,2)                   ,
-    MTD_ACML_BAL                   DECIMAL(20,2)                   ,
-    QTD_ACML_BAL                   DECIMAL(20,2)                   ,
-    YTD_ACML_BAL                   DECIMAL(20,2)                   ,
-    RPRG_OU_IP_ID                  INT                         ,
-    OU_CODE                        CHAR(4)                         ,
-    DEP_TM_ID                      INT                         ,
-    AC_OPEN_DT                     DATE                            ,
-    FNC_ACG_SBJ_ID                 INT                         ,
-    FNC_DEP_CGY_TP_ID              INT                         ,
-    FNC_DEP_CGY_TP_NM              VARCHAR(256)                    ,
-    FNC_DEP_PRD_TP_ID              INT                         ,
-    FNC_DEP_PRD_TP_NM              VARCHAR(256)                    ,
-    FNC_DEP_TP_ID                  INT                         ,
-    FNC_DEP_TP_NM                  VARCHAR(256)                    ,
-    IS_GF_F                        SMALLINT                        ,
-    INT_RATE                       DECIMAL(9,6)                    ,
-    SPCL_AC_F                      CHAR(1)                         ,
-    MAT_DT                         DATE                            ,
-    BASIC_AC_TP_ID                 INT                         ,
-    INT_CACL_EFF_DT                DATE                            ,
-    PPN_TMSTAMP                    DATETIME                       ,
-    ETL_FL_NM                      CHAR(18)                        ,
-    SRC_STM_ID                     INT                         ,
-    JOB_SEQ_ID                     INT                         ,
-    LAST_ETL_ACG_DT                DATE                            ,
-    DEL_F                          SMALLINT                        ,
-    AR_LCS_TP_ID                   INT                         ,
-    ACML_INT                       DECIMAL(15,2)                   ,
-    NBR_OF_DEP_WD_INTVL_MTH        INT                         ,
-    EACH_DEPING_WDING_AMT          DECIMAL(15,2)                   ,
-    ACT_INT_RATE                   DECIMAL(9,6)                    ,
-    RATE_CD                        CHAR(3)                         ,
-    BASE_INT_RATE                  DECIMAL(9,6)                    ,
-    VAR_INT_RATE_TP_ID             INT                         ,
-    VAR_INT_RATE_VAL               DECIMAL(9,6)                    ,
-    END_DT                         DATE                            ,
-    DB_AMT                         DECIMAL(20,2)                   ,
-    CR_AMT                         DECIMAL(20,2)                   ,
-    NBR_MTH_DEP_TM                 INT                         ,
-    NBR_DAY_DEP_TM                 INT                         ,
-    PROD_ID                        CHAR(10)                        ,
-    PROD_NM                        VARCHAR(64)                     ,
-    FTP                            DECIMAL(9,6)                    ,
-    D_PROFIT                       DECIMAL(20,3)                   ,
-    M_PROFIT                       DECIMAL(20,3)                   ,
-    Q_PROFIT                       DECIMAL(20,3)                   ,
-    Y_PROFIT                       DECIMAL(20,3)                   ,
-    CSH_X_RMIT_IND_TP_ID           INT                         ,
-    LAST_TXN_DT                    DATE                            ,
-    LAST_CST_TXN_DT                DATE                            ,
-    FST_TXN_DT                     DATE                            ,
-    SMLT_INT                       DECIMAL(15,2)                   ,
-    YTD_ACML_SMLT_INT              DECIMAL(20,2)                   ,
-    DEP_LINE_ID                    INT                         ,
-    CST_NO                         VARCHAR(32)                     ,
-    YTD_ACML_BAL_LAST_YR           DECIMAL(20,2)                   ,
-    ACML_BAL_90D                   DECIMAL(20,2)                   ,
-    ACML_BAL_120D                  DECIMAL(20,2)                   ,
-    ACML_BAL_180D                  DECIMAL(20,2)                   ,
-    TQZQ_AMT                       DECIMAL(20,2)                   )
-Compress Yes;
-
-
-
--- Create Table PUB.LN_AR_SMY
-Create table PUB.LN_AR_SMY (
-    MSR_PRD_ID                     INT             NOT NULL    ,
-    BIZ_DIL_NBR                    VARCHAR(64)         NOT NULL    ,
-    ACG_SBJ_ID                     INT                         ,
-    BIZ_TP_CD                      VARCHAR(32)                     ,
-    CCY_ID                         INT                         ,
-    CST_ID                         VARCHAR(20)                     ,
-    CST_TP_ID                      INT                         ,
-    CST_NO                         VARCHAR(32)                     ,
-    CST_NM                         VARCHAR(150)                    ,
-    CORE_BNK_OU_IP_ID              INT                         ,
-    CTR_ALIAS_NBR                  VARCHAR(64)                     ,
-    CTR_NBR                        VARCHAR(64)                     ,
-    LN_FIVE_TIER_CL_TP_ID          INT                         ,
-    LN_TP_ID                       INT                         ,
-    LN_GNT_TP_ID                   INT                         ,
-    LN_FNC_STS_TP_ID               INT                         ,
-    LN_DRDN_TP_ID                  INT                         ,
-    LN_DIRC_TP_CD                  VARCHAR(8)                      ,
-    LN_RPYMT_PRD_TP_ID             INT                         ,
-    LN_PUS_DSC                     VARCHAR(256)                    ,
-    FM_RLT_LN_TP_CD                VARCHAR(8)                      ,
-    FM_RLT_LN_F                    SMALLINT                        ,
-    OPTG_OU_IP_ID                  INT                         ,
-    IS_ORG_F                       SMALLINT                        ,
-    NBR_MTH_LN_TM                  SMALLINT                        ,
-    NBR_DAY_LN_TM                  INT                         ,
-    CTR_AMT                        DECIMAL(15,2)                   ,
-    CTR_BAL                        DECIMAL(15,2)                   ,
-    INT_DUE_OFF_BST_PART           DECIMAL(15,2)                   ,
-    INT_DUE_ON_BST_PART            DECIMAL(15,2)                   ,
-    LN_DRDN_AMT                    DECIMAL(15,2)                   ,
-    MTD_ACML_DRDN_AMT              DECIMAL(20,2)                   ,
-    MTD_ACML_BAL                   DECIMAL(20,2)                   ,
-    QTD_ACML_DRDN_AMT              DECIMAL(20,2)                   ,
-    QTD_ACML_BAL                   DECIMAL(20,2)                   ,
-    YTD_ACML_DRDN_AMT              DECIMAL(20,2)                   ,
-    YTD_ACML_BAL                   DECIMAL(20,2)                   ,
-    LN_BAL                         DECIMAL(15,2)                   ,
-    ACML_LN_DRDN_AMT               DECIMAL(15,2)                   ,
-    LN_INT_RATE                    DECIMAL(9,6)                    ,
-    CTR_MAT_DT                     DATE                            ,
-    CTR_EFF_DT                     DATE                            ,
-    LN_DRDN_DT                     DATE                            ,
-    LN_MAT_DT                      DATE                            ,
-    END_DT                         DATE                            ,
-    GUR_RATE                       DECIMAL(9,6)                    ,
-    MNG_LINE_TP_ID                 INT                         ,
-    DELR_ORG_NM                    VARCHAR(256)                    ,
-    DEVR_ORG_NM                    VARCHAR(256)                    ,
-    BLDG_AREA                      DECIMAL(24,6)                   ,
-    RPYMT_IN_ADV_TP                VARCHAR(20)                     ,
-    AC_MGR_TLR_ID                  INT                         ,
-    ASTN_AC_MGR_NM                 VARCHAR(32)                     ,
-    LN_RATE_VRIC_VAL               DECIMAL(10,7)                   ,
-    BA_DB_INT_RATE                 DECIMAL(9,6)                    ,
-    IDV_LN_PNP_ODUE_PARE           DECIMAL(20,2)                   ,
-    IDV_LN_OTSND_INT               DECIMAL(20,2)                   ,
-    NBR_IDV_LN_ODUE                INT                         ,
-    ACT_INT_INCM                   DECIMAL(15,2)                   ,
-    EXTD_DT                        VARCHAR(20)                     ,
-    NML_BAL                        DECIMAL(15,2)                   ,
-    ODUE_BAL                       DECIMAL(15,2)                   ,
-    DULL_BAL                       DECIMAL(15,2)                   ,
-    BAD_DEBT_BAL                   DECIMAL(15,2)                   ,
-    INT_CACL_PRD_TP_ID             INT                         ,
-    MEAG_PFT_ITM_F                 INT                         ,
-    STU_LN_TP_ID                   INT                         ,
-    SCOL_TP_ID                     INT                         ,
-    NBR_ODUE_DAYS                  INT                         ,
-    MTHLY_UD_ODUE_DT               DATE                            ,
-    LN_PNP_RPYMT_TP_ID             INT                         ,
-    LN_RATE_AJTMT_TP_ID            INT                         ,
-    CST_CGY_TP_ID                  INT                         ,
-    ACR_INT_INCM                   DECIMAL(15,2)                   ,
-    AR_TP_ID                       INT                         ,
-    PROD_ID                        CHAR(10)                        ,
-    PROD_NM                        VARCHAR(64)                     ,
-    DEAL_ASSET                     VARCHAR(20)                     ,
-    INT_ODUE_DAYS                  INT                         ,
-    DIS_FLAG                       VARCHAR(2)                      ,
-    RUN_MODEL                      VARCHAR(10)                     ,
-    BA_DB_INT_RATE_TP_ID           INT                         ,
-    BIZ_LCNS_TP_ID                 INT                         ,
-    W_BIZ_LCNS_F                   INT                         ,
-    ST_LINE_TP_ID                  INT                         ,
-    YMZ_CCY                        VARCHAR(3)                      ,
-    YMZ_GURT_TYPE                  VARCHAR(2)                      ,
-    YMZ_INRAT_FLOT_TYPE            VARCHAR(10)                     ,
-    YMZ_REPY_MODE_ID               VARCHAR(10)                     ,
-    YMZ_BAD_LOAN_FLAG_ID           VARCHAR(1)                      ,
-    YMZ_REPY_FREQ_ID               VARCHAR(10)                     ,
-    YMZ_BENM_INRAT_TYPE            VARCHAR(10)                     ,
-    YMZ_INRS_TYPE                  VARCHAR(2)                      ,
-    PROD_CD_CORE                   VARCHAR(30)                     ,
-    PROD_NM_CORE                   VARCHAR(500)                    ,
-    OPEN_ACCT_DT                   DATE                            ,
-    STRT_INT_CALN_DT               DATE                            ,
-    ACD_NON_ACD_STE                VARCHAR(1)                      ,
-    LOAN_ACCT_STE                  VARCHAR(1)                      ,
-    RCVBL_ACD_INT                  DECIMAL(21,2)                   ,
-    URGE_COLLT_ACD_INT             DECIMAL(21,2)                   ,
-    RCVBL_DB_INT                   DECIMAL(21,2)                   ,
-    URGE_COLLT_DB_INT              DECIMAL(21,2)                   ,
-    RCVBL_ACD_PNLY_INT             DECIMAL(21,2)                   ,
-    URGE_COLLT_ACD_PNLY_INT        DECIMAL(21,2)                   ,
-    RCVBL_PNLY_INT                 DECIMAL(21,2)                   ,
-    URGE_COLLT_PNLY_INT            DECIMAL(21,2)                   ,
-    ACD_CMPD_INT                   DECIMAL(21,2)                   ,
-    CMPD_INT                       DECIMAL(21,2)                   ,
-    ACD_SUBSD_INT                  DECIMAL(21,2)                   ,
-    RCVBL_SUBSD_INT                DECIMAL(21,2)                   ,
-    WAIT_AMRTN_INT                 DECIMAL(21,2)                   ,
-    CHK_WRITE_OFF_PRCPL            DECIMAL(21,2)                   ,
-    CHK_WRITE_OFF_INT              DECIMAL(21,2)                   ,
-    ALRDY_ACRL_LOAN_INT            DECIMAL(21,2)                   ,
-    ALRDY_CHK_WRITE_OFF_PRCPL_INT  DECIMAL(21,2)                   ,
-    FINAL_FINC_TXN_DT              DATE                            ,
-    DUE_BILL_CHARIC                VARCHAR(1)                      ,
-    CNCL_ACCT_DT                   DATE                            ,
-    ALRDY_DERT_PRCPL               DECIMAL(21,2)                   ,
-    ALRDY_DERT_INT                 DECIMAL(21,2)                   ,
-    SPEC_LOAN_TYPE                 VARCHAR(2)                      ,
-    TRFR_JQ_FLG                    VARCHAR(2)                      ,
-    ETL_FL_NM                      VARCHAR(30)                     ,
-    YMZ_PRDU_NUM                   VARCHAR(32)                     ,
-    YMZ_AGR_TYPE                   VARCHAR(4)                      ,
-    YMZ_REST_CYCL                  VARCHAR(2)                      ,
-    YMZ_IF_CYCL                    VARCHAR(1)                      ,
-    YMZ_RISK_CLASS                 VARCHAR(10)                     ,
-    PAY_MODE_ID                    INT                         ,
-    NXT_REPYPNP_DT                 DATE                            ,
-    NXT_REPYINT_DT                 DATE                            ,
-    NML_BAL_BIZ_SBJ_CD             VARCHAR(32)                     ,
-    ODUE_BAL_BIZ_SBJ_CD            VARCHAR(32)                     ,
-    DULL_BAL_BIZ_SBJ_CD            VARCHAR(32)                     ,
-    BAD_DEBT_BAL_BIZ_SBJ_CD        VARCHAR(32)                     ,
-    NRL_INT_RATE                   DECIMAL(12,7)                   ,
-    OVDUE_INT_RATE                 DECIMAL(12,7)                   ,
-    APED_SYND_FLAG                 VARCHAR(8)                      ,
-    STATIS                         VARCHAR(20)                     )
-Compress Yes;
--- Create Table PUB.PERSONNEL_RURAL
-Create table PUB.PERSONNEL (
-    PER_ID                         CHAR(6)             NOT NULL    ,
-    PER_NAME                       VARCHAR(64)                     ,
-    CUST_ID                        VARCHAR(20)                     ,
-    PER_SEX                        CHAR(10)                        ,
-    PER_BIRTHDAY                   DATE                            ,
-    PER_IDENT_TYPE                 INT                         ,
-    PER_IDENT                      CHAR(18)                        ,
-    HR_STATUS                      CHAR(2)                         ,
-    PER_TYPE                       INT                         ,
-    PER_TYPE_NAME                  VARCHAR(64)                     ,
-    PER_BRANCH_ID                  CHAR(4)                         ,
-    PER_BRANCH                     VARCHAR(64)                     ,
-    ORG_ID                         CHAR(4)                         ,
-    ORG_NM                         VARCHAR(64)                     ,
-    PER_TX                         VARCHAR(5)                      ,
-    HR_ORG_ID                      INT                         ,
-    HR_ORG_NAME                    VARCHAR(64)                     ,
-    BOSS_FLAG                      VARCHAR(10)                     ,
-    PER_POSTITION                  INT                         ,
-    PER_POSTITION_NAME             VARCHAR(64)                     ,
-    PSTN_TYPE                      CHAR(4)                         ,
-    PSTN_TYPE_NM                   VARCHAR(64)                     ,
-    SUB_PSTN_TYPE                  CHAR(4)                         ,
-    SUB_PSTN_TYPE_NM               VARCHAR(64)                     ,
-    PER_MOBLE                      VARCHAR(20)                     ,
-    PER_ADDRESS                    VARCHAR(64)                     ,
-    PER_EMAIL                      VARCHAR(64)                     ,
-    PER_MNGFLAG                    CHAR(2)                         ,
-    PER_MNGFLAG_NAME               VARCHAR(64)                     ,
-    PER_BNGFLAG                    INT                         ,
-    PER_BNGFLAG_NAME               VARCHAR(64)                     ,
-    PER_ZHIJ                       INT                         ,
-    PER_ZHIJ_NAME                  VARCHAR(64)                     ,
-    PER_XL                         INT                         ,
-    PER_XL_NAME                    VARCHAR(64)                     ,
-    PER_OFFICETEL                  VARCHAR(20)                     ,
-    PER_QZHHF                      CHAR(1)                         ,
-    PER_QZH_NAME                   VARCHAR(64)                     ,
-    PER_OLDNAME                    VARCHAR(20)                     ,
-    PER_PAR                        VARCHAR(10)                     ,
-    PER_SUBBRANCH                  VARCHAR(60)                     ,
-    PER_LVL                        VARCHAR(20)                     ,
-    PER_ORG_LVLJ                   VARCHAR(10)                     ,
-    PER_BUM                        VARCHAR(20)                     ,
-    PER_NATION                     VARCHAR(20)                     ,
-    PER_POLI                       VARCHAR(20)                     ,
-    PER_RDSJ                       VARCHAR(10)                     ,
-    PER_WORKT                      VARCHAR(10)                     ,
-    PER_JRCYT                      VARCHAR(10)                     ,
-    PER_BANKT                      VARCHAR(10)                     ,
-    PER_XL_NO1                     VARCHAR(10)                     ,
-    PER_XSDYJB                     VARCHAR(10)                     ,
-    PER_ZHIC                       VARCHAR(10)                     ,
-    PER_JISLB                      VARCHAR(10)                     ,
-    PER_DESC                       VARCHAR(200)                    ,
-    PER_EMERNAME                   VARCHAR(20)                     ,
-    PER_EMERTEL                    VARCHAR(20)                     ,
-    PER_TLERFLAG                   VARCHAR(10)                     ,
-    CREATETIME                     DATETIME                       ,
-    ENDTIME                        DATETIME                       ,
-    FLAG                           VARCHAR(2)                      ,
-    TLER_SQRQ                      VARCHAR(10)                     )
--- Create Table PUB.PROD
-Create table PUB.PROD (
-    PROD_ID                        CHAR(10)            NOT NULL    ,
-    PROD_NM                        VARCHAR(64)                     ,
-    PROD_DESC                      VARCHAR(256)                    ,
-    PROD_LEVEL                     INT                         ,
-    PARENT_PROD_ID                 CHAR(10)                        ,
-    A_L_F                          CHAR(1)                         ,
-    LINE_ID                        INT                         ,
-    LINE_NM                        VARCHAR(64)                     ,
-    PROD_STATUS_ID                 CHAR(2)                         ,
-    EFF_DT                         DATE                            ,
-    END_DT                         DATE                            )
--- Create Table DIM.DIM_LN_FIVE_TIER_CL_TP
-Create table DIM.DIM_LN_FIVE_TIER_CL_TP (
-    LN_FIVE_TIER_CL_TP_ID          INT                         ,
-    LN_FIVE_TIER_CL_TP_NM          VARCHAR(32)                     ,
-    PERF_STS_TP_ID                 INT                         ,
-    PERF_STS_TP_NM                 VARCHAR(32)                     )
--- Create Table DIM.DIM_OU
-Create table DIM.DIM_OU (
-    OU_SUR_ID                      CHAR(18)            NOT NULL    ,
-    SEC_OU_CD                      INT                         ,
-    SEC_OU_NM                      VARCHAR(256)                    ,
-    SEC_OU_SUR_ID                  CHAR(18)                        ,
-    OU_CD                          CHAR(4)                         ,
-    FST_OU_CD                      INT                         ,
-    FST_OU_NM                      VARCHAR(256)                    ,
-    FST_OU_SUR_ID                  CHAR(18)                        ,
-    OU_NM                          VARCHAR(256)                    ,
-    SEC_OU_SEQ                     CHAR(4)                         ,
-    OU_SEQ                         CHAR(8)                         ,
-    COUNTY_FLG                     VARCHAR(2)                      ,
-    FM_FLG                         VARCHAR(2)                      ,
-    JILUZT                         VARCHAR(20)                     )
--- Create Table DIM.DIM_OU_DTIL
-Create table DIM.DIM_OU_DTIL (
-    OU_SUR_ID                      CHAR(18)            NOT NULL    ,
-    PRN_OU_IP_ID                   INT                         ,
-    END_DT                         DATE                            ,
-    OU_CD                          CHAR(4)                         ,
-    OU_NM                          VARCHAR(256)                    ,
-    PRN_OU_SUR_ID                  CHAR(18)                        ,
-    OU_IP_ID                       INT             NOT NULL    ,
-    EFF_DT                         DATE                            ,
-    OU_SEQ                         CHAR(8)                         )
-
+    CST_OPEN_DT                    DATE                            );
