@@ -3,6 +3,7 @@
 ## Prerequisites
 
 - Docker with Compose support
+- `curl`
 - Required third-party jars copied into `docker/app/lib/`
 
 ## Build the MySQL schema file
@@ -23,8 +24,8 @@ docker compose up --build
 
 ## Seeded login
 
-- User: `admin`
-- Password: `12345`
+- Submit `admin` / `12345` to match the smoke check login flow.
+- If authentication is stubbed or permissive in your local environment, this confirms session establishment and protected-page access rather than strong password validation.
 
 ## Validated pages
 
@@ -36,7 +37,7 @@ docker compose up --build
 ## Smoke check
 
 ```bash
-sh scripts/smoke-check.sh
+./scripts/smoke-check.sh
 ```
 
 ## Expected first troubleshooting areas
