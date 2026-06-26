@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<applications xmlns="http://www.wabacus.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.wabacus.com ../xsd/wabacus.applications.xsd">
+	<!--中间业务科目收入-->
+	<page id="mdiddle_busi_sbj_inc_detail"
+		js="/webresources/script/validate.js,/js/demo.js,/js/common.js">
+		<header>${top.header}</header>
+		<interceptor>
+			<imports>
+				<import>java.lang</import>
+				<import>com.wabacus.util</import>
+				<import>java.sql.Connection</import>
+				<import>java.sql.PreparedStatement</import>
+				<import>java.sql.ResultSet</import>
+				<import>javax.servlet.http.HttpSession</import>
+				<import>javax.util</import>
+				<import>javax.text</import>
+				<import>com.ljbank.market.MyMath</import>
+				<import>java.util.Date</import>
+				<import>java.text.SimpleDateFormat</import>
+			</imports>
+			<preaction>
+				<![CDATA[
+				   String date = rrequest.getStringAttribute("MEASURE_DT");
+				   rrequest.getRequest().getSession().setAttribute("MEASURE_DT",date);
+				   //System.out.println("date="+date);
+				]]>
+			</preaction>
+		</interceptor>
+		<vpanel id="common_vpanel" width="1350px" align="center" title="">
+			<header>
+			  <![CDATA[
+			  	
+			  	<table width="1000px" border="0" cellspacing="0" cellpadding="0">
+			    <tr><td height="10px"></td></tr>
+			  	<tr><td align="left"><a href="ShowReport.wx?PAGEID=mdiddle_busi_sbj_inc&MEASURE_DT" style="font-size:15px;TEXT-DECORATION:underline">返回上一级</a></td></tr>
+			    </table>
+			  ]]>
+			</header>
+			<report id="select" title="中间业务科目收入" type="crosslist" 
+				scrollwidth="1000px" width="1000px" top="10px" align="center"
+				pagesize="-1" dataexport="richexcel" personalizeclass="default" cellresize="2">
+				<display>
+					<col column="SBJ_CGY_NM" label="收入种类" rowgroup="true" clickorderby="true"></col>
+					<col column="DSC" label="科目名称"  clickorderby="true"></col>
+					<col column="CLS_BAL" label="收入额  (万)" datatype="double{0.000000}"  clickorderby="true">
+					
+					</col>
+				</display>
+				<subdisplay>
+					<statitems>
+						<statitem property="item3" value="sum(CLS_BAL)" datatype="double" />
+					</statitems>
+					<subrow>
+						<subcol property="sprop1" colspan="1"
+							valuestyleproperty="bgcolor='#CCFAFF' align='center'" />
+						<subcol property="sprop2" colspan="1"
+							valuestyleproperty="bgcolor='#CCFAFF' align='center'" />
+						<subcol property="sprop3" colspan="1"
+							valuestyleproperty="bgcolor='#CCFAFF' align='center'" />
+					</subrow>
+					<format>
+						<imports>
+							<import>com.wabacus.util.*</import>
+						</imports>
+						<value>
+						<![CDATA[
+						sprop1="合计";
+           				sprop2="";
+						sprop3=""+Tools.formatDouble(String.valueOf(item3),"###0.000000");
+						]]>
+						</value>
+					</format>
+				</subdisplay>
+				<sql>
+					<select>
+						<value><![CDATA[
+							select sbj.SBJ_CGY_NM,sbj.DSC,cast(sum(coalesce(CLS_BAL,0)) as decimal(20,6))/10000 as CLS_BAL,sbj.SEQ 
+							from ibs.T1_MIDDLE_BUSI_SBJ sbj 
+							left join (
+							select t.*,ou.SEC_OU_CD,ou.SEC_OU_NM
+							from ibs.T1_MIDDLE_BUSI_SBJ_INCO t
+							inner join dim.dim_ou ou on ou.OU_CD=t.ORG_ID
+							where {#condition#} and t.ORG_ID not like '8%'
+							) inc on sbj.CORE_BIZ_SBJ_ID=inc.BIZ_SBJ_ID 
+							group by sbj.SEQ,sbj.SBJ_CGY_NM,sbj.DSC
+							order by sbj.SEQ
+						    ]]>
+						</value>
+						<condition name="MEASURE_DT" label="日期" labelposition="left" hidden="true">
+							<value>
+						 	<![CDATA[ MEASURE_DT='#data#']]>
+							</value>
+							<inputbox type="datepicker" styleproperty="style='width:120px'"
+								jsvalidate="isDate(#label#格式为yyyy-MM-dd)">
+							</inputbox>
+						</condition>
+						<condition name="BRANCH_ORG_ID" label="分行机构" labelposition="left" hidden="true">
+							<value>
+						 	<![CDATA[ (ou.SEC_OU_CD='#data#' or t.ORG_ID='#data#')]]>
+							</value>
+						</condition>
+					</select>
+				</sql>
+				
+			</report>
+		</vpanel>
+	</page>
+</applications>

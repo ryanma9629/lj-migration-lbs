@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<applications xmlns="http://www.wabacus.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.wabacus.com ../xsd/wabacus.applications.xsd">
+	<!--客户活动统计明细-给蛐蛐网 -->
+	<page id="cst_marketing_detail"
+		js="/webresources/script/validate.js,/js/demo.js,/js/common.js">
+
+		<header>${top.header}</header>
+		<interceptor>
+			<imports>
+				<import>java.lang</import>
+				<import>com.wabacus.util</import>
+				<import>java.sql.Connection</import>
+				<import>java.sql.PreparedStatement</import>
+				<import>java.sql.ResultSet</import>
+				<import>javax.servlet.http.HttpSession</import>
+				<import>javax.util</import>
+				<import>javax.text</import>
+				<import>com.ljbank.market.MyMath</import>
+				<import>java.util.Date</import>
+				<import>java.text.SimpleDateFormat</import>
+			</imports>
+			<preaction>
+				<![CDATA[
+						String beginTime = rrequest.getStringAttribute("MEASURE_DT", "");// 取出输入的查询时间
+						System.out.println("beginTime:" + beginTime);
+						if (beginTime.equals("")) 
+						{
+							Calendar cal = Calendar.getInstance();
+							cal.add(Calendar.DATE,-1);
+							String yesterday = new SimpleDateFormat("yyyy-MM-dd").format(cal.getTime());
+							rrequest.setAttribute("MEASURE_DT", yesterday);
+                        }
+                    
+				]]>
+			</preaction>
+		</interceptor>
+		<vpanel id="common_vpanel" width="1350px" align="center" title="">
+			<report id="title" extends="title.report1" width="1350px"></report>
+			<report id="select" title="客户活动统计明细" type="editablelist"
+				width="1350px" dataexport="richexcel" top="10px" align="center"
+				pagesize="15|20|-1" personalizeclass="default">
+
+				<display>
+					<col column="{sequence:1}" label="序号" width="40px"></col>
+
+					<col column="MEASURE_DT" label="统计日期" width="60px" valuestyleproperty="style='mso-number-format:\@'"></col>
+					<col column="EMP_ID" label="推荐人" width="100px" valuestyleproperty="style='mso-number-format:\@'"></col>
+					<col column="MARKETING_NO" label="活动编码" width="100px" valuestyleproperty="style='mso-number-format:\@'"></col>
+
+					<col column="CURRENT_PERSONNEL_DEP_BAL" label="活期储蓄存款" width="150px"></col>
+					<col column="FIXED_PERSONNEL_DEP_BAL" label="定期储蓄存款" width="150px"></col>
+					<col column="TOTAL_PERSONNEL_DEP_BAL" label="合计储蓄存款" width="150px"></col>
+				</display>
+				<sql>
+					<select>
+						<value><![CDATA[
+							SELECT 		MEASURE_DT
+										, EMP_ID
+										, MARKETING_NO
+										, CURRENT_PERSONNEL_DEP_BAL
+										, FIXED_PERSONNEL_DEP_BAL
+										, TOTAL_PERSONNEL_DEP_BAL
+							FROM IBS.T7_CST_MARKETING_DETAIL 
+							WHERE   {#condition#}
+							order by MEASURE_DT desc
+						    ]]>
+						</value>
+						<condition name="EMP_ID" label="推荐人" labelposition="left">
+							<value>
+							 		<![CDATA[EMP_ID='#data#']]>
+							</value>
+							<inputbox styleproperty="style='width:200px'"></inputbox>
+						</condition>
+						<condition name="MEASURE_DT" label="日期" labelposition="left" >
+							<value>
+						 	<![CDATA[(MEASURE_DT='#data#')]]>
+							</value>
+							<inputbox type="datepicker" styleproperty="style='width:120px'"
+								jsvalidate="isDate(#label#格式为yyyy-MM-dd)">
+							</inputbox>
+						</condition>
+						<condition name="MARKETING_NO" labelposition="left"
+							label="活动编码">
+							<value>
+								<![CDATA[(MARKETING_NO='#data#')]]>
+							</value>
+							<inputbox type="selectbox">
+								<option label="全部" value=""></option>
+								<option
+									source="@{Select distinct MARKETING_NO , MARKETING_NM from IBS.T9_MARKETING_TYPE order by MARKETING_NO}"
+									label="MARKETING_NO" value="MARKETING_NO" />
+							</inputbox>
+						</condition>
+					</select>
+				</sql>
+
+			</report>
+
+		</vpanel>
+	</page>
+
+</applications>

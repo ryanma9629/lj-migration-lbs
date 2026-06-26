@@ -1,0 +1,534 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<applications xmlns="http://www.wabacus.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.wabacus.com ../xsd/wabacus.applications.xsd">
+
+	<!--从员工销售保险汇总表进入：保险产品奖励明细 总行 -->
+	<page id="insur_bonus_detail"
+		js="/webresources/script/validate.js,/js/demo.js,/js/common.js">
+
+		<header>${top.header}</header>
+
+		<interceptor>
+			<imports>
+				<import>java.lang</import>
+				<import>com.wabacus.util</import>
+				<import>java.sql.Connection</import>
+				<import>java.sql.PreparedStatement</import>
+				<import>java.sql.ResultSet</import>
+				<import>javax.servlet.http.HttpSession</import>
+				<import>javax.util</import>
+				<import>javax.text</import>
+				<import>com.ljbank.market.MyMath</import>
+				<import>java.util.Date</import>
+				<import>java.text.SimpleDateFormat</import>
+				<import>com.ljbank.market.Util</import>
+			</imports>
+			<preaction>
+				<![CDATA[
+						String beginTime = rrequest.getStringAttribute("MEASURE_DT", "");// 取出输入的查询时间
+						System.out.println("beginTime:" + beginTime);
+						if (beginTime.equals("")) 
+						{
+							Util u = new Util();
+							String date=u.getDate();
+							rrequest.setAttribute("MEASURE_DT", date);
+							System.out.println("beginTime处理后时间为:" + beginTime);
+                        }
+                    
+                    
+
+ 				 	  String EMP_ID=rrequest.getStringAttribute("EMP_ID","");
+ 				 	  if(EMP_ID.equals("")){
+ 				 	  		EMP_ID=(String)rrequest.getRequest().getSession().getAttribute("EMP_ID");
+ 				 	        System.out.println("1----获得工号为：EMP_ID="+EMP_ID); 
+    		
+ 				 	   }
+ 				 	   else{
+    				        rrequest.getRequest().getSession().setAttribute("EMP_ID", EMP_ID);
+    				        System.out.println("2----获得工号为：EMP_ID="+(String)rrequest.getRequest().getSession().getAttribute("EMP_ID")); 
+    				   }
+    				  
+	  				   System.out.println("3----获得工号为：EMP_ID="+EMP_ID); 
+ 				 ]]>
+			</preaction>
+		</interceptor>
+
+		<vpanel id="common_vpanel" width="1350px" align="center" title="">
+			<header>
+			  <![CDATA[<table width="1350px" border="0" cellspacing="0" cellpadding="0">
+			    <tr><td height="10px"></td></tr>
+			  	<tr><td align="left"><a href='ShowReport.wx?PAGEID=emp_insur_bonus_smy' style="font-size:15px;TEXT-DECORATION:underline">返回上一级</a></td></tr>
+			    </table>
+			  ]]>
+			</header>
+			<report id="select" title="员工保险产品奖励明细" type="editablelist"
+				width="1350px" top="10px" align="center" pagesize="15|20|-1"
+				dataexport="richexcel" personalizeclass="default">
+
+				<display>
+					<col column="{sequence:1}" label="序号" width="40px"></col>
+					<col column="INSUR_PRINT_ID" label="保单印刷号" width="120px"
+						valuestyleproperty="style='mso-number-format:\@'"></col>
+					<col column="EMP_ID" label="员工号" width="80px" displaytype="hidden"
+						valuestyleproperty="style='mso-number-format:\@'"></col>
+					<col column="EMP_NM" label="员工姓名" width="80px" displaytype="hidden"></col>
+					<col column="MEASURE_DT" label="统计日期" width="60px" displaytype="hidden"></col>
+					<col column="TXN_DT" label="销售日期" width="60px"></col>
+					<col column="EFF_DT" label="生效日期" width="150px" displaytype="hidden"></col>
+					<col column="EFF_F" label="保单状态" width="60px" displaytype="hidden"></col>
+					<col column="CST_NM" label="客户名" width="80px"></col>
+					<col column="INSUR_CORP_NM" label="保险公司名称" width="150px"></col>
+					<col column="INSUR_PROD_ID" label="保险产品编号" width="100px"></col>
+					<col column="ORG_ID" label="机构号" width="80px" displaytype="optional"></col>
+					<col column="ORG_NM" label="机构名称" width="130px"></col>
+					<col column="BRANCH_ORG_ID" label="分行机构号" width="60px"
+						displaytype="hidden"></col>
+					<col column="BRANCH_ORG_NM" label="分行机构名" width="100px"></col>
+					<col column="INSUR_PREMIUM" label="保费" width="60px"
+						valuestyleproperty="style='mso-number-format:\@'"></col>
+					<col column="PRICE" label="保险手续费率" width="50px" datatype="double{0.0000}"></col>
+					<col column="RATIO" label="认领比例(%)" width="50px" datatype="double{0.00}"></col>
+					<col column="BONUS" label="奖金" width="80px" datatype="double{0.00}"></col>
+				</display>
+				<sql>
+					<select>
+						<value><![CDATA[
+							SELECT   INSUR_PRINT_ID
+									,EMP_ID
+									,EMP_NM
+									,MEASURE_DT
+									,TXN_DT
+									,EFF_DT
+									,EFF_F
+									,CST_NM
+									,INSUR_CORP_NM
+									,INSUR_PROD_ID
+									,ORG_ID
+									,ORG_NM
+									,BRANCH_ORG_ID
+									,BRANCH_ORG_NM
+									,INSUR_PREMIUM
+									,PRICE
+									,RATIO
+									,BONUS
+							FROM     IBS.T2_INSUR_BONUS_DETAIL
+							WHERE {#condition#}
+							order by BONUS desc, EFF_DT desc, EMP_ID
+							
+						    ]]>
+						</value>
+						<condition name="INSUR_PRINT_ID" label="保单印刷号"
+							labelposition="left">
+							<value><![CDATA[INSUR_PRINT_ID='#data#']]></value>
+						</condition>
+						<condition name="user_id" source="session{EMP_ID}">
+							<value><![CDATA[EMP_ID='#data#']]></value>
+						</condition>
+						<condition name="MEASURE_DT" label="统计日期" labelposition="left">
+							<value>
+							 	<![CDATA[MEASURE_DT = '#data#']]>
+							</value>
+							<inputbox type="datepicker" styleproperty="style='width:80px'"
+								jsvalidate="isDate(#label#格式为yyyy-MM-dd)">
+							</inputbox>
+						</condition>
+					</select>
+				</sql>
+			</report>
+
+		</vpanel>
+	</page>
+
+
+
+
+
+
+	<!--从员工销售保险汇总表进入：保险产品奖励明细 分行 -->
+	<page id="insur_bonus_detail_branch"
+		js="/webresources/script/validate.js,/js/demo.js,/js/common.js">
+
+		<header>${top.header}</header>
+
+		<interceptor>
+			<imports>
+				<import>java.lang</import>
+				<import>com.wabacus.util</import>
+				<import>java.sql.Connection</import>
+				<import>java.sql.PreparedStatement</import>
+				<import>java.sql.ResultSet</import>
+				<import>javax.servlet.http.HttpSession</import>
+				<import>javax.util</import>
+				<import>javax.text</import>
+				<import>com.ljbank.market.MyMath</import>
+				<import>java.util.Date</import>
+				<import>java.text.SimpleDateFormat</import>
+				<import>com.ljbank.market.Util</import>
+			</imports>
+			<preaction>
+				<![CDATA[
+						String beginTime = rrequest.getStringAttribute("MEASURE_DT", "");// 取出输入的查询时间
+						System.out.println("beginTime:" + beginTime);
+						if (beginTime.equals("")) 
+						{
+							Util u = new Util();
+							String date=u.getDate();
+							rrequest.setAttribute("MEASURE_DT", date);
+							System.out.println("beginTime处理后时间为:" + beginTime);
+                        }
+                    
+
+ 				 	  String EMP_ID=rrequest.getStringAttribute("EMP_ID","");
+ 				 	  if(EMP_ID.equals("")){
+ 				 	  		EMP_ID=(String)rrequest.getRequest().getSession().getAttribute("EMP_ID");
+ 				 	        System.out.println("1----获得工号为：EMP_ID="+EMP_ID); 
+    		
+ 				 	   }
+ 				 	   else{
+    				        rrequest.getRequest().getSession().setAttribute("EMP_ID", EMP_ID);
+    				        System.out.println("2----获得工号为：EMP_ID="+(String)rrequest.getRequest().getSession().getAttribute("EMP_ID")); 
+    				   }
+    				  
+	  				   System.out.println("3----获得工号为：EMP_ID="+EMP_ID); 
+ 				 ]]>
+			</preaction>
+		</interceptor>
+
+		<vpanel id="common_vpanel" width="1350px" align="center" title="">
+			<header>
+			  <![CDATA[<table width="1350px" border="0" cellspacing="0" cellpadding="0">
+			  	<tr><td height="10px"></td></tr>
+			  	<tr><td align="left"><a href='ShowReport.wx?PAGEID=emp_insur_bonus_smy_branch' style="font-size:15px;TEXT-DECORATION:underline">返回上一级</a></td></tr>
+			    </table>
+			  ]]>
+			</header>
+			<report id="select" title="员工保险产品奖励明细" type="editablelist"
+				width="1350px" top="10px" align="center" pagesize="15|20|-1"
+				dataexport="richexcel" personalizeclass="default">
+
+				<display>
+					<col column="{sequence:1}" label="序号" width="40px"></col>
+					<col column="INSUR_PRINT_ID" label="保单印刷号" width="120px"
+						valuestyleproperty="style='mso-number-format:\@'"></col>
+					<col column="EMP_ID" label="员工号" width="80px" displaytype="hidden"
+						valuestyleproperty="style='mso-number-format:\@'"></col>
+					<col column="EMP_NM" label="员工姓名" width="80px" displaytype="hidden"></col>
+					<col column="MEASURE_DT" label="统计日期" width="60px" displaytype="hidden"></col>
+					<col column="TXN_DT" label="销售日期" width="60px"></col>
+					<col column="EFF_DT" label="生效日期" width="150px" displaytype="hidden"></col>
+					<col column="EFF_F" label="保单状态" width="60px" displaytype="hidden"></col>
+					<col column="CST_NM" label="客户名" width="80px"></col>
+					<col column="INSUR_CORP_NM" label="保险公司名称" width="150px"></col>
+					<col column="INSUR_PROD_ID" label="保险产品编号" width="100px"></col>
+					<col column="ORG_ID" label="机构号" width="80px" displaytype="optional"></col>
+					<col column="ORG_NM" label="机构名称" width="130px"></col>
+					<col column="BRANCH_ORG_ID" label="分行机构号" width="60px"
+						displaytype="hidden"></col>
+					<col column="BRANCH_ORG_NM" label="分行机构名" width="100px"></col>
+					<col column="INSUR_PREMIUM" label="保费" width="60px"
+						valuestyleproperty="style='mso-number-format:\@'"></col>
+					<col column="PRICE" label="保险手续费率" width="50px" datatype="double{0.0000}"></col>
+					<col column="RATIO" label="认领比例(%)" width="50px" datatype="double{0.00}"></col>
+					<col column="BONUS" label="奖金" width="80px" datatype="double{0.00}"></col>
+				</display>
+				<sql>
+					<select>
+						<value><![CDATA[
+							SELECT   INSUR_PRINT_ID
+									,EMP_ID
+									,EMP_NM
+									,MEASURE_DT
+									,TXN_DT
+									,EFF_DT
+									,EFF_F
+									,CST_NM
+									,INSUR_CORP_NM
+									,INSUR_PROD_ID
+									,ORG_ID
+									,ORG_NM
+									,BRANCH_ORG_ID
+									,BRANCH_ORG_NM
+									,INSUR_PREMIUM
+									,PRICE
+									,RATIO
+									,BONUS
+							FROM     IBS.T2_INSUR_BONUS_DETAIL
+							WHERE {#condition#}
+							order by BONUS desc, EFF_DT desc, EMP_ID
+						    ]]>
+						</value>
+						<condition name="INSUR_PRINT_ID" label="保单印刷号"
+							labelposition="left">
+							<value><![CDATA[INSUR_PRINT_ID='#data#']]></value>
+						</condition>
+						<condition name="user_id" source="session{EMP_ID}">
+							<value><![CDATA[EMP_ID='#data#']]></value>
+						</condition>
+						<condition name="MEASURE_DT" label="统计日期" labelposition="left">
+							<value>
+							 	<![CDATA[MEASURE_DT = '#data#']]>
+							</value>
+							<inputbox type="datepicker" styleproperty="style='width:80px'"
+								jsvalidate="isDate(#label#格式为yyyy-MM-dd)">
+							</inputbox>
+						</condition>
+					</select>
+				</sql>
+			</report>
+		</vpanel>
+	</page>
+
+
+	<!--从员工销售保险汇总表进入：保险产品奖励明细 支行 -->
+	<page id="insur_bonus_detail_subbranch"
+		js="/webresources/script/validate.js,/js/demo.js,/js/common.js">
+
+		<header>${top.header}</header>
+
+		<interceptor>
+			<imports>
+				<import>java.lang</import>
+				<import>com.wabacus.util</import>
+				<import>java.sql.Connection</import>
+				<import>java.sql.PreparedStatement</import>
+				<import>java.sql.ResultSet</import>
+				<import>javax.servlet.http.HttpSession</import>
+				<import>javax.util</import>
+				<import>javax.text</import>
+				<import>com.ljbank.market.MyMath</import>
+				<import>java.util.Date</import>
+				<import>java.text.SimpleDateFormat</import>
+				<import>com.ljbank.market.Util</import>
+			</imports>
+			<preaction>
+				<![CDATA[
+						String beginTime = rrequest.getStringAttribute("MEASURE_DT", "");// 取出输入的查询时间
+						System.out.println("beginTime:" + beginTime);
+						if (beginTime.equals("")) 
+						{
+							Util u = new Util();
+							String date=u.getDate();
+							rrequest.setAttribute("MEASURE_DT", date);
+							System.out.println("beginTime处理后时间为:" + beginTime);
+                        }
+                    
+
+ 				 	  String EMP_ID=rrequest.getStringAttribute("EMP_ID","");
+ 				 	  if(EMP_ID.equals("")){
+ 				 	  		EMP_ID=(String)rrequest.getRequest().getSession().getAttribute("EMP_ID");
+ 				 	        System.out.println("1----获得工号为：EMP_ID="+EMP_ID); 
+    		
+ 				 	   }
+ 				 	   else{
+    				        rrequest.getRequest().getSession().setAttribute("EMP_ID", EMP_ID);
+    				        System.out.println("2----获得工号为：EMP_ID="+(String)rrequest.getRequest().getSession().getAttribute("EMP_ID")); 
+    				   }
+    				  
+	  				   System.out.println("3----获得工号为：EMP_ID="+EMP_ID); 
+ 				 ]]>
+			</preaction>
+		</interceptor>
+
+		<vpanel id="common_vpanel" width="1350px" align="center" title="">
+			<header>
+			  <![CDATA[<table width="1350px" border="0" cellspacing="0" cellpadding="0">
+			  	<tr><td height="10px"></td></tr>
+			  	<tr><td align="left"><a href='ShowReport.wx?PAGEID=emp_insur_bonus_smy_subbranch' style="font-size:15px;TEXT-DECORATION:underline">返回上一级</a></td></tr>
+			    </table>
+			  ]]>
+			</header>
+			<report id="select" title="员工保险产品奖励明细" type="editablelist"
+				width="1350px" top="10px" align="center" pagesize="15|20|-1"
+				dataexport="richexcel" personalizeclass="default">
+
+				<display>
+					<col column="{sequence:1}" label="序号" width="40px"></col>
+					<col column="INSUR_PRINT_ID" label="保单印刷号" width="120px"
+						valuestyleproperty="style='mso-number-format:\@'"></col>
+					<col column="EMP_ID" label="员工号" width="80px" displaytype="hidden"
+						valuestyleproperty="style='mso-number-format:\@'"></col>
+					<col column="EMP_NM" label="员工姓名" width="80px" displaytype="hidden"></col>
+					<col column="MEASURE_DT" label="统计日期" width="60px" displaytype="hidden"></col>
+					<col column="TXN_DT" label="销售日期" width="60px"></col>
+					<col column="EFF_DT" label="生效日期" width="150px" displaytype="hidden"></col>
+					<col column="EFF_F" label="保单状态" width="60px" displaytype="hidden"></col>
+					<col column="CST_NM" label="客户名" width="80px"></col>
+					<col column="INSUR_CORP_NM" label="保险公司名称" width="150px"></col>
+					<col column="INSUR_PROD_ID" label="保险产品编号" width="100px"></col>
+					<col column="ORG_ID" label="机构号" width="80px" displaytype="optional"></col>
+					<col column="ORG_NM" label="机构名称" width="130px"></col>
+					<col column="BRANCH_ORG_ID" label="分行机构号" width="60px"
+						displaytype="hidden"></col>
+					<col column="BRANCH_ORG_NM" label="分行机构名" width="100px"></col>
+					<col column="INSUR_PREMIUM" label="保费" width="60px"
+						valuestyleproperty="style='mso-number-format:\@'"></col>
+					<col column="PRICE" label="保险手续费率" width="50px" datatype="double{0.0000}"></col>
+					<col column="RATIO" label="认领比例(%)" width="50px" datatype="double{0.00}"></col>
+					<col column="BONUS" label="奖金" width="80px" datatype="double{0.00}"></col>
+				</display>
+				<sql>
+					<select>
+						<value><![CDATA[
+							SELECT   INSUR_PRINT_ID
+									,EMP_ID
+									,EMP_NM
+									,MEASURE_DT
+									,TXN_DT
+									,EFF_DT
+									,EFF_F
+									,CST_NM
+									,INSUR_CORP_NM
+									,INSUR_PROD_ID
+									,ORG_ID
+									,ORG_NM
+									,BRANCH_ORG_ID
+									,BRANCH_ORG_NM
+									,INSUR_PREMIUM
+									,PRICE
+									,RATIO
+									,BONUS
+							FROM     IBS.T2_INSUR_BONUS_DETAIL
+							WHERE {#condition#}
+							order by BONUS desc, EFF_DT desc, EMP_ID
+						    ]]>
+						</value>
+							<condition name="INSUR_PRINT_ID" label="保单印刷号"
+							labelposition="left">
+							<value><![CDATA[INSUR_PRINT_ID='#data#']]></value>
+						</condition>
+						<condition name="user_id" source="session{EMP_ID}">
+							<value><![CDATA[EMP_ID='#data#']]></value>
+						</condition>
+						<condition name="MEASURE_DT" label="统计日期" labelposition="left">
+							<value>
+							 	<![CDATA[MEASURE_DT = '#data#']]>
+							</value>
+							<inputbox type="datepicker" styleproperty="style='width:80px'"
+								jsvalidate="isDate(#label#格式为yyyy-MM-dd)">
+							</inputbox>
+						</condition>
+					</select>
+				</sql>
+			</report>
+		</vpanel>
+	</page>
+
+   <!--我的保险销售明细 -->
+	<page id="insur_bonus_detail_user"
+		js="/webresources/script/validate.js,/js/demo.js,/js/common.js">
+
+		<header>${top.header}</header>
+
+		<interceptor>
+			<imports>
+				<import>java.lang</import>
+				<import>com.wabacus.util</import>
+				<import>java.sql.Connection</import>
+				<import>java.sql.PreparedStatement</import>
+				<import>java.sql.ResultSet</import>
+				<import>javax.servlet.http.HttpSession</import>
+				<import>javax.util</import>
+				<import>javax.text</import>
+				<import>com.ljbank.market.MyMath</import>
+				<import>java.util.Date</import>
+				<import>java.text.SimpleDateFormat</import>
+				<import>com.ljbank.market.Util</import>
+			</imports>
+			<preaction>
+				<![CDATA[
+						String beginTime = rrequest.getStringAttribute("MEASURE_DT", "");// 取出输入的查询时间
+						System.out.println("beginTime:" + beginTime);
+						if (beginTime.equals("")) 
+						{
+							Util u = new Util();
+							String date=u.getDate();
+							rrequest.setAttribute("MEASURE_DT", date);
+							System.out.println("beginTime处理后时间为:" + beginTime);
+                        }
+ 				 ]]>
+			</preaction>
+		</interceptor>
+
+		<vpanel id="common_vpanel" width="1350px" align="center" title="">
+			<header>
+			  <![CDATA[
+			  ]]>
+			</header>
+			<report id="select" title="员工保险产品奖励明细" type="editablelist"
+				width="1350px" top="10px" align="center" pagesize="15|20|-1"
+				dataexport="richexcel" personalizeclass="default">
+
+				<display>
+					<col column="{sequence:1}" label="序号" width="40px"></col>
+					<col column="INSUR_PRINT_ID" label="保单印刷号" width="120px"
+						valuestyleproperty="style='mso-number-format:\@'"></col>
+					<col column="EMP_ID" label="员工号" width="80px" displaytype="hidden"
+						valuestyleproperty="style='mso-number-format:\@'"></col>
+					<col column="EMP_NM" label="员工姓名" width="80px" displaytype="hidden"></col>
+					<col column="MEASURE_DT" label="统计日期" width="60px" displaytype="hidden"></col>
+					<col column="TXN_DT" label="销售日期" width="60px"></col>
+					<col column="EFF_DT" label="生效日期" width="150px" displaytype="hidden"></col>
+					<col column="EFF_F" label="保单状态" width="60px" displaytype="hidden"></col>
+					<col column="CST_NM" label="客户名" width="80px"></col>
+					<col column="INSUR_CORP_NM" label="保险公司名称" width="150px"></col>
+					<col column="INSUR_PROD_ID" label="保险产品编号" width="100px"></col>
+					<col column="ORG_ID" label="机构号" width="80px" displaytype="optional"></col>
+					<col column="ORG_NM" label="机构名称" width="130px"></col>
+					<col column="BRANCH_ORG_ID" label="分行机构号" width="60px"
+						displaytype="hidden"></col>
+					<col column="BRANCH_ORG_NM" label="分行机构名" width="100px"></col>
+					<col column="INSUR_PREMIUM" label="保费" width="60px"
+						valuestyleproperty="style='mso-number-format:\@'"></col>
+					<col column="PRICE" label="保险手续费率" width="50px" datatype="double{0.0000}"></col>
+					<col column="RATIO" label="认领比例(%)" width="50px" datatype="double{0.00}"></col>
+					<col column="BONUS" label="奖金" width="80px" datatype="double{0.00}"></col>
+				</display>
+				<sql>
+					<select>
+						<value><![CDATA[
+							SELECT   INSUR_PRINT_ID
+									,EMP_ID
+									,EMP_NM
+									,MEASURE_DT
+									,TXN_DT
+									,EFF_DT
+									,EFF_F
+									,CST_NM
+									,INSUR_CORP_NM
+									,INSUR_PROD_ID
+									,ORG_ID
+									,ORG_NM
+									,BRANCH_ORG_ID
+									,BRANCH_ORG_NM
+									,INSUR_PREMIUM
+									,PRICE
+									,RATIO
+									,BONUS
+							FROM     IBS.T2_INSUR_BONUS_DETAIL
+							WHERE {#condition#}
+							order by BONUS desc, EFF_DT desc, EMP_ID
+						    ]]>
+						</value>
+							<condition name="INSUR_PRINT_ID" label="保单印刷号"
+							labelposition="left">
+							<value><![CDATA[INSUR_PRINT_ID='#data#']]></value>
+						</condition>
+						<condition name="user_id" source="session{user_id}">
+							<value><![CDATA[EMP_ID='#data#']]></value>
+						</condition>
+						<condition name="MEASURE_DT" label="统计日期" labelposition="left">
+							<value>
+							 	<![CDATA[MEASURE_DT = '#data#']]>
+							</value>
+							<inputbox type="datepicker" styleproperty="style='width:80px'"
+								jsvalidate="isDate(#label#格式为yyyy-MM-dd)">
+							</inputbox>
+						</condition>
+					</select>
+				</sql>
+			</report>
+		</vpanel>
+	</page>
+
+</applications>

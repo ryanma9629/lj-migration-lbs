@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<applications xmlns="http://www.wabacus.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.wabacus.com ../xsd/wabacus.applications.xsd">
+
+	<!--个人基金业绩明细 -->
+	<page id="fund_detail"
+		js="/webresources/script/validate.js,/js/demo.js,/js/common.js">
+
+		<header>${top.header}</header>
+
+		<interceptor>
+			<imports>
+				<import>java.lang</import>
+				<import>com.wabacus.util</import>
+				<import>java.sql.Connection</import>
+				<import>java.sql.PreparedStatement</import>
+				<import>java.sql.ResultSet</import>
+				<import>javax.servlet.http.HttpSession</import>
+				<import>javax.util</import>
+				<import>javax.text</import>
+				<import>com.ljbank.market.MyMath</import>
+				<import>java.util.Date</import>
+				<import>java.text.SimpleDateFormat</import>
+			</imports>
+			<preaction>
+				<![CDATA[
+						Util u = new Util();
+						String date=u.getDate();
+						String txn_dt_st = rrequest.getStringAttribute("TXN_DT_ST", "");
+						String txn_dt_ed = rrequest.getStringAttribute("TXN_DT_ED", "");
+						
+						if(txn_dt_st.equals("")){
+							rrequest.setAttribute("TXN_DT_ST", date);
+						}
+						if(txn_dt_ed.equals("")){
+							rrequest.setAttribute("TXN_DT_ED", date);
+						}
+ 				 ]]>
+			</preaction>
+		</interceptor>
+
+		<vpanel id="common_vpanel" width="1350px" align="center" title="">
+			<header>
+			  <![CDATA[<table width="1350px" border="0" cellspacing="0" cellpadding="0">
+			    <tr><td height="10px"></td></tr>
+			  	<!--<tr><td align="left"><a href='ShowReport.wx?PAGEID=fnc_pd_bonus_smy' style="font-size:15px;TEXT-DECORATION:underline">返回上一级</a></td></tr>-->
+			    </table>
+			  ]]>
+			</header>
+			<report id="select" title="基金销售明细" type="editablelist"
+				width="1350px" top="10px" align="center" pagesize="15|20|-1" rowselect="single"
+				dataexport="richexcel" personalizeclass="default" interceptor="com.customer.interceptor.InterceptorFundDetail">
+
+				<display>
+					<col column="{sequence:1}" label="序号" width="40px"></col>
+					<col column="VUCH_NBR" label="凭证号" valuestyleproperty="style='mso-number-format:\@'"></col>
+					<col column="PRD_CD" label="产品号" valuestyleproperty="style='mso-number-format:\@'"></col>
+					<col column="PRD_NM" label="产品名称" ></col>
+					<col column="ORG_NM" label="交易机构"  ></col>
+					<col column="TXN_DT" label="交易日期"  ></col>
+					<col column="BIZ_TYPE_NM" label="业务类型"  ></col>
+					<col column="INC_TP" label="收入类型" ></col>
+					<col column="CST_NM" label="客户名称" ></col>		
+		            <col column="MID_INC" label="计价金额" formatemplate=""></col>
+					<col column="RATIO" label="认领比例(%)" ></col>
+				</display>
+				<sql>
+					<select>
+						<value><![CDATA[
+						select *
+						from(
+						select fe.MSR_PRD_DT as TXN_DT,cr.EMP_ID,cr.IDENTN_NO as VUCH_NBR,'' as PRD_CD,'' as PRD_NM,cr.ORG_NM,'客户签约' as BIZ_TYPE_NM,'服务费' as INC_TP,cr.CST_NM,decimal(sum(coalesce(fe.TRA_FEE,0)+coalesce(fe.SL_FEE,0)),20,2) as MID_INC,cr.RATIO
+						from ibs.T1_FUND_CST_EMP_RELA cr
+						inner join ibs.T1_FUND_CST_FEE fe on cr.CUS_NO=fe.IN_CUS_NO
+						where %SQL1% and cr.CLAIM_STATUS_ID in ('2','6')
+						group by fe.MSR_PRD_DT, cr.EMP_ID,cr.IDENTN_NO,cr.ORG_NM,cr.CST_NM,cr.RATIO
+						union all
+						select TXN_DT as MSR_PRD_DT,EMP_ID, TXN_NO as VUCH_NBR, PRD_CD, PRD_NM, ORG_NM, BIZ_TYPE_NM, '销售手续费' as INC_TP, CST_NM, decimal(sum(MID_INC),20,2) as MID_INC, RATIO
+						from ibs.T1_FUND_TXN_EMP_RELA cr
+						where %SQL2% and CLAIM_STATUS_ID in ('2','6')
+						group by TXN_DT,EMP_ID,TXN_NO, PRD_CD, PRD_NM, ORG_NM,  BIZ_TYPE_NM,CST_NM, RATIO
+						)
+						where {#condition#}
+						order by TXN_DT,PRD_CD,BIZ_TYPE_NM,INC_TP,VUCH_NBR
+						    ]]>
+						</value>
+						<condition name="TXN_DT_ST" label="交易日期 &lt;font color=red&gt;*" labelposition="left" >
+							<value>
+						 	<![CDATA[	
+								  TXN_DT BETWEEN '#data#' 
+						 	]]>
+							</value>
+							<inputbox type="datepicker" styleproperty="style='width:90px'"
+								jsvalidate="isDate(#label#格式为yyyy-MM-dd);isNotEmpty(交易日期不能为空)" >
+							</inputbox>
+						</condition>
+						<condition name="TXN_DT_ED" label="至 &lt;font color=red&gt;*" labelposition="left" defaultvalue="url{JIOYRQ_ST}">
+							<value>
+						 	<![CDATA['#data#']]>
+							</value>
+							<inputbox type="datepicker" styleproperty="style='width:90px'"
+								jsvalidate="isDate(#label#格式为yyyy-MM-dd);isNotEmpty(交易日期不能为空)" >
+							</inputbox>
+						</condition>
+						<condition name="VUCH_NBR" label="凭证号" labelposition="left" >
+							<value>
+						 	<![CDATA[VUCH_NBR like '%#data#%']]>
+							</value>
+						</condition>
+						<condition name="BIZ_TYPE_NM" label="业务类型" labelposition="left" >
+							<value>
+						 	<![CDATA[BIZ_TYPE_NM = '#data#']]>
+							</value>
+							<inputbox type="selectbox" styleproperty="style='width:100px'">
+								<option label="全部" value=""></option>
+							    <option label="客户签约" value="客户签约"></option>
+							    <option label="定投" value="定投"></option>
+							    <option label="购买" value="购买"></option>
+							    <option label="赎回" value="赎回"></option>
+							    <option label="转换" value="转换"></option>
+							</inputbox>
+						</condition>
+						<condition name="INC_TP" label="收入类型" labelposition="left" >
+							<value>
+						 	<![CDATA[INC_TP = '#data#']]>
+							</value>
+							<inputbox type="selectbox" styleproperty="style='width:100px'">
+								<option label="全部" value=""></option>
+							    <option label="服务费" value="服务费"></option>
+							    <option label="销售手续费" value="销售手续费"></option>
+							</inputbox>
+						</condition>
+					</select>
+				</sql>
+				<footer><![CDATA[<div style='float:left'><font color='blue'></font></div>]]></footer>
+			</report>
+
+		</vpanel>
+	</page>
+
+
+
+
+	
+
+
+</applications>

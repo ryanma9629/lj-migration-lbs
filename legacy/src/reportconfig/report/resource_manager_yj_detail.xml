@@ -1,0 +1,691 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<applications xmlns="http://www.wabacus.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.wabacus.com ../xsd/wabacus.applications.xsd">
+
+	<!--资源型客户经理凭证明细  总行 -->
+	<page id="resource_manager_yj_detail"
+		js="/webresources/script/validate.js,/js/demo.js,/js/common.js">
+
+		<header>${top.header}</header>
+
+		<interceptor>
+			<imports>
+				<import>java.lang</import>
+				<import>com.wabacus.util</import>
+				<import>java.sql.Connection</import>
+				<import>java.sql.PreparedStatement</import>
+				<import>java.sql.ResultSet</import>
+				<import>javax.servlet.http.HttpSession</import>
+				<import>javax.util</import>
+				<import>javax.text</import>
+				<import>com.ljbank.market.MyMath</import>
+				<import>java.util.Date</import>
+				<import>java.text.SimpleDateFormat</import>
+			</imports>
+			<preaction>
+				<![CDATA[
+						String beginTime = rrequest.getStringAttribute("MEASURE_DT", "");// 取出输入的查询时间
+						System.out.println("beginTime:" + beginTime);
+						if (beginTime.equals("")) 
+						{
+							Connection conn = rrequest.getConnection();
+							PreparedStatement pstmt = null;
+							try {
+									String SQL = "Select DATA_DT from IBS.T8_DATA_DT";
+									pstmt = conn.prepareStatement(SQL);
+									ResultSet resultSet = pstmt.executeQuery();
+									while (resultSet.next()) {
+					                     String date=resultSet.getString("DATA_DT");
+					                     rrequest.setAttribute("MEASURE_DT", date);
+				                    }
+									
+									System.out.println("beginTime处理后时间为:" + beginTime);
+									resultSet.close();
+									pstmt.close();
+								} 
+							catch (Exception e) {
+									e.printStackTrace();
+							}
+                        }
+                    
+                    
+
+ 				 	  String EMP_ID=rrequest.getStringAttribute("EMP_ID","");
+ 				 	  if(EMP_ID.equals("")){
+ 				 	  		EMP_ID=(String)rrequest.getRequest().getSession().getAttribute("EMP_ID");
+ 				 	        //System.out.println("1----获得工号为：EMP_ID="+EMP_ID); 
+    		
+ 				 	   }
+ 				 	   else{
+    				        rrequest.getRequest().getSession().setAttribute("EMP_ID", EMP_ID);
+    				        //System.out.println("2----获得工号为：EMP_ID="+(String)rrequest.getRequest().getSession().getAttribute("EMP_ID")); 
+    				   }
+    				  
+    				  //返回给上一级的参数
+    				  rrequest.getRequest().getSession().setAttribute("MEASURE_DT_DTL",beginTime);
+ 				 ]]>
+			</preaction>
+		</interceptor>
+
+		<vpanel id="common_vpanel" width="1350px" align="center" title="">
+			<header>
+			  <![CDATA[
+			  	<table width="1350px" border="0" cellspacing="0" cellpadding="0">
+			    <tr><td height="10px"></td></tr>
+			  	<tr><td align="left"><a href='ShowReport.wx?PAGEID=resource_manager_yj' style="font-size:15px;TEXT-DECORATION:underline">返回上一级</a></td></tr>
+			    </table>
+			  ]]>
+			</header>
+			<report id="select" title="资源型客户经理业绩明细" type="listform"
+				width="1350px" top="10px" align="center" pagesize="15|20|-1"
+				dataexport="richexcel" personalizeclass="default" scrollwidth="1350px" >
+
+				<display>
+					<col column="{sequence:1}" label="序号" ></col>
+					<col column="VUCH_NBR" label="凭证号"  valuestyleproperty="style='mso-number-format:\@'"></col>
+					<col column="EMP_ID" label="员工号"  displaytype="hidden" valuestyleproperty="style='mso-number-format:\@'"></col>
+					<col column="EMP_NM" label="员工姓名"  displaytype="hidden"></col>
+					<col column="MEASURE_DT" label="统计日期"  displaytype="hidden"></col>
+					<col column="OPEN_DT" label="开户日期"  clickorderby="true"></col>
+					<col column="CST_ID" label="客户号"  displaytype="hidden"></col>
+					<col column="CST_NM" label="客户名" ></col>
+					<col column="CL_KHJQ_AVG_BAL" label="存量客户考核基期日均" datatype="double{0.00}" align="right"></col>
+					<col column="CL_MTH_AVG_BAL" label="存量客户月日均" datatype="double{0.00}" align="right"></col>
+					<col column="CL_MTH_AVG_ADD" label="存量客户月日均新增额" datatype="double{0.00}" align="right"></col>
+					<col column="XZ_MTH_AVG_BAL" label="新增客户月日均" datatype="double{0.00}" align="right"></col>
+					<col column="M_PROFIT" label="月利润" datatype="double{0.00}" align="right"></col>
+				</display>
+				<sql>
+					<select>
+						<value><![CDATA[
+							select dtl.MEASURE_DT
+								,dtl.EMP_ID
+								,dtl.EMP_NM
+								,dtl.VUCH_NBR
+								,dtl.CST_ID
+								,dtl.CST_NM
+								,dtl.OPEN_DT 
+								,dtl.ORG_ID 
+								,dtl.ORG_NM 
+								,dtl.RATIO 
+								,dtl.CL_KHJQ_AVG_BAL 
+								,dtl.CL_MTH_AVG_BAL 
+								,dtl.XZ_MTH_AVG_BAL 
+								,dtl.M_PROFIT
+								,(dtl.CL_MTH_AVG_BAL-dtl.CL_KHJQ_AVG_BAL) as CL_MTH_AVG_ADD
+								,dtl.BIZ_TYPE_NM 
+								from IBS.T3_RESOURCE_MANAGER_VUCH_DETAIL dtl
+								WHERE   {#condition#}
+								order by dtl.OPEN_DT desc
+						    ]]>
+						</value>
+						<condition name="VUCH_NBR" label="凭证号" labelposition="left">
+							<value><![CDATA[dtl.VUCH_NBR='#data#']]></value>
+						</condition>
+						<condition name="user_id" source="session{EMP_ID}">
+							<value><![CDATA[dtl.EMP_ID='#data#']]></value>
+						</condition>
+						<condition name="BIZ_TYPE_ID" labelposition="left"
+							label="业务类型">
+							<value>
+								<![CDATA[dtl.BIZ_TYPE_ID='#data#']]>
+							</value>
+							<inputbox type="selectbox">
+								<option label="全部" value=""></option>
+								<option
+									source="@{Select distinct BIZ_TYPE_ID , BIZ_TYPE_NM from IBS.T9_BIZ_TYPE where BIZ_TYPE_ID in ('AA', 'BB') order by BIZ_TYPE_ID}"
+									label="BIZ_TYPE_NM" value="BIZ_TYPE_ID" />
+							</inputbox>
+						</condition>
+
+						<condition name="MEASURE_DT" label="统计日期" labelposition="left">
+							<value>
+							 	<![CDATA[	
+							 	 dtl.MEASURE_DT = '#data#'  
+							 	]]>
+							</value>
+							<inputbox type="datepicker" styleproperty="style='width:80px'"
+								jsvalidate="isDate(#label#格式为yyyy-MM-dd)">
+							</inputbox>
+						</condition>
+						
+						<condition name="KHQ_ST_DT" label="考核开始日期" labelposition="left" hidden="true">
+							<value>
+							 	<![CDATA[	
+							 	 dtl.KHQ_ST_DT = '#data#'  
+							 	]]>
+							</value>
+							<inputbox type="datepicker" styleproperty="style='width:80px'"
+								jsvalidate="isDate(#label#格式为yyyy-MM-dd)">
+							</inputbox>
+						</condition>
+						<condition name="KHQ_ED_DT" label="考核结束日期" labelposition="left" hidden="true">
+							<value>
+							 	<![CDATA[	
+							 	 dtl.KHQ_ED_DT = '#data#'  
+							 	]]>
+							</value>
+							<inputbox type="datepicker" styleproperty="style='width:80px'"
+								jsvalidate="isDate(#label#格式为yyyy-MM-dd)">
+							</inputbox>
+						</condition>
+					</select>
+				</sql>
+				<footer><![CDATA[<div style='float:left'><font color='blue'>提示:本系统币种为本外币合计</font></div>]]></footer>
+			</report>
+
+		</vpanel>
+	</page>
+
+	<!--资源型客户经理业绩明细 分行 -->
+	<page id="resource_manager_yj_detail_branch"
+		js="/webresources/script/validate.js,/js/demo.js,/js/common.js">
+
+		<header>${top.header}</header>
+
+		<interceptor>
+			<imports>
+				<import>java.lang</import>
+				<import>com.wabacus.util</import>
+				<import>java.sql.Connection</import>
+				<import>java.sql.PreparedStatement</import>
+				<import>java.sql.ResultSet</import>
+				<import>javax.servlet.http.HttpSession</import>
+				<import>javax.util</import>
+				<import>javax.text</import>
+				<import>com.ljbank.market.MyMath</import>
+				<import>java.util.Date</import>
+				<import>java.text.SimpleDateFormat</import>
+			</imports>
+			<preaction>
+				<![CDATA[
+						String beginTime = rrequest.getStringAttribute("MEASURE_DT", "");// 取出输入的查询时间
+						System.out.println("beginTime:" + beginTime);
+						if (beginTime.equals("")) 
+						{
+							Connection conn = rrequest.getConnection();
+							PreparedStatement pstmt = null;
+							try {
+									String SQL = "Select DATA_DT from IBS.T8_DATA_DT";
+									pstmt = conn.prepareStatement(SQL);
+									ResultSet resultSet = pstmt.executeQuery();
+									while (resultSet.next()) {
+					                     String date=resultSet.getString("DATA_DT");
+					                     rrequest.setAttribute("MEASURE_DT", date);
+				                    }
+									
+									resultSet.close();
+									pstmt.close();
+								} 
+							catch (Exception e) {
+									e.printStackTrace();
+							}
+                        }
+
+ 				 	  String EMP_ID=rrequest.getStringAttribute("EMP_ID","");
+ 				 	  if(EMP_ID.equals("")){
+ 				 	  		EMP_ID=(String)rrequest.getRequest().getSession().getAttribute("EMP_ID");
+ 				 	   }
+ 				 	   else{
+    				        rrequest.getRequest().getSession().setAttribute("EMP_ID", EMP_ID);
+    				   }
+    				   
+    				   //返回给上一级的参数
+    				  rrequest.getRequest().getSession().setAttribute("MEASURE_DT_DTL",beginTime);
+    				  
+ 				 ]]>
+			</preaction>
+		</interceptor>
+
+		<vpanel id="common_vpanel" width="1350px" align="center" title="">
+			<header>
+			  <![CDATA[<table width="1350px" border="0" cellspacing="0" cellpadding="0">
+			  	<tr><td height="10px"></td></tr>
+			  	<tr><td align="left"><a href='ShowReport.wx?PAGEID=resource_manager_yj_branch' style="font-size:15px;TEXT-DECORATION:underline">返回上一级</a></td></tr>
+			    </table>
+			  ]]>
+			</header>
+			<report id="select" title="资源型客户经理业绩明细" type="editablelist"
+				width="1350px" top="10px" align="center" pagesize="15|20|-1"
+				dataexport="richexcel" personalizeclass="default" scrollwidth="1350px" cellresize="2">
+
+				<display>
+					<col column="{sequence:1}" label="序号" ></col>
+					<col column="VUCH_NBR" label="凭证号"  valuestyleproperty="style='mso-number-format:\@'"></col>
+					<col column="EMP_ID" label="员工号"  displaytype="hidden" valuestyleproperty="style='mso-number-format:\@'"></col>
+					<col column="EMP_NM" label="员工姓名"  displaytype="hidden"></col>
+					<col column="MEASURE_DT" label="统计日期"  displaytype="hidden"></col>
+					<col column="OPEN_DT" label="开户日期"  ></col>
+					<col column="CST_ID" label="客户号"  displaytype="hidden"></col>
+					<col column="CST_NM" label="客户名" ></col>
+					<col column="CL_KHJQ_AVG_BAL" label="存量客户考核基期日均" datatype="double{0.00}" align="right"></col>
+					<col column="CL_MTH_AVG_BAL" label="存量客户月日均" datatype="double{0.00}" align="right"></col>
+					<col column="CL_MTH_AVG_ADD" label="存量客户月日均新增额" datatype="double{0.00}" align="right"></col>
+					<col column="XZ_MTH_AVG_BAL" label="新增客户月日均" datatype="double{0.00}" align="right"></col>
+					<col column="M_PROFIT" label="月利润" datatype="double{0.00}" align="right"></col>
+				</display>
+				<sql>
+					<select>
+						<value><![CDATA[
+							select dtl.MEASURE_DT
+								,dtl.EMP_ID
+								,dtl.EMP_NM
+								,dtl.VUCH_NBR
+								,dtl.CST_ID
+								,dtl.CST_NM
+								,dtl.OPEN_DT 
+								,dtl.ORG_ID 
+								,dtl.ORG_NM 
+								,dtl.RATIO 
+								,dtl.CL_KHJQ_AVG_BAL 
+								,dtl.CL_MTH_AVG_BAL 
+								,dtl.XZ_MTH_AVG_BAL
+								,(dtl.CL_MTH_AVG_BAL-dtl.CL_KHJQ_AVG_BAL) as CL_MTH_AVG_ADD 
+								,dtl.M_PROFIT
+								,dtl.BIZ_TYPE_NM 
+								from IBS.T3_RESOURCE_MANAGER_VUCH_DETAIL dtl
+								WHERE   {#condition#}
+								order by dtl.OPEN_DT desc
+							
+						    ]]>
+						</value>
+						<condition name="VUCH_NBR" label="凭证号" labelposition="left">
+							<value><![CDATA[dtl.VUCH_NBR='#data#']]></value>
+						</condition>
+						<condition name="user_id" source="session{EMP_ID}">
+							<value><![CDATA[dtl.EMP_ID='#data#']]></value>
+						</condition>
+						<condition name="BIZ_TYPE_ID" labelposition="left"
+							label="业务类型">
+							<value>
+								<![CDATA[dtl.BIZ_TYPE_ID='#data#']]>
+							</value>
+							<inputbox type="selectbox">
+								<option label="全部" value=""></option>
+								<option
+									source="@{Select distinct BIZ_TYPE_ID , BIZ_TYPE_NM from IBS.T9_BIZ_TYPE where BIZ_TYPE_ID in ('AA', 'BB') order by BIZ_TYPE_ID}"
+									label="BIZ_TYPE_NM" value="BIZ_TYPE_ID" />
+							</inputbox>
+						</condition>
+
+						<condition name="MEASURE_DT" label="统计日期" labelposition="left">
+							<value>
+							 	<![CDATA[	
+							 	 dtl.MEASURE_DT = '#data#'  
+							 	]]>
+							</value>
+							<inputbox type="datepicker" styleproperty="style='width:80px'"
+								jsvalidate="isDate(#label#格式为yyyy-MM-dd)">
+							</inputbox>
+						</condition>
+						
+						<condition name="KHQ_ST_DT" label="考核开始日期" labelposition="left" hidden="true">
+							<value>
+							 	<![CDATA[	
+							 	 dtl.KHQ_ST_DT = '#data#'  
+							 	]]>
+							</value>
+							<inputbox type="datepicker" styleproperty="style='width:80px'"
+								jsvalidate="isDate(#label#格式为yyyy-MM-dd)">
+							</inputbox>
+						</condition>
+						<condition name="KHQ_ED_DT" label="考核结束日期" labelposition="left" hidden="true">
+							<value>
+							 	<![CDATA[	
+							 	 dtl.KHQ_ED_DT = '#data#'  
+							 	]]>
+							</value>
+							<inputbox type="datepicker" styleproperty="style='width:80px'"
+								jsvalidate="isDate(#label#格式为yyyy-MM-dd)">
+							</inputbox>
+						</condition>
+
+					</select>
+				</sql>
+				<footer><![CDATA[<div style='float:left'><font color='blue'>提示:本系统币种为本外币合计</font></div>]]></footer>
+			</report>
+
+		</vpanel>
+	</page>
+
+
+	<!--资源型客户经理业绩明细  支行 -->
+	<page id="resource_manager_yj_detail_subbranch"
+		js="/webresources/script/validate.js,/js/demo.js,/js/common.js">
+
+		<header>${top.header}</header>
+
+		<interceptor>
+			<imports>
+				<import>java.lang</import>
+				<import>com.wabacus.util</import>
+				<import>java.sql.Connection</import>
+				<import>java.sql.PreparedStatement</import>
+				<import>java.sql.ResultSet</import>
+				<import>javax.servlet.http.HttpSession</import>
+				<import>javax.util</import>
+				<import>javax.text</import>
+				<import>com.ljbank.market.MyMath</import>
+				<import>java.util.Date</import>
+				<import>java.text.SimpleDateFormat</import>
+			</imports>
+			<preaction>
+				<![CDATA[
+						String beginTime = rrequest.getStringAttribute("MEASURE_DT", "");// 取出输入的查询时间
+						System.out.println("beginTime:" + beginTime);
+						if (beginTime.equals("")) 
+						{
+							Connection conn = rrequest.getConnection();
+							PreparedStatement pstmt = null;
+							try {
+									String SQL = "Select DATA_DT from IBS.T8_DATA_DT";
+									pstmt = conn.prepareStatement(SQL);
+									ResultSet resultSet = pstmt.executeQuery();
+									while (resultSet.next()) {
+					                     String date=resultSet.getString("DATA_DT");
+					                     rrequest.setAttribute("MEASURE_DT", date);
+				                    }
+									
+									resultSet.close();
+									pstmt.close();
+								} 
+							catch (Exception e) {
+									e.printStackTrace();
+							}
+                        }
+ 				 	  String EMP_ID=rrequest.getStringAttribute("EMP_ID","");
+ 				 	  if(EMP_ID.equals("")){
+ 				 	  		EMP_ID=(String)rrequest.getRequest().getSession().getAttribute("EMP_ID");
+ 				 	   }
+ 				 	   else{
+    				        rrequest.getRequest().getSession().setAttribute("EMP_ID", EMP_ID);
+    				   }
+    				  
+    				  //返回给上一级的参数
+    				  rrequest.getRequest().getSession().setAttribute("MEASURE_DT_DTL",beginTime); 
+    				  
+ 				 ]]>
+			</preaction>
+		</interceptor>
+
+		<vpanel id="common_vpanel" width="1350px" align="center" title="">
+			<header>
+			  <![CDATA[<table width="1350px" border="0" cellspacing="0" cellpadding="0">
+			  	<tr><td height="10px"></td></tr>
+			  	<tr><td align="left"><a href='ShowReport.wx?PAGEID=resource_manager_yj_subbranch' style="font-size:15px;TEXT-DECORATION:underline">返回上一级</a></td></tr>
+			    </table>
+			  ]]>
+			</header>
+			<report id="select" title="资源型客户经理业绩明细" type="editablelist"
+				width="1350px" top="10px" align="center" pagesize="15|20|-1"
+				dataexport="richexcel" personalizeclass="default" scrollwidth="1350px" cellresize="2">
+
+				<display>
+					<col column="{sequence:1}" label="序号" ></col>
+					<col column="VUCH_NBR" label="凭证号"  valuestyleproperty="style='mso-number-format:\@'"></col>
+					<col column="EMP_ID" label="员工号"  displaytype="hidden" valuestyleproperty="style='mso-number-format:\@'"></col>
+					<col column="EMP_NM" label="员工姓名"  displaytype="hidden"></col>
+					<col column="MEASURE_DT" label="统计日期"  displaytype="hidden"></col>
+					<col column="OPEN_DT" label="开户日期"  ></col>
+					<col column="CST_ID" label="客户号"  displaytype="hidden"></col>
+					<col column="CST_NM" label="客户名" ></col>
+					<col column="CL_KHJQ_AVG_BAL" label="存量客户考核基期日均" datatype="double{0.00}" align="right"></col>
+					<col column="CL_MTH_AVG_BAL" label="存量客户月日均" datatype="double{0.00}" align="right"></col>
+					<col column="CL_MTH_AVG_ADD" label="存量客户月日均新增额" datatype="double{0.00}" align="right"></col>
+					<col column="XZ_MTH_AVG_BAL" label="新增客户月日均" datatype="double{0.00}" align="right"></col>
+					<col column="M_PROFIT" label="月利润" datatype="double{0.00}" align="right"></col>
+				</display>
+				<sql>
+					<select>
+						<value><![CDATA[
+							select dtl.MEASURE_DT
+								,dtl.EMP_ID
+								,dtl.EMP_NM
+								,dtl.VUCH_NBR
+								,dtl.CST_ID
+								,dtl.CST_NM
+								,dtl.OPEN_DT 
+								,dtl.ORG_ID 
+								,dtl.ORG_NM 
+								,dtl.RATIO 
+								,dtl.CL_KHJQ_AVG_BAL 
+								,dtl.CL_MTH_AVG_BAL 
+								,dtl.XZ_MTH_AVG_BAL 
+								,(dtl.CL_MTH_AVG_BAL-dtl.CL_KHJQ_AVG_BAL) as CL_MTH_AVG_ADD
+								,dtl.M_PROFIT
+								,dtl.BIZ_TYPE_NM 
+								from IBS.T3_RESOURCE_MANAGER_VUCH_DETAIL dtl
+								WHERE   {#condition#}
+								order by dtl.OPEN_DT desc
+							
+						    ]]>
+						</value>
+						<condition name="VUCH_NBR" label="凭证号" labelposition="left">
+							<value><![CDATA[dtl.VUCH_NBR='#data#']]></value>
+						</condition>
+						<condition name="user_id" source="session{EMP_ID}">
+							<value><![CDATA[dtl.EMP_ID='#data#']]></value>
+						</condition>
+						<condition name="BIZ_TYPE_ID" labelposition="left"
+							label="业务类型">
+							<value>
+								<![CDATA[dtl.BIZ_TYPE_ID='#data#']]>
+							</value>
+							<inputbox type="selectbox">
+								<option label="全部" value=""></option>
+								<option
+									source="@{Select distinct BIZ_TYPE_ID , BIZ_TYPE_NM from IBS.T9_BIZ_TYPE where BIZ_TYPE_ID in ('AA', 'BB') order by BIZ_TYPE_ID}"
+									label="BIZ_TYPE_NM" value="BIZ_TYPE_ID" />
+							</inputbox>
+						</condition>
+
+						<condition name="MEASURE_DT" label="统计日期" labelposition="left">
+							<value>
+							 	<![CDATA[	
+							 	 dtl.MEASURE_DT = '#data#'  
+							 	]]>
+							</value>
+							<inputbox type="datepicker" styleproperty="style='width:80px'"
+								jsvalidate="isDate(#label#格式为yyyy-MM-dd)">
+							</inputbox>
+						</condition>
+						
+						<condition name="KHQ_ST_DT" label="考核开始日期" labelposition="left" hidden="true">
+							<value>
+							 	<![CDATA[	
+							 	 dtl.KHQ_ST_DT = '#data#'  
+							 	]]>
+							</value>
+							<inputbox type="datepicker" styleproperty="style='width:80px'"
+								jsvalidate="isDate(#label#格式为yyyy-MM-dd)">
+							</inputbox>
+						</condition>
+						<condition name="KHQ_ED_DT" label="考核结束日期" labelposition="left" hidden="true">
+							<value>
+							 	<![CDATA[	
+							 	 dtl.KHQ_ED_DT = '#data#'  
+							 	]]>
+							</value>
+							<inputbox type="datepicker" styleproperty="style='width:80px'"
+								jsvalidate="isDate(#label#格式为yyyy-MM-dd)">
+							</inputbox>
+						</condition>
+
+					</select>
+				</sql>
+				<footer><![CDATA[<div style='float:left'><font color='blue'>提示:本系统币种为本外币合计</font></div>]]></footer>
+			</report>
+		</vpanel>
+	</page>
+
+	<!--资源型客户经理业绩明细  普通用户 -->
+	<page id="resource_manager_yj_detail_user"
+		js="/webresources/script/validate.js,/js/demo.js,/js/common.js">
+
+		<header>${top.header}</header>
+
+		<interceptor>
+			<imports>
+				<import>java.lang</import>
+				<import>com.wabacus.util</import>
+				<import>java.sql.Connection</import>
+				<import>java.sql.PreparedStatement</import>
+				<import>java.sql.ResultSet</import>
+				<import>javax.servlet.http.HttpSession</import>
+				<import>javax.util</import>
+				<import>javax.text</import>
+				<import>com.ljbank.market.MyMath</import>
+				<import>java.util.Date</import>
+				<import>java.text.SimpleDateFormat</import>
+			</imports>
+			<preaction>
+				<![CDATA[
+						String beginTime = rrequest.getStringAttribute("MEASURE_DT", "");// 取出输入的查询时间
+						System.out.println("beginTime:" + beginTime);
+						if (beginTime.equals("")) 
+						{
+							Connection conn = rrequest.getConnection();
+							PreparedStatement pstmt = null;
+							try {
+									String SQL = "Select DATA_DT from IBS.T8_DATA_DT";
+									pstmt = conn.prepareStatement(SQL);
+									ResultSet resultSet = pstmt.executeQuery();
+									while (resultSet.next()) {
+					                     String date=resultSet.getString("DATA_DT");
+					                     rrequest.setAttribute("MEASURE_DT", date);
+				                    }
+									
+									resultSet.close();
+									pstmt.close();
+								} 
+							catch (Exception e) {
+									e.printStackTrace();
+							}
+                        }
+ 				 	  String EMP_ID=rrequest.getStringAttribute("EMP_ID","");
+ 				 	  if(EMP_ID.equals("")){
+ 				 	  		EMP_ID=(String)rrequest.getRequest().getSession().getAttribute("EMP_ID");
+ 				 	   }
+ 				 	   else{
+    				        rrequest.getRequest().getSession().setAttribute("EMP_ID", EMP_ID);
+    				   }
+    				  
+    				  //返回给上一级的参数
+    				  rrequest.getRequest().getSession().setAttribute("MEASURE_DT_DTL",beginTime);
+    				  
+ 				 ]]>
+			</preaction>
+		</interceptor>
+
+		<vpanel id="common_vpanel" width="1350px" align="center" title="">
+			<header>
+			  <![CDATA[<table width="1350px" border="0" cellspacing="0" cellpadding="0">
+			  	<tr><td height="10px"></td></tr>
+			  	<tr><td align="left"><a href='ShowReport.wx?PAGEID=resource_manager_yj_user' style="font-size:15px;TEXT-DECORATION:underline">返回上一级</a></td></tr>
+			    </table>
+			  ]]>
+			</header>
+			<report id="select" title="资源型客户经理业绩明细" type="editablelist"
+				width="1350px" top="10px" align="center" pagesize="15|20|-1"
+				dataexport="richexcel" personalizeclass="default" scrollwidth="1350px" cellresize="2">
+
+				<display>
+					<col column="{sequence:1}" label="序号" ></col>
+					<col column="VUCH_NBR" label="凭证号"  valuestyleproperty="style='mso-number-format:\@'"></col>
+					<col column="EMP_ID" label="员工号"  displaytype="hidden" valuestyleproperty="style='mso-number-format:\@'"></col>
+					<col column="EMP_NM" label="员工姓名"  displaytype="hidden"></col>
+					<col column="MEASURE_DT" label="统计日期"  displaytype="hidden"></col>
+					<col column="OPEN_DT" label="开户日期"  ></col>
+					<col column="CST_ID" label="客户号"  displaytype="hidden"></col>
+					<col column="CST_NM" label="客户名" ></col>
+					<col column="CL_KHJQ_AVG_BAL" label="存量客户考核基期日均" datatype="double{0.00}" align="right"></col>
+					<col column="CL_MTH_AVG_BAL" label="存量客户月日均" datatype="double{0.00}" align="right"></col>
+					<col column="CL_MTH_AVG_ADD" label="存量客户月日均新增额" datatype="double{0.00}" align="right"></col>
+					<col column="XZ_MTH_AVG_BAL" label="新增客户月日均" datatype="double{0.00}" align="right"></col>
+					<col column="M_PROFIT" label="月利润" datatype="double{0.00}" align="right"></col>
+				</display>
+				<sql>
+					<select>
+						<value><![CDATA[
+							select dtl.MEASURE_DT
+								,dtl.EMP_ID
+								,dtl.EMP_NM
+								,dtl.VUCH_NBR
+								,dtl.CST_ID
+								,dtl.CST_NM
+								,dtl.OPEN_DT 
+								,dtl.ORG_ID 
+								,dtl.ORG_NM 
+								,dtl.RATIO 
+								,dtl.CL_KHJQ_AVG_BAL 
+								,dtl.CL_MTH_AVG_BAL 
+								,dtl.XZ_MTH_AVG_BAL
+								,(dtl.CL_MTH_AVG_BAL-dtl.CL_KHJQ_AVG_BAL) as CL_MTH_AVG_ADD 
+								,dtl.M_PROFIT
+								,dtl.BIZ_TYPE_NM 
+								from IBS.T3_RESOURCE_MANAGER_VUCH_DETAIL dtl
+								WHERE   {#condition#}
+								order by dtl.OPEN_DT desc
+							
+						    ]]>
+						</value>
+						<condition name="VUCH_NBR" label="凭证号" labelposition="left">
+							<value><![CDATA[dtl.VUCH_NBR='#data#']]></value>
+						</condition>
+						<condition name="user_id" source="session{EMP_ID}">
+							<value><![CDATA[dtl.EMP_ID='#data#']]></value>
+						</condition>
+						<condition name="BIZ_TYPE_ID" labelposition="left"
+							label="业务类型">
+							<value>
+								<![CDATA[dtl.BIZ_TYPE_ID='#data#']]>
+							</value>
+							<inputbox type="selectbox">
+								<option label="全部" value=""></option>
+								<option
+									source="@{Select distinct BIZ_TYPE_ID , BIZ_TYPE_NM from IBS.T9_BIZ_TYPE where BIZ_TYPE_ID in ('AA', 'BB') order by BIZ_TYPE_ID}"
+									label="BIZ_TYPE_NM" value="BIZ_TYPE_ID" />
+							</inputbox>
+						</condition>
+
+						<condition name="MEASURE_DT" label="统计日期" labelposition="left">
+							<value>
+							 	<![CDATA[	
+							 	 dtl.MEASURE_DT = '#data#'  
+							 	]]>
+							</value>
+							<inputbox type="datepicker" styleproperty="style='width:80px'"
+								jsvalidate="isDate(#label#格式为yyyy-MM-dd)">
+							</inputbox>
+						</condition>
+						
+						<condition name="KHQ_ST_DT" label="考核开始日期" labelposition="left" hidden="true">
+							<value>
+							 	<![CDATA[	
+							 	 dtl.KHQ_ST_DT = '#data#'  
+							 	]]>
+							</value>
+							<inputbox type="datepicker" styleproperty="style='width:80px'"
+								jsvalidate="isDate(#label#格式为yyyy-MM-dd)">
+							</inputbox>
+						</condition>
+						<condition name="KHQ_ED_DT" label="考核结束日期" labelposition="left" hidden="true">
+							<value>
+							 	<![CDATA[	
+							 	 dtl.KHQ_ED_DT = '#data#'  
+							 	]]>
+							</value>
+							<inputbox type="datepicker" styleproperty="style='width:80px'"
+								jsvalidate="isDate(#label#格式为yyyy-MM-dd)">
+							</inputbox>
+						</condition>
+
+					</select>
+				</sql>
+				<footer><![CDATA[<div style='float:left'><font color='blue'>提示:本系统币种为本外币合计</font></div>]]></footer>
+			</report>
+		</vpanel>
+	</page>
+
+</applications>

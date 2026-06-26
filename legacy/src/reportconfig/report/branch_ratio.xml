@@ -1,0 +1,479 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<applications xmlns="http://www.wabacus.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.wabacus.com ../xsd/wabacus.applications.xsd">
+	<!-- 分行维护系数 修改-->
+	<page id="branch_ratio_mod" js="/webresources/script/validate.js">
+		<interceptor>
+			<imports>
+				<import>com.ljbank.market.Util</import>
+			</imports>
+			<preaction>
+		<![CDATA[
+		Util u=new Util();
+		String ip=u.getRemoteIP(rrequest);
+		rrequest.getRequest().setAttribute("reqKey2", ip);
+		]]>
+	</preaction>
+		</interceptor>
+
+		<header>${top.header}</header>
+
+		<vpanel id="common_vpanel" width="800px" align="center" title="">
+			<report id="title" extends="title.report1" width="800px"></report>
+			<report id="select" type="listform" title="分行考核系数" width="800px" pagesize="15|20|-1" dataexport="richexcel"
+				top="10px" personalizeclass="default" servervalidateclass="com.ljbank.market.Util" interceptor="com.customer.interceptor.InterceptorBrachRationMod">
+
+				<display>
+					<col column="{sequence:1}" label="序号" width="40px"></col>
+					<col column="EXAM_YEAR" label="年度" width="100px" >
+						<inputbox type="datepicker"  styleproperty="style='width:90%'" dateformat="yyyy" jsvalidate="isNotEmpty(#label# 不允许为空);" defaultvalue="session{exam_year}" ></inputbox>	
+					</col>
+					<col column="EXAM_Q" label="季度" width="100px" displaytype="hidden"></col>
+					<col column="QTD_NM" label="季度" width="100px" updatecol="@{EXAM_Q}" >
+						
+						<inputbox type="selectbox" styleproperty="style='width:99%'"  >
+							<option label="无" value="" ></option> 
+							<option
+								source="@{select QTD , QTD_NM from ibs.T9_YEAR_Q order by QTD}"
+								label="QTD_NM" value="QTD" />
+								
+						</inputbox>
+					</col>
+					<!--  
+					<col column="BRANCH_ORG_NM" displaytype="hidden"></col>
+					<col column="BRANCH_ORG_ID" label="分行机构"  >
+						<inputbox type="selectbox" jsvalidate="isNotEmpty(#label#列不允许为空)"
+							styleproperty="style='width:99%'">
+							<option label="请选择分行机构..." value=""></option>
+							<option
+								source="@{Select distinct BRANCH_ORG_ID , BRANCH_ORG_NM from IBS.T5_ORG where BRANCH_ORG_ID!='9990' and HEAD_ORG_ID='9990' and ORG_TYPE_ID='EO' order by BRANCH_ORG_ID}"
+								label="BRANCH_ORG_NM" value="BRANCH_ORG_ID" />
+						
+							<autocomplete
+								columns="BRANCH_ORG_NM"
+								colvaluecondition="BRANCH_ORG_ID = '#BRANCH_ORG_ID#'"
+								dataset="Select distinct BRANCH_ORG_ID , BRANCH_ORG_NM from IBS.T5_ORG where ORG_TYPE_ID='EO' and {#condition#} order by BRANCH_ORG_ID ">
+							</autocomplete>
+						</inputbox>
+					</col>
+					-->
+					<col column="BRANCH_ORG_ID" displaytype="hidden"></col>
+					<col column="BRANCH_ORG_NM" label="分行机构"  >
+						<inputbox type="selectbox" jsvalidate="isNotEmpty(#label#列不允许为空)"
+							styleproperty="style='width:99%'">
+							<option label="请选择分行机构..." value=""></option>
+							<option
+								source="@{Select distinct BRANCH_ORG_ID , BRANCH_ORG_NM from IBS.T5_ORG where BRANCH_ORG_ID!='9990' and HEAD_ORG_ID='9990' and ORG_TYPE_ID='EO' order by BRANCH_ORG_ID}"
+								label="BRANCH_ORG_NM" value="BRANCH_ORG_NM" />
+						
+							<autocomplete
+								columns="BRANCH_ORG_ID"
+								colvaluecondition="BRANCH_ORG_NM = '#BRANCH_ORG_NM#'"
+								dataset="Select distinct BRANCH_ORG_ID , BRANCH_ORG_NM from IBS.T5_ORG where ORG_TYPE_ID='EO' and {#condition#} order by BRANCH_ORG_ID ">
+							</autocomplete>
+						</inputbox>
+					</col>
+					<col column="PSTN_TYPE" label="主考核类别代码" displaytype="hidden"></col>
+					<!--  
+					<col column="PSTN_TYPE_NM" label="主考核类别" >
+						<inputbox type="selectbox" jsvalidate="isNotEmpty(#label#列不允许为空)"
+							styleproperty="style='width:99%'" defaultvalue="04" >
+							<option label="请选择主考核类别..." value=""></option>
+							<option
+								source="@{Select distinct PSTN_TYPE , PSTN_TYPE_NM from ibs.T9_PSTN_TYPE order by PSTN_TYPE }"
+								label="PSTN_TYPE_NM" value="PSTN_TYPE_NM" />
+							<autocomplete
+								columns="PSTN_TYPE"
+								colvaluecondition="PSTN_TYPE_NM = '#PSTN_TYPE_NM#'"
+								dataset="Select distinct PSTN_TYPE , PSTN_TYPE_NM from ibs.T9_PSTN_TYPE  where {#condition#} order by PSTN_TYPE ">
+							</autocomplete>	
+						</inputbox>
+					</col>
+					 -->
+					<col column="SUB_PSTN_TYPE" label="子考核类别代码" displaytype="hidden"></col>
+					<!-- 
+					<col column="SUB_PSTN_TYPE_NM" label="子考核类别" >
+						<inputbox type="selectbox" jsvalidate="isNotEmpty(#label#列不允许为空)"
+							styleproperty="style='width:99%'"  depends="PSTN_TYPE_NM">
+							<option label="请选择子考核类别..." value=""></option>
+							<option
+								source="@{Select distinct SUB_PSTN_TYPE , SUB_PSTN_TYPE_NM from ibs.T9_PSTN_TYPE where PSTN_TYPE_NM='#PSTN_TYPE_NM#' order by SUB_PSTN_TYPE }"
+								label="SUB_PSTN_TYPE_NM" value="SUB_PSTN_TYPE_NM" />
+							<autocomplete
+								columns="SUB_PSTN_TYPE"
+								colvaluecondition="PSTN_TYPE_NM = '#PSTN_TYPE_NM#' and SUB_PSTN_TYPE_NM = '#SUB_PSTN_TYPE_NM#'"
+								dataset="Select trim(SUB_PSTN_TYPE) SUB_PSTN_TYPE , SUB_PSTN_TYPE_NM from ibs.T9_PSTN_TYPE  where {#condition#} order by SUB_PSTN_TYPE ">
+							</autocomplete>
+						</inputbox>
+					</col>
+ 					--> 
+					<col column="RATION" label="考核系数" width="200px" align="left"
+						datatype="double{0.00}">
+						<inputbox type="textbox"  styleproperty="style='width:95%'" jsvalidate="isNotEmpty(#label#列不允许为空)"/>
+					</col>
+					
+					<col column="EFF_FLAG" label="生效标志" displaytype="hidden"></col>
+					<col column="MODIFY_PEOPLE" label="修改人" displaytype="hidden"></col>
+					<col column="MODIFY_TIME" label="修改时间" displaytype="hidden"></col>
+					<col column="MODIFY_IP" label="修改IP" displaytype="hidden"></col>
+					<col column="REMARK" label="备注" displaytype="hidden"></col>
+					<col column="REMARK1" label="备注1" displaytype="hidden"></col>
+				</display>
+				<sql>
+					<select>
+
+						<value><![CDATA[
+								SELECT
+								       bra.MEASURE_DT
+								      ,bra.EXAM_YEAR  
+								      ,bra.EXAM_Q          
+								      ,bra.BRANCH_ORG_ID
+								      ,bra.BRANCH_ORG_NM   
+								      ,bra.PSTN_TYPE    
+								      ,bra.PSTN_TYPE_NM   
+								      ,bra.SUB_PSTN_TYPE
+								      ,bra.SUB_PSTN_TYPE_NM          
+								      ,bra.RATION             
+								      ,bra.EFF_FLAG                      
+								      ,bra.MODIFY_PEOPLE          
+								      ,bra.MODIFY_TIME            
+								      ,bra.MODIFY_IP       
+								      ,bra.REMARK   
+								      ,('原时间'||substr(MODIFY_TIME,1,19)||'考核系数'||RATION||'提交人'||MODIFY_PEOPLE||'；') AS REMARK1 
+								      ,q.QTD_NM
+								FROM IBS.T3_BRANCH_RATIO bra
+								left join ibs.T9_YEAR_Q q on q.QTD=bra.EXAM_Q
+								WHERE EFF_FLAG='1'
+								and  {#condition#}
+						        ORDER by bra.MEASURE_DT DESC,bra.BRANCH_ORG_ID,bra.PSTN_TYPE,bra.SUB_PSTN_TYPE
+						]]>
+						</value>
+
+						<condition name="EXAM_YEAR" label="考核年度" labelposition="left" >
+							<value> 
+								<![CDATA[bra.EXAM_YEAR = '#data#']]>
+							</value>
+							<inputbox type="datepicker" styleproperty="style='width:90px'" dateformat="yyyy" ></inputbox>
+						</condition>
+						<condition name="EXAM_Q" label="考核季度" labelposition="left" >
+							<value> 
+  								<![CDATA[bra.EXAM_Q = '#data#']]>
+							</value>
+							<inputbox type="selectbox" styleproperty="style='width:100px'">
+								<option label="全部" value=""></option>
+								<option label="一季度" value="01"></option>
+								<option label="二季度" value="02"></option>
+								<option label="三季度" value="03"></option>
+								<option label="四季度" value="04"></option>
+							</inputbox>
+						</condition>
+						<condition name="BRANCH_ORG_ID" label="机构" labelposition="left">
+							<value> 
+  									<![CDATA[bra.BRANCH_ORG_ID = '#data#']]>
+							</value>
+							<inputbox type="selectbox" styleproperty="style='width:150px'">
+								<option label="全部" value=""></option>
+								<option
+									source="@{Select distinct BRANCH_ORG_ID , BRANCH_ORG_NM from IBS.T5_ORG where BRANCH_ORG_ID!='9990' and HEAD_ORG_ID='9990' and ORG_TYPE_ID='EO' order by BRANCH_ORG_ID}"
+									label="BRANCH_ORG_NM" value="BRANCH_ORG_ID" />
+							</inputbox>
+						</condition>
+
+						<condition name="PSTN_TYPE" labelposition="left" label="主考核类别" >
+							<value>
+								<![CDATA[(bra.PSTN_TYPE='#data#')]]>
+							</value>
+							<inputbox type="selectbox" styleproperty="style='width:100px'" >
+								<option label="全部" value=""></option>
+								<option
+									source="@{Select distinct PSTN_TYPE , PSTN_TYPE_NM from ibs.T9_PSTN_TYPE order by PSTN_TYPE }"
+									label="PSTN_TYPE_NM" value="PSTN_TYPE" />
+							</inputbox>
+						</condition>
+						<condition name="SUB_PSTN_TYPE" labelposition="left"
+							label="子考核类别" >
+							<value>
+							<![CDATA[(bra.SUB_PSTN_TYPE='#data#')]]>
+							</value>
+							<inputbox type="selectbox" depends="PSTN_TYPE"
+								styleproperty="style='width:170px'">
+								<option label="全部" value=""></option>
+								<option label="无" value="" type="false"></option>
+								<option
+									source="@{Select distinct SUB_PSTN_TYPE , SUB_PSTN_TYPE_NM from ibs.T9_PSTN_TYPE where PSTN_TYPE='#PSTN_TYPE#' order by SUB_PSTN_TYPE }"
+									label="SUB_PSTN_TYPE_NM" value="SUB_PSTN_TYPE" />
+							</inputbox>
+						</condition>
+					</select>
+					<update>
+						<params>
+							<param name="user_id" value="session{user_id}"></param>
+							<param name="current_time" value="now{}"
+								datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
+							<param name="ip" value="request{reqKey2}"></param>
+							<param name="exam_year" value="session{exam_year}"></param>
+							<param name="exam_q" value="session{exam_q}"></param>
+						</params>
+						<value>
+							<![CDATA[
+								UPDATE IBS.T3_BRANCH_RATIO
+								SET	
+									BRANCH_ORG_ID=@{BRANCH_ORG_ID}
+							       ,BRANCH_ORG_NM=@{BRANCH_ORG_NM}
+								   ,RATION =@{RATION}
+							       ,MODIFY_PEOPLE=#{user_id}
+							       ,MODIFY_TIME=#{current_time}
+							       ,MODIFY_IP=#{ip}
+							       ,REMARK=coalesce(REMARK,'')||@{REMARK1}
+								WHERE BRANCH_ORG_ID = @{BRANCH_ORG_ID__old} 
+								AND EXAM_YEAR=@{EXAM_YEAR__old}
+								AND EXAM_Q=@{EXAM_Q__old}
+								AND EFF_FLAG='1'
+								AND PSTN_TYPE=@{PSTN_TYPE__old}
+								AND SUB_PSTN_TYPE=@{SUB_PSTN_TYPE__old}
+								
+								;
+							]]>
+						</value>
+					</update>
+					<insert>
+						<params>
+							<param name="user_id" value="session{user_id}"></param>
+							<param name="current_time" value="now{}"
+								datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
+							<param name="ip" value="request{reqKey2}"></param>
+							<param name="exam_year" value="session{exam_year}"></param>
+							<param name="exam_q" value="session{exam_q}"></param>
+						</params>
+						<value> 
+							   INSERT INTO IBS.T3_BRANCH_RATIO (
+									EXAM_YEAR
+									,EXAM_Q
+									,BRANCH_ORG_ID
+									,BRANCH_ORG_NM
+									,PSTN_TYPE
+									,PSTN_TYPE_NM
+									,SUB_PSTN_TYPE
+									,SUB_PSTN_TYPE_NM
+									,RATION
+									,EFF_FLAG
+									,MODIFY_PEOPLE
+									,MODIFY_TIME
+									,MODIFY_IP
+									,MEASURE_DT
+								)
+								values(
+									 #{exam_year}
+									,#{exam_q}
+									,@{BRANCH_ORG_ID}
+									,@{BRANCH_ORG_NM}
+									,'04'
+									,'客户经理'
+									,'01'
+									,'客户经理-客户经理'
+									,@{RATION}
+									,'1'
+									,#{user_id}
+									,#{current_time}
+									,#{ip}
+									,#{exam_year}||'-'||(case #{exam_q} when '01' then '03-31' when '02' then '06-30' when '03' then '09-30' when '04' then '12-31' else '01-01' end)
+								) 
+								 ;
+							   
+						</value>
+					</insert>
+					<delete>
+						<params>
+							<param name="user_id" value="session{user_id}"></param>
+							<param name="current_time" value="now{}"
+								datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
+							<param name="ip" value="request{reqKey2}"></param>
+
+						</params>
+						<!-- 若已删除过，则先将已删除的删掉再把生效置为无效 -->
+						delete from IBS.T3_BRANCH_RATIO 
+						WHERE BRANCH_ORG_ID = @{BRANCH_ORG_ID__old} 
+							AND EXAM_YEAR=@{EXAM_YEAR__old}
+							AND EXAM_Q=@{EXAM_Q__old}
+							AND EFF_FLAG=0
+							AND PSTN_TYPE=@{PSTN_TYPE__old}
+							AND SUB_PSTN_TYPE=@{SUB_PSTN_TYPE__old}
+						;	
+						UPDATE IBS.T3_BRANCH_RATIO
+						SET EFF_FLAG=0
+							,MODIFY_PEOPLE=#{user_id}
+							,MODIFY_TIME=#{current_time}
+							,MODIFY_IP=#{ip}
+							,REMARK=coalesce(REMARK,'')||@{REMARK1}
+						WHERE BRANCH_ORG_ID = @{BRANCH_ORG_ID__old} 
+						AND EXAM_YEAR=@{EXAM_YEAR__old}
+						AND EXAM_Q=@{EXAM_Q__old}
+						AND EFF_FLAG=1
+						AND PSTN_TYPE=@{PSTN_TYPE__old}
+						AND SUB_PSTN_TYPE=@{SUB_PSTN_TYPE__old}
+						;
+					</delete>
+				</sql>
+				<footer><![CDATA[
+				<tr><td height="20px"></td></tr>
+				<div style='float:left'>
+					<font color='green'>说明：只能录入考核季度内的数据。</font>
+				</div>
+				
+				
+				]]>
+			</footer>
+			</report>
+		</vpanel>
+	</page>
+
+<!-- 分行考核系数 查询-->
+<page id="branch_ratio_query" js="/webresources/script/validate.js">
+<interceptor>
+	<imports>
+		<import>com.ljbank.market.Util</import>
+	</imports>
+	<preaction>
+<![CDATA[
+
+]]>
+</preaction>
+	</interceptor>
+
+	<header>${top.header}</header>
+
+	<vpanel id="common_vpanel" width="1000px" align="center" title="">
+		<report id="title" extends="title.report1" width="1000px"></report>
+		<report id="select" type="listform" title="分行考核系数" width="1000px" pagesize="15|20|-1" dataexport="richexcel"
+			top="10px" personalizeclass="default" servervalidateclass="com.ljbank.market.Util" rowselect="single">
+
+			<display>
+				<col column="{sequence:1}" label="序号" width="40px"></col>
+				<col column="EXAM_YEAR" label="年度" width="100px"></col>
+				<col column="EXAM_Q" label="季度" width="100px"></col>
+				<col column="BRANCH_ORG_NM" label="分行" ></col>
+				<!-- 
+				<col column="PSTN_TYPE_NM" label="主考核类别" ></col>
+				<col column="SUB_PSTN_TYPE_NM" label="子考核类别" ></col>
+				 -->
+				<col column="RATION" label="考核系数"  align="left" datatype="double{0.00}"></col>
+				<col column="EFF_FLAG" label="生效标志" displaytype="hidden"></col>
+				<col column="MODIFY_PEOPLE" label="修改人" displaytype="hidden"></col>
+				<col column="MODIFY_TIME" label="修改时间" displaytype="hidden"></col>
+				<col column="MODIFY_IP" label="修改IP" displaytype="hidden"></col>
+				<col column="REMARK" label="备注" displaytype="hidden"></col>
+			</display>
+			<sql>
+				<select>
+
+					<value><![CDATA[
+						SELECT
+						   bra.EXAM_YEAR  
+						  ,bra.EXAM_Q          
+						  ,bra.BRANCH_ORG_ID 
+						  ,bra.BRANCH_ORG_NM  
+						  ,bra.PSTN_TYPE 
+						  ,bra.PSTN_TYPE_NM      
+						  ,bra.SUB_PSTN_TYPE
+						  ,bra.SUB_PSTN_TYPE_NM          
+						  ,bra.RATION             
+						  ,bra.EFF_FLAG                      
+						  ,bra.MODIFY_PEOPLE          
+						  ,bra.MODIFY_TIME            
+						  ,bra.MODIFY_IP       
+						  ,bra.REMARK   
+						FROM IBS.T3_BRANCH_RATIO bra
+						inner join (select distinct BRANCH_ORG_ID,BRANCH_ORG_NM, HEAD_ORG_ID from ibs.T5_ORG where ORG_TYPE_ID='EO') ou on ou.BRANCH_ORG_ID=bra.BRANCH_ORG_ID
+						WHERE bra.EFF_FLAG='1'
+						and  {#condition#}
+						ORDER by bra.EXAM_YEAR DESC,bra.EXAM_Q DESC,bra.BRANCH_ORG_ID,bra.PSTN_TYPE,bra.SUB_PSTN_TYPE
+				]]>
+				</value>
+
+				<condition name="EXAM_YEAR" label="考核年度" labelposition="left" >
+					<value> 
+						<![CDATA[bra.EXAM_YEAR = '#data#']]>
+					</value>
+					<inputbox type="datepicker" styleproperty="style='width:90px'" dateformat="yyyy"  ></inputbox>
+				</condition>
+				<condition name="EXAM_Q" label="考核季度" labelposition="left" >
+					<value> 
+						<![CDATA[EXAM_Q = '#data#']]>
+					</value>
+					<inputbox type="selectbox" styleproperty="style='width:100px'">
+						<option label="全部" value=""></option>
+						<option label="一季度" value="01"></option>
+						<option label="二季度" value="02"></option>
+						<option label="三季度" value="03"></option>
+						<option label="四季度" value="04"></option>
+					</inputbox>
+				</condition>
+				<condition name="ORG_ID0" labelposition="left" label="用户机构" hidden="true" source="session{org_id}">
+					<value>
+					<![CDATA[(bra.BRANCH_ORG_ID='#data#' or ou.HEAD_ORG_ID='#data#' )]]>
+					</value>
+				</condition>
+				<condition name="ORG_ID1" labelposition="left" label="分行">
+					<value>
+					<![CDATA[(bra.BRANCH_ORG_ID='#data#')]]>
+					</value>
+					<inputbox type="selectbox" styleproperty="style='width:150px'" depends="ORG_ID0">
+						<option label="全部" value=""></option>
+						<option
+							source="@{SELECT DISTINCT BRANCH_ORG_ID , CASE WHEN ORG_LEVEL_ID='2' THEN BRANCH_ORG_NM ELSE BRANCH_ORG_NM||'机关' END AS BRANCH_ORG_NM FROM IBS.T5_ORG 
+							WHERE ORG_TYPE_ID='EO' AND ORG_LEVEL_ID IN ('2','3') and (ORG_ID='#ORG_ID0#' or HEAD_ORG_ID='#ORG_ID0#')  ORDER BY BRANCH_ORG_ID}"
+							label="BRANCH_ORG_NM" value="BRANCH_ORG_ID" />
+					</inputbox>
+				</condition>
+				
+
+				<condition name="PSTN_TYPE" labelposition="left" label="主考核类别" >
+					<value>
+						<![CDATA[(PSTN_TYPE='#data#')]]>
+					</value>
+					<inputbox type="selectbox" styleproperty="style='width:120px'" >
+						<option label="全部" value=""></option>
+						<option
+							source="@{Select distinct PSTN_TYPE , PSTN_TYPE_NM from ibs.T9_PSTN_TYPE order by PSTN_TYPE }"
+							label="PSTN_TYPE_NM" value="PSTN_TYPE" />
+					</inputbox>
+				</condition>
+				<condition name="SUB_PSTN_TYPE" labelposition="left"
+					label="子考核类别" defaultvalue="01">
+					<value>
+					<![CDATA[(SUB_PSTN_TYPE='#data#')]]>
+					</value>
+					<inputbox type="selectbox" depends="PSTN_TYPE"
+						styleproperty="style='width:170px'">
+						<option label="全部" value=""></option>
+						<option label="无" value="" type="false"></option>
+						<option
+							source="@{Select distinct SUB_PSTN_TYPE , SUB_PSTN_TYPE_NM from ibs.T9_PSTN_TYPE where PSTN_TYPE='#PSTN_TYPE#' order by SUB_PSTN_TYPE }"
+							label="SUB_PSTN_TYPE_NM" value="SUB_PSTN_TYPE" />
+					</inputbox>
+				</condition>
+				
+			</select>
+			</sql>
+			<format>
+		<imports>
+			<import>com.customer.util.*</import>
+			<import>java.util.*</import>
+			<import>java.text.*</import>
+			<import>com.wabacus.system.*</import>
+		</imports>
+		<value>
+			<![CDATA[
+				if(EXAM_Q.equals("01")) EXAM_Q="一季度";
+				if(EXAM_Q.equals("02")) EXAM_Q="二季度";
+				if(EXAM_Q.equals("03")) EXAM_Q="三季度";
+				if(EXAM_Q.equals("04")) EXAM_Q="四季度";
+				
+			]]>
+		</value>
+		</format>
+		</report>
+	</vpanel>
+</page>
+</applications>

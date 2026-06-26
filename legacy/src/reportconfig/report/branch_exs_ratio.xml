@@ -1,0 +1,826 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<applications xmlns="http://www.wabacus.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.wabacus.com ../xsd/wabacus.applications.xsd">
+<!-- 分行存量维护比例 -->
+<page id="branch_exsRatio_mod" js="/webresources/script/validate.js">
+	<interceptor>
+		<imports>
+			<import>com.ljbank.market.Util</import>
+		</imports>
+		<preaction>
+	<![CDATA[
+	Util u=new Util();
+	String ip=u.getRemoteIP(rrequest);
+	rrequest.getRequest().setAttribute("reqKey2", ip);
+	]]>
+</preaction>
+	</interceptor>
+
+	<header>${top.header}</header>
+
+	<vpanel id="common_vpanel" width="1300px" align="center" title="">
+		<report id="title" extends="title.report1" width="1300px"></report>
+		<report id="select" type="listform" title="存量维护比例" width="1300px" pagesize="15|20|-1" dataexport="richexcel"
+		servervalidateclass="com.ljbank.market.Util; com.ljbank.market.TestPersonnel"
+			top="10px" personalizeclass="default" rowselect="multiple-checkbox" interceptor="com.customer.interceptor.InterceptorBrachExsRationMod">
+			<buttons align="right">
+				<button name="subButn" position="title" positionorder="2" label="选中提交 "  extends="${wabacus.button2.default}" 
+					confirmessage="提交后数据将不能修改，是否确认提交?">
+					invokeServerActionForReportData('branch_exsRatio_mod','select','com.customer.interceptor.BrachExsRationSubmitServerCallBack',{name:'SELECTEDROW',value:true},null,true,null,null);
+				</button>
+			</buttons>
+			<display>
+				<col column="{col-rowselect}" label="选择" width="50px" />
+				
+				<col column="EXAM_YEAR" label="考核年度" width="70px" >
+					<inputbox type="datepicker" styleproperty="style='width:95%'" dateformat="yyyy" jsvalidate="isNotEmpty(#label# 不允许为空);" defaultvalue="session{exam_year}"/>
+				</col>
+				
+				<col column="EXAM_Q" label="季度" width="100px" >
+					<inputbox type="selectbox" styleproperty="style='width:90%'"  jsvalidate="isNotEmpty(#label# 不允许为空);" defaultvalue="session{exam_q}">
+						<!--  
+						<option label="一季度" value="01"></option>
+						<option label="二季度" value="02"></option>
+						<option label="三季度" value="03"></option>
+						<option label="四季度" value="04"></option>
+						-->
+						<option
+								source="@{Select QTD, QTD_NM from IBS.T9_YEAR_Q order by QTD}"
+								label="QTD_NM" value="QTD" />
+					</inputbox>
+				</col>
+				
+				<col column="BRANCH_ORG_ID" label="分行机构号" displaytype="hidden" ></col>
+				<col column="BRANCH_ORG_NM" label="分行" ></col>
+				<!-- 
+				<col column="BRANCH_ORG_ID" label="分行机构"  >
+					<inputbox type="selectbox" jsvalidate="isNotEmpty(#label#列不允许为空)"
+						styleproperty="style='width:99%'">
+						<option label="请选择分行机构..." value=""></option>
+						<option
+							source="@{Select distinct BRANCH_ORG_ID , BRANCH_ORG_NM from IBS.T5_ORG where BRANCH_ORG_ID!='9990' and HEAD_ORG_ID='9990' and ORG_TYPE_ID='EO' order by BRANCH_ORG_ID}"
+							label="BRANCH_ORG_NM" value="BRANCH_ORG_ID" />
+					
+						<autocomplete
+							columns="BRANCH_ORG_NM"
+							colvaluecondition="BRANCH_ORG_ID = '#BRANCH_ORG_ID#'"
+							dataset="Select distinct BRANCH_ORG_ID , BRANCH_ORG_NM from IBS.T5_ORG where ORG_TYPE_ID='EO' and {#condition#} order by BRANCH_ORG_ID ">
+						</autocomplete>
+					</inputbox>
+				</col>
+				 -->
+				<col column="act_bzjx" label="应发定量薪酬总额" datatype="double{#,##0.00}"></col>
+				<col column="EXS_RATIO" label="存量维护比例" datatype="double{#,##0.00}">
+					<inputbox jsvalidate="isNotEmpty(#label#列不允许为空)" >
+					</inputbox>
+				</col>
+				<!-- <col column="exs_bzjx" label="季度存量维护薪酬" datatype="double{#,##0.00}"></col> -->
+				<col column="DIS_SCORE" label="二次分配额" datatype="double{#,##0.00}"></col>
+				<col column="exs_bzjx_sum" label="应发存量维护薪酬总额" datatype="double{#,##0.00}"></col>
+				<col column="STUS" label="状态" width="150px"></col>
+				<col column="VERIFY_REMARK" label="审核原因" width="150px"></col>
+				<col column="MEASURE_DT" label="日期" displaytype="hidden"></col>
+			</display>
+			<subdisplay>
+				<statitems>
+					<statitem property="item1" value="sum(act_bzjx)" datatype="float" statiscope="page|report" />
+					<statitem property="item2" value="sum(EXS_RATIO)" datatype="float" statiscope="page|report"/>
+					<!-- <statitem property="item3" value="sum(exs_bzjx)" datatype="float" statiscope="page|report" /> -->
+					<statitem property="item4" value="sum(DIS_SCORE)" datatype="float" statiscope="page|report"/>
+					<statitem property="item5" value="sum(exs_bzjx_sum)" datatype="float" statiscope="page|report"/>
+				</statitems>
+				<subrow>
+					<subcol property="sprop1" colspan="4" valuestyleproperty="bgcolor='#CCFAFF' align='center'" />
+					<subcol property="sprop2" colspan="1" valuestyleproperty="bgcolor='#CCFAFF' align='center'" />
+					<subcol property="sprop3" colspan="1" valuestyleproperty="bgcolor='#CCFAFF' align='center'" />
+					<!-- <subcol property="sprop4" colspan="1" valuestyleproperty="bgcolor='#CCFAFF' align='center'" />	 -->
+					<subcol property="sprop5" colspan="1" valuestyleproperty="bgcolor='#CCFAFF' align='center'" />
+					<subcol property="sprop6" colspan="1" valuestyleproperty="bgcolor='#CCFAFF' align='center'" />	
+					<subcol property="sprop7" colspan="2" valuestyleproperty="bgcolor='#CCFAFF' align='center'" />	
+				</subrow>
+				<format>
+				<imports>
+					<import>com.wabacus.util.*</import>
+				</imports>
+					<value>
+					<![CDATA[
+						
+						sprop1="合计";
+						sprop2=Tools.formatDouble(String.valueOf(item1),"#,##0.00");
+						sprop3=Tools.formatDouble(String.valueOf(item2),"#,##0.00");
+						//sprop4=Tools.formatDouble(String.valueOf(item3),"#,##0.00");
+						sprop5=Tools.formatDouble(String.valueOf(item4),"#,##0.00");
+						sprop6=Tools.formatDouble(String.valueOf(item5),"#,##0.00");
+						sprop7="";
+					]]>
+					</value>
+				</format>
+			</subdisplay>
+			<sql>
+				<select>
+					<value><![CDATA[
+							select jx.MEASURE_DT
+								,jx.EXAM_YEAR
+								,jx.EXAM_Q
+								,jx.BRANCH_ORG_ID
+								,jx.BRANCH_ORG_NM
+								,coalesce(EXS_RATIO,0) as EXS_RATIO
+								,coalesce(es.STUS,'') as STUS
+								,coalesce(es.VERIFY_REMARK,'') as VERIFY_REMARK
+								,jx.bzjx
+								,coalesce(rt.RATION,0) as RATION
+								,coalesce(ds.DIS_SCORE,0) as DIS_SCORE
+								,round(coalesce(jx.bzjx,0)*coalesce(rt.RATION,0)*0.8,2) as act_bzjx
+								,round(coalesce(jx.bzjx,0)*coalesce(rt.RATION,0)*0.8*coalesce(EXS_RATIO,0)/100.0,2) as exs_bzjx
+								,round(coalesce(jx.bzjx,0)*coalesce(rt.RATION,0)*0.8*coalesce(EXS_RATIO,0)/100.0,2)+coalesce(ds.DIS_SCORE,0) as exs_bzjx_sum
+							from IBS.T3_BRANCH_EXS_RATIO es
+							inner join (
+								Select MEASURE_DT
+									,EXAM_YEAR
+									,EXAM_Q 
+									,BRANCH_ORG_ID
+									,BRANCH_ORG_NM
+									,sum(BZJX) as bzjx
+								from IBS.T5_EMP_BZJX
+								where IS_EXAM='1' and EMP_TYPE<>'过渡期' and {#condition#}
+								group by MEASURE_DT
+								,EXAM_YEAR
+								,EXAM_Q 
+								,BRANCH_ORG_ID
+								,BRANCH_ORG_NM
+							)jx on es.MEASURE_DT=jx.MEASURE_DT and es.BRANCH_ORG_ID=jx.BRANCH_ORG_ID and es.STUS<>'-1'
+							left join IBS.T3_branch_RATIO rt on rt.MEASURE_DT=jx.MEASURE_DT and rt.BRANCH_ORG_ID=jx.BRANCH_ORG_ID and rt.EFF_FLAG='1'
+							left join ibs.T3_BRANCH_SEC_DISTRIBUTION ds on ds.MEASURE_DT=jx.MEASURE_DT and jx.BRANCH_ORG_ID=ds.BRANCH_ORG_ID and ds.DIS_TYP_CD='02' and ds.STUS='3'
+							order by es.MEASURE_DT desc,es.BRANCH_ORG_ID 						       
+					]]>
+					</value>
+					<condition name="ORG_ID0" labelposition="left" label="用户机构" source="session{org_id}" hidden="true">
+						<value>
+						<![CDATA[BRANCH_ORG_ID='#data#']]>
+						</value>
+					</condition>
+					<condition name="EXAM_YEAR" label="考核年度" labelposition="left" defaultvalue="session{exam_year}">
+						<value> 
+							<![CDATA[EXAM_YEAR = '#data#']]>
+						</value>
+						   <inputbox type="datepicker" styleproperty="style='width:100px'" dateformat="yyyy" jsvalidate="isNotEmpty(#label# 不允许为空);" ></inputbox>
+					</condition>
+					<condition name="EXAM_Q" label="考核季度" 
+						labelposition="left">
+						<value> 
+							<![CDATA[EXAM_Q = '#data#']]>
+						</value>
+						<inputbox type="selectbox" styleproperty="style='width:120px'" >
+							<option label="全部" value=""></option>
+							<option label="一季度" value="01"></option>
+							<option label="二季度" value="02"></option>
+							<option label="三季度" value="03"></option>
+							<option label="四季度" value="04"></option>
+						</inputbox>
+					</condition>
+					<condition name="ORG_ID1" labelposition="left" label="分行">
+						<value>
+						<![CDATA[BRANCH_ORG_ID='#data#']]>
+						</value>
+						<inputbox type="selectbox" styleproperty="style='width:150px'" depends="ORG_ID0">
+							<option label="全部" value=""></option>
+							<option
+								source="@{SELECT DISTINCT BRANCH_ORG_ID , CASE WHEN ORG_LEVEL_ID='2' THEN BRANCH_ORG_NM ELSE BRANCH_ORG_NM||'机关' END AS BRANCH_ORG_NM 
+								FROM IBS.T5_ORG 
+								WHERE ORG_TYPE_ID='EO' AND ORG_LEVEL_ID IN ('2','3') and (ORG_ID='#ORG_ID0#' or HEAD_ORG_ID='#ORG_ID0#')  
+								ORDER BY BRANCH_ORG_ID}"
+								label="BRANCH_ORG_NM" value="BRANCH_ORG_ID" />
+						</inputbox>
+					</condition>
+				</select>
+				<update>
+					<params>
+						<param name="user_id" value="session{user_id}"></param>
+						<param name="current_time" value="now{}" datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
+						<param name="ip" value="request{reqKey2}"></param>
+						<param name="org_id" value="session{org_id}"></param>
+						<param name="org_idNm" value="session{branch_idNm}"></param>
+
+					</params>
+					<value>
+						<![CDATA[
+						
+							UPDATE IBS.T3_BRANCH_EXS_RATIO
+							SET	
+								EXAM_YEAR=@{EXAM_YEAR}
+							   ,EXAM_Q=@{EXAM_Q}
+							   ,EXS_RATIO=@{EXS_RATIO}
+						       ,MODIFY_PEOPLE=#{user_id}
+						       ,MODIFY_TIME=#{current_time}
+						       ,MODIFY_IP=#{ip}
+						       ,STUS='0'
+							WHERE MEASURE_DT=@{MEASURE_DT__old}				
+							AND BRANCH_ORG_ID=@{BRANCH_ORG_ID__old}
+							AND STUS IN ('0','2')
+							;
+						]]>
+					</value>
+				</update>
+				<insert>
+					<params>
+						<param name="user_id" value="session{user_id}"></param>
+						<param name="current_time" value="now{}"
+							datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
+						<param name="ip" value="request{reqKey2}"></param>
+						<param name="org_id" value="session{org_id}"></param>
+						<param name="org_idNm" value="session{branch_idNm}"></param>
+
+					</params>
+					<value> 
+						   INSERT INTO IBS.T3_BRANCH_EXS_RATIO(
+							    EXAM_YEAR
+							   ,EXAM_Q
+							   ,MEASURE_DT
+							   ,BRANCH_ORG_ID
+							   ,BRANCH_ORG_NM
+							   ,EXS_RATIO
+							   ,MODIFY_PEOPLE
+							   ,MODIFY_TIME
+							   ,MODIFY_IP
+							   ,STUS
+						   ) 
+						   values(
+						        @{EXAM_YEAR}
+							   ,@{EXAM_Q}
+							   ,@{EXAM_YEAR}||(case when @{EXAM_Q}='01' then '-03-31' when @{EXAM_Q}='02' then '-06-30' when @{EXAM_Q}='03' then '-09-30' when @{EXAM_Q}='04' then '-12-31' else '-01-01' end)
+							   ,#{org_id}
+							   ,#{org_idNm}
+							   ,@{EXS_RATIO}
+						       ,#{user_id}
+						       ,#{current_time}
+						       ,#{ip}
+						       ,'0'
+						   );
+					</value>
+				</insert>
+				<delete>
+					<params>
+						<param name="user_id" value="session{user_id}"></param>
+						<param name="current_time" value="now{}"
+							datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
+						<param name="ip" value="request{reqKey2}"></param>
+
+					</params>
+					DELETE FROM IBS.T3_BRANCH_EXS_RATIO
+					WHERE EXAM_YEAR=@{EXAM_YEAR__old}
+					AND EXAM_Q=@{EXAM_Q__old}
+					AND BRANCH_ORG_ID=@{BRANCH_ORG_ID__old}
+					AND coalesce(STUS,'0')='-1'
+					;		
+					UPDATE IBS.T3_BRANCH_EXS_RATIO
+					SET STUS='-1'
+						,MODIFY_PEOPLE=#{user_id}
+						,MODIFY_TIME=#{current_time}
+						,MODIFY_IP=#{ip}
+					WHERE MEASURE_DT=@{MEASURE_DT__old}				
+					AND BRANCH_ORG_ID=@{BRANCH_ORG_ID__old}
+					;
+				</delete>
+			</sql>
+			<format>
+				<value>
+				<![CDATA[
+					if(STUS.equals("0")) STUS="已保存";
+					if(STUS.equals("1")) STUS="已提交分行有权人";
+					if(STUS.equals("2")) STUS="分行有权人审核不通过";
+					if(STUS.equals("3")) STUS="分行有权人审核通过";
+					
+					
+				]]>
+			</value>
+			</format>
+		</report>
+	</vpanel>
+</page>
+
+<!-- *********************************************************************************************** -->
+
+<!-- 分行有权人  审核 -->
+<page id="branch_exsRatio_ver" js="/webresources/script/validate.js,/js/demo.js,/js/common.js">
+	<interceptor>
+		<imports>
+			<import>com.ljbank.market.Util</import>
+		</imports>
+		<preaction>
+	<![CDATA[
+	Util u=new Util();
+	String ip=u.getRemoteIP(rrequest);
+	rrequest.getRequest().setAttribute("reqKey2", ip);
+	]]>
+</preaction>
+	</interceptor>
+
+	<header>${top.header}</header>
+
+	<vpanel id="common_vpanel" width="1200px" align="center" title="">
+		<report id="title" extends="title.report1" width="1200px"></report>
+		<report id="select" type="listform" title="存量维护比例" width="1200px" pagesize="15|20|-1" rowselect="multiple-checkbox" dataexport="richexcel"
+			top="10px" personalizeclass="default" servervalidateclass="com.ljbank.market.Util" interceptor="com.customer.interceptor.InterceptorBrachExsRationVer">
+
+			<display>
+				<col column="{col-rowselect}" label="选择" width="50px" />
+				<col column="EXAM_YEAR" label="考核年度" width="70px"></col>
+				<col column="EXAM_Q" label="季度" width="100px" displaytype="hidden"></col>
+				<col column="QTD_NM" label="季度" width="100px"></col>
+				<col column="BRANCH_ORG_ID" displaytype="hidden"></col>
+				<col column="BRANCH_ORG_NM" label="分行"  ></col>
+				<col column="act_bzjx" label="应发定量薪酬总额" datatype="double{#,###0.00}"></col>
+				<col column="EXS_RATIO" label="存量维护比例" datatype="double{#,###0.00}"></col>
+				<!--  <col column="exs_bzjx" label="季度存量维护薪酬" datatype="double{#,###0.00}" ></col>-->
+				<col column="DIS_SCORE" label="二次分配" datatype="double{#,###0.00}"></col>
+				<col column="exs_bzjx_sum" label="应发存量维护薪酬总额" datatype="double{#,###0.00}"></col>
+				<col column="STUS" label="状态" ></col>
+				<col property="sh_zt_btn" column="{non-fromdb}" label="审核" width="150px"/>
+			</display>
+			<subdisplay>
+				<statitems>
+					<statitem property="item1" value="sum(act_bzjx)" datatype="float" statiscope="page|report" />
+					<statitem property="item2" value="sum(EXS_RATIO)" datatype="float" statiscope="page|report"/>
+					<!-- <statitem property="item3" value="sum(exs_bzjx)" datatype="float" statiscope="page|report" /> -->
+					<statitem property="item4" value="sum(DIS_SCORE)" datatype="float" statiscope="page|report"/>
+					<statitem property="item5" value="sum(exs_bzjx_sum)" datatype="float" statiscope="page|report"/>
+				</statitems>
+				<subrow>
+					<subcol property="sprop1" colspan="4" valuestyleproperty="bgcolor='#CCFAFF' align='center'" />
+					<subcol property="sprop2" colspan="1" valuestyleproperty="bgcolor='#CCFAFF' align='center'" />
+					<subcol property="sprop3" colspan="1" valuestyleproperty="bgcolor='#CCFAFF' align='center'" />
+					<!-- <subcol property="sprop4" colspan="1" valuestyleproperty="bgcolor='#CCFAFF' align='center'" /> -->	
+					<subcol property="sprop5" colspan="1" valuestyleproperty="bgcolor='#CCFAFF' align='center'" />
+					<subcol property="sprop6" colspan="1" valuestyleproperty="bgcolor='#CCFAFF' align='center'" />	
+					<subcol property="sprop7" colspan="2" valuestyleproperty="bgcolor='#CCFAFF' align='center'" />	
+				</subrow>
+				<format>
+				<imports>
+					<import>com.wabacus.util.*</import>
+				</imports>
+					<value>
+					<![CDATA[
+						
+						sprop1="合计";
+						sprop2=Tools.formatDouble(String.valueOf(item1),"#,##0.00");
+						sprop3=Tools.formatDouble(String.valueOf(item2),"#,##0.00");
+						//sprop4=Tools.formatDouble(String.valueOf(item3),"#,##0.00");
+						sprop5=Tools.formatDouble(String.valueOf(item4),"#,##0.00");
+						sprop6=Tools.formatDouble(String.valueOf(item5),"#,##0.00");
+						sprop7="";
+					]]>
+					</value>
+				</format>
+			</subdisplay>
+			<sql>
+				<select>
+					<value><![CDATA[
+							select es.MEASURE_DT
+							,es.EXAM_YEAR
+							,es.EXAM_Q
+							,q.QTD_NM
+							,es.BRANCH_ORG_ID
+							,es.BRANCH_ORG_NM
+							,es.EXS_RATIO
+							,es.MODIFY_PEOPLE
+							,es.MODIFY_TIME
+							,es.MODIFY_IP
+							,es.VERIFY_PEOPLE
+							,es.VERIFY_TIME
+							,es.VERIFY_IP
+							,es.VERIFY_REMARK
+							,es.STUS
+							,coalesce(jx.bzjx,0) bzjx
+							,coalesce(rt.RATION,0) RATION
+							,coalesce(ds.DIS_SCORE,0) DIS_SCORE
+							,round(coalesce(jx.bzjx,0)*coalesce(rt.RATION,0)*0.8,2) as act_bzjx
+						,round(coalesce(jx.bzjx,0)*coalesce(rt.RATION,0)*0.8*coalesce(EXS_RATIO,0)/100.0,2) as exs_bzjx
+						,round(coalesce(jx.bzjx,0)*coalesce(rt.RATION,0)*0.8*coalesce(EXS_RATIO,0)/100.0,2)+coalesce(ds.DIS_SCORE,0) as exs_bzjx_sum
+						from IBS.T3_BRANCH_EXS_RATIO es
+						inner join (
+							Select MEASURE_DT 
+							,BRANCH_ORG_ID
+							,BRANCH_ORG_NM
+							,sum(BZJX) as bzjx
+							from IBS.T5_EMP_BZJX jx
+							where IS_EXAM='1' and EMP_TYPE<>'过渡期' and {#condition#}
+							group by MEASURE_DT 
+							,BRANCH_ORG_ID
+							,BRANCH_ORG_NM
+						)jx on jx.MEASURE_DT=es.MEASURE_DT and jx.BRANCH_ORG_ID=es.BRANCH_ORG_ID and es.STUS in ('1','3')
+						left join IBS.T3_branch_RATIO rt on rt.MEASURE_DT=jx.MEASURE_DT and rt.BRANCH_ORG_ID=jx.BRANCH_ORG_ID and rt.EFF_FLAG='1'
+						left join ibs.T3_BRANCH_SEC_DISTRIBUTION ds on ds.MEASURE_DT=jx.MEASURE_DT and jx.BRANCH_ORG_ID=ds.BRANCH_ORG_ID and ds.DIS_TYP_CD='02' and ds.STUS='3'
+						left join ibs.T9_YEAR_Q q on q.QTD=es.EXAM_Q
+						order by es.MEASURE_DT desc,es.EXAM_YEAR desc,es.BRANCH_ORG_ID							       
+					]]>
+					</value>
+					<condition name="ORG_ID0" labelposition="left" label="用户机构" source="session{org_id}" hidden="true">
+						<value>
+						<![CDATA[BRANCH_ORG_ID='#data#']]>
+						</value>
+					</condition>
+					<condition name="EXAM_YEAR" label="考核年度" labelposition="left" defaultvalue="session{exam_year}">
+						<value> 
+							<![CDATA[EXAM_YEAR = '#data#']]>
+						</value>
+						   <inputbox type="datepicker" styleproperty="style='width:100px'" dateformat="yyyy" jsvalidate="isNotEmpty(#label# 不允许为空);" ></inputbox>
+					</condition>
+					<condition name="EXAM_Q" label="考核季度"
+						labelposition="left">
+						<value> 
+ 									<![CDATA[EXAM_Q = '#data#']]>
+						</value>
+						<inputbox type="selectbox" styleproperty="style='width:120px'">
+							<option label="全部" value=""></option>
+							<option label="一季度" value="01"></option>
+							<option label="二季度" value="02"></option>
+							<option label="三季度" value="03"></option>
+							<option label="四季度" value="04"></option>
+						</inputbox>
+					</condition>
+					<condition name="ORG_ID1" labelposition="left" label="分行">
+						<value>
+						<![CDATA[BRANCH_ORG_ID='#data#']]>
+						</value>
+						<inputbox type="selectbox" styleproperty="style='width:150px'" depends="ORG_ID0">
+							<option label="全部" value=""></option>
+							<option
+								source="@{SELECT DISTINCT BRANCH_ORG_ID , CASE WHEN ORG_LEVEL_ID='2' THEN BRANCH_ORG_NM ELSE BRANCH_ORG_NM||'机关' END AS BRANCH_ORG_NM 
+								FROM IBS.T5_ORG 
+								WHERE ORG_TYPE_ID='EO' AND ORG_LEVEL_ID IN ('2','3') and (ORG_ID='#ORG_ID0#' or HEAD_ORG_ID='#ORG_ID0#')  
+								ORDER BY BRANCH_ORG_ID}"
+								label="BRANCH_ORG_NM" value="BRANCH_ORG_ID" />
+						</inputbox>
+					</condition>
+				</select>
+				
+				
+				
+			</sql>
+			<buttons >
+		<button name="button1" position="other" autoreportdata="false"
+						positionorder="2" class="com.wabacus.system.buttons.ServerSQLActionButton"
+						successprompt="提交成功" failedprompt="提交失败">
+			<params>
+				<param name="user_id" value="session{user_id}"></param>
+				<param name="current_time" value="now{}" datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
+				<param name="userIp" value="session{ip}"></param>
+			</params>
+
+			<value datasource="ds_db2">
+				<![CDATA[
+					UPDATE IBS.T3_BRANCH_EXS_RATIO
+					SET STUS='3'
+						, VERIFY_TIME=#{current_time}
+						, VERIFY_PEOPLE=#{user_id} 
+						, VERIFY_IP= #{userIp}   
+						, VERIFY_REMARK='审批通过'                        					
+					WHERE EXAM_YEAR=@{param_year}
+					AND EXAM_Q=@{param_examQ}
+					AND BRANCH_ORG_ID=@{param_brchId}
+					AND STUS='1'
+					;
+				]]>
+			</value>
+		</button>
+		<button name="sub" position="title" positionorder="2" label="选中提交 "  extends="${wabacus.button2.default}"
+			confirmessage="提交后数据将不能修改，是否确认提交?">
+			invokeServerActionForReportData('branch_exsRatio_ver','select','com.customer.interceptor.BrachExsRationVerPassServerCallBack',{name:'SELECTEDROW',value:true},null,true,null,null);
+		</button>
+		</buttons>
+		<format>
+			<imports>
+				<import>com.customer.util.*</import>
+				<import>java.util.*</import>
+				<import>java.text.*</import>
+				<import>com.wabacus.system.*</import>
+			</imports>
+			<value>
+			<![CDATA[
+				
+				String btnsh_ztCls="cls-button2";
+				String btnUnsh_ztCls="cls-button2";
+				
+				String btnsh_ztEvent="if(confirm('提交后数据将不能修改，是否确认提交?')){invokeComponentSqlActionButton('branch_exsRatio_ver','select','button1',{param_year:'"+EXAM_YEAR+"',param_examQ:'"+EXAM_Q+"',param_brchId:'"+BRANCH_ORG_ID+"'},true,refreshPage)}";
+				String btnUnsh_ztEvent="wx_winpage('ShowReport.wx?PAGEID=branch_exsRatio_verNo&EXAM_YEAR="+EXAM_YEAR+"&EXAM_Q="+EXAM_Q+"&BRANCH_ORG_ID="+BRANCH_ORG_ID+"',{width:550,height:350});art.dialog.close();";
+				
+				if(!STUS.equals("3")){
+					sh_zt_btn="<input type=\"button\"  class=\""+btnsh_ztCls+"\" value=\"通过\" onclick=\""+btnsh_ztEvent+"\">";
+					sh_zt_btn=sh_zt_btn+"<input type=\"button\" class=\""+btnUnsh_ztCls+"\" value=\"不通过\"   onclick=\""+btnUnsh_ztEvent+"\">";
+				}else{
+					//String btnsh_ztCls_no="cls-button2-disabled";
+					//String btnUnsh_ztCls_no="cls-button2-disabled";
+					
+					//sh_zt_btn="<input type=\"button\"  class=\""+btnsh_ztCls_no+"\" value=\"通过\" >";
+					//sh_zt_btn=sh_zt_btn+"<input type=\"button\" class=\""+btnUnsh_ztCls_no+"\" value=\"不通过\" >";
+					sh_zt_btn="";
+				}
+				
+				if(STUS.equals("0")) STUS="保存";
+				if(STUS.equals("1")) STUS="等待审核";
+				if(STUS.equals("2")) STUS="审核不通过";
+				if(STUS.equals("3")) STUS="审核通过";
+				
+			]]>
+			</value>
+		</format>
+		<footer>
+			<![CDATA[
+			<div style='float:left'>
+				<font color='red'>*审核不通过需逐条处理，并输入不通过理由。</font>
+			</div>]]>
+		</footer>
+		</report>
+	</vpanel>
+</page>
+<!-- 审核不通过弹窗页面 -->
+<page id="branch_exsRatio_verNo" js="/webresources/script/validate.js,/js/demo.js,/js/common.js">
+
+<interceptor>
+	<imports>
+		<import>com.customer.util.*</import>
+		<import>java.util.*</import>
+			<import>java.text.*</import>
+			<import>com.wabacus.system.*</import>
+	</imports>
+	<preaction>
+	<![CDATA[
+	]]>
+	</preaction>
+</interceptor>
+
+<vpanel id="common_vpanel" align="center" width="300px">
+<report id="report" title="" type="form" >
+<display valuetdwidth="300px" labeltdwidth="200px" labelbgcolor="#f0f0f0" labelalign="right" valuealign="left">
+
+	<col column="EXAM_YEAR" label="考核年度" width="70px" br="true"></col>
+	<col column="EXAM_Q" label="季度" width="100px" displaytype="hidden"></col>
+	<col column="QTD_NM" label="季度" width="100px" br="true"></col>
+	<col column="BRANCH_ORG_NM" label="分行" br="true" ></col>
+	<col column="BRANCH_ORG_ID" label="分行机构" displaytype="hidden" ></col>
+	<col column="EXS_RATIO" label="存量维护比例" br="true" ></col>
+	<col column="VERIFY_REMARK" label="备注(不通过理由)" datatype="varchar" align="left" br="true">
+		<inputbox type="textareabox" jsvalidate="isNotEmpty(审核不通过的理由为必输项)"
+			styleproperty="style='width:99%,rows='6''"></inputbox>
+	</col>
+</display>
+
+<sql aftersave="saveUpdate" datasource="ds_db2">
+	<select>
+		<value>
+		<![CDATA[
+			select es.MEASURE_DT
+				,es.EXAM_YEAR
+				,es.EXAM_Q
+				,q.QTD_NM
+				,es.BRANCH_ORG_ID
+				,es.BRANCH_ORG_NM
+				,es.EXS_RATIO
+				,es.MODIFY_PEOPLE
+				,es.MODIFY_TIME
+				,es.MODIFY_IP
+				,es.VERIFY_PEOPLE
+				,es.VERIFY_TIME
+				,es.VERIFY_IP
+				,es.VERIFY_REMARK
+				,es.STUS
+			from IBS.T3_BRANCH_EXS_RATIO es
+			left join ibs.T9_YEAR_Q q on q.QTD=es.EXAM_Q
+			where {#condition#}
+		 ]]>
+		</value>
+		<condition name="EXAM_YEAR" hidden="true" >
+			<value><![CDATA[es.EXAM_YEAR='#data#']]></value>
+		</condition>
+		<condition name="EXAM_Q" hidden="true">
+			<value><![CDATA[es.EXAM_Q='#data#']]></value>
+		</condition>
+		<condition name="BRANCH_ORG_ID" hidden="true">
+			<value><![CDATA[es.BRANCH_ORG_ID='#data#']]></value>
+		</condition>
+	</select>
+	<update crosspage="true">
+		<params>
+			<param name="user_id" value="session{user_id}"></param>
+			<param name="current_time" value="now{}" datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
+			<param name="ip" value="session{ip}"></param>
+		</params>
+			<![CDATA[
+			UPDATE IBS.T3_BRANCH_EXS_RATIO
+			SET STUS='2'
+				, VERIFY_TIME=#{current_time}
+				, VERIFY_PEOPLE=#{user_id} 
+				, VERIFY_IP= #{ip}   
+				, VERIFY_REMARK=@{VERIFY_REMARK}                        					
+			WHERE EXAM_YEAR=@{EXAM_YEAR__old}
+			AND EXAM_Q=@{EXAM_Q__old}
+			AND BRANCH_ORG_ID=@{BRANCH_ORG_ID__old}
+			AND STUS='1'
+			]]>
+	</update>
+</sql>
+<buttons>
+	<button name="button2" label="提交" position="title"
+		refreshpage="true" aftercallbackmethod="refreshPage"
+		confirmessage="提交后数据将不能修改，是否确认提交?" successprompt="提交成功"
+		failedprompt="提交失败" positionorder="2" extends="${save.button.default}">
+
+		saveEditableReportData({pageid:'branch_exsRatio_verNo',savingReportIds:[{reportid:'report',updatetype:'save',}]});
+
+	</button>
+</buttons>
+</report>
+</vpanel>
+</page>
+
+<!-- ******************************************************************************************** -->
+<!--  分行存量维护 查询 -->
+<page id="branch_exsRatio_query" js="/webresources/script/validate.js,/js/demo.js,/js/common.js">
+	<interceptor>
+		<imports>
+			<import>com.ljbank.market.Util</import>
+		</imports>
+		<preaction>
+	<![CDATA[
+	Util u=new Util();
+	String ip=u.getRemoteIP(rrequest);
+	rrequest.getRequest().setAttribute("reqKey2", ip);
+	]]>
+</preaction>
+	</interceptor>
+
+	<header>${top.header}</header>
+
+	<vpanel id="common_vpanel" width="1200px" align="center" title="">
+		<report id="title" extends="title.report1" width="1200px"></report>
+		<report id="select" type="listform" title="存量维护比例" width="1200px" pagesize="15|20|-1" rowselect="single" dataexport="richexcel"
+			top="10px" personalizeclass="default" servervalidateclass="com.ljbank.market.Util" >
+
+			<display>
+				<col column="EXAM_YEAR" label="考核年度" width="70px"></col>
+				<col column="EXAM_Q" label="季度" width="100px" displaytype="hidden"></col>
+				<col column="QTD_NM" label="季度" width="100px"></col>
+				<col column="BRANCH_ORG_NM" label="分行"  ></col>
+				<col column="BRANCH_ORG_ID" displaytype="hidden"  ></col>
+				<col column="act_bzjx" label="应发定量薪酬总额" datatype="double{#,###0.00}"></col>
+				<col column="EXS_RATIO" label="存量维护比例" datatype="double{#,###0.00}"></col>
+				<!-- <col column="exs_bzjx" label="季度存量维护薪酬" datatype="double{#,###0.00}" ></col> -->
+				<col column="DIS_SCORE" label="二次分配额" datatype="double{#,###0.00}"></col>
+				<col column="exs_bzjx_sum" label="应发存量维护薪酬总额" datatype="double{#,###0.00}"></col>
+				<col column="STUS" label="状态" ></col>
+			</display>
+			<subdisplay>
+				<statitems>
+					<statitem property="item1" value="sum(act_bzjx)" datatype="float" statiscope="page|report" />
+					<statitem property="item2" value="sum(EXS_RATIO)" datatype="float" statiscope="page|report"/>
+					<!-- <statitem property="item3" value="sum(exs_bzjx)" datatype="float" statiscope="page|report" /> -->
+					<statitem property="item4" value="sum(DIS_SCORE)" datatype="float" statiscope="page|report"/>
+					<statitem property="item5" value="sum(exs_bzjx_sum)" datatype="float" statiscope="page|report"/>
+				</statitems>
+				<subrow>
+					<subcol property="sprop1" colspan="3" valuestyleproperty="bgcolor='#CCFAFF' align='center'" />
+					<subcol property="sprop2" colspan="1" valuestyleproperty="bgcolor='#CCFAFF' align='center'" />
+					<subcol property="sprop3" colspan="1" valuestyleproperty="bgcolor='#CCFAFF' align='center'" />
+					<!-- <subcol property="sprop4" colspan="1" valuestyleproperty="bgcolor='#CCFAFF' align='center'" />	 -->
+					<subcol property="sprop5" colspan="1" valuestyleproperty="bgcolor='#CCFAFF' align='center'" />
+					<subcol property="sprop6" colspan="1" valuestyleproperty="bgcolor='#CCFAFF' align='center'" />	
+					<subcol property="sprop7" colspan="1" valuestyleproperty="bgcolor='#CCFAFF' align='center'" />	
+				</subrow>
+				<format>
+				<imports>
+					<import>com.wabacus.util.*</import>
+				</imports>
+					<value>
+					<![CDATA[
+						
+						sprop1="合计";
+						sprop2=Tools.formatDouble(String.valueOf(item1),"#,##0.00");
+						sprop3=Tools.formatDouble(String.valueOf(item2),"#,##0.00");
+						//sprop4=Tools.formatDouble(String.valueOf(item3),"#,##0.00");
+						sprop5=Tools.formatDouble(String.valueOf(item4),"#,##0.00");
+						sprop6=Tools.formatDouble(String.valueOf(item5),"#,##0.00");
+						sprop7="";
+					]]>
+					</value>
+				</format>
+			</subdisplay>
+			<sql>
+				<select>
+					<value><![CDATA[
+							select es.MEASURE_DT
+								,es.EXAM_YEAR
+								,es.EXAM_Q
+								,q.QTD_NM
+								,es.BRANCH_ORG_ID
+								,es.BRANCH_ORG_NM
+								,es.EXS_RATIO
+								,es.MODIFY_PEOPLE
+								,es.MODIFY_TIME
+								,es.MODIFY_IP
+								,es.VERIFY_PEOPLE
+								,es.VERIFY_TIME
+								,es.VERIFY_IP
+								,es.VERIFY_REMARK
+								,es.STUS
+								,coalesce(jx.bzjx,0) bzjx
+								,coalesce(rt.RATION,0) RATION
+								,coalesce(ds.DIS_SCORE,0) DIS_SCORE
+								,round(coalesce(jx.bzjx,0)*coalesce(rt.RATION,0)*0.8,2) as act_bzjx
+							,round(coalesce(jx.bzjx,0)*coalesce(rt.RATION,0)*0.8*coalesce(EXS_RATIO,0)/100.0,2) as exs_bzjx
+							,round(coalesce(jx.bzjx,0)*coalesce(rt.RATION,0)*0.8*coalesce(EXS_RATIO,0)/100.0,2)+coalesce(ds.DIS_SCORE,0) as exs_bzjx_sum
+							from IBS.T3_BRANCH_EXS_RATIO es
+							inner join (
+								Select MEASURE_DT 
+								,jx.BRANCH_ORG_ID
+								,jx.BRANCH_ORG_NM
+								,ou.HEAD_ORG_ID
+								,sum(BZJX) as bzjx
+								from IBS.T5_EMP_BZJX jx
+								inner join (
+									select distinct BRANCH_ORG_ID , BRANCH_ORG_NM , HEAD_ORG_ID , HEAD_ORG_NM 
+									from ibs.T5_ORG
+									where ORG_TYPE_ID='EO'
+								) ou on ou.BRANCH_ORG_ID=jx.BRANCH_ORG_ID
+								where IS_EXAM='1' and EMP_TYPE<>'过渡期' and {#condition#}
+								group by MEASURE_DT 
+								,jx.BRANCH_ORG_ID
+								,jx.BRANCH_ORG_NM
+								,ou.HEAD_ORG_ID
+							)jx on jx.MEASURE_DT=es.MEASURE_DT and jx.BRANCH_ORG_ID=es.BRANCH_ORG_ID and es.STUS='3'
+							
+							left join IBS.T3_branch_RATIO rt on rt.MEASURE_DT=jx.MEASURE_DT and rt.BRANCH_ORG_ID=jx.BRANCH_ORG_ID and rt.EFF_FLAG='1'
+							left join ibs.T3_BRANCH_SEC_DISTRIBUTION ds on ds.MEASURE_DT=jx.MEASURE_DT and jx.BRANCH_ORG_ID=ds.BRANCH_ORG_ID and ds.DIS_TYP_CD='02' and ds.STUS='3'
+							left join ibs.T9_YEAR_Q q on q.QTD=es.EXAM_Q
+							order by es.MEASURE_DT desc,es.EXAM_YEAR desc,es.BRANCH_ORG_ID 							       
+					]]>
+					</value>
+					<condition name="ORG_ID0" labelposition="left" label="用户机构" source="session{org_id}" hidden="true">
+						<value>
+						<![CDATA[(jx.BRANCH_ORG_ID='#data#' or ou.HEAD_ORG_ID='#data#')]]>
+						</value>
+					</condition>
+					<condition name="EXAM_YEAR" label="考核年度" labelposition="left" defaultvalue="session{exam_year}">
+						<value> 
+							<![CDATA[jx.EXAM_YEAR = '#data#']]>
+						</value>
+						   <inputbox type="datepicker" styleproperty="style='width:100px'" dateformat="yyyy" jsvalidate="isNotEmpty(#label# 不允许为空);" ></inputbox>
+					</condition>
+					<condition name="EXAM_Q" label="考核季度"
+						labelposition="left">
+						<value> 
+ 									<![CDATA[jx.EXAM_Q = '#data#']]>
+						</value>
+						<inputbox type="selectbox" styleproperty="style='width:120px'">
+							<option label="全部" value=""></option>
+							<option label="一季度" value="01"></option>
+							<option label="二季度" value="02"></option>
+							<option label="三季度" value="03"></option>
+							<option label="四季度" value="04"></option>
+						</inputbox>
+					</condition>
+					<condition name="ORG_ID1" labelposition="left" label="分行">
+						<value>
+						<![CDATA[jx.BRANCH_ORG_ID='#data#']]>
+						</value>
+						<inputbox type="selectbox" styleproperty="style='width:150px'" depends="ORG_ID0">
+							<option label="全部" value=""></option>
+							<option
+								source="@{SELECT DISTINCT BRANCH_ORG_ID , CASE WHEN ORG_LEVEL_ID='2' THEN BRANCH_ORG_NM ELSE BRANCH_ORG_NM||'机关' END AS BRANCH_ORG_NM 
+								FROM IBS.T5_ORG 
+								WHERE ORG_TYPE_ID='EO' AND ORG_LEVEL_ID IN ('2','3') and (ORG_ID='#ORG_ID0#' or HEAD_ORG_ID='#ORG_ID0#')  
+								ORDER BY BRANCH_ORG_ID}"
+								label="BRANCH_ORG_NM" value="BRANCH_ORG_ID" />
+						</inputbox>
+					</condition>
+				</select>
+			</sql>
+			
+		<format>
+			<imports>
+				<import>com.customer.util.*</import>
+				<import>java.util.*</import>
+				<import>java.text.*</import>
+				<import>com.wabacus.system.*</import>
+			</imports>
+			<value>
+			<![CDATA[
+				if(STUS.equals("0")) STUS="保存";
+				if(STUS.equals("1")) STUS="等待审核";
+				if(STUS.equals("2")) STUS="审核不通过";
+				if(STUS.equals("3")) STUS="审核通过";
+			]]>
+			</value>
+		</format>
+		<footer>
+			<![CDATA[
+			]]>
+		</footer>
+		</report>
+	</vpanel>
+</page>
+
+
+
+
+</applications>

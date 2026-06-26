@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<applications xmlns="http://www.wabacus.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.wabacus.com ../xsd/wabacus.applications.xsd">
+	
+<page id="credit_card_price" js="/webresources/script/validate.js" >
+<interceptor>
+<imports>
+<import>com.ljbank.market.Util</import>
+</imports>
+	<preaction>
+		<![CDATA[
+		Util u=new Util();
+		String ip=u.getRemoteIP(rrequest);
+		rrequest.getRequest().setAttribute("reqKey2", ip);
+		]]>
+	</preaction>
+</interceptor>
+
+	<header>${top.header}</header>
+		<vpanel id="common_vpanel" width="1000px" align="center" title="">
+			<report id="title" extends="title.report1"></report>
+			<report id="reportPrice" type="listform"   pagesize="15|20|-1" personalizeclass="default" servervalidateclass="com.ljbank.market.Util">
+				<display>
+			             
+             
+                <col column="BRANCH_ORG_ID" label="分行机构号" displaytype="hidden"></col>
+			    <col column="BRANCH_ORG_NM" label="分行机构名"></col>
+				<col column="NEW_CARD_PRICE" label="新卡价格">
+				<inputbox type="textbox" jsvalidate="isNumeric(#data#不是数字)" ></inputbox>
+				</col>
+		        <col column="OLD_CARD_PRICE" label="旧卡价格">
+		        <inputbox type="textbox" jsvalidate="isNumeric(#data#不是数字)" ></inputbox>
+		        </col> 
+				
+		
+			</display>
+			<sql>
+					<select>
+					
+						<value><![CDATA[
+						Select distinct
+						 A.BRANCH_ORG_ID
+						,B.BRANCH_ORG_NM
+						,A.NEW_CARD_PRICE
+						,A.OLD_CARD_PRICE from (select * from IBS.T3_CREDIT_CARD_PRICE where EFF_FLAG='1' ) A
+                        LEFT JOIN IBS.T5_ORG B
+                        ON A.BRANCH_ORG_ID=B.BRANCH_ORG_ID
+
+					    where {#condition#}
+						
+						]]>
+						</value>
+						
+						<condition name="BRANCH_ORG_ID" label="分行"
+							labelposition="left">
+							<value> 
+  									<![CDATA[A.BRANCH_ORG_ID = '#data#']]> 
+							</value> 
+							<!--  <inputbox type="textbox" jsvalidate="isNotEmpty(#label#列不允许为空)" />-->
+							<inputbox type="selectbox">
+								<option label="全部" value=""></option>
+								<option
+									source="@{SELECT OU_CD AS BRANCH_ORG_ID , OU_NM FROM dim.DIM_OU_DTIL WHERE PRN_OU_SUR_ID='200000019420110101' AND SUBSTR(OU_CD,3,2)='00' }"
+									label="OU_NM" value="BRANCH_ORG_ID"></option>
+							</inputbox>
+						</condition>
+							
+						
+						
+					</select>
+					<update>
+	
+				<params>
+							<param name="user_id" value="session{user_id}"></param>
+							<param name="current_time" value="now{}" datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
+							<param name="current_time1" value="now{}" datatype="timestamp{yyyy-MM-dd}"></param>
+							<param name="ip" value="request{reqKey2}" ></param><!-- "request{reqKey2}" -->
+							
+						</params> 
+					<value>
+					<![CDATA[
+					
+					UPDATE IBS.T3_CREDIT_CARD_PRICE SET NEW_CARD_PRICE =@{NEW_CARD_PRICE},OLD_CARD_PRICE = @{OLD_CARD_PRICE},MODIFY_PEOPLE=#{user_id},MODIFY_TIME=#{current_time},MODIFY_IP=#{ip}
+					WHERE  BRANCH_ORG_ID=@{BRANCH_ORG_ID} ;
+					
+					
+					
+				]]>
+				</value>
+				</update>
+			<!-- "request{reqKey2}" 
+				<delete>
+				<params>
+							<param name="user_id" value="session{user_id}"></param>
+							<param name="current_time" value="now{}" datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
+							<param name="ip" value="request{reqKey2}" ></param>
+							
+						</params>
+					<value>
+					<![CDATA[
+					update IBS.T3_CREDIT_CARD_PRICE set EFF_FLAG='0',MODIFY_PEOPLE=#{user_id},MODIFY_TIME=#{current_time},MODIFY_IP=#{ip} WHERE  BRANCH_ORG_ID=@{BRANCH_ORG_ID} ;
+				
+					]]>
+					</value>
+				</delete>
+				-->
+				
+			</sql>
+			
+			</report>
+		</vpanel>
+</page>
+	
+	
+</applications>

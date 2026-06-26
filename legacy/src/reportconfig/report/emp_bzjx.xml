@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<applications xmlns="http://www.wabacus.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.wabacus.com ../xsd/wabacus.applications.xsd">
+<!-- 季度标准绩效薪酬 -->
+<page id="emp_bzjx" js="/webresources/script/validate.js">
+	<interceptor>
+		<imports>
+			<import>com.ljbank.market.Util</import>
+		</imports>
+		<preaction>
+	<![CDATA[
+	Util u=new Util();
+	String ip=u.getRemoteIP(rrequest);
+	rrequest.getRequest().setAttribute("reqKey2", ip);
+	]]>
+</preaction>
+	</interceptor>
+
+	<header>${top.header}</header>
+
+	<vpanel id="common_vpanel" width="1200px" align="center" title="">
+		<report id="title" extends="title.report1" width="1200px"></report>
+		<report id="select" type="listform" title="季度标准绩效薪酬" width="1200px" pagesize="15|20|-1" dataexport="richexcel"
+			top="10px" personalizeclass="default" servervalidateclass="" rowselect="single">
+
+			<display>
+				<col column="EXAM_YEAR" label="考核年度" width="70px"></col>
+				<col column="QTD_NM" label="季度" ></col>
+				<col column="BRANCH_ORG_NM" label="分行"  ></col>
+				<col column="ORG_NM" label="支行" ></col>
+				<col column="EMP_ID" label="工号" valuestyleproperty="style='mso-number-format:\@'"></col>
+				<col column="EMP_NM" label="姓名" ></col>
+				<col column="EMP_TYPE" label="岗位状态" ></col>
+				<col column="BZJX" label="季度标准绩效薪酬" datatype="double{0.00}" ></col>
+				<col column="BRCH_RATION" label="分行考核系数" datatype="double{0.00}"></col>
+				<col column="ACT_JX" label="应发季度绩效薪酬" datatype="double{0.00}" ></col>
+			</display>
+			<subdisplay>
+				<statitems>
+					<statitem property="item1" value="sum(BZJX)" datatype="float" statiscope="page|report" />
+					<statitem property="item2" value="sum(ACT_JX)" datatype="float" statiscope="page|report"/>
+				</statitems>
+				<subrow>
+					<subcol property="sprop1" colspan="7"
+						valuestyleproperty="bgcolor='#CCFAFF' align='center'" />
+					<subcol property="sprop2" colspan="1"
+						valuestyleproperty="bgcolor='#CCFAFF' align='center'" />
+					<subcol property="sprop3" colspan="1"
+						valuestyleproperty="bgcolor='#CCFAFF' align='center'" />
+					<subcol property="sprop4" colspan="1"
+						valuestyleproperty="bgcolor='#CCFAFF' align='center'" />	
+					</subrow>
+				<format>
+				<imports>
+					<import>com.wabacus.util.*</import>
+				</imports>
+					<value>
+					<![CDATA[
+						
+						sprop1="合计";
+						sprop2=Tools.formatDouble(String.valueOf(item1),"#,##0.00");
+						sprop3="";
+						sprop4=Tools.formatDouble(String.valueOf(item2),"#,##0.00");
+					]]>
+					</value>
+				</format>
+			</subdisplay>
+			<sql>
+				<select>
+					<value><![CDATA[
+							select jx.MEASURE_DT
+								,jx.EXAM_YEAR
+								,jx.EXAM_Q
+								,q.QTD_NM
+								,jx.EMP_TYPE
+								,jx.EMP_ID
+								,jx.EMP_NM
+								,jx.ORG_ID
+								,jx.ORG_NM
+								,jx.BRANCH_ORG_ID
+								,jx.BRANCH_ORG_NM
+								,coalesce(jx.BZJX,0) as BZJX
+								,coalesce(rt.RATION,0) as BRCH_RATION
+								,jx.BZJX*coalesce(rt.RATION,0) as ACT_JX
+								,jx.HEAD_ORG_ID
+								,jx.HEAD_ORG_NM
+							from ibs.T5_EMP_BZJX jx
+							inner join ibs.T9_YEAR_Q q on q.QTD=jx.EXAM_Q
+							left join ibs.T3_BRANCH_RATIO rt on rt.EXAM_YEAR=jx.EXAM_YEAR and rt.EXAM_Q=jx.EXAM_Q and rt.BRANCH_ORG_ID=jx.BRANCH_ORG_ID and rt.EFF_FLAG='1'
+							where jx.IS_EXAM='1' and {#condition#}	
+							order by jx.BRANCH_ORG_ID,jx.ORG_ID,jx.EMP_ID					       
+					]]>
+					</value>
+
+					<condition name="EXAM_YEAR" label="考核年度"
+						labelposition="left" defaultvalue="session{curYear}">
+						<value> 
+							<![CDATA[jx.EXAM_YEAR = '#data#']]>
+						</value>
+						   <inputbox type="datepicker" styleproperty="style='width:100px'" dateformat="yyyy" jsvalidate="isNotEmpty(#label# 不允许为空);" ></inputbox>
+					</condition>
+					<condition name="EXAM_Q" label="考核季度"
+						labelposition="left">
+						<value> 
+ 							<![CDATA[jx.EXAM_Q = '#data#']]>
+						</value>
+						<inputbox type="selectbox" styleproperty="style='width:100px'">
+							<option label="全部" value=""></option>
+							<option
+								source="@{select QTD , QTD_NM from ibs.T9_YEAR_Q order by QTD}"
+								label="QTD_NM" value="QTD" />
+						</inputbox>
+					</condition>
+					<condition name="ORG_ID0" labelposition="left" label="用户机构" source="session{org_id}" hidden="true">
+						<value>
+						<![CDATA[(jx.ORG_ID='#data#' or jx.BRANCH_ORG_ID='#data#' or jx.HEAD_ORG_ID='#data#')]]>
+						</value>
+					</condition>
+					<condition name="ORG_ID1" labelposition="left" label="分行">
+						<value>
+						<![CDATA[(jx.BRANCH_ORG_ID='#data#')]]>
+						</value>
+						<inputbox type="selectbox" styleproperty="style='width:130px'" depends="ORG_ID0">
+							<option label="全部" value=""></option>
+							<option
+								source="@{SELECT DISTINCT BRANCH_ORG_ID , CASE WHEN ORG_LEVEL_ID='2' THEN BRANCH_ORG_NM ELSE BRANCH_ORG_NM||'机关' END AS BRANCH_ORG_NM FROM IBS.T5_ORG 
+								WHERE ORG_TYPE_ID='EO' AND ORG_LEVEL_ID IN ('2','3') and (ORG_ID='#ORG_ID0#' or HEAD_ORG_ID='#ORG_ID0#')  ORDER BY BRANCH_ORG_ID}"
+								label="BRANCH_ORG_NM" value="BRANCH_ORG_ID" />
+						</inputbox>
+					</condition>
+					<condition name="ORG_ID2" labelposition="left" label="支行">
+						<value>
+						<![CDATA[(jx.ORG_ID='#data#')]]>
+						</value>
+						<inputbox type="selectbox" depends="ORG_ID1"
+							styleproperty="style='width:130px'">
+							<option label="全部" value=""></option>
+							<option label="无" value="" type="false"></option>
+							<option
+								source="@{SELECT DISTINCT ORG_ID, ORG_NM FROM IBS.T5_ORG WHERE BRANCH_ORG_ID='#ORG_ID1#' and ORG_TYPE_ID='EO' AND ORG_LEVEL_ID IN ('1','2') ORDER BY ORG_ID}"
+								label="ORG_NM" value="ORG_ID" />
+						</inputbox>
+					</condition>
+					<condition name="EMP_ID" label="工号" labelposition="left">
+						<value> 
+							<![CDATA[jx.EMP_ID like '%#data#%']]>
+						</value>
+						<inputbox styleproperty="style='width:100px'"></inputbox>
+					</condition>
+					<condition name="EMP_NM" label="姓名" labelposition="left">
+						<value> 
+							<![CDATA[jx.EMP_NM like '%#data#%']]>
+						</value>
+						<inputbox styleproperty="style='width:100px'"></inputbox>
+					</condition>
+					<condition name="EMP_TYPE" label="岗位状态" labelposition="left">
+						<value> 
+ 							<![CDATA[jx.EMP_TYPE = '#data#']]>
+						</value>
+						<inputbox type="selectbox" styleproperty="style='width:100px'">
+							<option label="全部" value=""></option>
+							<option label="正式在岗" value="正式在岗"></option>
+							<option label="总行试用" value="总行试用"></option>
+							<option label="借调" value="借调"></option>
+							<option label="待定" value="待定"></option>
+							<option label="其他" value="其他"></option>
+						</inputbox>
+					</condition>
+				</select>
+				
+			</sql>
+		</report>
+	</vpanel>
+</page>
+
+
+</applications>

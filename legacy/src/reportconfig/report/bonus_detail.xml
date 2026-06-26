@@ -1,0 +1,364 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<applications xmlns="http://www.wabacus.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.wabacus.com ../xsd/wabacus.applications.xsd">
+
+	<page id="bonus_detail" js="/webresources/script/validate.js">
+		<interceptor>
+			<imports>
+				<import>com.ljbank.market.Util</import>
+			</imports>
+			<preaction>
+		<![CDATA[
+		Util u=new Util();
+		String ip=u.getRemoteIP(rrequest);
+		rrequest.getRequest().setAttribute("reqKey2", ip);
+		String riqi=u.getDate();
+		rrequest.getRequest().setAttribute("reqKey3", riqi);
+		]]>
+	</preaction>
+		</interceptor>
+
+		<header>${top.header}</header>
+		<vpanel id="common_vpanel" width="1300px" align="center" title="">
+			<report id="title" extends="title.report1" width="1500px"></report>
+			<report id="select" title="" type="editablelist" width="1500px"
+				top="10px" align="center" pagesize="15|20|-1" personalizeclass="default">
+
+				<header>
+				<![CDATA[<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  							<tr><td align="left"><font color='red' size='2'>注:1-信用卡查询日期是发卡日；2-第三方存管、手机银行、网银、钱来丰查询日期是签约日</font></td></tr>
+  						</table>
+  		 		 ]]>
+				
+			</header>
+				<interceptor>
+					<imports>
+						<import>
+					java.lang
+					</import>
+						<import>
+					com.wabacus.util
+					</import>
+						<import>javax.servlet.http.HttpSession</import>
+						<import>javax.util</import>
+						<import>javax.text</import>
+						<import>com.ljbank.market.MyMath</import>
+						<import>java.util.Date</import>
+						<import>java.text.DateFormat</import>
+					</imports>
+					<preaction>
+					<![CDATA[
+					Date d=new Date();
+					String beginTime=rrequest.getStringAttribute("TXN_DT","");
+					String org_id=rrequest.getStringAttribute("ORG_ID1","");
+					System.out.println("beginTime:"+beginTime+"org_id:"+org_id);
+					
+					if(beginTime.equals(""))
+					{
+						SimpleDateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd");
+						beginTime=dateformat.format(new Date(d.getTime()-7*24*60*60*1000));
+						rrequest.setAttribute("TXN_DT",beginTime);
+					}
+					
+					String endTime=rrequest.getStringAttribute("TXN_DT_END","");
+					if(endTime.equals(""))
+					{
+						SimpleDateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd");
+						endTime=dateformat.format(new Date(d.getTime()-1*24*60*60*1000));
+						rrequest.setAttribute("TXN_DT_END",endTime);
+					}
+					
+					]]>
+				
+				</preaction>
+					<beforedisplay-perrow>
+	                 	<![CDATA[
+							if(rowDataBean.getReportTypeObj().getLstReportData()!=null&&rowDataBean.getRowindex()>=0&&rowDataBean.getRowindex()<rowDataBean.getReportTypeObj().getLstReportData().size())
+							{
+								String  zhuangtai=String.valueOf(rowDataBean.getColData("BONUS_STATUS_ID"));
+							
+								System.out.println("状态ID"+zhuangtai);
+								System.out.println(zhuangtai=="0");
+								if(zhuangtai.equals("0"))
+								{
+							
+									rowDataBean.setColData("SUM","0");//如果未计提，则奖励金额为0
+								}else{
+							
+									String per1=String.valueOf(rowDataBean.getColData("RECOMMEND_PEOPLE"));
+									String per2=String.valueOf(rowDataBean.getColData("SALES_PEOPLE"));
+							
+									System.out.println("推荐人和销售人的员工号"+per1+per2);
+									String reBonus=String.valueOf(rowDataBean.getColData("RECOMMEND_BONUS"));
+									String saBonus=String.valueOf(rowDataBean.getColData("SALES_BONUS"));
+							
+									String reRatio=String.valueOf(rowDataBean.getColData("RECOMMEND_RATIO"));
+									String saRatio=String.valueOf(rowDataBean.getColData("SALES_RATIO"));
+							
+									double reB=0;
+									double saB=0;
+									double reBra=0;
+									double saBra=0;
+									double rebSum=0;
+									double sabSum=0;
+									double sum =0;
+									HttpSession session = rrequest.getRequest().getSession();
+									String user_id = (String) session.getAttribute("user_id");
+									System.out.println("员工号"+user_id);
+									if(user_id.equals(per1))
+									{    System.out.println("start=======per1"+"reBonus="+reBonus+";"+"reRatio="+reRatio);
+										if(reBonus!=null&&!reBonus.equals(""))
+										{
+											reB=Double.parseDouble(reBonus);
+										}
+										else
+										{
+											reB=0.00;
+										}
+										if(reRatio!=null&&!reRatio.equals("")&&!reRatio.equals("null"))
+										{
+											System.out.println("reRatio不为空");
+											reBra=Double.parseDouble(reRatio);
+										}
+										else
+										{
+											reBra=0.00;
+										}
+										System.out.println("end===========per1"+"reBonus="+reBonus+";"+"reRatio="+reRatio);
+							
+									}
+									if(user_id.equals(per2)){
+										System.out.println("start===per2"+"reBonus="+reBonus+";"+"reRatio="+reRatio);
+										if(saBonus!=null&&!saBonus.equals(""))
+										{
+											saB=Double.parseDouble(saBonus);
+										}
+										else
+										{
+											saB=0.00;
+										}
+										if(saRatio!=null&&!saRatio.equals("")&&!saRatio.equals("null"))
+										{
+											saBra=Double.parseDouble(saRatio);
+										}
+										else
+										{
+											saBra=0.00;
+										}
+										System.out.println("per2"+"reBonus="+reBonus+";"+"reRatio="+reRatio);
+							
+									}
+									System.out.println(reB +";"+ saB);
+							
+									sum=reB+saB;
+							
+							
+									rowDataBean.setColData("SUM",sum+"");//转为string才行
+								}
+							}
+		                ]]>
+	                 </beforedisplay-perrow>
+				</interceptor>
+
+
+				<display>
+					<col column="TXN_DT" width="80px" label="交易日期" clickorderby="true"></col>
+					<col column="CST_ID" width="50x" label="客户号" displaytype="hidden"></col>
+					<col column="CST_NM" width="80x" label="客户姓名" clickorderby="true"></col>
+					<col column="SALE_ID" width="150px" label="账号" clickorderby="true" valuestyleproperty="style='mso-number-format:\@'"></col>
+					<col column="ORG_ID" label="机构号" width="60px" displaytype="hidden"></col>
+					<col column="ORG_NM" label="机构名" width="100px"></col>
+					<col column="BRANCH_ORG_ID" label="分行机构号" width="60px"
+						displaytype="hidden"></col>
+					<col column="BRANCH_ORG_NM" label="分行机构名" width="100px"></col>
+					<col column="BONUS_TYPE_ID" label="奖励类型" displaytype="hidden"></col>
+					<col column="BONUS_TYPE_NM" width="70x" label="产品类型"></col>
+					<col column="TERM_DAY_CNT" label="期限天数" displaytype="hidden"></col>
+					<col column="CCY_NM" label="币种" displaytype="hidden"></col>
+					<col column="AMT" width="80px" label="金额"></col>
+					<col column="SALE_PROD_STATUS_NM" width="80x" label="产品状态"></col>
+					<col column="CHANNLE_ID" label="渠道代码" displaytype="hidden"></col> <!-- 渠道代码 -->
+					<col column="CHANNLE_NM" width="50x" label="渠道"></col>
+					<col column="RECOMMEND_PEOPLE" width="80x" displaytype="hidden"
+						label="推荐人"></col>
+					<col column="RECOMMEND_PEOPLE_NM" width="80x" label="推荐人姓名"></col>
+					<col column="RECOMMEND_RATIO" width="50x" displaytype="hidden"
+						label="推荐人比例"></col>
+					<col column="RECOMMEND_BONUS" width="50x" displaytype="hidden"
+						label="推荐人奖励"></col>
+					<col column="SALES_PEOPLE" width="80x" displaytype="hidden"
+						label="销售人"></col>
+					<col column="SALES_PEOPLE_NM" width="80x" label="销售人姓名"></col>
+					<col column="SALES_RATIO" width="50x" displaytype="hidden"
+						label="销售人比例"></col>
+					<col column="SALES_BONUS" width="50x" displaytype="hidden"
+						label="销售人奖励"></col>
+					<col column="BONUS_STATUS_NM" width="80x" label="奖励状态"></col><!-- 奖励状态 -->
+					<col column="BONUS_STATUS_ID" width="80x" label="奖励状态ID"
+						displaytype="hidden"></col>
+					<col column="BONUS_EFF_DT" width="80x" displaytype="hidden"
+						label="奖金计提日期"></col><!-- 奖励状态 -->
+					<col column="SUM" width="80x" label="奖励金额"></col>
+				</display>
+				<sql>
+					<select>
+
+						<value><![CDATA[
+							Select A.TXN_DT
+								,A.CST_ID
+								,A.CST_NM
+								,A.SALE_ID
+								,A.BONUS_TYPE_ID
+								,A.BONUS_TYPE_NM
+								,A.ORG_ID
+								,D.ORG_NM
+								,A.BRANCH_ORG_ID
+								,D.BRANCH_ORG_NM 
+								,A.CCY_ID
+								,B.NM AS CCY_NM
+								,cast(A.AMT as dec(18,0)) as AMT
+								,A.RECOMMEND_PEOPLE
+								,A.RECOMMEND_PEOPLE_NM
+								,A.RECOMMEND_RATIO
+								,A.RECOMMEND_BONUS
+								,A.SALES_PEOPLE
+								,A.SALES_PEOPLE_NM
+								,A.SALE_PROD_STATUS_NM
+								,A.SALES_RATIO
+								,A.SALES_BONUS
+								,A.CHANNLE_ID
+								,C.CHANNLE_NM
+								,A.TERM_DAY_CNT
+								,trim(A.BONUS_STATUS_ID) as BONUS_STATUS_ID 
+								,A.BONUS_STATUS_NM
+								,A.BONUS_EFF_DT
+								,'0' as SUM 
+							from IBS.T2_BONUS_DETAIL A 
+							LEFT JOIN PUB.CL B 
+							ON A.CCY_ID=B.CL_ID
+							LEFT JOIN IBS.T9_CHANNEL C 
+							ON A.CHANNLE_ID=C.CHANNLE_ID 
+							LEFT JOIN IBS.T5_ORG D
+							ON A.ORG_ID=D.ORG_ID AND D.ORG_TYPE_ID='EO' AND D.ORG_LEVEL_ID='1'
+							where  {#condition#}
+							
+							order by TXN_DT desc 
+						]]>
+						</value>
+						<condition name="user_id" source="session{user_id}"
+							hidden="true">
+							<value>
+							<![CDATA[(A.RECOMMEND_PEOPLE='#data#' or A.SALES_PEOPLE='#data#')]]>
+							</value>
+						</condition>
+
+						<condition name="BONUS_STATUS_ID" label="奖励状态"
+							labelposition="left">
+
+							<value>
+								<![CDATA[A.BONUS_STATUS_ID='#data#']]>
+							</value>
+							<inputbox type="selectbox">
+								<option label="全部" value=""></option>
+								<option label="已计提" value="1" />
+								<option label="未计提" value="0" />
+
+							</inputbox>
+
+						</condition>
+						<condition name="CHANNLE_ID" label="渠道" labelposition="left">
+							<value> 
+  									<![CDATA[A.CHANNLE_ID ='#data#']]>
+							</value>
+							<inputbox type="selectbox">
+								<option label="全部" value=""></option>
+								<option
+									source="@{select distinct CHANNLE_ID,CHANNLE_NM from IBS.T9_CHANNEL}"
+									label="CHANNLE_NM" value="CHANNLE_ID"></option>
+							</inputbox>
+						</condition>
+						<condition name="BONUS_TYPE_ID" label="产品"
+							labelposition="left">
+							<value> 
+  									<![CDATA[A.BONUS_TYPE_ID = '#data#']]>
+							</value>
+							<inputbox type="selectbox">
+								<option label="全部" value=""></option>
+								<option
+									source="@{select distinct BONUS_TYPE_ID,BONUS_TYPE_NM from IBS.T9_BONUS_TYPE}"
+									label="BONUS_TYPE_NM" value="BONUS_TYPE_ID"></option>
+							</inputbox>
+						</condition>
+						<condition name="TXN_DT" label="起始日期" labelposition="left">
+							<value>
+						 	<![CDATA[	
+						 	 A.TXN_DT BETWEEN '#data#'  
+						 	]]>
+							</value>
+							<inputbox type="datepicker" styleproperty="style='width:80px'"
+								jsvalidate="isDate(#label#格式为yyyy-MM-dd)">
+
+							</inputbox>
+						</condition>
+						<condition name="TXN_DT_END" label="结束日期" labelposition="left">
+							<value>
+						 	<![CDATA['#data#'				 	
+						 	]]>
+							</value>
+							<inputbox type="datepicker" styleproperty="style='width:80px'"
+								jsvalidate="isDate(#label#格式为yyyy-MM-dd)">
+
+							</inputbox>
+						</condition>
+					</select>
+
+
+
+				</sql>
+				<format>
+					<imports>
+						<import>com.ljbank.util.*</import>
+						<import>com.wabacus.util.*</import>
+						<import>java.util.*</import>
+						<import>java.text.*</import>
+						<import>com.wabacus.system.*</import>
+					</imports>
+					<value>
+					<![CDATA[
+						
+						AMT=AMT==null?"":AMT.trim();
+						if(AMT.equals("")) AMT="-";
+						
+						CHANNLE_NM=CHANNLE_NM==null?"":CHANNLE_NM.trim();
+						if(CHANNLE_NM.equals("")) CHANNLE_NM="-";
+						
+						
+						RECOMMEND_PEOPLE_NM=RECOMMEND_PEOPLE_NM==null?"":RECOMMEND_PEOPLE_NM.trim();
+						if(RECOMMEND_PEOPLE_NM.equals("")) RECOMMEND_PEOPLE_NM="-";
+						
+						
+						SALES_PEOPLE_NM=SALES_PEOPLE_NM==null?"":SALES_PEOPLE_NM.trim();
+						if(SALES_PEOPLE_NM.equals("")) SALES_PEOPLE_NM="-";
+						
+						BRANCH_ORG_NM=BRANCH_ORG_NM==null?"":BRANCH_ORG_NM.trim();
+						String branch_org_nm=BRANCH_ORG_NM;
+		        		branch_org_nm=branch_org_nm.replaceAll("XX银行","");
+		        		if(!branch_org_nm.equals("")) BRANCH_ORG_NM=branch_org_nm;
+				
+				
+						ORG_NM=ORG_NM==null?"":ORG_NM.trim();
+						String org_nm=ORG_NM;
+						org_nm=org_nm.replaceAll(branch_org_nm,"");
+						org_nm=org_nm.replaceAll("XX银行","");
+						if(!org_nm.equals("")) ORG_NM=org_nm;
+						
+					]]>
+					</value>
+				</format>
+			</report>
+		</vpanel>
+	</page>
+
+
+</applications>

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<applications xmlns="http://www.wabacus.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.wabacus.com ../xsd/wabacus.applications.xsd">
+	<!--中间业务科目收入-->
+	<page id="mdiddle_busi_sbj_inc"
+		js="/webresources/script/validate.js,/js/demo.js,/js/common.js">
+		<header>${top.header}</header>
+		<interceptor>
+			<imports>
+				<import>java.lang</import>
+				<import>com.wabacus.util</import>
+				<import>java.sql.Connection</import>
+				<import>java.sql.PreparedStatement</import>
+				<import>java.sql.ResultSet</import>
+				<import>javax.servlet.http.HttpSession</import>
+				<import>javax.util</import>
+				<import>javax.text</import>
+				<import>com.ljbank.market.*</import>
+				<import>java.util.Date</import>
+				<import>java.text.SimpleDateFormat</import>
+			</imports>
+			<preaction>
+				<![CDATA[
+				Util u = new Util();
+				String mth_dt=u.getPreviousMonthEnd();
+				System.out.println("mth_dt="+mth_dt);
+				
+				String MEASURE_DT=(String)rrequest.getRequest().getSession().getAttribute("MEASURE_DT");
+				String MEASURE_DT_CUR=rrequest.getStringAttribute("MEASURE_DT", "");
+				
+				if(MEASURE_DT_CUR==null || MEASURE_DT_CUR.equals("")){
+					if(MEASURE_DT==null || MEASURE_DT.equals("")){
+						rrequest.setAttribute("MEASURE_DT", mth_dt);
+					}else{
+						rrequest.setAttribute("MEASURE_DT", MEASURE_DT);
+						rrequest.getRequest().getSession().setAttribute("MEASURE_DT", "");
+					}
+				}
+				
+				]]>
+			</preaction>
+		</interceptor>
+		<vpanel id="common_vpanel" width="1350px" align="center" title="">
+			<report id="title" extends="title.report1" width="1000px"></report>
+			<report id="select" title="中间业务科目收入" type="listform" interceptor="com.customer.interceptor.InterceptorMiddBusiSBJInco"
+				top="10px" align="center" width="1000px"
+				pagesize="15|20|-1" dataexport="richexcel" personalizeclass="default" cellresize="2" >
+
+				<display>
+					<col column="SEC_OU_CD" label="机构号" valuestyleproperty="style='mso-number-format:\@'" clickorderby="true"></col>
+					<col column="SEC_OU_NM" label="机构名称" clickorderby="true"></col>
+					<col column="CLS_BAL" label="中间业务收入 (万)" datatype="double{0.000000}" clickorderby="true"></col>
+					<col column="MEASURE_DT" label="日期" displaytype="hidden" ></col>
+				</display>
+				<sql>
+					<select>
+						<value><![CDATA[
+							select MEASURE_DT,(case when ou.SEC_OU_CD='9991' then '总行'  else ou.SEC_OU_NM end) as SEC_OU_NM,ou.SEC_OU_CD ,cast(sum(CLS_BAL) as decimal(20,6))/10000 as CLS_BAL
+							from ibs.T1_MIDDLE_BUSI_SBJ_INCO t
+							inner join dim.dim_ou ou on ou.OU_CD=t.ORG_ID
+							WHERE {#condition#} and ORG_ID not like '8%' %UserLogOrg% 
+							group by MEASURE_DT,(case when ou.SEC_OU_CD='9991' then '总行'  else ou.SEC_OU_NM end),ou.SEC_OU_CD 
+							order by ou.SEC_OU_CD
+						    ]]>
+						</value>
+
+						<condition name="MEASURE_DT" label="日期" labelposition="left"
+							br="true">
+							<value>
+						 	<![CDATA[(MEASURE_DT='#data#')]]>
+							</value>
+							<inputbox type="datepicker" styleproperty="style='width:120px'"
+								jsvalidate="isDate(#label#格式为yyyy-MM-dd)">
+							</inputbox>
+						</condition>
+						<!-- 
+						<condition name="ORG_ID" label="支行机构号" labelposition="left" hidden="true"
+							br="true">
+							<value>
+						 	<![CDATA[( ORG_ID not like '8%' and BRANCH_ORG_ID<>'9990')]]>
+							</value>
+						</condition>
+						 -->
+					</select>
+				</sql>
+				<!-- 
+				-->
+				<format>
+					<imports>
+						<import>com.ljbank.util.*</import>
+						<import>com.wabacus.util.*</import>
+						<import>java.util.*</import>
+						<import>java.text.*</import>
+						<import>com.wabacus.system.*</import>
+					</imports>
+					<value>
+					<![CDATA[
+					    SEC_OU_NM="<a style='TEXT-DECORATION:underline' href='ShowReport.wx?PAGEID=mdiddle_busi_sbj_inc_detail&BRANCH_ORG_ID="+SEC_OU_CD+"&MEASURE_DT="+MEASURE_DT+"'>"+SEC_OU_NM+"</a>"; 
+					]]>
+					</value>
+				</format>
+				 
+				<footer><![CDATA[<div style='float:left'><font color='blue'>提示:点击机构名称,可以查询其“中间业务收入明细”功能页面</font></div>]]></footer>
+			</report>
+		</vpanel>
+	</page>
+</applications>

@@ -1,0 +1,501 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<applications xmlns="http://www.wabacus.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.wabacus.com ../xsd/wabacus.applications.xsd">
+	<!-- 员工理财资格统计个人填写页面 added by 王旭 -->
+	<page id="per_fnc_qual" js="/webresources/script/validate.js">
+		<interceptor>
+			<imports>
+				<import>com.ljbank.market.Util</import>
+			</imports>
+			<preaction>
+				<![CDATA[
+					Util u=new Util();
+					String ip=u.getRemoteIP(rrequest);
+					rrequest.getRequest().setAttribute("reqKey2", ip);
+				]]>
+			</preaction>
+		</interceptor>
+
+		<header>${top.header} </header>
+		<vpanel id="common_vpanel" width="1300px" align="center" title="">
+			<report id="title" extends="title.report1"></report>
+			<report id="reportQual" type="listform" pagesize="10|20|-1"
+				personalizeclass="default" servervalidateclass="com.ljbank.market.Util"><!-- interceptor="com.ljbank.market.InterceptorPerFncQual" -->
+				<header>
+     			 <![CDATA[<table border="0" cellspacing="0" cellpadding="0">
+ 					<tr><td align="left"><font color='red'>*只有"银行业法律法规与综合能力(原公共基础)"可以填写"免考"</font></td></table></tr>
+ 					  ]]>
+ 	 			</header>
+				<display>
+					<col column="PER_ID" label="员工号" width="65px"></col>
+					<col column="PER_NM" label="员工姓名" width="65px"></col>
+					<col column="ORG_ID" label="机构号" width="100px" displaytype="hidden"></col>
+					<col column="ORG_NM" label="机构名" width="120px"></col>
+					<col column="BRANCH_ORG_ID" label="分行机构号" width="80px"
+						displaytype="hidden"></col>
+					<col column="BRANCH_ORG_NM" label="分行机构名" width="120px"></col>
+					<col column="PER_IDENT" label="身份证号(护照)" width="135px">
+						<inputbox type="textbox" styleproperty="style='width:95%'"></inputbox>
+					</col>
+					<col column="PER_POSTITION_NAME" label="岗位" width="120px">
+						<inputbox type="textareabox" styleproperty="style='width:95%'"></inputbox>
+					</col>
+					<group label="持证种类及证件号">
+						<group label="银行业专业人员职业资格证书">
+							<col column="QUAL_BANK_PUB_NUMBER" label="银行业法律法规与综合能力证书号">
+								<inputbox type="textareabox" styleproperty="style='width:95%'"  ></inputbox><!-- 
+									styleproperty="style='width:95%'" -->
+							</col>
+							<col column="QUAL_BANK_OLD_FNC_NUMBER" label="个人理财（旧）"
+								displaytype="hidden">
+								<inputbox type="textareabox" styleproperty="style='width:95%'" 
+								jsvalidate="isHanZi(#data#不能输入汉字)" ></inputbox>
+									
+							</col>
+							<col column="QUAL_BANK_NEW_FNC_NUMBER" label="银行业专业实务-个人理财证书号">
+								<inputbox type="textareabox" styleproperty="style='width:95%'" jsvalidate="isHanZi(请输入证件号)" ></inputbox>
+							</col>
+						</group>
+						<col column="QUAL_AFP_NUMBER" label="AFP证书号">
+							<inputbox type="textareabox" styleproperty="style='width:95%'" jsvalidate="isHanZi(请输入证件号)" ></inputbox>
+						</col>
+						<col column="QUAL_CFP_NUMBER" label="CFP证书号" >
+							<inputbox type="textareabox" styleproperty="style='width:95%'" jsvalidate="isHanZi(请输入证件号)" ></inputbox>
+						</col>
+						<col column="REMARK" label="其他证件及证件号">
+							<inputbox type="textareabox" styleproperty="style='width:95%'"  ></inputbox><!-- jsvalidate="isHanZi(请输入证件名称和证件号)" -->
+						</col>
+					</group>
+					<col column="MODIFY_PEOPLE" label="填写人" displaytype="hidden"></col>
+					<col column="MODIFY_TIME" label="填写时间" displaytype="hidden"></col>
+					<col column="MODIFY_IP" label="填写IP" displaytype="hidden"></col>
+				</display>
+				<sql>
+					<select>
+						<value>
+						<![CDATA[
+						SELECT 
+						    PER_ID
+						    , PER_NM
+						    , A.ORG_ID
+						    , B.ORG_NM
+						    , A.BRANCH_ORG_ID
+						    , B.BRANCH_ORG_NM
+						    , PER_IDENT
+						    , PER_POSTITION_NAME
+						    , QUAL_BANK_PUB_NUMBER
+						    , QUAL_BANK_OLD_FNC_NUMBER
+						    , QUAL_BANK_NEW_FNC_NUMBER
+						    , QUAL_AFP_NUMBER
+						    , QUAL_CFP_NUMBER
+						    , REMARK 
+						    , MODIFY_PEOPLE
+						    , MODIFY_TIME
+						    , MODIFY_IP
+						 from IBS.T3_PER_FNC_QUAL A
+						 left join IBS.T5_ORG     B
+						 on A.ORG_ID=B.ORG_ID AND A.BRANCH_ORG_ID=B.BRANCH_ORG_ID AND B.ORG_TYPE_ID='EO'
+						 where {#condition#}
+						]]>
+						</value>
+						<condition name="PER_ID" source="session{user_id}"
+							hidden="true">
+							<value> PER_ID ='#data#'</value>
+						</condition>
+					</select>
+
+					<update>
+						<params>
+							<param name="user_id" value="session{user_id}"></param>
+							<param name="current_time" value="now{}"
+								datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
+							<param name="current_time1" value="now{}" datatype="timestamp{yyyy-MM-dd}"></param>
+							<param name="ip" value="request{reqKey2}"></param><!-- "request{reqKey2}" -->
+						</params>
+						<value>
+							<![CDATA[
+					           UPDATE IBS.T3_PER_FNC_QUAL 
+					           SET 
+					                 PER_IDENT                   =@{PER_IDENT}
+			                         , PER_POSTITION_NAME        =@{PER_POSTITION_NAME}
+									 , QUAL_BANK_PUB_NUMBER      =@{QUAL_BANK_PUB_NUMBER}
+									 , QUAL_BANK_OLD_FNC_NUMBER  =@{QUAL_BANK_OLD_FNC_NUMBER}
+									 , QUAL_BANK_NEW_FNC_NUMBER  =@{QUAL_BANK_NEW_FNC_NUMBER}
+									 , QUAL_AFP_NUMBER           =@{QUAL_AFP_NUMBER}
+									 , QUAL_CFP_NUMBER           =@{QUAL_CFP_NUMBER}
+			                         , REMARK                    =@{REMARK}
+			                         , MODIFY_PEOPLE             =#{user_id}
+			                         , MODIFY_TIME               =#{current_time}
+			                         , MODIFY_IP                 =#{ip}
+			                   where PER_ID=#{user_id}
+							]]>
+						</value>
+					</update>
+				</sql>
+			</report>
+		</vpanel>
+	</page>
+	<!-- 总行查询界面 -->
+	<page id="fnc_qual" js="/webresources/script/validate.js">
+		<interceptor>
+			<imports>
+				<import>com.ljbank.market.Util</import>
+			</imports>
+			<preaction>
+				<![CDATA[
+					Util u=new Util();
+					String ip=u.getRemoteIP(rrequest);
+					rrequest.getRequest().setAttribute("reqKey2", ip);
+				]]>
+			</preaction>
+		</interceptor>
+
+		<header>${top.header} </header>
+		<vpanel id="common_vpanel" width="1300px" align="center" title="">
+			<report id="title" extends="title.report1"></report>
+			<report id="reportQual" type="listform" pagesize="10|20|-1"
+				width="1300px" rowselect="single|true" interceptor="com.ljbank.market.InterceptorPerFncQual"
+				personalizeclass=" default " servervalidateclass="com.ljbank.market.Util"
+				dataexport="plainexcel">
+				<display>
+					<col column="PER_ID" label="员工号" width="65px"></col>
+					<col column="PER_NM" label="员工姓名" width="65px"></col>
+					<col column="ORG_ID" label="机构号" width="100px" displaytype="hidden"></col>
+					<col column="ORG_NM" label="机构名" width="110px"></col>
+					<col column="BRANCH_ORG_ID" label="分行机构号" width="80px"
+						displaytype="hidden"></col>
+					<col column="BRANCH_ORG_NM" label="分行机构名" width="110px"></col>
+					<col column="PER_IDENT" label="身份证号" width="135px"></col>
+					<col column="PER_POSTITION_NAME" label="岗位" width="120px"></col>
+					<group label="持证种类及证件号">
+						<group label="银行业专业人员职业资格证书">
+							<col column="QUAL_BANK_PUB_NUMBER" label="银行业法律法规与综合能力证书号">
+							</col>
+							<col column="QUAL_BANK_OLD_FNC_NUMBER" label="个人理财（旧）"
+								displaytype="hidden"></col>
+							<col column="QUAL_BANK_NEW_FNC_NUMBER" label="银行业专业实务-个人理财证书号">
+							</col>
+						</group>
+						<col column="QUAL_AFP_NUMBER" label="AFP证书号" br="true"></col>
+						<col column="QUAL_CFP_NUMBER" label="CFP证书号" br="true"></col>
+						<col column="REMARK" label="其他证件及证件号" br="true"></col>
+					</group>
+					<col column="MODIFY_PEOPLE" label="填写人" displaytype="hidden"></col>
+					<col column="MODIFY_TIME" label="填写时间" displaytype="hidden"></col>
+					<col column="MODIFY_IP" label="填写IP" displaytype="hidden"></col>
+				</display>
+				<sql>
+					<select>
+						<value>
+						<![CDATA[
+						SELECT 
+						    PER_ID
+						    , PER_NM
+						    , A.ORG_ID
+						    , B.ORG_NM
+						    , A.BRANCH_ORG_ID
+						    , B.BRANCH_ORG_NM
+						    , PER_IDENT
+						    , PER_POSTITION_NAME
+						    , QUAL_BANK_PUB_NUMBER
+						    , QUAL_BANK_OLD_FNC_NUMBER
+						    , QUAL_BANK_NEW_FNC_NUMBER
+						    , QUAL_AFP_NUMBER
+						    , QUAL_CFP_NUMBER
+						    , REMARK 
+						    , MODIFY_PEOPLE
+						    , MODIFY_TIME
+						    , MODIFY_IP
+						 from IBS.T3_PER_FNC_QUAL A
+						 left join IBS.T5_ORG     B
+						 on A.ORG_ID=B.ORG_ID AND A.BRANCH_ORG_ID=B.BRANCH_ORG_ID AND B.ORG_TYPE_ID='EO'
+						 where {#condition#} 
+						 and (QUAL_BANK_PUB_NUMBER is  not null and QUAL_BANK_PUB_NUMBER<>'' or QUAL_BANK_NEW_FNC_NUMBER is not null and QUAL_BANK_NEW_FNC_NUMBER<>'' or QUAL_AFP_NUMBER is not null and QUAL_AFP_NUMBER<>'' or QUAL_CFP_NUMBER is not null and QUAL_CFP_NUMBER<>'' or REMARK is not null and REMARK<>'')
+						]]>
+						</value>
+						<condition name="PER_ID" label="员工号">
+							<value><![CDATA[a.PER_ID like '%#data#%']]></value>
+							<inputbox>
+								<typeprompt width="150" count="10">
+									<promptcol label="PER_ID" value="PER_ID" title="员工号"
+										matchmode="anywhere" casesensitive="false" />
+									<promptcol label="PER_NAME" value="PER_NAME" title="员工姓名"
+										matchmode="anywhere" casesensitive="false" />
+									<datasource>
+										<option
+											source="@{Select DISTINCT PER_ID, PER_NAME from PUB.PERSONNEL WHERE  {#matchcondition#}} " />
+									</datasource>
+								</typeprompt>
+							</inputbox>
+						</condition>
+						<condition name="PER_NAME" label="员工姓名">
+							<value><![CDATA[a.PER_NAME like '%#data#%']]></value>
+							<inputbox>
+								<typeprompt width="150" count="10">
+									<promptcol label="PER_ID" value="PER_ID" title="员工号"
+										matchmode="anywhere" casesensitive="false" />
+									<promptcol label="PER_NAME" value="PER_NAME" title="员工姓名"
+										matchmode="anywhere" casesensitive="false" />
+									<datasource>
+										<option
+											source="@{Select DISTINCT PER_ID, PER_NAME from PUB.PERSONNEL WHERE  {#matchcondition#}} " />
+									</datasource>
+								</typeprompt>
+							</inputbox>
+						</condition>
+						<condition name="ORG_ID1" labelposition="left" label="分行">
+							<value>                                                                                                                                                                           
+							<![CDATA[(A.BRANCH_ORG_ID='#data#')]]>
+							</value>
+							<inputbox type="selectbox">
+								<option label="全部" value=""></option>
+								<option
+									source="@{Select distinct BRANCH_ORG_ID , BRANCH_ORG_NM from IBS.T5_ORG where HEAD_ORG_ID='9990' and ORG_TYPE_ID='EO' and ORG_LEVEL_ID='2'}"
+									label="BRANCH_ORG_NM" value="BRANCH_ORG_ID" />
+
+							</inputbox>
+						</condition>
+						<condition name="ORG_ID2" labelposition="left" label="支行">
+							<value>                                                                                                                                                                           
+							<![CDATA[(A.ORG_ID='#data#')]]>
+							</value>
+							<inputbox type="selectbox" depends="ORG_ID1">
+								<option label="全部" value=""></option>
+								<option label="无" value="" type="false"></option>
+								<option
+									source="@{Select distinct ORG_ID, ORG_NM from IBS.T5_ORG where BRANCH_ORG_ID='#ORG_ID1#' and ORG_TYPE_ID='EO' and ORG_LEVEL_ID='1'}"
+									label="ORG_NM" value="ORG_ID" />
+							</inputbox>
+						</condition>
+					</select>
+				</sql>
+			</report>
+		</vpanel>
+	</page>
+
+	<!-- 分行查询界面 -->
+	<page id="fnc_qual_f" js="/webresources/script/validate.js">
+		<interceptor>
+			<imports>
+				<import>com.ljbank.market.Util</import>
+			</imports>
+			<preaction>
+				<![CDATA[
+					Util u=new Util();
+					String ip=u.getRemoteIP(rrequest);
+					rrequest.getRequest().setAttribute("reqKey2", ip);
+				]]>
+			</preaction>
+		</interceptor>
+
+		<header>${top.header} </header>
+		<vpanel id="common_vpanel" width="1300px" align="center" title="">
+			<report id="title" extends="title.report1"></report>
+			<report id="reportQual" type="listform" pagesize="10|20|-1"
+				width="1300px" scrollheight="393px" rowselect="single|true"
+				interceptor="com.ljbank.market.InterceptorPerFncQual"
+				personalizeclass=" default " servervalidateclass="com.ljbank.market.Util">
+				<display>
+					<col column="PER_ID" label="员工号" width="65px"></col>
+					<col column="PER_NM" label="员工姓名" width="65px"></col>
+					<col column="ORG_ID" label="机构号" width="100px" displaytype="hidden"></col>
+					<col column="ORG_NM" label="机构名" width="110px"></col>
+					<col column="BRANCH_ORG_ID" label="分行机构号" width="80px"
+						displaytype="hidden"></col>
+					<col column="BRANCH_ORG_NM" label="分行机构名" width="110px"></col>
+					<col column="PER_IDENT" label="身份证号" width="135px"></col>
+					<col column="PER_POSTITION_NAME" label="岗位" width="120px"></col>
+					<group label="持证种类及证件号">
+						<group label="银行业专业人员职业资格证书">
+							<col column="QUAL_BANK_PUB_NUMBER" label="银行业法律法规与综合能力证书号">
+							</col>
+							<col column="QUAL_BANK_OLD_FNC_NUMBER" label="个人理财（旧）"
+								displaytype="hidden"></col>
+							<col column="QUAL_BANK_NEW_FNC_NUMBER" label="银行业专业实务-个人理财证书号">
+							</col>
+						</group>
+						<col column="QUAL_AFP_NUMBER" label="AFP证书号" br="true"></col>
+						<col column="QUAL_CFP_NUMBER" label="CFP证书号" br="true"></col>
+						<col column="REMARK" label="其他证件及证件号" br="true"></col>
+					</group>
+					<col column="MODIFY_PEOPLE" label="填写人" displaytype="hidden"></col>
+					<col column="MODIFY_TIME" label="填写时间" displaytype="hidden"></col>
+					<col column="MODIFY_IP" label="填写IP" displaytype="hidden"></col>
+				</display>
+				<sql>
+					<select>
+						<value>
+						<![CDATA[
+						SELECT 
+						    PER_ID
+						    , PER_NM
+						    , A.ORG_ID
+						    , B.ORG_NM
+						    , A.BRANCH_ORG_ID
+						    , B.BRANCH_ORG_NM
+						    , PER_IDENT
+						    , PER_POSTITION_NAME
+						    , QUAL_BANK_PUB_NUMBER
+						    , QUAL_BANK_OLD_FNC_NUMBER
+						    , QUAL_BANK_NEW_FNC_NUMBER
+						    , QUAL_AFP_NUMBER
+						    , QUAL_CFP_NUMBER
+						    , REMARK 
+						    , MODIFY_PEOPLE
+						    , MODIFY_TIME
+						    , MODIFY_IP
+						 from IBS.T3_PER_FNC_QUAL A
+						 left join IBS.T5_ORG     B
+						 on A.ORG_ID=B.ORG_ID AND A.BRANCH_ORG_ID=B.BRANCH_ORG_ID AND B.ORG_TYPE_ID='EO'
+						 where {#condition#} 
+						 and (QUAL_BANK_PUB_NUMBER is  not null and QUAL_BANK_PUB_NUMBER<>'' or QUAL_BANK_NEW_FNC_NUMBER is not null and QUAL_BANK_NEW_FNC_NUMBER<>'' or QUAL_AFP_NUMBER is not null and QUAL_AFP_NUMBER<>'' or QUAL_CFP_NUMBER is not null and QUAL_CFP_NUMBER<>'' or REMARK is not null and REMARK<>'')
+						]]>
+						</value>
+						<condition name="PER_ID" label="员工号">
+							<value><![CDATA[a.PER_ID like '%#data#%']]></value>
+							<inputbox>
+								<typeprompt width="150" count="10">
+									<promptcol label="PER_ID" value="PER_ID" title="员工号"
+										matchmode="anywhere" casesensitive="false" />
+									<promptcol label="PER_NAME" value="PER_NAME" title="员工姓名"
+										matchmode="anywhere" casesensitive="false" />
+									<datasource>
+										<option
+											source="@{Select DISTINCT PER_ID, PER_NAME from PUB.PERSONNEL WHERE  {#matchcondition#}} " />
+									</datasource>
+								</typeprompt>
+							</inputbox>
+						</condition>
+						<condition name="PER_NAME" label="员工姓名">
+							<value><![CDATA[a.PER_NAME like '%#data#%']]></value>
+							<inputbox>
+								<typeprompt width="150" count="10">
+									<promptcol label="PER_ID" value="PER_ID" title="员工号"
+										matchmode="anywhere" casesensitive="false" />
+									<promptcol label="PER_NAME" value="PER_NAME" title="员工姓名"
+										matchmode="anywhere" casesensitive="false" />
+									<datasource>
+										<option
+											source="@{Select DISTINCT PER_ID, PER_NAME from PUB.PERSONNEL WHERE  {#matchcondition#}} " />
+									</datasource>
+								</typeprompt>
+							</inputbox>
+						</condition>
+
+						<condition name="ORG_ID1" labelposition="left" label="分行"
+							source="session{org_id}">
+							<value>
+							<![CDATA[(A.BRANCH_ORG_ID='#data#')]]>
+							</value>
+						</condition>
+						<condition name="ORG_ID2" labelposition="left" label="支行">
+							<value>                                                                                                                                                                           
+							<![CDATA[(A.ORG_ID='#data#')]]>
+							</value>
+							<inputbox type="selectbox" depends="ORG_ID1">
+								<option label="全部" value=""></option>
+								<option label="无" value="" type="false"></option>
+								<option
+									source="@{Select distinct ORG_ID, ORG_NM from IBS.T5_ORG where BRANCH_ORG_ID='#ORG_ID1#' and ORG_TYPE_ID='EO' and ORG_LEVEL_ID='1'}"
+									label="ORG_NM" value="ORG_ID" />
+							</inputbox>
+						</condition>
+					</select>
+				</sql>
+			</report>
+		</vpanel>
+	</page>
+
+	<!-- 支行查询界面 -->
+	<page id="fnc_qual_z" js="/webresources/script/validate.js">
+		<interceptor>
+			<imports>
+				<import>com.ljbank.market.Util</import>
+			</imports>
+			<preaction>
+				<![CDATA[
+					Util u=new Util();
+					String ip=u.getRemoteIP(rrequest);
+					rrequest.getRequest().setAttribute("reqKey2", ip);
+				]]>
+			</preaction>
+		</interceptor>
+
+		<header>${top.header} </header>
+		<vpanel id="common_vpanel" width="1300px" align="center" title="">
+			<report id="title" extends="title.report1"></report>
+			<report id="reportQual" type="listform" pagesize="10|20|-1"
+				width="1300px" scrollheight="393px" rowselect="single|true"
+				interceptor="com.ljbank.market.InterceptorPerFncQual"
+				personalizeclass=" default " servervalidateclass="com.ljbank.market.Util">
+				<display>
+					<col column="PER_ID" label="员工号" width="65px"></col>
+					<col column="PER_NM" label="员工姓名" width="65px"></col>
+					<col column="ORG_ID" label="机构号" width="100px" displaytype="hidden"></col>
+					<col column="ORG_NM" label="机构名" width="110px"></col>
+					<col column="BRANCH_ORG_ID" label="分行机构号" width="80px"
+						displaytype="hidden"></col>
+					<col column="BRANCH_ORG_NM" label="分行机构名" width="110px"></col>
+					<col column="PER_IDENT" label="身份证号" width="135px"></col>
+					<col column="PER_POSTITION_NAME" label="岗位" width="120px"></col>
+					<group label="持证种类及证件号">
+						<group label="银行业专业人员职业资格证书">
+							<col column="QUAL_BANK_PUB_NUMBER" label="银行业法律法规与综合能力证书号">
+							</col>
+							<col column="QUAL_BANK_OLD_FNC_NUMBER" label="个人理财（旧）"
+								displaytype="hidden"></col>
+							<col column="QUAL_BANK_NEW_FNC_NUMBER" label="银行业专业实务-个人理财证书号">
+							</col>
+						</group>
+						<col column="QUAL_AFP_NUMBER" label="AFP证书号" br="true"></col>
+						<col column="QUAL_CFP_NUMBER" label="CFP证书号" br="true"></col>
+						<col column="REMARK" label="其他证件及证件号" br="true"></col>
+					</group>
+					<col column="MODIFY_PEOPLE" label="填写人" displaytype="hidden"></col>
+					<col column="MODIFY_TIME" label="填写时间" displaytype="hidden"></col>
+					<col column="MODIFY_IP" label="填写IP" displaytype="hidden"></col>
+				</display>
+				<sql>
+					<select>
+						<value>
+						<![CDATA[
+						SELECT 
+						    PER_ID
+						    , PER_NM
+						    , A.ORG_ID
+						    , B.ORG_NM
+						    , A.BRANCH_ORG_ID
+						    , B.BRANCH_ORG_NM
+						    , PER_IDENT
+						    , PER_POSTITION_NAME
+						    , QUAL_BANK_PUB_NUMBER
+						    , QUAL_BANK_OLD_FNC_NUMBER
+						    , QUAL_BANK_NEW_FNC_NUMBER
+						    , QUAL_AFP_NUMBER
+						    , QUAL_CFP_NUMBER
+						    , REMARK 
+						    , MODIFY_PEOPLE
+						    , MODIFY_TIME
+						    , MODIFY_IP
+						 from IBS.T3_PER_FNC_QUAL A
+						 left join IBS.T5_ORG     B
+						 on A.ORG_ID=B.ORG_ID AND A.BRANCH_ORG_ID=B.BRANCH_ORG_ID AND B.ORG_TYPE_ID='EO'
+						 where {#condition#} 
+						 and (QUAL_BANK_PUB_NUMBER is  not null and QUAL_BANK_PUB_NUMBER<>'' or QUAL_BANK_NEW_FNC_NUMBER is not null and QUAL_BANK_NEW_FNC_NUMBER<>'' or QUAL_AFP_NUMBER is not null and QUAL_AFP_NUMBER<>'' or QUAL_CFP_NUMBER is not null and QUAL_CFP_NUMBER<>'' or REMARK is not null and REMARK<>'')
+						]]>
+						</value>
+						<condition name="ORG_ID2" labelposition="left" label="支行"
+							source="session{org_id}">
+							<value>
+							<![CDATA[(A.ORG_ID='#data#')]]>
+							</value>
+						</condition>
+					</select>
+				</sql>
+			</report>
+		</vpanel>
+	</page>
+
+
+</applications>

@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<applications xmlns="http://www.wabacus.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.wabacus.com ../xsd/wabacus.applications.xsd">
+	<!-- 个人贷款计价维护 -->
+	<page id="personal_ln_price" js="/webresources/script/validate.js">
+		<interceptor>
+			<imports>
+				<import>com.ljbank.market.Util</import>
+			</imports>
+			<preaction>
+				<![CDATA[
+				Util u=new Util();
+				String ip=u.getRemoteIP(rrequest);
+				rrequest.getRequest().setAttribute("reqKey2", ip);
+				]]>
+			</preaction>
+		</interceptor>
+
+		<header>${top.header}</header>
+		<vpanel id="common_vpanel" width="1000px" align="center" title="">
+			<report id="title" extends="title.report1" width="1000px"></report>
+			<report id="select" type="listform" title="" width="1000px"
+				top="10px" personalizeclass="default">
+
+
+				<display>
+				
+					<col column="BRANCH_ORG_ID" label="机构号" displaytype="hidden"></col>
+					<col column="BRANCH_ORG_NM" label="机构名称"></col>
+					<col column="PROD_ID" label="产品编号" displaytype="hidden"></col>
+					<col column="PROD_NM" label="产品名称"></col>
+					<col column="AMT_INTERVAL_TYPE_ID" label="金额区间代码" displaytype="hidden"></col>
+					<col column="AMT_INTERVAL_TYPE_NM" label="金额区间" ></col>
+					<col column="EFF_FLAG" label="生效标志"></col>
+					<col column="PRICE" label="价格">
+						<inputbox type="textbox" jsvalidate="isNumeric(#data#不是数字)"></inputbox>
+					</col>
+
+				</display>
+				<sql>
+					<select>
+						<value>
+							<![CDATA[
+								SELECT	Distinct A.PROD_ID 
+										,C.PROD_NM
+										,A.BRANCH_ORG_ID
+										,B.BRANCH_ORG_NM
+										,A.AMT_INTERVAL_TYPE_ID
+										,D.AMT_INTERVAL_TYPE_NM
+										,CASE WHEN A.EFF_FLAG=1 THEN '生效' ELSE '失效' END as EFF_FLAG
+										,A.PRICE
+								FROM	IBS.T3_PERSONAL_LN_PRICE    A 
+								LEFT JOIN	IBS.T5_ORG			    B 
+								ON 		A.BRANCH_ORG_ID = B.BRANCH_ORG_ID
+										AND B.ORG_TYPE_ID = 'EO'   
+								LEFT JOIN   PUB.PROD			    C
+								ON		A.PROD_ID = C.PROD_ID
+								LEFT JOIN  IBS.T9_AMT_INTERVAL_TYPE D
+								ON      A.AMT_INTERVAL_TYPE_ID=D.AMT_INTERVAL_TYPE_ID
+								WHERE   A.EFF_FLAG='1'
+										AND {#condition#}
+								ORDER BY A.PROD_ID, A.BRANCH_ORG_ID
+							]]>
+						</value>
+
+						<condition name="BRANCH_ORG_ID" label="机构"
+							labelposition="left">
+							<value> 
+  									<![CDATA[A.BRANCH_ORG_ID = '#data#']]>
+							</value>
+							<inputbox type="selectbox" styleproperty="style='width:120px'">
+								<option label="全部" value=""></option>
+								<option
+									source="@{Select distinct BRANCH_ORG_ID , BRANCH_ORG_NM from IBS.T5_ORG where BRANCH_ORG_ID!='9990' and HEAD_ORG_ID='9990' and ORG_TYPE_ID='EO' order by BRANCH_ORG_ID}"
+									label="BRANCH_ORG_NM" value="BRANCH_ORG_ID" />
+
+							</inputbox>
+						</condition>
+					</select>
+
+					<update>
+						<params>
+							<param name="user_id" value="session{user_id}"></param>
+							<param name="current_time" value="now{}"
+								datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
+							<param name="current_time1" value="now{}" datatype="timestamp{yyyy-MM-dd}"></param>
+							<param name="ip" value="request{reqKey2}"></param>
+
+						</params>
+						<value>
+							<![CDATA[
+								UPDATE IBS.T3_PERSONAL_LN_PRICE 
+								SET	PRICE = @{PRICE}
+									,MODIFY_PEOPLE = #{user_id}
+									,MODIFY_TIME = #{current_time}
+									,MODIFY_IP = #{ip}
+								WHERE  BRANCH_ORG_ID = @{BRANCH_ORG_ID} 
+								AND  PROD_ID = @{PROD_ID}
+							]]>
+						</value>
+					</update>
+
+				</sql>
+
+			</report>
+		</vpanel>
+	</page>
+
+
+</applications>

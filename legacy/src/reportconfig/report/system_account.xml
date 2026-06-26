@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<applications xmlns="http://www.wabacus.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.wabacus.com ../xsd/wabacus.applications.xsd">
+
+
+	
+	<page id="system_user_account_form" js="/webresources/script/validate.js,/js/demo.js">
+		<report id="report1" title="人员帐号" type="editabledetail">
+			<interceptor>
+				<imports>
+					<import>java.util.*</import>
+					<import>com.wabacus.util.*</import>
+				</imports>
+				<saveaction-perrow>
+				<![CDATA[
+					String message="";
+					if(editbean instanceof EditableReportInsertDataBean)
+					{//对本条记录做添加操作
+						message="正在添加记录：";
+					}else	if(editbean instanceof EditableReportUpdateDataBean)
+					{//对本条记录做修改操作
+						message="正在修改记录：";
+					}else if(editbean instanceof EditableReportDeleteDataBean)
+					{//对本条记录做删除操作
+						message="正在删除记录：";
+					}
+					if(message!=null)
+					{
+						if(mRowData!=null)//mRowData中存放了本条记录各列的值
+						{
+							mRowData.put("password",DesEncryptTools.encrypt("12345"));//新建帐号默认密码12345
+						}
+					}
+					System.out.println(DesEncryptTools.encrypt("12345"));
+					return super.doSavePerRow(rrequest,rbean,mRowData,mParamValues,editbean);
+				]]>
+				</saveaction-perrow>
+			</interceptor>
+			<buttons>
+				<button name="button1"
+					class="com.wabacus.system.buttons.ServerSQLActionButton" position="other"
+					successprompt="重置成功" failedprompt="重置失败">
+					<![CDATA[
+						update cst.sys_c_sec_user(password='Due2bkAVWVY=')  where user_id=@{user_id};
+					]]>
+				</button>
+			</buttons>
+			<display valuetdwidth="250px" labeltdwidth="150px"
+				labelbgcolor="#f0f0f0" labelalign="right" valuealign="left">
+				<col column="user_id" label="工号" br="true">
+					<inputbox jsvalidate="isNotEmpty(#label#列不允许为空)"></inputbox>
+				</col>
+				<col column="user_name" label="姓名" br="true">
+					<inputbox jsvalidate="isNotEmpty(#label#列不允许为空)"></inputbox>
+				</col>
+				<col column="password" label="密码" displaytype="hidden"></col>				
+				
+				<col column="is_enable" label="是否启用" br="true" displaytype="hidden">
+					<inputbox type="selectbox" defaultvalue="Y">
+						<option label="启用" value="Y"></option>
+						<option label="停用" value="N"></option>
+					</inputbox>
+				</col>
+				<col column="department" label="部门" br="true">
+				</col>
+				<col property="reset_password" column="{non-fromdb}" label="重置密码"></col>
+			</display>
+			<sql >
+				<select>
+					<value>
+					<![CDATA[select user_id,user_name,password,is_enable,department
+											 from cst.sys_c_sec_user 
+																						 
+									where  {#condition#} order by user_id]]>
+					</value>
+					<condition name="txt_user_id" hidden="true">
+						<value>
+						<![CDATA[(user_id = '#data#' )]]>
+						</value>
+					</condition>
+				</select>
+				<insert>
+					<params>
+						<param name="user_id" value="session{user_id}"></param>
+						<param name="current_time" value="now{}" datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
+					</params>
+					<value>
+						insert into
+						cst.sys_c_sec_user(@{user_id},@{user_name},@{password},@{is_enable},@{department},lm_user=#{user_id},lm_time=#{current_time});
+					</value>
+				</insert>
+				<update>
+					<params>
+						<param name="user_id" value="session{user_id}"></param>
+						<param name="current_time" value="now{}" datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
+					</params>
+					<value>
+						update
+						cst.sys_c_sec_user(@{user_id},@{user_name},@{is_enable},@{department},lm_user=#{user_id},lm_time=#{current_time})
+						where user_id=@{user_id__old} ;
+					</value>
+				</update>
+			</sql>
+			<format>
+				<value>
+			   <![CDATA[
+					 	reset_password="<input type=\"button\" class=\"cls-button\" value=\"重置\" onclick=\"invokeComponentSqlActionButton('system_user_account_form','report1','button1',{user_id:'"+user_id+"'},true,testInvokeCallbackMethod1)\">";
+				  ]]>
+				</value>
+			</format>
+		</report>
+	</page>
+	<!-- user account 2012-5-7 -->
+	<page id="system_user_account" js="/webresources/script/validate.js">
+		<header>${top.header}</header>
+		<vpanel id="common_vpanel" align="center" width="1000px">
+			<report id="title" extends="title.report1"></report>
+			<report id="report1" title="人员列表" type="editablelist"
+				personalizeclass="default" pagesize="10|20|-1"
+				navigate="${navigatepagesizepage1.report3.navigate}" width="1000px"
+				scrollheight="450px">
+				<buttons>
+					<button name="button1" position="title" extends="${add.button.default}"></button>
+					<button name="button2" position="title" extends="${delete.button.default}"></button>
+				</buttons>
+				<display colselect="false">
+					<col column="{sequence:1}" label="序号" width="100px" />
+					<col column="user_id" label="工号"></col>
+					<col column="user_name" label="姓名"></col>
+
+					<col column="is_enable" label="是否启用" width="150px"></col>
+					<col column="department" label="部门" width="150px"></col>
+				</display>
+				<sql>
+					<select>
+						<value>
+							<![CDATA[select user_id,user_name,is_enable,department,og.ORG_ID,og.ORG_NM,og.HEAD_ORG_ID,og.BRANCH_ORG_ID 
+							from cst.sys_c_sec_user us
+							inner JOIN IBS.T5_ORG og ON us.ORG_ID = og.ORG_ID AND og.ORG_TYPE_ID = 'EO'
+							where is_enable='Y' and {#condition#} 
+							order by og.HEAD_ORG_ID,og.BRANCH_ORG_ID,og.ORG_ID,user_id
+							]]>
+					</value>
+						<condition name="ORG_ID0" source="session{org_id}" hidden="true">
+							<value><![CDATA[(og.ORG_ID='#data#' or og.BRANCH_ORG_ID='#data#' or og.HEAD_ORG_ID='#data#' )]]></value>
+						</condition>
+						<condition name="txt_user_id" label="工号">
+							<value>
+						<![CDATA[(user_id like  '%#data#%' )]]>
+							</value>
+						</condition>
+						<condition name="txt_user_name" label="姓名">
+							<value>
+						<![CDATA[(user_name like  '%#data#%' )]]>
+							</value>
+						</condition>
+					</select>
+					<insert pageurl="report{system_user_account_form.report1}"
+						popupparams="{width:550,height:300}"></insert>
+					 <update pageurl="report{system_user_account_form.report1}"
+						urlparams="txt_user_id=@{user_id}" popupparams="{width:550,height:300}"></update>
+					<delete>delete from cst.sys_c_sec_user where user_id=@{user_id};
+					</delete>
+				</sql>
+			</report>
+		</vpanel>
+	</page>
+
+</applications>

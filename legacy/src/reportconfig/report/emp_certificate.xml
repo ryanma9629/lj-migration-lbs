@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<applications xmlns="http://www.wabacus.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.wabacus.com ../xsd/wabacus.applications.xsd">
+	<!-- 客户经理上岗标示 added by 王旭 2018-06-28 -->
+	<page id="emp_certificate" js="/webresources/script/validate.js">
+
+		<header>${top.header} </header>
+		<vpanel id="common_vpanel" width="1300px" align="center" title="">
+			<report id="title" extends="title.report1" width="1300px"></report>
+			<report id="report" type="listform" pagesize="15|20|-1" width="1300px"
+				personalizeclass="default" dataexport="richexcel"
+				servervalidateclass="com.ljbank.market.Util ; com.ljbank.market.TestPersonnel">
+				<display>
+					<col column="EMP_ID" label="员工号" width="80px"
+						valuestyleproperty="style='mso-number-format:\@'">
+						<inputbox jsvalidate="isNotEmpty(员工号不可以为空)"
+							servervalidate="isPersonnel(必须是员工号)" styleproperty="style='width:97%'"><!-- jsvalidate="isNotEmpty(员工号不可以为空)" -->
+							<autocomplete
+								columns="EMP_NM; ORG_ID; ORG_NM; BRANCH_ORG_ID; BRANCH_ORG_NM; POSITION_ID; POSITION_NM; PSTN_TYPE; PSTN_TYPE_NM; SUB_PSTN_TYPE; SUB_PSTN_TYPE_NM"
+								colvaluecondition="EMP_ID like '%#EMP_ID#%'"
+								dataset="select * from (Select EMP_ID, EMP_NM, ORG_ID, ORG_NM, BRANCH_ORG_ID, BRANCH_ORG_NM, POSITION_ID, POSITION_NM,  PSTN_TYPE, PSTN_TYPE_NM, SUB_PSTN_TYPE, SUB_PSTN_TYPE_NM from IBS.T5_EMP ) where 1=1 {#condition#}  order by EMP_NM "></autocomplete>
+						</inputbox>
+
+
+					</col>
+					<col column="EMP_NM" label="员工姓名" width="80px"></col>
+					<col column="BRANCH_ORG_ID" label="分行机构号" width="80px"
+						displaytype="hidden"></col>
+					<col column="BRANCH_ORG_NM" label="分行机构名" width="160px"></col>
+					<col column="ORG_ID" label="机构号" width="100px" displaytype="hidden"></col>
+					<col column="ORG_NM" label="机构名" width="160px"></col>
+
+
+
+					<col column="YEAR" label="取得资格证年份" width="80px"
+						valuestyleproperty="style='mso-number-format:\@'">
+						<inputbox type="selectbox" styleproperty="style='width:95%'">
+							<option
+								source="@{select VALUE from IBS.T9_CERTIFICATE WHERE TYPE='Y' ORDER BY VALUE DESC}"
+								label="VALUE" value="VALUE"></option>
+						</inputbox>
+					</col>
+					<col column="GRADE" label="取得资格证等级" width="80px"
+						valuestyleproperty="style='mso-number-format:\@'">
+						<inputbox type="selectbox" styleproperty="style='width:95%'">
+							<option
+								source="@{select VALUE from IBS.T9_CERTIFICATE WHERE TYPE='G' ORDER BY VALUE}"
+								label="VALUE" value="VALUE"></option>
+						</inputbox>
+					</col>
+					<col column="POSITION_ID" label="岗位代码" width="80px"
+						displaytype="hidden"></col>
+					<col column="POSITION_NM" label="岗位名称" width="160px"
+						displaytype="hidden"></col>
+
+					<col column="PSTN_TYPE" label="主考核类别" width="65px" displaytype="hidden"></col>
+					<col column="PSTN_TYPE_NM" label="主考核类别名称" width="160px"></col>
+					<col column="SUB_PSTN_TYPE" label="子考核类别" width="65px"
+						displaytype="hidden"></col>
+					<col column="SUB_PSTN_TYPE_NM" label="子考核类别名称" width="160px"></col>
+				</display>
+				<sql>
+					<select>
+						<value>
+						<![CDATA[
+						SELECT 
+						         EMP_ID
+						        ,EMP_NM
+						      	,ORG_ID
+						       	,ORG_NM
+						        ,BRANCH_ORG_ID
+						        ,BRANCH_ORG_NM
+						        ,POSITION_ID
+						        ,POSITION_NM
+						        ,PSTN_TYPE
+						        ,PSTN_TYPE_NM
+						        ,SUB_PSTN_TYPE
+						        ,SUB_PSTN_TYPE_NM
+								,YEAR
+								,GRADE
+						FROM IBS.T5_EMP_CERTIFICATE
+						where {#condition#}
+						]]>
+						</value>
+						<condition name="EMP_ID" label="员工号">
+							<value><![CDATA[EMP_ID like '%#data#%']]></value>
+							<inputbox>
+								<typeprompt width="360" count="10">
+									<promptcol label="EMP_ID" value="EMP_ID" title="员工号"
+										matchmode="anywhere" casesensitive="false" />
+									<promptcol label="EMP_NM" value="EMP_NM" title="员工姓名"
+										matchmode="anywhere" casesensitive="false" />
+									<promptcol label="ORG_NM" value="ORG_NM" title="机构名"
+										matchmode="anywhere" casesensitive="false" />
+									<datasource>
+										<option
+											source="@{Select DISTINCT EMP_ID, EMP_NM, ORG_NM from IBS.T5_EMP WHERE EMP_TYPE_ID='E' AND {#matchcondition#}} " />
+									</datasource>
+								</typeprompt>
+							</inputbox>
+						</condition>
+						<condition name="EMP_NM" label="员工姓名">
+							<value><![CDATA[EMP_NM like '%#data#%']]></value>
+							<inputbox>
+								<typeprompt width="360" count="10">
+									<promptcol label="EMP_ID" value="EMP_ID" title="员工号"
+										matchmode="anywhere" casesensitive="false" />
+									<promptcol label="EMP_NM" value="EMP_NM" title="员工姓名"
+										matchmode="anywhere" casesensitive="false" />
+									<promptcol label="ORG_NM" value="ORG_NM" title="机构名"
+										matchmode="anywhere" casesensitive="false" />
+									<datasource>
+										<option
+											source="@{Select DISTINCT EMP_ID, EMP_NM, ORG_NM from IBS.T5_EMP WHERE EMP_TYPE_ID='E' AND  {#matchcondition#}} " />
+									</datasource>
+								</typeprompt>
+							</inputbox>
+						</condition>
+						<condition name="ORG_ID1" labelposition="left" label="分行">
+							<value>
+							<![CDATA[(BRANCH_ORG_ID='#data#')]]>
+							</value>
+							<inputbox type="selectbox" styleproperty="style='width:150px'">
+								<option label="全部" value=""></option>
+								<option
+									source="@{SELECT DISTINCT BRANCH_ORG_ID , CASE WHEN ORG_LEVEL_ID='2' THEN BRANCH_ORG_NM ELSE BRANCH_ORG_NM||'机关' END AS BRANCH_ORG_NM FROM IBS.T5_ORG WHERE ORG_TYPE_ID='EO' AND ORG_LEVEL_ID IN ('2','3') ORDER BY BRANCH_ORG_ID}"
+									label="BRANCH_ORG_NM" value="BRANCH_ORG_ID" />
+							</inputbox>
+						</condition>
+						<condition name="ORG_ID2" labelposition="left" label="支行">
+							<value>
+							<![CDATA[(ORG_ID='#data#')]]>
+							</value>
+							<inputbox type="selectbox" depends="ORG_ID1"
+								styleproperty="style='width:150px'">
+								<option label="全部" value=""></option>
+								<option label="无" value="" type="false"></option>
+								<option
+									source="@{SELECT DISTINCT ORG_ID, ORG_NM FROM IBS.T5_ORG WHERE BRANCH_ORG_ID='#ORG_ID1#' and ORG_TYPE_ID='EO' AND ORG_LEVEL_ID IN ('1','2') ORDER BY ORG_ID}"
+									label="ORG_NM" value="ORG_ID" />
+							</inputbox>
+						</condition>
+						<condition name="YEAR" labelposition="left" label="取得资格证年份">
+							<value>
+							<![CDATA[(YEAR='#data#')]]>
+							</value>
+							<inputbox type="selectbox" styleproperty="style='width:120px'">
+								<option label="全部" value=""></option>
+								<option
+									source="@{select VALUE from IBS.T9_CERTIFICATE WHERE TYPE='Y' ORDER BY VALUE DESC}"
+									label="VALUE" value="VALUE"></option>
+							</inputbox>
+						</condition>
+						<condition name="GRADE" labelposition="left" label="取得资格证等级">
+							<value>
+							<![CDATA[(GRADE='#data#')]]>
+							</value>
+							<inputbox type="selectbox" styleproperty="style='width:120px'">
+								<option label="全部" value=""></option>
+								<option
+								source="@{select VALUE from IBS.T9_CERTIFICATE WHERE TYPE='G' ORDER BY VALUE}"
+								label="VALUE" value="VALUE"></option>
+							</inputbox>
+						</condition>
+					</select>
+
+					
+
+					<insert>
+						<value> 
+
+							 INSERT INTO IBS.T5_EMP_CERTIFICATE (
+							     EMP_ID 
+						        ,EMP_NM 
+						      	,ORG_ID
+						       	,ORG_NM
+						        ,BRANCH_ORG_ID
+						        ,BRANCH_ORG_NM
+						        ,POSITION_ID
+						        ,POSITION_NM
+						        ,PSTN_TYPE
+						        ,PSTN_TYPE_NM
+						        ,SUB_PSTN_TYPE
+						        ,SUB_PSTN_TYPE_NM
+								,YEAR
+								,GRADE
+							   )
+							 values (
+								 @{EMP_ID}
+								,@{EMP_NM}
+								,@{ORG_ID}
+								,@{ORG_NM}
+								,@{BRANCH_ORG_ID}
+								,@{BRANCH_ORG_NM}
+								,@{POSITION_ID}
+								,@{POSITION_NM}
+								,@{PSTN_TYPE}
+								,@{PSTN_TYPE_NM}
+								,@{SUB_PSTN_TYPE}
+								,@{SUB_PSTN_TYPE_NM}
+								,@{YEAR}
+					            ,@{GRADE}
+							   )
+						
+						</value>
+					</insert>
+					<update confirmessage="保存">
+						<value>
+							<![CDATA[
+					           UPDATE IBS.T5_EMP_CERTIFICATE 
+					           SET 
+					                  YEAR  = @{YEAR}
+					                 ,GRADE = @{GRADE}
+			                   where EMP_ID = @{EMP_ID__old}
+							]]>
+						</value>
+					</update>
+					<delete>
+						<value>
+							<![CDATA[
+					           delete from IBS.T5_EMP_CERTIFICATE 
+					           where EMP_ID = @{EMP_ID__old}
+							]]>
+						</value>
+					</delete>
+					
+				</sql>
+				<format>
+					<imports>
+						<import>com.ljbank.util.*</import>
+						<import>com.wabacus.util.*</import>
+						<import>java.util.*</import>
+						<import>java.text.*</import>
+						<import>com.wabacus.system.*</import>
+					</imports>
+					<value>
+					<![CDATA[
+						BRANCH_ORG_NM=BRANCH_ORG_NM==null?"":BRANCH_ORG_NM.trim();
+						String branch_org_nm=BRANCH_ORG_NM;
+		        		branch_org_nm=branch_org_nm.replaceAll("XX银行","");
+		        		if(!branch_org_nm.equals("")) BRANCH_ORG_NM=branch_org_nm;
+				
+						ORG_NM=ORG_NM==null?"":ORG_NM.trim();
+						String org_nm=ORG_NM;
+						org_nm=org_nm.replaceAll(branch_org_nm,"");
+						org_nm=org_nm.replaceAll("XX银行","");
+						if(!org_nm.equals("")) ORG_NM=org_nm;
+					]]>
+					</value>
+				</format>
+
+
+			</report>
+
+		</vpanel>
+	</page>
+
+
+
+</applications>

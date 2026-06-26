@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<applications xmlns="http://www.wabacus.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.wabacus.com ../xsd/wabacus.applications.xsd">
+	<!-- 拟聘资源型客户经理考核参数 -->
+	<page id="resource_manager_yj_q" js="/webresources/script/validate.js">
+
+		<header>${top.header}</header>
+		<vpanel id="common_vpanel" width="1000px" align="center" title="">
+			<report id="title" extends="title.report1" width="1350px"></report>
+			<report id="report" type="listform" pagesize="15|20|-1" width="1350px"
+				personalizeclass="default" servervalidateclass="com.ljbank.market.Util" scrollwidth="1350px">
+				<display>
+					<col column="{sequence:1}" label="序号" width="60px"></col>
+					<col column="EMP_ID" label="员工号" align="center" valuestyleproperty="style='mso-number-format:\@'" clickorderby="true">
+						<inputbox styleproperty="style='width:99%'">
+							<autocomplete columns="EMP_NM;ORG_ID;ORG_NM;BRANCH_ORG_ID;BRANCH_ORG_NM;PSTN_TYPE;PSTN_TYPE_NM;SUB_PSTN_TYPE;SUB_PSTN_TYPE_NM;POSITION_ID;POSITION_NM;"
+								colvaluecondition="EMP_ID like '%#EMP_ID#%'"
+								dataset="select EMP_ID, EMP_NM, ORG_ID, ORG_NM, BRANCH_ORG_ID, BRANCH_ORG_NM, POSITION_ID, POSITION_NM, PSTN_TYPE, PSTN_TYPE_NM, SUB_PSTN_TYPE, SUB_PSTN_TYPE_NM
+										from IBS.T5_EMP
+										where 1=1 {#condition#} ">
+								</autocomplete>
+						</inputbox>
+					</col>
+					<col column="EMP_NM" label="员工姓名" ><inputbox></inputbox></col>
+					<col column="ORG_ID" label="机构号"  clickorderby="false" valuestyleproperty="style='mso-number-format:\@'"><inputbox></inputbox></col>
+					<col column="ORG_NM" label="机构名" ><inputbox></inputbox></col>
+					<col column="BRANCH_ORG_ID" label="分行机构号" displaytype="hidden"><inputbox></inputbox></col>
+					<col column="BRANCH_ORG_NM" label="分行机构名" ><inputbox></inputbox></col>
+					<col column="PSTN_TYPE" label="主考核类别"  displaytype="hidden"><inputbox></inputbox></col>
+					<col column="PSTN_TYPE_NM" label="主考核类别" ><inputbox></inputbox></col>
+					<col column="SUB_PSTN_TYPE" label="子考核类别" displaytype="hidden"><inputbox></inputbox></col>
+					<col column="SUB_PSTN_TYPE_NM" label="子考核类别" ></col>
+					<col column="POSITION_ID" label="岗位代码" displaytype="hidden"><inputbox></inputbox></col>
+					<col column="POSITION_NM" label="岗位名称" displaytype="hidden"><inputbox></inputbox></col>
+					
+					<col column="KHJQ_ST_DT" label="考核基期开始日期" align="center" clickorderby="true">
+						<inputbox type="datepicker" styleproperty="style='width:100px'"
+							jsvalidate="isDate(#label#格式为yyyy-MM-dd)">
+						</inputbox>
+					</col>
+					<col column="KHJQ_ED_DT" label="考核基期结束日期" align="center" clickorderby="true">
+						<inputbox type="datepicker" styleproperty="style='width:100px'"
+							jsvalidate="isDate(#label#格式为yyyy-MM-dd)">
+						</inputbox>
+					</col>
+					<col column="KHQ_ST_DT" label="考核期开始日期" align="center" clickorderby="true">
+						<inputbox type="datepicker" styleproperty="style='width:100px'"
+							jsvalidate="isDate(#label#格式为yyyy-MM-dd)">
+						</inputbox>
+					</col>
+					<col column="KHQ_ED_DT" label="考核期结束日期" align="center" clickorderby="true">
+						<inputbox type="datepicker" styleproperty="style='width:100px'"
+							jsvalidate="isDate(#label#格式为yyyy-MM-dd)">
+						</inputbox>
+					</col>
+				</display>
+
+				<sql>
+					<select>
+
+						<value><![CDATA[
+								SELECT   EMP_ID
+										,EMP_NM
+										,ORG_ID
+										,ORG_NM
+										,BRANCH_ORG_ID
+										,BRANCH_ORG_NM
+										,POSITION_ID
+										,POSITION_NM
+										,PSTN_TYPE
+										,PSTN_TYPE_NM
+										,SUB_PSTN_TYPE
+										,SUB_PSTN_TYPE_NM
+										,KHJQ_ST_DT
+										,KHJQ_ED_DT
+										,KHQ_ST_DT 
+										,KHQ_ED_DT 
+								FROM     IBS.T5_EMP_RESOURCE_MANAGER
+								WHERE  {#condition#}
+						        ORDER BY  EMP_ID
+						]]>
+						</value>
+
+						<condition name="EMP_ID" label="工号" labelposition="left">
+							<value>
+							 		<![CDATA[EMP_ID='#data#']]>
+							</value>
+							<inputbox styleproperty="style='width:100px'">
+								<typeprompt width="300" count="10">
+									<promptcol label="EMP_ID" value="EMP_ID" title="认领工号"
+										matchmode="anywhere" casesensitive="false" />
+									<promptcol label="EMP_NM" value="EMP_NM" title="姓名"
+										matchmode="anywhere" casesensitive="false" />
+									<datasource>
+										<option
+											source="@{Select DISTINCT EMP_ID, EMP_NM from IBS.T5_EMP  WHERE   {#matchcondition#}} " />
+									</datasource>
+								</typeprompt>
+							</inputbox>
+						</condition>
+						<condition name="EMP_NM" label="姓名" labelposition="left">
+							<value>
+							 		<![CDATA[EMP_NM='#data#']]>
+							</value>
+							<inputbox styleproperty="style='width:100px'">
+								<typeprompt width="300" count="10">
+									<promptcol label="EMP_ID" value="EMP_ID" title="认领工号"
+										matchmode="anywhere" casesensitive="false" />
+									<promptcol label="EMP_NM" value="EMP_NM" title="姓名"
+										matchmode="anywhere" casesensitive="false" />
+									<datasource>
+										<option
+											source="@{Select DISTINCT EMP_ID, EMP_NM from IBS.T5_EMP  WHERE   {#matchcondition#}} " />
+									</datasource>
+								</typeprompt>
+							</inputbox>
+						</condition>
+						<condition name="ORG_ID1" labelposition="left" label="分行">
+							<value>
+							<![CDATA[(BRANCH_ORG_ID='#data#')]]>
+							</value>
+							<inputbox type="selectbox" styleproperty="style='width:150px'">
+								<option label="全部" value=""></option>
+								<option
+									source="@{SELECT DISTINCT BRANCH_ORG_ID , CASE WHEN ORG_LEVEL_ID='2' THEN BRANCH_ORG_NM ELSE BRANCH_ORG_NM||'机关' END AS BRANCH_ORG_NM FROM IBS.T5_ORG WHERE ORG_TYPE_ID='EO' AND ORG_LEVEL_ID IN ('2','3') ORDER BY BRANCH_ORG_ID}"
+									label="BRANCH_ORG_NM" value="BRANCH_ORG_ID" />
+							</inputbox>
+						</condition>
+						<condition name="ORG_ID2" labelposition="left" label="支行">
+							<value>
+							<![CDATA[(ORG_ID='#data#')]]>
+							</value>
+							<inputbox type="selectbox" depends="ORG_ID1"
+								styleproperty="style='width:150px'">
+								<option label="全部" value=""></option>
+								<option label="无" value="" type="false"></option>
+								<option
+									source="@{SELECT DISTINCT ORG_ID, ORG_NM FROM IBS.T5_ORG WHERE BRANCH_ORG_ID='#ORG_ID1#' and ORG_TYPE_ID='EO' AND ORG_LEVEL_ID IN ('1','2') ORDER BY ORG_ID}"
+									label="ORG_NM" value="ORG_ID" />
+							</inputbox>
+						</condition>
+
+					</select>
+					<insert>
+						<params>
+							<param name="user_id" value="session{user_id}"></param>
+							<param name="current_time" value="now{}"
+								datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
+							<param name="ip" value="session{ip}"></param>
+						</params>
+						<value>
+							insert into
+							ibs.T5_EMP_RESOURCE_MANAGER(EMP_ID=@{EMP_ID},EMP_NM=@{EMP_NM}
+							,ORG_ID=@{ORG_ID},ORG_NM=@{ORG_NM}
+							,BRANCH_ORG_ID=@{BRANCH_ORG_ID},BRANCH_ORG_NM=@{BRANCH_ORG_NM}
+							,POSITION_ID=@{POSITION_ID},POSITION_NM=@{POSITION_NM}
+							,PSTN_TYPE=@{PSTN_TYPE},PSTN_TYPE_NM=@{PSTN_TYPE_NM}
+							,SUB_PSTN_TYPE=@{SUB_PSTN_TYPE},SUB_PSTN_TYPE_NM=@{SUB_PSTN_TYPE_NM}
+							,KHJQ_ST_DT=@{KHJQ_ST_DT},KHJQ_ED_DT=@{KHJQ_ED_DT},KHQ_ST_DT=@{KHQ_ST_DT},KHQ_ED_DT=@{KHQ_ED_DT}
+							,MODIFY_PEOPLE=#{user_id},MODIFY_TIME=#{current_time},MODIFY_IP = #{ip});
+						</value>
+					</insert>
+					<!-- 
+					<update confirmessage="保存">
+						<params>
+							<param name="ip" value="session{ip}"></param>
+							<param name="user_id" value="session{user_id}"></param>
+							<param name="current_time" value="now{}"
+								datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
+						</params>
+						<value>
+							<![CDATA[
+								update IBS.T5_EMP_RESOURCE_MANAGER
+								set KHJQ_ST_DT=@{KHJQ_ST_DT}
+								    ,KHJQ_ED_DT=@{KHJQ_ED_DT}
+								    ,KHQ_ST_DT=@{KHQ_ST_DT}
+								    ,KHQ_ED_DT=@{KHQ_ED_DT}
+									,MODIFY_PEOPLE = #{user_id}
+									,MODIFY_TIME = #{current_time}
+									,MODIFY_IP = #{ip}
+								where EMP_ID = @{EMP_ID__old}
+							]]>
+						</value>
+					</update>
+					 -->
+					<delete>
+					    delete IBS.T5_EMP_RESOURCE_MANAGER
+					    where EMP_ID = @{EMP_ID__old}
+					</delete>
+
+				</sql>
+			</report>
+		</vpanel>
+	</page>
+
+
+</applications>

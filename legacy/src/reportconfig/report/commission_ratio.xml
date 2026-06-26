@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<applications xmlns="http://www.wabacus.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.wabacus.com ../xsd/wabacus.applications.xsd">
+	<!-- 提成比例维护 -->
+	<page id="commission_ratio" js="/webresources/script/validate.js">
+		<interceptor>
+			<imports>
+				<import>com.ljbank.market.Util</import>
+			</imports>
+			<preaction>
+		<![CDATA[
+		Util u=new Util();
+		String ip=u.getRemoteIP(rrequest);
+		rrequest.getRequest().setAttribute("reqKey2", ip);
+		]]>
+	</preaction>
+		</interceptor>
+
+		<header>${top.header}</header>
+
+		<vpanel id="common_vpanel" width="1000px" align="center" title="">
+			<report id="title" extends="title.report1" width="1000px"></report>
+			<report id="select" type="listform" title="" width="1000px"
+				top="10px" personalizeclass="default" servervalidateclass="com.ljbank.market.Util">
+
+				<display>
+					<col column="YEAR" label="年度" width="100px">
+						<inputbox type="textbox" defaultvalue="2016"
+							styleproperty="style='width:95%'" />
+					</col>
+					
+					<col column="BRANCH_ORG_ID" label="分行机构号" width="250px">
+						<inputbox type="selectbox" jsvalidate="isNotEmpty(#label#列不允许为空)"
+							styleproperty="style='width:99%'">
+							<option label="请选择分行机构..." value=""></option>
+							<option
+								source="@{Select distinct BRANCH_ORG_ID , BRANCH_ORG_NM from IBS.T5_ORG where BRANCH_ORG_ID!='9990' and HEAD_ORG_ID='9990' and ORG_TYPE_ID='EO' order by BRANCH_ORG_ID}"
+								label="BRANCH_ORG_NM" value="BRANCH_ORG_ID" />
+						</inputbox>
+					</col>
+					
+					<col column="PSTN_TYPE" label="主考核类别" width="250px">
+						<inputbox type="selectbox" jsvalidate="isNotEmpty(#label#列不允许为空)"
+							styleproperty="style='width:99%'">
+							<option label="请选择主考核类别..." value=""></option>
+							<option
+								source="@{Select distinct PSTN_TYPE , PSTN_TYPE_NM from PUB.PERSONNEL where PSTN_TYPE in ('04') group by PSTN_TYPE, PSTN_TYPE_NM , SUB_PSTN_TYPE , SUB_PSTN_TYPE_NM order by PSTN_TYPE }"
+								label="PSTN_TYPE_NM" value="PSTN_TYPE" />
+						</inputbox>
+					</col>
+
+					<col column="SUB_PSTN_TYPE" label="子考核类别" width="250px">
+						<inputbox type="selectbox" jsvalidate="isNotEmpty(#label#列不允许为空)"
+							depends="PSTN_TYPE" styleproperty="style='width:99%'">
+							<option label="请选择子考核类别..." value=""></option>
+							<option
+								source="@{Select distinct SUB_PSTN_TYPE , SUB_PSTN_TYPE_NM from PUB.PERSONNEL where PSTN_TYPE='#PSTN_TYPE#' group by PSTN_TYPE, PSTN_TYPE_NM , SUB_PSTN_TYPE , SUB_PSTN_TYPE_NM order by SUB_PSTN_TYPE }"
+								label="SUB_PSTN_TYPE_NM" value="SUB_PSTN_TYPE" />
+						</inputbox>
+					</col>
+
+					<col column="COMMISSION" label="提成比例(%)" width="120px" align="left"
+						datatype="double{0.0000}">
+						<inputbox type="textbox" defaultvalue="0" styleproperty="style='width:95%'" />
+					</col>
+					
+					<col column="EFF_FLAG" label="生效标志" displaytype="hidden"></col>
+					<col column="MODIFY_PEOPLE" label="修改人" displaytype="hidden"></col>
+					<col column="MODIFY_TIME" label="修改时间" displaytype="hidden"></col>
+					<col column="MODIFY_IP" label="修改IP" displaytype="hidden"></col>
+					<col column="REMARK" label="备注" displaytype="hidden"></col>
+					<col column="REMARK1" label="备注1"  displaytype="hidden" ></col><!--  displaytype="hidden" -->
+				</display>
+				<sql>
+					<select>
+
+						<value><![CDATA[
+								SELECT
+								      YEAR            
+								      ,BRANCH_ORG_ID   
+								      ,PSTN_TYPE       
+								      ,SUB_PSTN_TYPE          
+								      ,COMMISSION             
+								      ,EFF_FLAG                      
+								      ,MODIFY_PEOPLE          
+								      ,MODIFY_TIME            
+								      ,MODIFY_IP       
+								      ,REMARK   
+								      ,'原时间为：'||substr(MODIFY_TIME,1,19)||'机构为：'||BRANCH_ORG_ID||'主考核类别为：'||PSTN_TYPE||'子考核类别为：'||SUB_PSTN_TYPE||'比例为：'||COMMISSION||'提交人为：'||MODIFY_PEOPLE||'提交ip为：'||MODIFY_IP AS REMARK1 
+								FROM IBS.T3_COMMISSION_RATIO 
+								WHERE EFF_FLAG=1
+								and  {#condition#}
+						        ORDER by YEAR,BRANCH_ORG_ID,PSTN_TYPE,SUB_PSTN_TYPE
+						]]>
+						</value>
+
+
+						<condition name="BRANCH_ORG_ID" label="机构"
+							labelposition="left">
+							<value> 
+  									<![CDATA[BRANCH_ORG_ID = '#data#']]>
+							</value>
+							<inputbox type="selectbox" styleproperty="style='width:120px'">
+								<option label="全部" value=""></option>
+								<option
+									source="@{Select distinct BRANCH_ORG_ID , BRANCH_ORG_NM from IBS.T5_ORG where BRANCH_ORG_ID!='9990' and HEAD_ORG_ID='9990' and ORG_TYPE_ID='EO' order by BRANCH_ORG_ID}"
+									label="BRANCH_ORG_NM" value="BRANCH_ORG_ID" />
+
+							</inputbox>
+						</condition>
+
+						<condition name="PSTN_TYPE" labelposition="left" label="主考核类别">
+							<value>
+								<![CDATA[(PSTN_TYPE='#data#')]]>
+							</value>
+							<inputbox type="selectbox" styleproperty="style='width:100px'">
+								<option label="全部" value=""></option>
+								<option
+									source="@{Select distinct PSTN_TYPE , PSTN_TYPE_NM from PUB.PERSONNEL group by PSTN_TYPE, PSTN_TYPE_NM , SUB_PSTN_TYPE , SUB_PSTN_TYPE_NM order by PSTN_TYPE }"
+									label="PSTN_TYPE_NM" value="PSTN_TYPE" />
+							</inputbox>
+						</condition>
+						<condition name="SUB_PSTN_TYPE" labelposition="left"
+							label="子考核类别">
+							<value>
+							<![CDATA[(SUB_PSTN_TYPE='#data#')]]>
+							</value>
+							<inputbox type="selectbox" depends="PSTN_TYPE"
+								styleproperty="style='width:150px'">
+								<option label="全部" value=""></option>
+								<option label="无" value="" type="false"></option>
+								<option
+									source="@{Select distinct SUB_PSTN_TYPE , SUB_PSTN_TYPE_NM from PUB.PERSONNEL where PSTN_TYPE='#PSTN_TYPE#' group by PSTN_TYPE, PSTN_TYPE_NM , SUB_PSTN_TYPE , SUB_PSTN_TYPE_NM order by SUB_PSTN_TYPE }"
+									label="SUB_PSTN_TYPE_NM" value="SUB_PSTN_TYPE" />
+							</inputbox>
+						</condition>
+					</select>
+					<update>
+						<params>
+							<param name="user_id" value="session{user_id}"></param>
+							<param name="current_time" value="now{}"
+								datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
+							<param name="ip" value="request{reqKey2}"></param>
+
+						</params>
+						<value>
+							<![CDATA[
+							
+								UPDATE IBS.T3_COMMISSION_RATIO
+								SET	
+									YEAR=@{YEAR}
+							       ,BRANCH_ORG_ID=@{BRANCH_ORG_ID}
+							       ,PSTN_TYPE=@{PSTN_TYPE}
+							       ,SUB_PSTN_TYPE=@{SUB_PSTN_TYPE}
+								   ,COMMISSION =@{COMMISSION}
+							       ,MODIFY_PEOPLE=#{user_id}
+							       ,MODIFY_TIME=#{current_time}
+							       ,MODIFY_IP=#{ip}
+							       ,REMARK=REMARK||@{REMARK1}
+								WHERE BRANCH_ORG_ID = @{BRANCH_ORG_ID__old} 
+								AND YEAR=@{YEAR__old}
+								AND EFF_FLAG=1
+								AND PSTN_TYPE=@{PSTN_TYPE__old}
+								AND SUB_PSTN_TYPE=@{SUB_PSTN_TYPE__old}
+								AND COMMISSION =@{COMMISSION__old}
+								;
+								
+
+
+							]]>
+						</value>
+					</update>
+					<insert>
+						<params>
+							<param name="user_id" value="session{user_id}"></param>
+							<param name="current_time" value="now{}"
+								datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
+							<param name="ip" value="request{reqKey2}"></param>
+
+						</params>
+						<value> 
+
+							   INSERT INTO IBS.T3_COMMISSION_RATIO (
+							       YEAR=@{YEAR}
+							       ,BRANCH_ORG_ID=@{BRANCH_ORG_ID}
+							       ,PSTN_TYPE=@{PSTN_TYPE}
+							       ,SUB_PSTN_TYPE=@{SUB_PSTN_TYPE}
+							       ,COMMISSION=@{COMMISSION}
+							       ,EFF_FLAG=1
+							       ,MODIFY_PEOPLE=#{user_id}
+							       ,MODIFY_TIME=#{current_time}
+							       ,MODIFY_IP=#{ip}
+							       
+							   );
+						
+						</value>
+					</insert>
+					<delete>
+						<params>
+							<param name="user_id" value="session{user_id}"></param>
+							<param name="current_time" value="now{}"
+								datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
+							<param name="ip" value="request{reqKey2}"></param>
+
+						</params>
+						UPDATE IBS.T3_COMMISSION_RATIO
+						SET EFF_FLAG=0
+							,MODIFY_PEOPLE=#{user_id}
+							,MODIFY_TIME=#{current_time}
+							,MODIFY_IP=#{ip}
+							,REMARK=REMARK||@{REMARK1}
+							WHERE BRANCH_ORG_ID = @{BRANCH_ORG_ID__old} 
+							AND YEAR=@{YEAR__old}
+							AND EFF_FLAG=1
+							AND PSTN_TYPE=@{PSTN_TYPE__old}
+							AND SUB_PSTN_TYPE=@{SUB_PSTN_TYPE__old}
+							AND COMMISSION =@{COMMISSION__old}
+							;
+							
+					</delete>
+				</sql>
+			</report>
+		</vpanel>
+	</page>
+
+
+</applications>

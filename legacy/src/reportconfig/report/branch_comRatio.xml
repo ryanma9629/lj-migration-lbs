@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<applications xmlns="http://www.wabacus.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.wabacus.com ../xsd/wabacus.applications.xsd">
+	
+<!-- 提成比例 查询-->
+<page id="branch_comRatio_query" js="/webresources/script/validate.js">
+<interceptor>
+	<imports>
+		<import>com.ljbank.market.Util</import>
+	</imports>
+	<preaction>
+<![CDATA[
+
+]]>
+</preaction>
+	</interceptor>
+
+	<header>${top.header}</header>
+
+	<vpanel id="common_vpanel" width="1200px" align="center" title="">
+		<report id="title" extends="title.report1" width="1200px"></report>
+		<report id="select" type="listform" title="提成比例" width="1200px" pagesize="15|20|-1" dataexport="richexcel"
+			top="10px" personalizeclass="default" servervalidateclass="com.ljbank.market.Util" rowselect="single">
+
+			<display>
+				<!-- <col column="{sequence:1}" label="序号" width="40px"></col> -->
+				<col column="EXAM_YEAR" label="年度" ></col>
+				<col column="EXAM_Q" label="季度" ></col>
+				<col column="BRANCH_ORG_NM" label="分行" ></col>
+				<col column="ACT_JX" label="应发定量薪酬总额" datatype="double{0.00}"></col>
+				<col column="DX_XZ" label="实发存量维护薪酬总额" datatype="double{0.00}"></col>
+				<!-- <col column="EXS_BZJX_SUM" label="实际季度存量维护薪酬"  datatype="double{0.00}"></col> -->
+				<col column="DIS_SCORE" label="二次分配额" datatype="double{0.00}"></col>
+				<col column="COM_JX" label="应发提成绩效薪酬总额" datatype="double{0.00}"></col>
+				<col column="ZC_FTP" label="新增资产业绩FTP" datatype="double{0.00}"></col>
+				<col column="FZ_FTP" label="负债业绩FTP" datatype="double{0.00}"></col>
+				<col column="MID_INC" label="中收" datatype="double{0.00}"></col>
+				<col column="COM_RATION" label="提成比例%" datatype="double{0.00}"></col>
+			</display>
+			<sql>
+				<select>
+					<value><![CDATA[
+						select
+							 vl.MEASURE_DT
+							,vl.EXAM_YEAR
+							,vl.EXAM_Q
+							,vl.BRANCH_ORG_ID
+							,vl.BRANCH_ORG_NM
+							,vl.BZJX
+							,vl.ACT_JX
+							,vl.DX_XZ
+							,vl.EXS_BZJX_SUM
+							,vl.DIS_SCORE
+							,vl.EXS_XZ
+							,ou.HEAD_ORG_ID
+							,coalesce(pro.LN_Q_PROFIT,0) as ZC_FTP
+							,coalesce(pro.DEP_Q_PROFIT,0) AS FZ_FTP
+							,coalesce(mid.INCOME,0) AS MID_INC
+							,(vl.ACT_JX-vl.DX_XZ-vl.EXS_BZJX_SUM+vl.DIS_SCORE) AS COM_JX
+							,(case when coalesce(pro.LN_Q_PROFIT,0)+coalesce(pro.DEP_Q_PROFIT,0)+coalesce(mid.INCOME,0)=0 then 0 
+							else (vl.ACT_JX-vl.DX_XZ-vl.EXS_BZJX_SUM+vl.DIS_SCORE)/(coalesce(pro.LN_Q_PROFIT,0)+coalesce(pro.DEP_Q_PROFIT,0)+coalesce(mid.INCOME,0))*100
+							end) as COM_RATION
+						from ibs.T3_BRANCH_EXS_XZ_VAL vl
+						left join (
+							select sy.MEASURE_DT,sy.BRANCH_ORG_ID,sy.BRANCH_ORG_NM
+							,sum(sy.DEP_Q_PROFIT) as DEP_Q_PROFIT
+							,sum(case when NEW_OR_EXIST='新增' then sy.LN_Q_PROFIT else 0 end) as LN_Q_PROFIT
+							from ibs.T2_EMP_DEP_LN_PROFIT_SMY sy
+							inner join ibs.T5_EMP_Q em on em.MEASURE_DT=sy.MEASURE_DT and em.EMP_ID=sy.EMP_ID and em.PSTN_TYPE='04' and em.EMP_ID not like '1%'
+							where sy.MEASURE_DT = {#EXAM_YEAR#}||(case {#EXAM_Q#} when '01' then '-03-31' when '02' then '-06-30' when '03' then '-09-30' when '04' then '-12-31' else '' end)
+							group by sy.MEASURE_DT,sy.BRANCH_ORG_ID,sy.BRANCH_ORG_NM
+						)pro on pro.BRANCH_ORG_ID=vl.BRANCH_ORG_ID and pro.MEASURE_DT=vl.MEASURE_DT
+						left join(
+							select inc.MEASURE_DT, inc.BRANCH_ORG_ID, sum(inc.INCOME) as INCOME
+							from IBS.T1_MIDDLE_BUSINESS_INCOME inc
+							inner join ibs.T5_EMP_Q em on em.MEASURE_DT=inc.MEASURE_DT and em.EMP_ID=inc.EMP_ID and em.PSTN_TYPE='04' and em.EMP_ID not like '1%'
+							where inc.MEASURE_DT ={#EXAM_YEAR#}||(case {#EXAM_Q#} when '01' then '-03-31' when '02' then '-06-30' when '03' then '-09-30' when '04' then '-12-31' else '' end)
+							group by inc.MEASURE_DT, inc.BRANCH_ORG_ID
+						)mid on mid.MEASURE_DT=pro.MEASURE_DT and mid.BRANCH_ORG_ID=pro.BRANCH_ORG_ID
+						inner join (select distinct BRANCH_ORG_ID,BRANCH_ORG_NM, HEAD_ORG_ID from ibs.T5_ORG where ORG_TYPE_ID='EO') ou on ou.BRANCH_ORG_ID=vl.BRANCH_ORG_ID
+						where {#condition#}
+						ORDER by vl.EXAM_YEAR DESC,vl.EXAM_Q DESC,vl.BRANCH_ORG_ID
+				]]>
+				</value>
+
+				<condition name="EXAM_YEAR" label="考核年度" labelposition="left" defaultvalue="session{exam_year}">
+					<value> 
+						<![CDATA[vl.EXAM_YEAR = '#data#']]>
+					</value>
+					<inputbox type="datepicker" styleproperty="style='width:90px'" dateformat="yyyy" jsvalidate="isNotEmpty(#label# 不允许为空);" ></inputbox>
+				</condition>
+				<condition name="EXAM_Q" label="考核季度" labelposition="left" defaultvalue="session{exam_q}">
+					<value> 
+						<![CDATA[vl.EXAM_Q = '#data#']]>
+					</value>
+					<inputbox type="selectbox" styleproperty="style='width:100px'">
+						<option label="全部" value=""></option>
+						<option label="一季度" value="01"></option>
+						<option label="二季度" value="02"></option>
+						<option label="三季度" value="03"></option>
+						<option label="四季度" value="04"></option>
+					</inputbox>
+				</condition>
+				<condition name="ORG_ID0" labelposition="left" label="用户机构" hidden="true" source="session{org_id}">
+					<value>
+					<![CDATA[(vl.BRANCH_ORG_ID='#data#' or ou.HEAD_ORG_ID='#data#' )]]>
+					</value>
+				</condition>
+				<condition name="ORG_ID1" labelposition="left" label="分行" >
+					<value>
+					<![CDATA[vl.BRANCH_ORG_ID='#data#']]>
+					</value>
+					<inputbox type="selectbox" styleproperty="style='width:150px'" depends="ORG_ID0">
+						<option label="全部" value=""></option>
+						<option
+							source="@{SELECT DISTINCT BRANCH_ORG_ID , CASE WHEN ORG_LEVEL_ID='2' THEN BRANCH_ORG_NM ELSE BRANCH_ORG_NM||'机关' END AS BRANCH_ORG_NM FROM IBS.T5_ORG 
+							WHERE ORG_TYPE_ID='EO' AND ORG_LEVEL_ID IN ('2','3') and (ORG_ID='#ORG_ID0#' or HEAD_ORG_ID='#ORG_ID0#')  ORDER BY BRANCH_ORG_ID}"
+							label="BRANCH_ORG_NM" value="BRANCH_ORG_ID" />
+					</inputbox>
+				</condition>
+			</select>
+			</sql>
+			<format>
+		<imports>
+			<import>com.customer.util.*</import>
+			<import>java.util.*</import>
+			<import>java.text.*</import>
+			<import>com.wabacus.system.*</import>
+		</imports>
+		<value>
+			<![CDATA[
+				if(EXAM_Q.equals("01")) EXAM_Q="一季度";
+				if(EXAM_Q.equals("02")) EXAM_Q="二季度";
+				if(EXAM_Q.equals("03")) EXAM_Q="三季度";
+				if(EXAM_Q.equals("04")) EXAM_Q="四季度";
+				
+			]]>
+		</value>
+		</format>
+		</report>
+	</vpanel>
+</page>
+</applications>

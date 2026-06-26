@@ -1,0 +1,709 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<applications xmlns="http://www.wabacus.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.wabacus.com ../xsd/wabacus.applications.xsd">
+<!-- 分行部门有权人 员工存量维护薪酬 -->
+<page id="emp_exsXz_mod" js="/webresources/script/validate.js,/js/demo.js,/js/common.js">
+	<interceptor>
+		<imports>
+			<import>com.ljbank.market.Util</import>
+		</imports>
+		<preaction>
+	<![CDATA[
+	]]>
+</preaction>
+	</interceptor>
+
+	<header>${top.header}</header>
+
+	<vpanel id="common_vpanel" width="1200px" align="center" title="">
+		<report id="title" extends="title.report1" width="1200px"></report>
+		<report id="select" type="listform" title="员工存量维护薪酬" width="1200px" pagesize="15|20|-1" dataexport="richexcel" 
+		servervalidateclass="com.ljbank.market.Util; "
+			top="10px" personalizeclass="default" rowselect="single" interceptor="com.customer.interceptor.InterceptorEmpExsXzMod">
+			<buttons align="right">
+				<button name="subButn" position="title" positionorder="2" label="提交 " 
+					confirmessage="提交前请先保存，提交后数据将不能修改，是否确认提交?" extends="${wabacus.button.default}">
+					invokeServerActionForReportData('emp_exsXz_mod','select','com.customer.interceptor.EmpExsXzSubmitServerCallBack',null,null,true,null,null);
+				</button>
+			</buttons>
+			
+			<display>
+				<!--  <col column="{col-rowselect}" label="选择" width="50px" />-->
+				<col column="{sequence:1}" label="序号" width="40px"></col>
+				<col column="EXAM_YEAR" label="考核年度" width="70px"></col>
+				<col column="QTD_NM" label="季度" width="100px"></col>
+				<col column="BRANCH_ORG_ID" label="分行机构号"  displaytype="hidden"></col>
+				<col column="BRANCH_ORG_NM" label="分行" ></col>
+				<col column="ORG_ID" label="机构号" displaytype="hidden"></col>
+				<col column="ORG_NM" label="支行" ></col>
+				<!-- 
+				<col column="PSTN_TYPE" label="主考核类别" displaytype="hidden"></col>
+				<col column="PSTN_TYPE_NM" label="主考核类别名称" ></col>
+				<col column="SUB_PSTN_TYPE" label="子考核类别" displaytype="hidden"></col>
+				<col column="SUB_PSTN_TYPE_NM" label="子考核类别名称"></col>
+				 -->
+				<col column="EMP_ID" label="工号" width="100px" valuestyleproperty="style='mso-number-format:\@'"></col>
+				<col column="EMP_NM" label="姓名" width="90px"></col>
+				<col column="EMP_TYPE" label="岗位状态" width="110px"></col>
+				<col column="EXS_XZ" label="实发存量维护薪酬" width="120px" clickorderby="true" datatype="double{#,##0.00}">
+					<inputbox styleproperty="style='width:90%'" 
+							jsvalidate="isNotEmpty(#label# 不允许为空);">
+					</inputbox>
+				</col>
+				
+				<col column="STUS" label="状态" clickorderby="true"></col>
+				<col column="MEASURE_DT" label="日期" displaytype="hidden"></col>
+			</display>
+			<subdisplay>
+				<statitems>
+					<statitem property="item1" value="sum(EXS_XZ)" datatype="float" statiscope="page|report"/>
+				</statitems>
+				<subrow>
+					<subcol property="sprop1" colspan="8"
+						valuestyleproperty="bgcolor='#CCFAFF' align='center'" />
+					<subcol property="sprop2" colspan="1"
+						valuestyleproperty="bgcolor='#CCFAFF' align='left'" />
+					<subcol property="sprop3" colspan="1"
+						valuestyleproperty="bgcolor='#CCFAFF' align='center'" />
+					</subrow>
+				<format>
+					<value>
+					<![CDATA[
+						sprop1="合计";
+						sprop2=String.valueOf(item1);
+						sprop3="";
+					]]>
+					</value>
+				</format>
+			</subdisplay>
+			<sql>
+				<select>
+					<value><![CDATA[
+							select 
+							 xz.MEASURE_DT
+							,xz.EXAM_YEAR
+							,xz.EXAM_Q
+							,xz.EMP_TYPE
+							,xz.EMP_ID
+							,xz.EMP_NM
+							,xz.ORG_ID
+							,xz.ORG_NM
+							,xz.BRANCH_ORG_ID
+							,xz.BRANCH_ORG_NM
+							,xz.BZJX
+							,xz.HEAD_ORG_ID
+							,xz.HEAD_ORG_NM
+							,xz.PSTN_TYPE
+							,xz.PSTN_TYPE_NM
+							,xz.SUB_PSTN_TYPE
+							,xz.SUB_PSTN_TYPE_NM
+							,xz.EXS_XZ
+							,xz.MODIFY_PEOPLE
+							,xz.MODIFY_TIME
+							,xz.MODIFY_IP
+							,xz.VERIFY_PEOPLE
+							,xz.VERIFY_TIME
+							,xz.VERIFY_IP
+							,xz.VERIFY_REMARK
+							,xz.STUS
+							,q.QTD_NM
+						from IBS.T5_EMP_BZJX xz
+						left join ibs.T9_YEAR_Q q on q.QTD=xz.EXAM_Q
+						where xz.PSTN_TYPE='04'
+						and xz.EMP_TYPE<>'过渡期'
+						and {#condition#}
+						order by xz.MEASURE_DT desc,xz.BRANCH_ORG_ID,xz.ORG_ID,xz.EMP_ID 						       
+					]]>
+					</value>
+					<condition name="ORG_ID0" labelposition="left" label="用户机构" source="session{org_id}" hidden="true">
+						<value>
+						<![CDATA[(xz.ORG_ID='#data#' or xz.BRANCH_ORG_ID='#data#')]]>
+						</value>
+					</condition>
+					<condition name="EXAM_YEAR" label="考核年度" labelposition="left" defaultvalue="session{exam_year}">
+						<value> 
+							<![CDATA[xz.EXAM_YEAR = '#data#']]>
+						</value>
+						   <inputbox type="datepicker" styleproperty="style='width:100px'" dateformat="yyyy" jsvalidate="isNotEmpty(#label# 不允许为空);" ></inputbox>
+					</condition>
+					<condition name="EXAM_Q" label="考核季度"
+						labelposition="left">
+						<value> 
+ 									<![CDATA[xz.EXAM_Q = '#data#']]>
+						</value>
+						<inputbox type="selectbox" styleproperty="style='width:120px'">
+							<option label="全部" value=""></option>
+							<option label="一季度" value="01"></option>
+							<option label="二季度" value="02"></option>
+							<option label="三季度" value="03"></option>
+							<option label="四季度" value="04"></option>
+						</inputbox>
+					</condition>
+					<condition name="ORG_ID1" labelposition="left" label="分行">
+						<value>
+						<![CDATA[xz.BRANCH_ORG_ID='#data#']]>
+						</value>
+						<inputbox type="selectbox" styleproperty="style='width:150px'" depends="ORG_ID0">
+							<option label="全部" value=""></option>
+							<option
+								source="@{SELECT DISTINCT BRANCH_ORG_ID , CASE WHEN ORG_LEVEL_ID='2' THEN BRANCH_ORG_NM ELSE BRANCH_ORG_NM||'机关' END AS BRANCH_ORG_NM 
+								FROM IBS.T5_ORG 
+								WHERE ORG_TYPE_ID='EO' AND ORG_LEVEL_ID IN ('2','3') and (ORG_ID='#ORG_ID0#' or HEAD_ORG_ID='#ORG_ID0#')  
+								ORDER BY BRANCH_ORG_ID}"
+								label="BRANCH_ORG_NM" value="BRANCH_ORG_ID" />
+						</inputbox>
+					</condition>
+					<condition name="ORG_ID2" labelposition="left" label="支行">
+					<value>
+					<![CDATA[xz.ORG_ID='#data#']]>
+					</value>
+					<inputbox type="selectbox" depends="ORG_ID1"
+						styleproperty="style='width:140px'">
+						<option label="全部" value=""></option>
+						<option label="无" value="" type="false"></option>
+						<option
+							source="@{SELECT DISTINCT ORG_ID, ORG_NM FROM IBS.T5_ORG WHERE BRANCH_ORG_ID='#ORG_ID1#' and ORG_TYPE_ID='EO' AND ORG_LEVEL_ID IN ('1','2') ORDER BY ORG_ID}"
+							label="ORG_NM" value="ORG_ID" />
+					</inputbox>
+				</condition>
+				</select>
+				<update >
+					<params>
+						<param name="user_id" value="session{user_id}"></param>
+						<param name="current_time" value="now{}"
+							datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
+						<param name="ip" value="session{ip}"></param>
+
+					</params>
+					<value>
+						<![CDATA[
+						
+							UPDATE IBS.T5_EMP_BZJX
+							SET	
+								EXS_XZ=@{EXS_XZ}
+						       ,MODIFY_PEOPLE=#{user_id}
+						       ,MODIFY_TIME=#{current_time}
+						       ,MODIFY_IP=#{ip}
+						       ,STUS='0'
+							WHERE MEASURE_DT=@{MEASURE_DT__old}
+							AND EMP_ID=@{EMP_ID__old}
+							and STUS in ('0','2')
+							and EMP_TYPE='E'
+							and PSTN_TYPE='04'
+							;
+						]]>
+					</value>
+				</update>
+			</sql>
+			<format>
+				<value>
+				<![CDATA[
+					if(STUS.equals("0")) STUS="已保存";
+					if(STUS.equals("1")) STUS="已提交分行有权人";
+					if(STUS.equals("2")) STUS="分行有权人审核不通过";
+					if(STUS.equals("3")) STUS="分行有权人审核审核通过";
+				]]>
+			</value>
+			</format>
+		</report>
+	</vpanel>
+</page>
+
+<!-- *********************************************************************************************** -->
+
+<!-- 分行有权人 过渡期名单 审核 -->
+<page id="emp_exsXz_ver" js="/webresources/script/validate.js,/js/demo.js,/js/common.js">
+	<interceptor>
+		<imports>
+			<import>com.ljbank.market.Util</import>
+		</imports>
+		<preaction>
+	<![CDATA[
+	Util u=new Util();
+	String ip=u.getRemoteIP(rrequest);
+	rrequest.getRequest().setAttribute("reqKey2", ip);
+	]]>
+</preaction>
+	</interceptor>
+
+	<header>${top.header}</header>
+
+	<vpanel id="common_vpanel" width="1200px" align="center" title="">
+		<report id="title" extends="title.report1" width="1200px"></report>
+		<report id="select" type="listform" title="员工存量维护薪酬" width="1200px" pagesize="15|20|-1" rowselect="multiple-checkbox" dataexport="richexcel"
+			top="10px" personalizeclass="default" servervalidateclass="com.ljbank.market.Util" interceptor="com.customer.interceptor.InterceptorEmpExsXzVer">
+
+			<display>
+				<col column="{col-rowselect}" label="选择" width="50px" />
+				<col column="{sequence:1}" label="序号" width="40px"></col>
+				<col column="EXAM_YEAR" label="考核年度" width="70px"></col>
+				<col column="QTD_NM" label="季度" width="100px"></col>
+				<col column="BRANCH_ORG_ID" label="分行机构号"  displaytype="hidden"></col>
+				<col column="BRANCH_ORG_NM" label="分行机构名" ></col>
+				<col column="ORG_ID" label="机构号" displaytype="hidden"></col>
+				<col column="ORG_NM" label="机构名" ></col>
+				<col column="PSTN_TYPE" label="主考核类别" displaytype="hidden"></col>
+				<col column="PSTN_TYPE_NM" label="主考核类别名称" ></col>
+				<col column="SUB_PSTN_TYPE" label="子考核类别" displaytype="hidden"></col>
+				<col column="SUB_PSTN_TYPE_NM" label="子考核类别名称"></col>
+				<col column="EMP_ID" label="员工号" width="100px" ></col>
+				<col column="EMP_NM" label="员工姓名" width="90px"></col>
+				<col column="EXS_XZ" label="存量维护薪酬" width="120px" clickorderby="true" datatype="double{#,##0.00}">
+					<inputbox styleproperty="style='width:90%'" 
+							jsvalidate="isNotEmpty(#label# 不允许为空);">
+					</inputbox>
+				</col>
+				
+				<col column="STUS" label="状态" ></col>
+				<col column="MEASURE_DT" label="日期" displaytype="hidden"></col>
+				<col property="sh_zt_btn" column="{non-fromdb}" label="审核" width="150px"/>
+				<col column="EXAM_Q" label="季度" displaytype="hidden"></col>
+			</display>
+			<sql>
+				<select>
+					<value><![CDATA[
+							select 
+							 xz.MEASURE_DT
+							,xz.EXAM_YEAR
+							,xz.EXAM_Q
+							,xz.EMP_TYPE
+							,xz.EMP_ID
+							,xz.EMP_NM
+							,xz.ORG_ID
+							,xz.ORG_NM
+							,xz.BRANCH_ORG_ID
+							,xz.BRANCH_ORG_NM
+							,xz.BZJX
+							,xz.HEAD_ORG_ID
+							,xz.HEAD_ORG_NM
+							,xz.PSTN_TYPE
+							,xz.PSTN_TYPE_NM
+							,xz.SUB_PSTN_TYPE
+							,xz.SUB_PSTN_TYPE_NM
+							,xz.EXS_XZ
+							,xz.MODIFY_PEOPLE
+							,xz.MODIFY_TIME
+							,xz.MODIFY_IP
+							,xz.VERIFY_PEOPLE
+							,xz.VERIFY_TIME
+							,xz.VERIFY_IP
+							,xz.VERIFY_REMARK
+							,xz.STUS
+							,q.QTD_NM
+						from IBS.T5_EMP_BZJX xz
+						left join ibs.T9_YEAR_Q q on q.QTD=xz.EXAM_Q
+						where xz.PSTN_TYPE='04'
+						and STUS in ('1','3')
+						
+						and {#condition#}
+						order by xz.MEASURE_DT desc,xz.BRANCH_ORG_ID,xz.ORG_ID,xz.EMP_ID
+					]]>
+					</value>
+					<condition name="ORG_ID0" labelposition="left" label="用户机构" source="session{org_id}" hidden="true">
+						<value>
+						<![CDATA[(xz.ORG_ID='#data#' or xz.BRANCH_ORG_ID='#data#')]]>
+						</value>
+					</condition>
+					<condition name="EXAM_YEAR" label="考核年度" labelposition="left" defaultvalue="session{exam_year}">
+						<value> 
+							<![CDATA[xz.EXAM_YEAR = '#data#']]>
+						</value>
+						   <inputbox type="datepicker" styleproperty="style='width:100px'" dateformat="yyyy" jsvalidate="isNotEmpty(#label# 不允许为空);" ></inputbox>
+					</condition>
+					<condition name="EXAM_Q" label="考核季度"
+						labelposition="left">
+						<value> 
+ 							<![CDATA[xz.EXAM_Q = '#data#']]>
+						</value>
+						<inputbox type="selectbox" styleproperty="style='width:120px'">
+							<option label="全部" value=""></option>
+							<option label="一季度" value="01"></option>
+							<option label="二季度" value="02"></option>
+							<option label="三季度" value="03"></option>
+							<option label="四季度" value="04"></option>
+						</inputbox>
+					</condition>
+					<condition name="ORG_ID1" labelposition="left" label="分行">
+						<value>
+						<![CDATA[xz.BRANCH_ORG_ID='#data#']]>
+						</value>
+						<inputbox type="selectbox" styleproperty="style='width:150px'" depends="ORG_ID0">
+							<option label="全部" value=""></option>
+							<option
+								source="@{SELECT DISTINCT BRANCH_ORG_ID , CASE WHEN ORG_LEVEL_ID='2' THEN BRANCH_ORG_NM ELSE BRANCH_ORG_NM||'机关' END AS BRANCH_ORG_NM 
+								FROM IBS.T5_ORG 
+								WHERE ORG_TYPE_ID='EO' AND ORG_LEVEL_ID IN ('2','3') and (ORG_ID='#ORG_ID0#' or HEAD_ORG_ID='#ORG_ID0#')  
+								ORDER BY BRANCH_ORG_ID}"
+								label="BRANCH_ORG_NM" value="BRANCH_ORG_ID" />
+						</inputbox>
+					</condition>
+					<condition name="ORG_ID2" labelposition="left" label="支行">
+						<value>
+							<![CDATA[xz.ORG_ID='#data#']]>
+						</value>
+						<inputbox type="selectbox" depends="ORG_ID1"
+							styleproperty="style='width:140px'">
+							<option label="全部" value=""></option>
+							<option label="无" value="" type="false"></option>
+							<option
+								source="@{SELECT DISTINCT ORG_ID, ORG_NM FROM IBS.T5_ORG WHERE BRANCH_ORG_ID='#ORG_ID1#' and ORG_TYPE_ID='EO' AND ORG_LEVEL_ID IN ('1','2') ORDER BY ORG_ID}"
+								label="ORG_NM" value="ORG_ID" />
+						</inputbox>
+					</condition>
+				</select>
+				
+			</sql>
+			<buttons >
+		<button name="button1" position="other" autoreportdata="false"
+						positionorder="2" class="com.wabacus.system.buttons.ServerSQLActionButton"
+						successprompt="提交成功" failedprompt="提交失败">
+			<params>
+				<param name="user_id" value="session{user_id}"></param>
+				<param name="current_time" value="now{}" datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
+				<param name="userIp" value="session{ip}"></param>
+			</params>
+
+			<value datasource="ds_db2">
+				<![CDATA[
+					UPDATE IBS.T5_EMP_BZJX
+					SET STUS='3'
+						, VERIFY_TIME=#{current_time}
+						, VERIFY_PEOPLE=#{user_id} 
+						, VERIFY_IP= #{userIp}   
+						, VERIFY_REMARK='审批通过'                        					
+					WHERE EXAM_YEAR=@{param_year}
+					AND EXAM_Q=@{param_examQ}
+					AND EMP_ID=@{param_empId}
+					AND STUS='1'
+					
+					and PSTN_TYPE='04'
+					;
+				]]>
+			</value>
+		</button>
+		<button name="sub" position="title" positionorder="2" label="选中通过" extends="${wabacus.button2.default}"
+			confirmessage="提交后数据将不能修改，是否确认提交?">
+			invokeServerActionForReportData('emp_exsXz_ver','select','com.customer.interceptor.EmpExsXzVerPassServerCallBack',{name:'SELECTEDROW',value:true},null,true,null,null);
+		</button>
+		</buttons>
+		<format>
+			<imports>
+				<import>com.customer.util.*</import>
+				<import>java.util.*</import>
+				<import>java.text.*</import>
+				<import>com.wabacus.system.*</import>
+			</imports>
+			<value>
+			<![CDATA[
+				
+				
+				String btnsh_ztCls="cls-button2";
+				String btnUnsh_ztCls="cls-button2";
+				
+				String btnsh_ztEvent="if(confirm('提交后数据将不能修改，是否确认提交?')){invokeComponentSqlActionButton('emp_exsXz_ver','select','button1',{param_year:'"+EXAM_YEAR+"',param_examQ:'"+EXAM_Q+"',param_empId:'"+EMP_ID+"'},true,refreshPage)}";
+				String btnUnsh_ztEvent="wx_winpage('ShowReport.wx?PAGEID=emp_exsXz_verNo&EXAM_YEAR="+EXAM_YEAR+"&EXAM_Q="+EXAM_Q+"&EMP_ID="+EMP_ID+"',{width:550,height:350});art.dialog.close();";
+			
+				
+				
+				if(STUS.equals("3")){
+					sh_zt_btn="";
+				}else{
+					sh_zt_btn="<input type=\"button\" class=\""+btnsh_ztCls+"\" value=\"通过\" onclick=\""+btnsh_ztEvent+"\">";
+					sh_zt_btn=sh_zt_btn+"<input type=\"button\" class=\""+btnUnsh_ztCls+"\" value=\"不通过\"   onclick=\""+btnUnsh_ztEvent+"\">";
+				}
+				
+				if(STUS.equals("0")) STUS="保存";
+				if(STUS.equals("1")) STUS="等待审核";
+				if(STUS.equals("2")) STUS="审核不通过";
+				if(STUS.equals("3")) STUS="审核通过";
+				
+			]]>
+			</value>
+		</format>
+		<footer>
+			<![CDATA[
+			<div style='float:left'>
+				<font color='red'>*审核不通过需逐条处理，且要输入不通过理由。</font>
+			</div>]]>
+		</footer>
+		</report>
+	</vpanel>
+</page>
+<!-- 审核不通过弹窗页面 -->
+<page id="emp_exsXz_verNo" js="/webresources/script/validate.js,/js/demo.js,/js/common.js">
+
+<interceptor>
+	<imports>
+		<import>com.customer.util.*</import>
+		<import>java.util.*</import>
+			<import>java.text.*</import>
+			<import>com.wabacus.system.*</import>
+	</imports>
+	<preaction>
+	<![CDATA[
+	]]>
+	</preaction>
+</interceptor>
+
+<vpanel id="common_vpanel" align="center" width="300px">
+<report id="report" title="" type="form" >
+<display valuetdwidth="300px" labeltdwidth="200px" labelbgcolor="#f0f0f0" labelalign="right" valuealign="left">
+
+	<col column="EXAM_YEAR" label="考核年度" width="70px" br="true"></col>
+	<col column="EXAM_Q" label="季度" width="100px" displaytype="hidden"></col>
+	<col column="QTD_NM" label="季度" width="100px" br="true"></col>
+	<col column="ORG_ID" label="机构号" displaytype="hidden"></col>
+	<col column="ORG_NM" label="机构名" br="true"></col>
+	<col column="EMP_ID" label="员工号" width="100px" br="true"></col>
+	<col column="EMP_NM" label="员工姓名" width="90px" br="true"></col>
+	<col column="EXS_XZ" label="存量维护薪酬" br="true" ></col>
+	<col column="VERIFY_REMARK" label="备注(不通过理由)" datatype="varchar" align="left" br="true">
+		<inputbox type="textareabox" jsvalidate="isNotEmpty(审核不通过的理由为必输项)"
+			styleproperty="style='width:99%,rows='6''"></inputbox>
+	</col>
+</display>
+
+<sql aftersave="saveUpdate" datasource="ds_db2">
+	<select>
+		<value>
+		<![CDATA[
+			select 
+				 xz.MEASURE_DT
+				,xz.EXAM_YEAR
+				,xz.EXAM_Q
+				,xz.EMP_TYPE
+				,xz.EMP_ID
+				,xz.EMP_NM
+				,xz.ORG_ID
+				,xz.ORG_NM
+				,xz.BRANCH_ORG_ID
+				,xz.BRANCH_ORG_NM
+				,xz.BZJX
+				,xz.HEAD_ORG_ID
+				,xz.HEAD_ORG_NM
+				,xz.PSTN_TYPE
+				,xz.PSTN_TYPE_NM
+				,xz.SUB_PSTN_TYPE
+				,xz.SUB_PSTN_TYPE_NM
+				,xz.EXS_XZ
+				,xz.MODIFY_PEOPLE
+				,xz.MODIFY_TIME
+				,xz.MODIFY_IP
+				,xz.VERIFY_PEOPLE
+				,xz.VERIFY_TIME
+				,xz.VERIFY_IP
+				,xz.VERIFY_REMARK
+				,xz.STUS
+				,q.QTD_NM
+			from IBS.T5_EMP_BZJX xz
+			left join ibs.T9_YEAR_Q q on q.QTD=xz.EXAM_Q
+			where xz.PSTN_TYPE='04'
+			and STUS in ('1','3')
+			
+			and {#condition#}
+		 ]]>
+		</value>
+		<condition name="EXAM_YEAR" hidden="true" >
+			<value><![CDATA[xz.EXAM_YEAR='#data#']]></value>
+		</condition>
+		<condition name="EXAM_Q" hidden="true">
+			<value><![CDATA[xz.EXAM_Q='#data#']]></value>
+		</condition>
+		<condition name="EMP_ID" hidden="true">
+			<value><![CDATA[xz.EMP_ID='#data#']]></value>
+		</condition>
+	</select>
+	<update crosspage="true">
+		<params>
+			<param name="user_id" value="session{user_id}"></param>
+			<param name="current_time" value="now{}" datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
+			<param name="ip" value="session{ip}"></param>
+		</params>
+			<![CDATA[
+			UPDATE IBS.T5_EMP_BZJX
+			SET STUS='2'
+				, VERIFY_TIME=#{current_time}
+				, VERIFY_PEOPLE=#{user_id} 
+				, VERIFY_IP= #{ip}   
+				, VERIFY_REMARK=@{VERIFY_REMARK}                        					
+			WHERE EXAM_YEAR=@{EXAM_YEAR__old}
+			AND EXAM_Q=@{EXAM_Q__old}
+			AND EMP_ID=@{EMP_ID__old}
+			AND STUS='1'
+			
+			and PSTN_TYPE='04'
+			]]>
+	</update>
+</sql>
+<buttons>
+	<button name="button2" label="提交" position="title"
+		refreshpage="true" aftercallbackmethod="refreshPage"
+		confirmessage="提交后数据将不能修改，是否确认提交?" successprompt="提交成功"
+		failedprompt="提交失败" positionorder="2" extends="${save.button.default}">
+
+		saveEditableReportData({pageid:'emp_exsXz_verNo',savingReportIds:[{reportid:'report',updatetype:'save',}]});
+
+	</button>
+</buttons>
+</report>
+</vpanel>
+</page>
+
+<!--  ********************************************************************************************************* -->
+<!--  员工存量维护薪酬 查询 -->
+<page id="emp_exsXz_query" js="/webresources/script/validate.js,/js/demo.js,/js/common.js">
+	<interceptor>
+		<imports>
+			<import>com.ljbank.market.Util</import>
+		</imports>
+		<preaction>
+	<![CDATA[
+	Util u=new Util();
+	String ip=u.getRemoteIP(rrequest);
+	rrequest.getRequest().setAttribute("reqKey2", ip);
+	]]>
+</preaction>
+	</interceptor>
+
+	<header>${top.header}</header>
+
+	<vpanel id="common_vpanel" width="1200px" align="center" title="">
+		<report id="title" extends="title.report1" width="1200px"></report>
+		<report id="select" type="listform" title="员工存量维护薪酬" width="1200px" pagesize="15|20|-1" rowselect="single" dataexport="richexcel"
+			top="10px" personalizeclass="default" servervalidateclass="com.ljbank.market.Util" interceptor="com.customer.interceptor.InterceptorEmpGdqVer">
+
+			<display>
+				<col column="{sequence:1}" label="序号" width="40px"></col>
+				<col column="EXAM_YEAR" label="考核年度" width="70px"></col>
+				<col column="QTD_NM" label="季度" width="100px"></col>
+				<col column="BRANCH_ORG_ID" label="分行机构号"  displaytype="hidden"></col>
+				<col column="BRANCH_ORG_NM" label="分行机构名" ></col>
+				<col column="ORG_ID" label="机构号" displaytype="hidden"></col>
+				<col column="ORG_NM" label="机构名" ></col>
+				<col column="PSTN_TYPE" label="主考核类别" displaytype="hidden"></col>
+				<col column="PSTN_TYPE_NM" label="主考核类别名称" ></col>
+				<col column="SUB_PSTN_TYPE" label="子考核类别" displaytype="hidden"></col>
+				<col column="SUB_PSTN_TYPE_NM" label="子考核类别名称"></col>
+				<col column="EMP_ID" label="员工号" width="100px" ></col>
+				<col column="EMP_NM" label="员工姓名" width="90px"></col>
+				<col column="EXS_XZ" label="存量维护薪酬" width="120px" datatype="double{#,##0.00}" clickorderby="true"></col>
+				<col column="STUS" label="状态" ></col>
+			</display>
+			<sql>
+				<select>
+					<value><![CDATA[
+							select 
+							 xz.MEASURE_DT
+							,xz.EXAM_YEAR
+							,xz.EXAM_Q
+							,xz.EMP_TYPE
+							,xz.EMP_ID
+							,xz.EMP_NM
+							,xz.ORG_ID
+							,xz.ORG_NM
+							,xz.BRANCH_ORG_ID
+							,xz.BRANCH_ORG_NM
+							,xz.BZJX
+							,xz.HEAD_ORG_ID
+							,xz.HEAD_ORG_NM
+							,xz.PSTN_TYPE
+							,xz.PSTN_TYPE_NM
+							,xz.SUB_PSTN_TYPE
+							,xz.SUB_PSTN_TYPE_NM
+							,xz.EXS_XZ
+							,xz.MODIFY_PEOPLE
+							,xz.MODIFY_TIME
+							,xz.MODIFY_IP
+							,xz.VERIFY_PEOPLE
+							,xz.VERIFY_TIME
+							,xz.VERIFY_IP
+							,xz.VERIFY_REMARK
+							,xz.STUS
+							,q.QTD_NM
+							,ou.HEAD_ORG_ID
+						from IBS.T5_EMP_BZJX xz
+						inner join ibs.T5_ORG ou on ou.ORG_TYPE_ID='EO' and ou.ORG_ID=xz.ORG_ID
+						inner join ibs.T9_YEAR_Q q on q.QTD=xz.EXAM_Q
+						where xz.PSTN_TYPE='04'
+						and STUS in ('3')
+						and {#condition#}							       
+					]]>
+					</value>
+					<condition name="ORG_ID0" labelposition="left" label="用户机构" source="session{org_id}" hidden="true">
+						<value>
+						<![CDATA[(xz.ORG_ID='#data#' or xz.BRANCH_ORG_ID='#data#' or ou.HEAD_ORG_ID='#data#' )]]>
+						</value>
+					</condition>
+					<condition name="EXAM_YEAR" label="考核年度" labelposition="left" defaultvalue="session{exam_year}">
+						<value> 
+							<![CDATA[xz.EXAM_YEAR = '#data#']]>
+						</value>
+						   <inputbox type="datepicker" styleproperty="style='width:100px'" dateformat="yyyy" jsvalidate="isNotEmpty(#label# 不允许为空);" ></inputbox>
+					</condition>
+					<condition name="EXAM_Q" label="考核季度"
+						labelposition="left">
+						<value> 
+ 							<![CDATA[xz.EXAM_Q = '#data#']]>
+						</value>
+						<inputbox type="selectbox" styleproperty="style='width:120px'">
+							<option label="全部" value=""></option>
+							<option label="一季度" value="01"></option>
+							<option label="二季度" value="02"></option>
+							<option label="三季度" value="03"></option>
+							<option label="四季度" value="04"></option>
+						</inputbox>
+					</condition>
+					<condition name="ORG_ID1" labelposition="left" label="分行">
+						<value>
+						<![CDATA[xz.BRANCH_ORG_ID='#data#']]>
+						</value>
+						<inputbox type="selectbox" styleproperty="style='width:150px'" depends="ORG_ID0">
+							<option label="全部" value=""></option>
+							<option
+								source="@{SELECT DISTINCT BRANCH_ORG_ID , CASE WHEN ORG_LEVEL_ID='2' THEN BRANCH_ORG_NM ELSE BRANCH_ORG_NM||'机关' END AS BRANCH_ORG_NM 
+								FROM IBS.T5_ORG 
+								WHERE ORG_TYPE_ID='EO' AND ORG_LEVEL_ID IN ('2','3') and (ORG_ID='#ORG_ID0#' or HEAD_ORG_ID='#ORG_ID0#')  
+								ORDER BY BRANCH_ORG_ID}"
+								label="BRANCH_ORG_NM" value="BRANCH_ORG_ID" />
+						</inputbox>
+					</condition>
+					<condition name="ORG_ID2" labelposition="left" label="支行">
+						<value>
+							<![CDATA[xz.ORG_ID='#data#']]>
+						</value>
+						<inputbox type="selectbox" depends="ORG_ID1"
+							styleproperty="style='width:140px'">
+							<option label="全部" value=""></option>
+							<option label="无" value="" type="false"></option>
+							<option
+								source="@{SELECT DISTINCT ORG_ID, ORG_NM FROM IBS.T5_ORG WHERE BRANCH_ORG_ID='#ORG_ID1#' and ORG_TYPE_ID='EO' AND ORG_LEVEL_ID IN ('1','2') ORDER BY ORG_ID}"
+								label="ORG_NM" value="ORG_ID" />
+						</inputbox>
+					</condition>
+				</select>
+			</sql>
+		<format>
+			<imports>
+				<import>com.customer.util.*</import>
+				<import>java.util.*</import>
+				<import>java.text.*</import>
+				<import>com.wabacus.system.*</import>
+			</imports>
+			<value>
+			<![CDATA[
+				if(STUS.equals("0")) STUS="保存";
+				if(STUS.equals("1")) STUS="等待审核";
+				if(STUS.equals("2")) STUS="审核不通过";
+				if(STUS.equals("3")) STUS="审核通过";
+			]]>
+			</value>
+		</format>
+		<footer>
+			<![CDATA[
+			]]>
+		</footer>
+		</report>
+	</vpanel>
+</page>
+</applications>

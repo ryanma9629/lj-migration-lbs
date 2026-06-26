@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<applications xmlns="http://www.wabacus.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.wabacus.com ../xsd/wabacus.applications.xsd">
+	<!--系统常见问题帮助页面 -->
+	<page id="system_help" js="/webresources/script/validate.js">
+
+		<header>${top.header}</header>
+
+		<vpanel id="common_vpanel" align="center" width="1000px">
+
+			<report id="title" extends="title.report1"></report>
+			<report id="report1" title="" type="form" top="10px"
+				personalizeclass="default" pagesize="-1" width="1000px"
+				navigate="${navigatepagesizepage1.report3.navigate}" scrollheight="450px">
+
+				<display colselect="false"  valuetdwidth="900px" labeltdwidth="100px" valuealign="left">
+					<col column="ID" label="问题序号" br="true" displaytype="hidden"></col>
+					<col column="MSG_DT" label="时间" br="true" displaytype="hidden"></col>
+					<col column="MSE_STATE" label="状态" br="true" displaytype="hidden"></col>
+					<col column="MSG_PER" label="发布人" br="true" displaytype="hidden"></col>
+					<col column="QUESTION" label="问题"  br="true"></col>
+					<col column="ANSWER" label="回复" br="true"></col>
+				</display>
+				<sql datasource="ds_db2">
+					<select>
+						<value>
+							<![CDATA[
+							SELECT   ID              
+									,MSG_DT         
+									,MSE_STATE      
+									,MSG_PER        
+									,QUESTION       
+									,ANSWER         
+							FROM     IBS.T99_HELP 
+							order by MSG_DT desc
+							]]>
+						</value>
+					</select>
+
+				</sql>
+			</report>
+
+		</vpanel>
+	</page>
+
+</applications>

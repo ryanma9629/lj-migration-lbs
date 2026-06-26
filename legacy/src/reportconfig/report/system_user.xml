@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<applications xmlns="http://www.wabacus.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.wabacus.com ../xsd/wabacus.applications.xsd">
+
+	<page id="system_user" js="/webresources/script/validate.js">
+
+		<header>${top.header}</header>
+
+		<vpanel id="common_vpanel" align="center" width="1000px">
+
+			<report id="title" extends="title.report1"></report>
+			<report id="report1" title="人员列表" type="listform" top="10px"
+				personalizeclass="default" pagesize="15|20|-1" width="1000px"
+				navigate="${navigatepagesizepage1.report3.navigate}" scrollheight="450px">
+				<buttons>
+					<button name="button1"
+						class="com.wabacus.system.buttons.ServerSQLActionButton" position="other"
+						successprompt="重置成功" failedprompt="重置失败">
+					<![CDATA[
+						update cst.sys_c_sec_user(password='Due2bkAVWVY=')  where user_id=@{user_id};
+					]]>
+					</button>
+				</buttons>
+				<display colselect="false">
+					<col column="{sequence:1}" label="序号" width="50px" />
+					<col column="user_id" label="工号" width="80px"></col>
+					<col column="user_name" label="姓名" width="80px"></col>
+					<col column="is_enable" label="是否启用" width="100px" displaytype="hidden">
+					</col>
+					<col column="department" label="部门" width="100px"></col>
+					<col property="reset_password" column="{non-fromdb}" label="重置密码"
+						width="100px"></col>
+				</display>
+				<sql>
+					<select>
+						<value>
+							<![CDATA[
+							SELECT   a.USER_ID,
+							         a.USER_NAME,
+							         a.ORG_ID,
+							         a.IS_ENABLE,
+							         a.DEPARTMENT,
+							         b.PER_BRANCH_ID
+							FROM     cst.sys_c_sec_user a 
+							left join pub.personnel b 
+							on a.USER_ID=b.PER_ID							
+							where  {#condition#} 
+							and b.HR_STATUS='A'
+							order by user_id
+							]]>
+					</value>
+						<condition name="PER_BRANCH_ID" hidden="true" source="session{org_id}">
+							<value>
+							<![CDATA[(b.PER_BRANCH_ID='#data#' )]]>
+							</value>
+						</condition>
+						<condition name="txt_user_id" label="帐号">
+							<value>
+						<![CDATA[(user_id like  '%#data#%' )]]>
+							</value>
+						</condition>
+						<condition name="txt_user_name" label="姓名">
+							<value>
+						<![CDATA[(user_name like  '%#data#%' )]]>
+							</value>
+						</condition>
+					</select>
+
+				</sql>
+				<format>
+					<value>
+			   <![CDATA[
+					 	reset_password="<input type=\"button\" class=\"cls-button\" value=\"重置\" onclick=\"invokeComponentSqlActionButton('system_user','report1','button1',{user_id:'"+user_id+"'},true,testInvokeCallbackMethod1)\">";
+				  ]]>
+				</value>
+				</format>
+				<footer><![CDATA[<div style='float:left'><font color='red'size=6px'>提示:系统初始密码为“12345”</font></div>]]></footer>
+			</report>
+
+		</vpanel>
+	</page>
+
+</applications>

@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<applications xmlns="http://www.wabacus.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.wabacus.com ../xsd/wabacus.applications.xsd">
+<!-- 产品系数维护 -->
+<page id="claim_fnc_ration_p" js="/webresources/script/validate.js">
+
+<header>${top.header}</header>
+<vpanel id="common_vpanel" width="800px" align="center" title="">
+<report id="title" extends="title.report1" width="800px"></report>
+<report id="report" type="listform" pagesize="15|20|-1" width="800px"
+	personalizeclass="default" servervalidateclass="com.ljbank.market.Util" scrollwidth="800px">
+	<display>
+		<col column="{sequence:1}" label="序号" width="60px"></col>
+		<col column="BONUS_TYPE_NM" label="产品类型" >
+			<inputbox type="selectbox">
+				<option label="自营理财" value=""></option>
+				<option label="代销理财" value="" type="false"></option>
+				<option label="保险" value="" type="false"></option>
+				<option label="基金" value="" type="false"></option>
+			</inputbox>
+		</col>
+		<col column="PER_FEE_RATION" label="产品代码" >
+			<inputbox  styleproperty="style='width:100px'" ></inputbox>>
+		</col>
+		<col column="PER_FEE_RATION" label="产品系数%" >
+			<inputbox styleproperty="style='width:90%'"
+						jsvalidate="isNumeric(不是合法数字);isNotEmpty(不可以为空值)"/>
+		</col>
+		<col column="ST_DT" label="生效日期" align="center" clickorderby="true">
+			<inputbox type="datepicker" styleproperty="style='width:100px'"
+				jsvalidate="isDate(#label#格式为yyyy-MM-dd)">
+			</inputbox>
+		</col>
+		<col column="ED_DT" label="结束日期" align="center" clickorderby="true">
+			<inputbox type="datepicker" styleproperty="style='width:100px'"
+				jsvalidate="isDate(#label#格式为yyyy-MM-dd)">
+			</inputbox>
+		</col>
+		<col column="MODIFY_PEOPLE" label="维护人员" align="center" clickorderby="true">
+			<inputbox type="datepicker" styleproperty="style='width:100px'" ></inputbox>
+		</col>
+		<col column="MODIFY_TIME" label="维护时间" align="center" clickorderby="true">
+			<inputbox type="datepicker" styleproperty="style='width:100px'"></inputbox>
+		</col>
+	</display>
+
+	<sql>
+		<select>
+			<value>
+			<![CDATA[
+				SELECT   PER_FEE_RATION
+						,ST_DT
+						,ED_DT
+						,MODIFY_PEOPLE
+						,MODIFY_TIME
+				FROM    IBS.T5_YBDB_PER_FEE_RATION
+		        ORDER BY ST_DT DESC
+			]]>
+			</value>
+		</select>		
+		<insert>
+			<params>
+				<param name="user_id" value="session{user_id}"></param>
+				<param name="current_time" value="now{}"
+					datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
+				<param name="ip" value="session{ip}"></param>
+			</params>
+			<value>
+				insert into
+				IBS.T5_YBDB_PER_FEE_RATION(
+				 PER_FEE_RATION=@{PER_FEE_RATION}
+				,ST_DT=@{ST_DT}
+				,ED_DT=@{ED_DT}
+				,MODIFY_PEOPLE=#{user_id},MODIFY_TIME=#{current_time},MODIFY_IP = #{ip}
+				);
+			</value>
+		</insert>
+		 
+		<update confirmessage="保存">
+			<params>
+				<param name="ip" value="session{ip}"></param>
+				<param name="user_id" value="session{user_id}"></param>
+				<param name="current_time" value="now{}"
+					datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
+			</params>
+			<value>
+				<![CDATA[
+					update IBS.T5_YBDB_PER_FEE_RATION
+					set PER_FEE_RATION=@{PER_FEE_RATION}
+					    ,ST_DT=@{ST_DT}
+					    ,ED_DT=@{ED_DT}
+						,MODIFY_PEOPLE = #{user_id}
+						,MODIFY_TIME = #{current_time}
+						,MODIFY_IP = #{ip}
+					where PER_FEE_RATION = @{PER_FEE_RATION__old} 
+					and ST_DT = @{ST_DT__old}
+					and ED_DT = @{ED_DT__old}
+				]]>
+			</value>
+		</update>
+		<delete>
+		    delete IBS.T5_YBDB_PER_FEE_RATION
+		    where PER_FEE_RATION = @{PER_FEE_RATION__old} 
+			and ST_DT = @{ST_DT__old}
+			and ED_DT = @{ED_DT__old}
+		</delete>
+
+	</sql>
+</report>
+</vpanel>
+</page>
+
+
+</applications>

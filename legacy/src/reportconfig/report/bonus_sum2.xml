@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<applications xmlns="http://www.wabacus.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.wabacus.com ../xsd/wabacus.applications.xsd">
+	<!-- 支行 -->
+<page id="bonus_sum2" js="/webresources/script/validate.js" >
+<interceptor>
+<imports>
+<import>com.ljbank.market.Util</import>
+</imports>
+	<preaction>
+		<![CDATA[
+		Util u=new Util();
+		String ip=u.getRemoteIP(rrequest);
+		rrequest.getRequest().setAttribute("reqKey2", ip);
+		String riqi=u.getDate();
+		rrequest.getRequest().setAttribute("reqKey3", riqi);
+		]]>
+	</preaction>
+</interceptor>
+
+	<header>${top.header}</header>
+		<vpanel id="common_vpanel" width="100%" align="center" title="">
+			<report id="title" extends="title.report1" ></report>
+			<report id="reportPrice" width="100%" type="listform" personalizeclass="default" servervalidateclass="com.ljbank.market.Util"
+			dataexport="plainexcel" pagesize="15|20|-1" 
+			>
+				<interceptor>
+				<imports>
+				<import>com.wabacus.util</import>
+				<import>java.util.Date</import>
+				<import>java.text.DateFormat
+
+				</import>
+				</imports>
+				<preaction>
+					<![CDATA[
+					Date d=new Date();
+					String beginTime=rrequest.getStringAttribute("TXN_DT","");
+					String org_id=rrequest.getStringAttribute("ORG_ID1","");
+				
+					System.out.println("beginTime:"+beginTime+"org_id:"+org_id);
+					if(beginTime.equals(""))
+					{
+						rrequest.setAttribute("TXN_DT",DateFormat.getDateInstance().format(new Date(d.getTime()-1*24*60*60*1000)));
+						
+					}
+					
+					]]>
+				
+				</preaction>
+			
+			</interceptor>
+				<display >
+				<col column="MEASURE_DT" width="80px" label="统计日期"></col>
+				<col column="EMP_ID"  width="100px"  label="员工号/机构号"></col>
+				<col column="EMP_NM"  width="120px"  label="员工姓名"></col>			
+				<col column="RECOMMEND_TYPE_NM"  width="100px"  label="员工类别" ></col><!-- displaytype="hidden" -->
+				<col column="EMP_TYPE_ID"  width="100px"  label="员工类别ID" displaytype="hidden"></col>		
+				<col column="ORG_ID"	 width="10px"  label="机构号ID" displaytype="hidden"></col>	
+				<col column="ORG_NM"  width="120px"  label="机构名称" displaytype="hidden"></col><!-- displaytype="hidden" -->
+				<col column="BRANCH_ORG_ID"	label="分行号ID" displaytype="hidden"></col>	
+				<col column="BRANCH_ORG_NM"  width="120px"  label="分行名称" displaytype="hidden" ></col><!-- displaytype="hidden" -->
+				<col column="CCY_NM" displaytype="hidden" label="币种"></col>
+						<group label="月奖金" >
+				<col column="M_FNC_PROD_BONUS" clickorderby="true" label="理财"></col>	
+				<col column="M_IND_EBANK_BONUS" clickorderby="true" label="个人网银" displaytype="optional"></col>	
+				<col column="M_CORP_EBANK_BONUS" clickorderby="true" label="企业网银" displaytype="optional"></col> <!-- 渠道代码 -->	
+				<col column="M_MOBILE_BANK_BONUS" clickorderby="true" label="手机银行" displaytype="optional"></col>		
+				<col column="M_THIRD_PARTY_CUSTODY_BONUS" clickorderby="true" label="第三方存管" displaytype="optional"></col>
+				<col column="M_FUND_BONUS" clickorderby="true" label="基金" displaytype="optional"></col>	
+				<col column="M_INSURANCE_BONUS" clickorderby="true" label="保险" displaytype="optional"></col>
+				<col column="M_CREDIT_CARD_BONUS" clickorderby="true" label="信用卡"></col>														
+				<col column="SUM1"  clickorderby="true" label="合计"></col><!-- 奖励状态 -->
+				</group>
+				
+					<group label="季奖金">
+				<col column="Q_FNC_PROD_BONUS" clickorderby="true" label="理财" displaytype="optional"></col>	
+				<col column="Q_IND_EBANK_BONUS" clickorderby="true" label="个人网银" displaytype="optional"></col>	
+				<col column="Q_CORP_EBANK_BONUS" clickorderby="true" label="企业网银"  displaytype="optional"></col> <!-- 渠道代码 -->	
+				<col column="Q_MOBILE_BANK_BONUS" clickorderby="true" label="手机银行" displaytype="optional"></col>		
+				<col column="Q_THIRD_PARTY_CUSTODY_BONUS" clickorderby="true" label="第三方存管" displaytype="optional"></col>
+				<col column="Q_FUND_BONUS" clickorderby="true" label="基金" displaytype="optional"></col>	
+				<col column="Q_INSURANCE_BONUS" clickorderby="true" label="保险" displaytype="optional"></col>
+				<col column="Q_CREDIT_CARD_BONUS" clickorderby="true" label="信用卡"></col>														
+				<col column="SUM2" clickorderby="true" label="合计"></col><!-- 奖励状态 -->
+				</group>
+				
+					<group label="年奖金">
+				<col column="Y_FNC_PROD_BONUS" clickorderby="true" label="理财"></col>	
+				<col column="Y_IND_EBANK_BONUS" clickorderby="true" label="个人网银" displaytype="optional"></col>	
+				<col column="Y_CORP_EBANK_BONUS" clickorderby="true" label="企业网银" displaytype="optional"></col> <!-- 渠道代码 -->	
+				<col column="Y_MOBILE_BANK_BONUS" clickorderby="true" label="手机银行" displaytype="optional"></col>		
+				<col column="Y_THIRD_PARTY_CUSTODY_BONUS" clickorderby="true" label="第三方存管" displaytype="optional"></col>
+				<col column="Y_FUND_BONUS" clickorderby="true" label="基金" displaytype="optional"></col>	
+				<col column="Y_INSURANCE_BONUS" clickorderby="true" label="保险" displaytype="optional"></col>
+				<col column="Y_CREDIT_CARD_BONUS" clickorderby="true" label="信用卡"></col>														
+				<col column="SUM3" clickorderby="true" label="合计"></col><!-- 奖励状态 -->
+				</group>
+			</display>
+			<sql>
+					<select>
+					
+						<value><![CDATA[
+			Select A.MEASURE_DT,A.EMP_ID,A.EMP_NM,A.EMP_TYPE_ID,B.RECOMMEND_TYPE_NM,
+ A.CCY_ID,C.NM AS CCY_NM ,A.ORG_ID,D.ORG_NM AS ORG_NM,A.BRANCH_ORG_ID
+,E.BRANCH_ORG_NM AS BRANCH_ORG_NM
+
+,COALESCE(M_FNC_PROD_BONUS, 0) AS M_FNC_PROD_BONUS
+,COALESCE(M_IND_EBANK_BONUS, 0) AS M_IND_EBANK_BONUS
+,COALESCE(M_CORP_EBANK_BONUS, 0) AS M_CORP_EBANK_BONUS
+,COALESCE(M_MOBILE_BANK_BONUS, 0)  AS M_MOBILE_BANK_BONUS
+,COALESCE(M_THIRD_PARTY_CUSTODY_BONUS, 0) AS M_THIRD_PARTY_CUSTODY_BONUS
+,COALESCE(M_FUND_BONUS, 0) AS M_FUND_BONUS
+,COALESCE(M_INSURANCE_BONUS, 0) AS M_INSURANCE_BONUS
+,COALESCE(M_CREDIT_CARD_BONUS, 0) AS M_CREDIT_CARD_BONUS
+,COALESCE(M_FNC_PROD_BONUS, 0) +COALESCE(M_IND_EBANK_BONUS, 0) +COALESCE(M_CORP_EBANK_BONUS, 0) +COALESCE(M_MOBILE_BANK_BONUS, 0) + COALESCE(M_THIRD_PARTY_CUSTODY_BONUS, 0) + COALESCE(M_FUND_BONUS, 0) + COALESCE(M_INSURANCE_BONUS, 0) + COALESCE(M_CREDIT_CARD_BONUS, 0)  AS SUM1
+,COALESCE(Q_FNC_PROD_BONUS, 0) AS Q_FNC_PROD_BONUS
+,COALESCE(Q_IND_EBANK_BONUS, 0) AS Q_IND_EBANK_BONUS
+,COALESCE(Q_CORP_EBANK_BONUS, 0) AS Q_CORP_EBANK_BONUS
+,COALESCE(Q_MOBILE_BANK_BONUS, 0)  AS Q_MOBILE_BANK_BONUS
+,COALESCE(Q_THIRD_PARTY_CUSTODY_BONUS, 0)  AS Q_THIRD_PARTY_CUSTODY_BONUS
+,COALESCE(Q_FUND_BONUS, 0) AS Q_FUND_BONUS
+,COALESCE(Q_INSURANCE_BONUS, 0) AS Q_INSURANCE_BONUS
+,COALESCE(Q_CREDIT_CARD_BONUS, 0) AS Q_CREDIT_CARD_BONUS
+,COALESCE(Q_FNC_PROD_BONUS, 0) +COALESCE(Q_IND_EBANK_BONUS, 0) +COALESCE(Q_CORP_EBANK_BONUS, 0) +COALESCE(Q_MOBILE_BANK_BONUS, 0) +COALESCE(Q_THIRD_PARTY_CUSTODY_BONUS, 0) +COALESCE(Q_FUND_BONUS, 0) +COALESCE(Q_INSURANCE_BONUS, 0) +COALESCE(Q_CREDIT_CARD_BONUS, 0)  AS SUM2
+,COALESCE(Y_FNC_PROD_BONUS, 0) AS Y_FNC_PROD_BONUS
+,COALESCE(Y_IND_EBANK_BONUS, 0) AS Y_IND_EBANK_BONUS
+,COALESCE(Y_CORP_EBANK_BONUS, 0) AS Y_CORP_EBANK_BONUS
+,COALESCE(Y_MOBILE_BANK_BONUS, 0) AS Y_MOBILE_BANK_BONUS
+,COALESCE(Y_THIRD_PARTY_CUSTODY_BONUS, 0) AS Y_THIRD_PARTY_CUSTODY_BONUS
+,COALESCE(Y_FUND_BONUS, 0) AS Y_FUND_BONUS
+,COALESCE(Y_INSURANCE_BONUS, 0) AS Y_INSURANCE_BONUS
+,COALESCE(Y_CREDIT_CARD_BONUS,0) AS Y_CREDIT_CARD_BONUS
+,COALESCE(Y_FNC_PROD_BONUS, 0) +COALESCE(Y_IND_EBANK_BONUS, 0) +COALESCE(Y_CORP_EBANK_BONUS, 0) +COALESCE(Y_MOBILE_BANK_BONUS, 0) +COALESCE(Y_THIRD_PARTY_CUSTODY_BONUS, 0) +COALESCE(Y_FUND_BONUS, 0) +COALESCE(Y_INSURANCE_BONUS, 0) +COALESCE(Y_CREDIT_CARD_BONUS, 0)  AS SUM3
+ FROM IBS.T2_EMP_BONUS_SMY A 
+LEFT JOIN IBS.T9_RECOMMEND_TYPE B
+ ON A.EMP_TYPE_ID=B.RECOMMEND_TYPE_ID 
+LEFT JOIN PUB.CL C
+ON A.CCY_ID=C.CL_ID
+ LEFT JOIN IBS.T5_ORG D ON A.ORG_ID=D.ORG_ID AND D.ORG_TYPE_ID='EO'
+ LEFT JOIN IBS.T5_ORG E ON A.BRANCH_ORG_ID=E.ORG_ID AND E.ORG_TYPE_ID='EO'
+						where {#condition#}
+						order by A.MEASURE_DT desc,A.M_FNC_PROD_BONUS desc
+						]]>
+						</value><!-- AND B.END_DT>#{current_time}
+                        AND B.EFF_DT<=#{current_time} -->			
+					
+					 <condition name="org_id" source="session{org_id}" >
+							<value>
+							<![CDATA[(A.ORG_ID='#data#' or A.BRANCH_ORG_ID='#data#')]]>
+							</value>
+								
+						</condition>
+						<condition name="EMP_ID" label="员工号">
+							<value>
+							<![CDATA[A.EMP_ID = '#data#']]>
+							</value>
+						</condition>
+						
+						 <condition name="EMP_NM" label="员工姓名" >
+							<value>
+							<![CDATA[A.EMP_NM like '%#data#%']]>
+							</value>
+						</condition>
+						<!--  
+							  <condition name="RIQI" source="request{reqKey3}"  hidden="true">
+							<value>
+							<![CDATA[A.TXN_DT='#data#']]>
+							</value>
+						</condition>
+			   			 -->
+							<condition name="TXN_DT" label="统计日期"  labelposition="left">
+					  <value>
+						 	<![CDATA[	
+						 	 A.MEASURE_DT = '#data#'  
+						 	]]>
+						 </value>
+						 <inputbox type="datepicker" styleproperty="style='width:80px'" jsvalidate="isDate(#label#格式为yyyy-MM-dd)" >
+						      
+						 </inputbox>   <!--  <span class="fontRed">注：只显示最近7日数据</span>--> 
+						</condition>
+					
+					<!--	 
+			   		 <condition name="ORG_ID1" labelposition="left" label="机构">
+							<value>
+							<![CDATA[(A.ORG_ID='#data#')]]>
+							</value>
+							<inputbox type="selectbox" depends="org_id">
+								<option source="@{Select OU_CD, OU_NM from DIM.DIM_OU where SEC_OU_CD='#[org_id]#'  and  OU_NM not like '%卡部%' and OU_NM not like '%清算中心%' and OU_CD not in ('0013','0012','9950')}" label="OU_NM" value="OU_CD"/>
+								
+							</inputbox>
+						</condition>
+						-->
+							<condition name="EMP_TYPE_ID" label="员工类别"  labelposition="left">
+					  <value>
+						 	<![CDATA[	
+						 	 A.EMP_TYPE_ID = '#data#'  
+						 	]]>
+						 </value>
+						<inputbox type="selectbox" >
+							<option label="全部" value=""></option>
+					
+								<option source="@{Select RECOMMEND_TYPE_ID AS EMP_TYPE_ID, RECOMMEND_TYPE_NM from IBS.T9_RECOMMEND_TYPE }" label="RECOMMEND_TYPE_NM" value="EMP_TYPE_ID"/>
+								
+							</inputbox>
+						</condition>
+				</select>
+			</sql>
+			<!--  
+			<format>
+				<value>
+				rrequest.getRequest().set
+				</value>
+			</format>
+			-->
+			</report>
+		</vpanel>
+</page>
+	
+	
+</applications>

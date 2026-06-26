@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<applications xmlns="http://www.wabacus.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.wabacus.com ../xsd/wabacus.applications.xsd">
+<!--分行 定性考核评分：列表 -->
+<page id="emp_dx_fh_list" js="/webresources/script/validate.js,/js/demo.js,/js/common.js">
+
+<header>${top.header}</header>
+<vpanel id="common_vpanel" width="1200px" align="center" title="">
+<report id="title" extends="title.report1" width="1200px"></report>
+<report id="select" type="crosslist" title="定性考核评分" width="1200px" pagesize="15|20|-1" 
+	top="10px" personalizeclass="default" servervalidateclass="" rowselect="multiple-checkbox"
+	interceptor="com.customer.interceptor.InterceptorEmpDxFh"
+	>
+
+<display >
+	<col column="{col-rowselect}" label="选择" width="50px" />
+	<col column="{sequence:1}" label="序号" width="40px"></col>
+	<col property="SCORING" column="{non-fromdb}" label="评分" width="80px"/>
+	<col column="STUS" label="状态" ></col>
+	<col column="ORG_NM" label="支行" ></col>
+	<col column="EMP_ID" label="工号" valuestyleproperty="style='mso-number-format:\@'"></col>
+	<col column="EMP_NM" label="姓名" ></col>
+	<group column="EXAM_YEAR" staticondition="EXAM_YEAR='#data#'" dataset="select EXAM_YEAR,EXAM_Q,SCORE from ibs.T2_EMP_DX_SCORE where {#condition#}" >
+	<datasetconditions>
+		<condition name="EXAM_YEAR" label="考核年度" labelposition="left" defaultvalue="session{exam_year}">
+			<value> 
+				<![CDATA[EXAM_YEAR ='#data#']]>
+			</value>
+		</condition>
+	</datasetconditions>
+	<col column="EXAM_Q" staticondition="EXAM_Q='#data#'" >
+		<statistic id="static1" type="sum" column="SCORE" valuestyleproperty="align='center'"/>
+		<!-- 
+		<statistic id="stat3" type="sum" column="SCORE" label="合计"  valuestyleproperty="align='center'" statitems="EXAM_YEAR"/>
+		 -->
+	</col>
+	<format>
+		<imports>
+			<import>java.util.*</import>
+		</imports>
+		<value>
+			<![CDATA[
+			if(mDynamicColData!=null&&mDynamicColData.size()>0)
+				{//查询到了统计数据，对它进行格式化
+					Iterator itKeys=mDynamicColData.keySet().iterator();
+					while(itKeys.hasNext())
+					{
+						String key=(String)itKeys.next();
+						String value=(String)mDynamicColData.get(key);
+						if(key.indexOf("_EXAM_YEAR_")==0)
+						{//如果是年
+							
+						 	if(value!=null&&!value.trim().equals(""))
+						 		mDynamicColData.put(key,value+"年");
+						}else if(key.indexOf("_EXAM_Q_")==0)
+						{//如果是季度
+							if(value==null) value="";
+							if(value.equals("01")) value="一季度";
+							else if(value.equals("02")) value="二季度";
+							else if(value.equals("03")) value="三季度";
+							else if(value.equals("04")) value="四季度";
+						 	mDynamicColData.put(key,value);
+						}
+					}
+				}
+			]]>
+		</value>
+	</format>
+	</group>
+</display>
+<sql>
+	<select>
+		<value>
+		<![CDATA[
+			select sc.EMP_ID,EMP_NM,EXAM_YEAR,ORG_ID,ORG_NM,BRANCH_ORG_ID,coalesce(t.STUS,'不是考核期') as STUS,[#dynamic-columns#]
+			from ibs.T2_EMP_DX_SCORE sc
+			inner join(select distinct EMP_ID,STUS from ibs.T2_EMP_DX_SCORE where %SQL% ) t on t.EMP_ID=sc.EMP_ID and t.STUS not in ('0','-1')
+			where {#condition#}	and t.STUS<>'0' 				       
+			group by sc.EMP_ID,EMP_NM,EXAM_YEAR,ORG_ID,ORG_NM,BRANCH_ORG_ID,t.STUS
+			order by EXAM_YEAR,ORG_ID,ORG_NM,sc.EMP_ID,EMP_NM
+		]]>
+		</value>
+		<condition name="EXAM_YEAR" label="考核年度" labelposition="left" defaultvalue="session{exam_year}">
+			<value> 
+				<![CDATA[sc.EXAM_YEAR ='#data#']]>
+			</value>
+			   <inputbox type="datepicker" styleproperty="style='width:100px'" dateformat="yyyy" jsvalidate="isNotEmpty(#label# 不允许为空);" ></inputbox>
+		</condition>
+		<condition name="ORG_ID" label="机构" labelposition="left" defaultvalue="session{org_id}" hidden="true">
+			<value> 
+				<![CDATA[BRANCH_ORG_ID='#data#' ]]>
+			</value>
+		</condition>
+		  
+		<condition name="ORG_ID2" labelposition="left" label="支行">
+			<value>
+			<![CDATA[ORG_ID='#data#']]>
+			</value>
+			<inputbox type="selectbox" depends="ORG_ID"
+				styleproperty="style='width:140px'">
+				<option label="全部" value=""></option>
+				<option label="无" value="" type="false"></option>
+				<option
+					source="@{SELECT DISTINCT ORG_ID, ORG_NM FROM IBS.T5_ORG WHERE BRANCH_ORG_ID='#ORG_ID#' and ORG_TYPE_ID='EO' AND ORG_LEVEL_ID IN ('1','2') ORDER BY ORG_ID}"
+					label="ORG_NM" value="ORG_ID" />
+			</inputbox>
+		</condition>
+		
+	</select>
+		
+	</sql>
+	<buttons>
+		<button name="sub" position="title" positionorder="2" label="选中通过" extends="${wabacus.button2.default}"
+			confirmessage="提交后数据将不能修改，是否确认提交?">
+			invokeServerActionForReportData('emp_dx_fh_list','select','com.customer.interceptor.EmpEmpDxFhPassServerCallBack',{name:'SELECTEDROW',value:true},null,true,null,null);
+		</button>
+	</buttons>
+	<format>
+		<imports>
+			<import>com.ljbank.util.*</import>
+			<import>java.util.*</import>
+			<import>java.text.*</import>
+			<import>com.wabacus.system.*</import>
+		</imports>
+		<value>
+			<![CDATA[
+				SCORING="<a style='TEXT-DECORATION:underline' href='ShowReport.wx?PAGEID=emp_dx_fh_scoring&EMP_ID="+EMP_ID+"'>打分</a>";
+				if(STUS.equals("0")) STUS="已保存";
+				if(STUS.equals("1")) STUS="支行已提交";
+				if(STUS.equals("2")) STUS="已提交给分行有权人";
+				if(STUS.equals("3")) STUS="分行有权人审核不通过";
+				if(STUS.equals("4")) STUS="分行有权人审核通过";
+			]]>
+		</value>
+	</format>
+	<footer>
+		<![CDATA[
+			<tr><td height="20px"></td></tr>
+			<div style='float:left'>
+				<font color='green'>提示：</font>
+			</div>
+			<tr><td height="20px"></td></tr>
+			<div style='float:left'>	
+				 <font color='green'>1-只显示支行提交的数据。</font>
+			</div>
+			<tr><td height="20px"></td></tr>
+			<div style='float:left'>	
+				 <font color='green'>2-请在考核期内对考核期数据进行维护，过期数据不能补录。</font>
+			</div>
+			]]>
+	</footer>
+</report>
+</vpanel>
+
+</page>
+<!-- 定性考核评分：分行评分 -->
+<page id="emp_dx_fh_scoring" js="/webresources/script/validate.js,/js/demo.js,/js/common.js">
+<header>${top.header}</header>
+<vpanel id="common_vpanel" width="1200px" align="center" title="">
+<header>
+	<![CDATA[
+		<table width="1200px" border="0" cellspacing="0" cellpadding="0">
+		  	<tr><td height="10px"></td></tr>
+		  	<tr><td align="right"><a href='ShowReport.wx?PAGEID=emp_dx_fh_list' style="font-size:15px;TEXT-DECORATION:underline">返回上一级</a></td></tr>
+	    </table>
+	  ]]>
+</header>
+
+<report id="select" type="listform" title="定性考核评分" width="1200px" pagesize="15|20|-1"
+	top="10px" personalizeclass="default" servervalidateclass="" rowselect="single"
+	interceptor="com.customer.interceptor.InterceptorEmpDxFhScoring"  >
+
+<display>
+	<col column="{sequence:1}" label="序号" width="40px"></col>
+	<col column="EXAM_YEAR" label="考核年" ></col>
+	<col column="EXAM_Q" label="考核季度" displaytype="hidden"></col>
+	<col column="QTD_NM" label="考核季度" ></col>
+	<col column="ORG_NM" label="支行" ></col>
+	<col column="EMP_ID" label="工号" valuestyleproperty="style='mso-number-format:\@'"></col>
+	<col column="EMP_NM" label="姓名" ></col>
+	<col column="PROJCT_NM" label="项目" ></col>
+	<col column="ZB_NM" label="评分项" ></col>
+	<col column="SCORE" label="得分" >
+		<inputbox type="textbox" jsvalidate="isNotEmpty(#label#列不允许为空)" styleproperty="style='width:99%'" />
+	</col>
+	<col column="ZB_SCORE" label="满分" ></col>
+	<col column="MSR_PRD_DT" label="日期" displaytype="hidden"></col>
+	<col column="STUS" label="状态" displaytype="hidden"></col>
+</display>
+<sql>
+	<select>
+		<value>
+		<![CDATA[
+			select sc.MSR_PRD_DT,sc.EMP_ID,sc.EMP_NM,sc.EXAM_YEAR,sc.EXAM_Q
+			,sc.PROJCT_NM
+			,sc.ZB_NM
+			,sc.ZB_SCORE
+			,sc.SCORE
+			,sc.ORG_ID
+			,sc.ORG_NM
+			,sc.STUS
+			,q.QTD_NM
+			from ibs.T2_EMP_DX_SCORE sc
+			inner join ibs.T99_MIDDLE_INCOME_SWITCH sw on sc.MSR_PRD_DT=sc.MSR_PRD_DT and sw.SWITCH_F='1'
+			left join ibs.T9_YEAR_Q q on q.QTD=sc.EXAM_Q
+			where {#condition#} 
+			order by sc.PROJCT_NM,sc.ZB_NM,sc.STUS
+		]]>
+		</value>
+		<condition name="EMP_ID" label="工号" labelposition="left" hidden="true">
+			<value> 
+				<![CDATA[sc.EMP_ID ='#data#']]>
+			</value>
+		</condition>
+		<condition name="EXAM_YEAR" label="考核年" labelposition="left" hidden="true" defaultvalue="session{exam_year}">
+			<value> 
+				<![CDATA[sc.EXAM_YEAR ='#data#']]>
+			</value>
+		</condition>
+		<condition name="ORG_ID" label="机构" labelposition="left" hidden="true" >
+			<value> 
+				<![CDATA[sc.ORG_ID ='#data#']]>
+			</value>
+		</condition>
+		</select>
+		<update >
+		<params>
+			<param name="user_id" value="session{user_id}"></param>
+			<param name="current_time" value="now{}"
+				datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
+			<param name="ip" value="session{ip}"></param>
+		</params>
+		<value>
+			<![CDATA[
+	
+			UPDATE IBS.T2_EMP_DX_SCORE
+			SET	SCORE =@{SCORE}
+		       ,OUSEC_MOD_PEOPLE=#{user_id}
+			   ,OUSEC_MOD_TIME=#{current_time}
+			   ,OUSEC_MOD_IP=#{ip}
+			WHERE EMP_ID = @{EMP_ID__old} 
+			AND EXAM_YEAR=@{EXAM_YEAR__old}
+			AND EXAM_Q=@{EXAM_Q__old}
+			AND MSR_PRD_DT=@{MSR_PRD_DT__old}
+			AND PROJCT_NM=@{PROJCT_NM__old}
+			AND ZB_NM=@{ZB_NM__old}
+			;			
+			]]>
+	</value>
+	</update>
+	</sql>
+	<buttons >
+		
+		<button name="sub" position="title" positionorder="2" label="提交"
+			confirmessage="提交后数据将不能修改，是否确认提交?" extends="${wabacus.button.default}">
+			invokeServerActionForReportData('emp_dx_fh_scoring','select','com.customer.interceptor.EmpDxFhScoSubmitServerCallBack',null,null,true,null,null);
+		</button>
+	
+	</buttons>
+	
+	<format>
+		<value>
+			<![CDATA[
+			]]>
+		</value>
+	</format>
+</report>
+</vpanel>
+</page>
+</applications>

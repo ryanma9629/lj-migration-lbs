@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<applications xmlns="http://www.wabacus.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.wabacus.com ../xsd/wabacus.applications.xsd">
+	<!-- 借调挂职人员名单 特殊状态人员-->
+	<page id="emp_jdAndGz" js="/webresources/script/validate.js">
+		<interceptor>
+			<imports>
+				<import>com.ljbank.market.Util</import>
+			</imports>
+			<preaction>
+		<![CDATA[
+		Util u=new Util();
+		String ip=u.getRemoteIP(rrequest);
+		rrequest.getRequest().setAttribute("reqKey2", ip);
+		]]>
+	</preaction>
+		</interceptor>
+
+		<header>${top.header}</header>
+
+		<vpanel id="common_vpanel" width="1000px" align="center" title="">
+			<report id="title" extends="title.report1" width="1000px"></report>
+			<report id="select" type="listform" title="客户经理岗位人员" width="1000px" pagesize="15|20|-1" dataexport="richexcel" rowselect="single"
+				top="10px" personalizeclass="default" servervalidateclass="com.ljbank.market.Util; com.ljbank.market.TestPersonnel" interceptor="com.customer.interceptor.InterceptorEmpJdAndGz">
+
+				<display>
+					<col column="{sequence:1}" label="序号" width="40px"></col>
+					<col column="EXAM_YEAR" label="考核年度" width="70px"></col>
+					<col column="EXAM_Q" label="季度" width="100px" displaytype="hidden"></col>
+					<col column="QTD_NM" label="季度" width="100px"></col>
+					<col column="BRANCH_ORG_ID" label="分行机构号"  displaytype="hidden"></col>
+					<col column="BRANCH_ORG_NM" label="分行" ></col>
+					<col column="ORG_ID" label="机构号" displaytype="hidden"></col>
+					<col column="ORG_NM" label="支行" ></col>
+					<col column="PSTN_TYPE_NM" label="主考核类别" ></col>
+					<col column="SUB_PSTN_TYPE_NM" label="子考核类别" ></col>
+					<col column="EMP_NM" label="姓名" ></col>
+					<col column="EMP_ID" label="工号"  valuestyleproperty="style='mso-number-format:\@'"></col>
+					
+					<col column="EMP_TYPE" label="岗位状态" ></col>
+					<col column="EMP_GDQ" label="是否过渡期" clickorderby="true"></col>
+				</display>
+				<sql>
+					<select>
+						<value><![CDATA[
+								SELECT em.EXAM_YEAR
+								,em.EXAM_Q
+								,q.QTD_NM
+								,em.EMP_ID
+								,em.EMP_NM
+								,em.ORG_ID
+								,em.ORG_NM
+								,em.BRANCH_ORG_ID
+								,em.BRANCH_ORG_NM
+								,em.PSTN_TYPE
+								,em.PSTN_TYPE_NM
+								,em.SUB_PSTN_TYPE
+								,em.SUB_PSTN_TYPE_NM
+								,em.EMP_TYPE
+								,ou.HEAD_ORG_ID
+								,(case when gdq.EMP_ID is null then '' else '是' end) as EMP_GDQ
+								from IBS.T5_EMP_BZJX em
+								inner join ibs.T9_YEAR_Q q on q.QTD=em.EXAM_Q
+								inner join (
+								select distinct BRANCH_ORG_ID , BRANCH_ORG_NM , HEAD_ORG_ID , HEAD_ORG_NM 
+								from ibs.T5_ORG
+								where ORG_TYPE_ID='EO'
+								) ou on ou.BRANCH_ORG_ID=em.BRANCH_ORG_ID
+								left join ibs.T5_EMP_GDQ_OR_GZ gdq on gdq.EMP_ID=em.EMP_ID and gdq.MEASURE_DT=em.MEASURE_DT and gdq.STATUS='1'
+								where em.EMP_ID not like '1%' 
+								%SQL%
+								and {#condition#}
+								order by em.EXAM_YEAR,em.EXAM_Q,em.BRANCH_ORG_ID,em.ORG_ID,em.EMP_ID					       
+						]]>
+						</value>
+
+						<condition name="EXAM_YEAR" label="考核年度" labelposition="left" defaultvalue="session{exam_year}">
+							<value> 
+								<![CDATA[em.EXAM_YEAR = '#data#']]>
+							</value>
+							   <inputbox type="datepicker" styleproperty="style='width:100px'" dateformat="yyyy" jsvalidate="isNotEmpty(#label# 不允许为空);" ></inputbox>
+						</condition>
+						<condition name="EXAM_Q" label="考核季度" labelposition="left" >
+							<value> 
+  								<![CDATA[em.EXAM_Q = '#data#']]>
+							</value>
+							<inputbox type="selectbox" styleproperty="style='width:120px'">
+								<option label="全部" value=""></option>
+								<option label="一季度" value="01"></option>
+								<option label="二季度" value="02"></option>
+								<option label="三季度" value="03"></option>
+								<option label="四季度" value="04"></option>
+							</inputbox>
+						</condition>
+						<condition name="ORG_ID0" labelposition="left" label="用户机构" source="session{org_id}" hidden="true">
+							<value>
+							<![CDATA[(em.ORG_ID='#data#' or em.BRANCH_ORG_ID='#data#' or ou.HEAD_ORG_ID='#data#')]]>
+							</value>
+						</condition>
+					<condition name="PSTN_TYPE" labelposition="left" label="主考核类别" >
+							<value>
+								<![CDATA[em.PSTN_TYPE='#data#']]>
+							</value>
+							<inputbox type="selectbox" styleproperty="style='width:100px'">
+								<option
+									source="@{Select distinct PSTN_TYPE , PSTN_TYPE_NM from ibs.T9_PSTN_TYPE where PSTN_TYPE='04' order by PSTN_TYPE, PSTN_TYPE_NM }"
+									label="PSTN_TYPE_NM" value="PSTN_TYPE" />
+							</inputbox>
+						</condition>	
+					<condition name="SUB_PSTN_TYPE" labelposition="left" label="子考核类别">
+						<value>
+						<![CDATA[em.SUB_PSTN_TYPE='#data#']]>
+						</value>
+						<inputbox type="selectbox" depends="PSTN_TYPE"
+							styleproperty="style='width:150px'">
+							<option label="全部" value=""></option>
+							<option
+								source="@{select distinct SUB_PSTN_TYPE , SUB_PSTN_TYPE_NM from ibs.T9_PSTN_TYPE where PSTN_TYPE='04' order by SUB_PSTN_TYPE }"
+								label="SUB_PSTN_TYPE_NM" value="SUB_PSTN_TYPE" />
+						</inputbox>
+					</condition>
+							
+					<!--  
+					<condition name="EMP_TYPE" label="岗位状态" labelposition="left">
+						<value> 
+ 							<![CDATA[em.EMP_TYPE = '#data#']]>
+						</value>
+						<inputbox type="selectbox" styleproperty="style='width:100px'">
+							<option label="全部" value=""></option>
+							<option label="正式在岗" value="正式在岗"></option>
+							<option label="总行试用" value="总行试用"></option>
+							<option label="借调" value="借调"></option>
+							<option label="待定" value="待定"></option>
+							<option label="其他" value="其他"></option>
+						</inputbox>
+					</condition>
+					-->
+					<condition name="ORG_ID1" labelposition="left" label="分行">
+						<value>
+							<![CDATA[em.BRANCH_ORG_ID='#data#']]>
+						</value>
+						<inputbox type="selectbox" styleproperty="style='width:150px'" depends="ORG_ID0">
+							<option label="全部" value=""></option>
+							<option
+								source="@{SELECT DISTINCT BRANCH_ORG_ID,BRANCH_ORG_NM FROM IBS.T5_ORG WHERE ORG_TYPE_ID='EO' AND ORG_LEVEL_ID IN ('1','2','3') and (ORG_ID='#ORG_ID0#' or BRANCH_ORG_ID='#ORG_ID0#' or HEAD_ORG_ID='#ORG_ID0#') ORDER BY BRANCH_ORG_ID}"
+								label="BRANCH_ORG_NM" value="BRANCH_ORG_ID" />
+						</inputbox>
+					</condition>
+					<condition name="ORG_ID2" labelposition="left" label="支行">
+						<value>
+						<![CDATA[em.ORG_ID='#data#']]>
+						</value>
+						<inputbox type="selectbox" depends="ORG_ID1;ORG_ID0"
+							styleproperty="style='width:150px'">
+							<option label="全部" value=""></option>
+							<option label="无" value="" type="false"></option>
+							<option
+								source="@{SELECT DISTINCT ORG_ID, ORG_NM FROM IBS.T5_ORG WHERE ORG_TYPE_ID='EO' AND ORG_LEVEL_ID IN ('1','2') and BRANCH_ORG_ID='#ORG_ID1#' and (HEAD_ORG_ID='#ORG_ID0#' or BRANCH_ORG_ID='#ORG_ID0#' or ORG_ID='#ORG_ID0#') ORDER BY ORG_ID}"
+								label="ORG_NM" value="ORG_ID" />
+						</inputbox>
+					</condition>
+					</select>
+					
+				</sql>
+			</report>
+		</vpanel>
+	</page>
+
+
+</applications>

@@ -1,0 +1,443 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<applications xmlns="http://www.wabacus.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.wabacus.com ../xsd/wabacus.applications.xsd">
+
+	<!--从员工理财业绩排名进入总行,员工理财营销明细 -->
+	<page id="fnc_pd_bonus_detail"
+		js="/webresources/script/validate.js,/js/demo.js,/js/common.js">
+
+		<header>${top.header}</header>
+
+		<interceptor>
+			<imports>
+				<import>java.lang</import>
+				<import>com.wabacus.util</import>
+				<import>java.sql.Connection</import>
+				<import>java.sql.PreparedStatement</import>
+				<import>java.sql.ResultSet</import>
+				<import>javax.servlet.http.HttpSession</import>
+				<import>javax.util</import>
+				<import>javax.text</import>
+				<import>com.ljbank.market.MyMath</import>
+				<import>java.util.Date</import>
+				<import>java.text.SimpleDateFormat</import>
+			</imports>
+			<preaction>
+				<![CDATA[
+
+
+ 				 	  String EMP_ID=rrequest.getStringAttribute("EMP_ID","");
+ 				 	  if(EMP_ID.equals("")){
+ 				 	  		EMP_ID=(String)rrequest.getRequest().getSession().getAttribute("EMP_ID");
+ 				 	        System.out.println("1----获得工号为：EMP_ID="+EMP_ID); 
+    		
+ 				 	   }
+ 				 	   else{
+    				        rrequest.getRequest().getSession().setAttribute("EMP_ID", EMP_ID);
+    				        System.out.println("2----获得工号为：EMP_ID="+(String)rrequest.getRequest().getSession().getAttribute("EMP_ID")); 
+    				   }
+    				  
+	  				   System.out.println("3----获得工号为：EMP_ID="+EMP_ID); 
+ 				 ]]>
+			</preaction>
+		</interceptor>
+
+		<vpanel id="common_vpanel" width="1350px" align="center" title="">
+			<header>
+			  <![CDATA[<table width="1350px" border="0" cellspacing="0" cellpadding="0">
+			    <tr><td height="10px"></td></tr>
+			  	<tr><td align="left"><a href='ShowReport.wx?PAGEID=fnc_pd_bonus_smy' style="font-size:15px;TEXT-DECORATION:underline">返回上一级</a></td></tr>
+			    </table>
+			  ]]>
+			</header>
+			<report id="select" title="员工理财销售明细" type="editablelist"
+				width="1350px" top="10px" align="center" pagesize="15|20|-1"
+				dataexport="richexcel" personalizeclass="default" scrollwidth="1350px">
+
+				<display>
+					<col column="OFF_BST_AR_ID" label="理财表外账号" width="150px"></col>
+					<col column="VUCH_NBR" label="凭证号" width="150px"></col>
+					<col column="CST_NM" label="客户名" width="60px"></col>
+					<col column="EMP_ID" label="员工号" width="60px"></col>
+					<col column="EMP_NM" label="员工姓名" width="60px" ></col>
+					<col column="BRANCH_ORG_NM" label="分行" width="120px" ></col>
+					<col column="ORG_ID" label="机构号" width="60px" ></col>
+					<col column="ORG_NM" label="机构名" width="120px"></col>		
+		            <col column="FNC_PD_CD" label="理财产品编号" width="60px" displaytype="hidden"></col>
+					<col column="FNC_PD_NM" label="理财产品名称" width="180px" ></col>
+					<col column="EFF_DT" label="销售日期" width="80px" ></col>
+					<col column="INT_CLCN_EFF_DT" label="上划日期" width="80px" ></col>
+					<col column="MAT_DT" label="到期日" width="80px" ></col>
+                    <col column="RATIO" label="认领比例(%)" width="50px" ></col>
+					<col column="PRICE" label="价格" width="80px" datatype="double{0.0000}" ></col>			
+					<col column="CCY_ID" label="币种" width="80px" displaytype="hidden"></col>
+					<col column="OPN_AMT" label="销售金额" width="60px" datatype="double{0}"></col>
+					<col column="EMP_CLS_BAL" label="余额" width="50px" datatype="double{0}"></col>
+					<col column="EMP_MTD_AVG_BAL" label="月日均" width="80px" align="right" datatype="double{0.00}" displaytype="hidden"></col>
+					<col column="EMP_QTD_AVG_BAL" label="季日均" width="80px" align="right" datatype="double{0.00}" displaytype="hidden"></col>					
+					<col column="EMP_YTD_AVG_BAL" label="年日均" width="80px" align="right" datatype="double{0.00}" displaytype="hidden"></col>					
+					<col column="EMP_BONUS"       label="理财收益" width="60px" align="right" datatype="double{0.00}"></col>
+					<col column="BONUS_EFF_DT" label="理财收益生效日期" width="80px" ></col>
+					<col column="BONUS_STATUS_NM" label="理财收益状态" width="50px" ></col>
+
+				</display>
+				<sql>
+					<select>
+						<value><![CDATA[
+              SELECT OFF_BST_AR_ID
+                    ,VUCH_NBR
+                    ,CST_NM
+                    ,EMP_ID
+                    ,EMP_NM
+                    ,BRANCH_ORG_NM
+                    ,ORG_ID
+                    ,ORG_NM
+                    ,FNC_PD_CD
+                    ,FNC_PD_NM
+                    ,EFF_DT
+                    ,INT_CLCN_EFF_DT
+                    ,MAT_DT
+                    ,RATIO
+                    ,PRICE
+                    ,CCY_ID
+                    ,OPN_AMT
+                    ,EMP_CLS_BAL
+                    ,EMP_MTD_AVG_BAL
+                    ,EMP_QTD_AVG_BAL
+                    ,EMP_YTD_AVG_BAL
+                    ,EMP_BONUS
+                    ,BONUS_EFF_DT
+                    ,BONUS_STATUS_NM
+             FROM IBS.T2_FNC_PD_BONUS_DETAIL A
+             WHERE {#condition#}
+             order by EFF_DT desc
+							
+						    ]]>
+						</value>
+						<condition name="VUCH_NBR" label="凭证号" labelposition="left">
+							<value><![CDATA[A.VUCH_NBR='#data#']]></value>
+						</condition>
+						<condition name="user_id" source="session{EMP_ID}">
+							<value><![CDATA[A.EMP_ID='#data#']]></value>
+						</condition>
+						
+
+					</select>
+				</sql>
+				<footer><![CDATA[<div style='float:left'><font color='blue'>提示:本系统币种为本外币合计</font></div>]]></footer>
+			</report>
+
+		</vpanel>
+	</page>
+
+
+
+
+
+
+	<!--从员工理财业绩排名进入分行,员工理财营销明细 -->
+	<page id="fnc_pd_bonus_detail_branch"
+		js="/webresources/script/validate.js,/js/demo.js,/js/common.js">
+
+		<header>${top.header}</header>
+
+		<interceptor>
+			<imports>
+				<import>java.lang</import>
+				<import>com.wabacus.util</import>
+				<import>java.sql.Connection</import>
+				<import>java.sql.PreparedStatement</import>
+				<import>java.sql.ResultSet</import>
+				<import>javax.servlet.http.HttpSession</import>
+				<import>javax.util</import>
+				<import>javax.text</import>
+				<import>com.ljbank.market.MyMath</import>
+				<import>java.util.Date</import>
+				<import>java.text.SimpleDateFormat</import>
+			</imports>
+			<preaction>
+				<![CDATA[
+						String beginTime = rrequest.getStringAttribute("MEASURE_DT", "");// 取出输入的查询时间
+						System.out.println("beginTime:" + beginTime);
+						if (beginTime.equals("")) 
+						{
+							Connection conn = rrequest.getConnection();
+							PreparedStatement pstmt = null;
+							try {
+									String SQL = "Select DATA_DT from IBS.T8_DATA_DT";
+									pstmt = conn.prepareStatement(SQL);
+									ResultSet resultSet = pstmt.executeQuery();
+									while (resultSet.next()) {
+					                     String date=resultSet.getString("DATA_DT");
+					                     rrequest.setAttribute("MEASURE_DT", date);
+				                    }
+									
+									System.out.println("beginTime处理后时间为:" + beginTime);
+									resultSet.close();
+									pstmt.close();
+								} 
+							catch (Exception e) {
+									e.printStackTrace();
+							}
+                        }
+                    
+                    
+
+ 				 	  String EMP_ID=rrequest.getStringAttribute("EMP_ID","");
+ 				 	  if(EMP_ID.equals("")){
+ 				 	  		EMP_ID=(String)rrequest.getRequest().getSession().getAttribute("EMP_ID");
+ 				 	        System.out.println("1----获得工号为：EMP_ID="+EMP_ID); 
+    		
+ 				 	   }
+ 				 	   else{
+    				        rrequest.getRequest().getSession().setAttribute("EMP_ID", EMP_ID);
+    				        System.out.println("2----获得工号为：EMP_ID="+(String)rrequest.getRequest().getSession().getAttribute("EMP_ID")); 
+    				   }
+    				  
+	  				   System.out.println("3----获得工号为：EMP_ID="+EMP_ID); 
+ 				 ]]>
+			</preaction>
+		</interceptor>
+
+		<vpanel id="common_vpanel" width="1350px" align="center" title="">
+			<header>
+			  <![CDATA[<table width="1350px" border="0" cellspacing="0" cellpadding="0">
+			  	<tr><td height="10px"></td></tr>
+			  	<tr><td align="left"><a href='ShowReport.wx?PAGEID=fnc_pd_bonus_smy_branch' style="font-size:15px;TEXT-DECORATION:underline">返回上一级</a></td></tr>
+			    </table>
+			  ]]>
+			</header>
+			<report id="select" title="员工存款凭证业绩明细" type="editablelist"
+				width="1350px" top="10px" align="center" pagesize="15|20|-1" scrollwidth="1350px"
+				dataexport="richexcel" personalizeclass="default">
+
+				<display>
+					<col column="OFF_BST_AR_ID" label="理财表外账号" width="150px"></col>
+					<col column="VUCH_NBR" label="凭证号" width="150px"></col>
+					<col column="CST_NM" label="客户名" width="60px"></col>
+					<col column="EMP_ID" label="员工号" width="60px"></col>
+					<col column="EMP_NM" label="员工姓名" width="60px" ></col>
+					<col column="BRANCH_ORG_NM" label="分行" width="120px" ></col>
+					<col column="ORG_ID" label="机构号" width="60px" ></col>
+					<col column="ORG_NM" label="机构名" width="120px"></col>		
+		            <col column="FNC_PD_CD" label="理财产品编号" width="60px" displaytype="hidden"></col>
+					<col column="FNC_PD_NM" label="理财产品名称" width="180px" ></col>
+					<col column="EFF_DT" label="销售日期" width="80px" ></col>
+					<col column="INT_CLCN_EFF_DT" label="上划日期" width="80px" ></col>
+					<col column="MAT_DT" label="到期日" width="80px" ></col>
+                    <col column="RATIO" label="认领比例(%)" width="50px" ></col>
+					<col column="PRICE" label="价格" width="80px" datatype="double{0.0000}"></col>			
+					<col column="CCY_ID" label="币种" width="80px" displaytype="hidden"></col>
+					<col column="OPN_AMT" label="销售金额" width="60px" datatype="double{0}"></col>
+					<col column="EMP_CLS_BAL" label="余额" width="50px" datatype="double{0}"></col>
+					<col column="EMP_MTD_AVG_BAL" label="月日均" width="80px" align="right" datatype="double{0.00}"></col>
+					<col column="EMP_QTD_AVG_BAL" label="季日均" width="80px" align="right" datatype="double{0.00}"></col>					
+					<col column="EMP_YTD_AVG_BAL" label="年日均" width="80px" align="right" datatype="double{0.00}"></col>					
+					<col column="EMP_BONUS"       label="理财收益" width="60px" align="right" datatype="double{0.00}"></col>
+					<col column="BONUS_EFF_DT" label="理财收益生效日期" width="80px" ></col>
+					<col column="BONUS_STATUS_NM" label="理财收益状态" width="50px" ></col>
+
+				</display>
+				<sql>
+					<select>
+						<value><![CDATA[
+              SELECT OFF_BST_AR_ID
+                    ,VUCH_NBR
+                    ,CST_NM
+                    ,EMP_ID
+                    ,EMP_NM
+                    ,BRANCH_ORG_NM
+                    ,ORG_ID
+                    ,ORG_NM
+                    ,FNC_PD_CD
+                    ,FNC_PD_NM
+                    ,EFF_DT
+                    ,INT_CLCN_EFF_DT
+                    ,MAT_DT
+                    ,RATIO
+                    ,PRICE
+                    ,CCY_ID
+                    ,OPN_AMT
+                    ,EMP_CLS_BAL
+                    ,EMP_MTD_AVG_BAL
+                    ,EMP_QTD_AVG_BAL
+                    ,EMP_YTD_AVG_BAL
+                    ,EMP_BONUS
+                    ,BONUS_EFF_DT
+                    ,BONUS_STATUS_NM
+             FROM IBS.T2_FNC_PD_BONUS_DETAIL A
+             WHERE {#condition#}
+             order by EFF_DT desc
+							
+						    ]]>
+						</value>
+						<condition name="VUCH_NBR" label="凭证号" labelposition="left">
+							<value><![CDATA[A.VUCH_NBR='#data#']]></value>
+						</condition>
+						<condition name="user_id" source="session{EMP_ID}">
+							<value><![CDATA[A.EMP_ID='#data#']]></value>
+						</condition>
+
+					</select>
+				</sql>
+				<footer><![CDATA[<div style='float:left'><font color='blue'>提示:本系统币种为本外币合计</font></div>]]></footer>
+			</report>
+
+		</vpanel>
+	</page>
+
+
+	<!--从员工理财业绩排名进入支行,员工理财营销明细 -->
+	<page id="fnc_pd_bonus_detail_subbranch"
+		js="/webresources/script/validate.js,/js/demo.js,/js/common.js">
+
+		<header>${top.header}</header>
+
+		<interceptor>
+			<imports>
+				<import>java.lang</import>
+				<import>com.wabacus.util</import>
+				<import>java.sql.Connection</import>
+				<import>java.sql.PreparedStatement</import>
+				<import>java.sql.ResultSet</import>
+				<import>javax.servlet.http.HttpSession</import>
+				<import>javax.util</import>
+				<import>javax.text</import>
+				<import>com.ljbank.market.MyMath</import>
+				<import>java.util.Date</import>
+				<import>java.text.SimpleDateFormat</import>
+			</imports>
+			<preaction>
+				<![CDATA[
+						String beginTime = rrequest.getStringAttribute("MEASURE_DT", "");// 取出输入的查询时间
+						System.out.println("beginTime:" + beginTime);
+						if (beginTime.equals("")) 
+						{
+							Connection conn = rrequest.getConnection();
+							PreparedStatement pstmt = null;
+							try {
+									String SQL = "Select DATA_DT from IBS.T8_DATA_DT";
+									pstmt = conn.prepareStatement(SQL);
+									ResultSet resultSet = pstmt.executeQuery();
+									while (resultSet.next()) {
+					                     String date=resultSet.getString("DATA_DT");
+					                     rrequest.setAttribute("MEASURE_DT", date);
+				                    }
+									
+									System.out.println("beginTime处理后时间为:" + beginTime);
+									resultSet.close();
+									pstmt.close();
+								} 
+							catch (Exception e) {
+									e.printStackTrace();
+							}
+                        }
+                    
+                    
+
+ 				 	  String EMP_ID=rrequest.getStringAttribute("EMP_ID","");
+ 				 	  if(EMP_ID.equals("")){
+ 				 	  		EMP_ID=(String)rrequest.getRequest().getSession().getAttribute("EMP_ID");
+ 				 	        System.out.println("1----获得工号为：EMP_ID="+EMP_ID); 
+    		
+ 				 	   }
+ 				 	   else{
+    				        rrequest.getRequest().getSession().setAttribute("EMP_ID", EMP_ID);
+    				        System.out.println("2----获得工号为：EMP_ID="+(String)rrequest.getRequest().getSession().getAttribute("EMP_ID")); 
+    				   }
+    				  
+	  				   System.out.println("3----获得工号为：EMP_ID="+EMP_ID); 
+ 				 ]]>
+			</preaction>
+		</interceptor>
+
+		<vpanel id="common_vpanel" width="1350px" align="center" title="">
+			<header>
+			  <![CDATA[<table width="1350px" border="0" cellspacing="0" cellpadding="0">
+			  	<tr><td height="10px"></td></tr>
+			  	<tr><td align="left"><a href='ShowReport.wx?PAGEID=fnc_pd_bonus_smy_subbranch' style="font-size:15px;TEXT-DECORATION:underline">返回上一级</a></td></tr>
+			    </table>
+			  ]]>
+			</header>
+			<report id="select" title="员工存款凭证业绩明细" type="editablelist" scrollwidth="1350px"
+				width="1350px" top="10px" align="center" pagesize="15|20|-1"
+				dataexport="richexcel" personalizeclass="default">
+
+				<display>
+					<col column="OFF_BST_AR_ID" label="理财表外账号" width="150px"></col>
+					<col column="VUCH_NBR" label="凭证号" width="150px"></col>
+					<col column="CST_NM" label="客户名" width="60px"></col>
+					<col column="EMP_ID" label="员工号" width="60px"></col>
+					<col column="EMP_NM" label="员工姓名" width="60px" ></col>
+					<col column="BRANCH_ORG_NM" label="分行" width="120px" ></col>
+					<col column="ORG_ID" label="机构号" width="60px" ></col>
+					<col column="ORG_NM" label="机构名" width="120px"></col>		
+		            <col column="FNC_PD_CD" label="理财产品编号" width="60px" displaytype="hidden"></col>
+					<col column="FNC_PD_NM" label="理财产品名称" width="180px" ></col>
+					<col column="EFF_DT" label="销售日期" width="80px" ></col>
+					<col column="INT_CLCN_EFF_DT" label="上划日期" width="80px" ></col>
+					<col column="MAT_DT" label="到期日" width="80px" ></col>
+                    <col column="RATIO" label="认领比例(%)" width="50px" ></col>
+					<col column="PRICE" label="价格" width="80px" datatype="double{0.0000}"></col>			
+					<col column="CCY_ID" label="币种" width="80px" displaytype="hidden"></col>
+					<col column="OPN_AMT" label="销售金额" width="60px" datatype="double{0}"></col>
+					<col column="EMP_CLS_BAL" label="余额" width="50px" datatype="double{0}"></col>
+					<col column="EMP_MTD_AVG_BAL" label="月日均" width="80px" align="right" datatype="double{0.00}"></col>
+					<col column="EMP_QTD_AVG_BAL" label="季日均" width="80px" align="right" datatype="double{0.00}"></col>					
+					<col column="EMP_YTD_AVG_BAL" label="年日均" width="80px" align="right" datatype="double{0.00}"></col>					
+					<col column="EMP_BONUS"       label="理财收益" width="60px" align="right" datatype="double{0.00}"></col>
+					<col column="BONUS_EFF_DT" label="理财收益生效日期" width="80px" ></col>
+					<col column="BONUS_STATUS_NM" label="理财收益状态" width="50px" ></col>
+
+				</display>
+				<sql>
+					<select>
+						<value><![CDATA[
+              SELECT OFF_BST_AR_ID
+                    ,VUCH_NBR
+                    ,CST_NM
+                    ,EMP_ID
+                    ,EMP_NM
+                    ,BRANCH_ORG_NM
+                    ,ORG_ID
+                    ,ORG_NM
+                    ,FNC_PD_CD
+                    ,FNC_PD_NM
+                    ,EFF_DT
+                    ,INT_CLCN_EFF_DT
+                    ,MAT_DT
+                    ,RATIO
+                    ,PRICE
+                    ,CCY_ID
+                    ,OPN_AMT
+                    ,EMP_CLS_BAL
+                    ,EMP_MTD_AVG_BAL
+                    ,EMP_QTD_AVG_BAL
+                    ,EMP_YTD_AVG_BAL
+                    ,EMP_BONUS
+                    ,BONUS_EFF_DT
+                    ,BONUS_STATUS_NM
+             FROM IBS.T2_FNC_PD_BONUS_DETAIL A
+             WHERE {#condition#}
+             order by EFF_DT desc
+							
+						    ]]>
+						</value>
+						<condition name="VUCH_NBR" label="凭证号" labelposition="left">
+							<value><![CDATA[A.VUCH_NBR='#data#']]></value>
+						</condition>
+						<condition name="user_id" source="session{EMP_ID}">
+							<value><![CDATA[A.EMP_ID='#data#']]></value>
+						</condition>
+						
+
+					</select>
+				</sql>
+				<footer><![CDATA[<div style='float:left'><font color='blue'>提示:本系统币种为本外币合计</font></div>]]></footer>
+			</report>
+
+		</vpanel>
+	</page>
+
+</applications>

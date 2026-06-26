@@ -1,0 +1,507 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<applications xmlns="http://www.wabacus.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.wabacus.com ../xsd/wabacus.applications.xsd">
+
+	<!--员工考核业绩 -->
+	<page id="emp_profit_smy"
+		js="/webresources/script/validate.js,/js/demo.js,/js/common.js">
+
+		<header>${top.header}</header>
+		<!-- >
+		<interceptor>
+			<imports>
+				<import>java.lang</import>
+				<import>com.wabacus.util</import>
+				<import>java.sql.Connection</import>
+				<import>java.sql.PreparedStatement</import>
+				<import>java.sql.ResultSet</import>
+				<import>javax.servlet.http.HttpSession</import>
+				<import>javax.util</import>
+				<import>javax.text</import>
+				<import>com.ljbank.market.MyMath</import>
+				<import>java.util.Date</import>
+				<import>java.text.SimpleDateFormat</import>
+			</imports>
+			<preaction>
+				<![CDATA[
+						String measure_dt = rrequest.getStringAttribute("MEASURE_DT", "");// 取出输入的查询时间
+						System.out.println("measure_dt:" + measure_dt);
+						if (measure_dt.equals("")) 
+						{
+							Connection conn = rrequest.getConnection();
+							PreparedStatement pstmt = null;
+							try {
+									String SQL = "Select DATA_DT from IBS.T8_DATA_DT";
+									pstmt = conn.prepareStatement(SQL);
+									ResultSet resultSet = pstmt.executeQuery();
+									while (resultSet.next()) {
+					                     String date=resultSet.getString("DATA_DT");
+					                     rrequest.setAttribute("MEASURE_DT", date);
+										 measure_dt=date;
+				                    }
+									System.out.println("measure_dt处理后时间为:" + measure_dt);
+									resultSet.close();
+									pstmt.close();
+								} 
+							catch (Exception e) {
+									e.printStackTrace();
+							}
+                        }
+ 				 ]]>
+			</preaction>
+		</interceptor>
+ -->
+		<vpanel id="common_vpanel" width="1350px" align="center" title="">
+			<report id="select" title="考核业绩汇总表" type="listform"
+				width="1350px" top="10px" align="center" pagesize="15|20|-1" rowselect="single"
+				dataexport="richexcel" personalizeclass="default" scrollwidth="1350px" interceptor="com.customer.interceptor.InterceptorEmpProfitSmy">
+
+				<display>
+					<col column="{sequence:1}" label="序号" width="60px"></col>
+					<col column="MEASURE_DT" label="日期" ></col>
+					<col column="BRANCH_ORG_NM" label="分行" ></col>
+					<col column="ORG_NM" label="支行"  ></col>
+					<col column="PSTN_TYPE_NM" label="主考核类别"  ></col>
+					<col column="SUB_PSTN_TYPE_NM" label="子考核类别"  ></col>
+					<col column="EMP_ID" label="员工号" width="80px" valuestyleproperty="style='mso-number-format:\@'"></col>
+					<col column="EMP_NM" label="员工姓名" width="80px" ></col>
+					<col column="GRADE" label="资格证标识"  ></col>
+					<col column="ZY_FLAG" label="资源型标识"  ></col>
+					<col column="EMP_POS" label="岗位状态"  ></col>
+					<col column="EMP_GDQ" label="过渡期标识"  ></col>
+					<group label="贷款业绩">
+						<col column="LN_Q_PROFIT" label="合计"  align="right" datatype="double{0.00}"></col>
+						<col column="LN_Q_PROFIT_new" label="新增"  align="right" datatype="double{0.00}"></col>
+						<col column="LN_Q_PROFIT_ext" label="存量"  align="right" datatype="double{0.00}"></col>
+					</group>
+					<col column="DEP_Q_PROFIT" label="存款业绩"  align="right" datatype="double{0.00}"></col>
+					<col column="INCOME" label="中收业绩"  align="right" datatype="double{0.00}"></col>
+					<col column="TZ_PROF_SUM" label="调整业绩"  align="right" datatype="double{0.00}"></col>
+					<col column="PROFIT_SUM" label="合计"  align="right" datatype="double{0.00}"></col>
+				</display>
+				<sql>
+					<select>
+						<value><![CDATA[
+							select gw.EMP_ID
+							   ,%SQLExamCol% as MEASURE_DT
+							   ,gw.EMP_NM
+							   ,gw.ORG_ID
+							   ,gw.ORG_NM
+							   ,gw.BRANCH_ORG_ID
+							   ,gw.BRANCH_ORG_NM
+							   ,gw.HEAD_ORG_ID
+							   ,gw.PSTN_TYPE
+							   ,gw.PSTN_TYPE_NM
+							   ,gw.SUB_PSTN_TYPE
+							   ,gw.SUB_PSTN_TYPE_NM
+							   ,(coalesce(ce.YEAR,'')||coalesce(ce.GRADE,'')) as GRADE
+							   ,coalesce(sy.ZY_FLAG,'') as ZY_FLAG
+								,(case when gd.EMP_TYPE='过渡期' then '是' else '' end) as EMP_GDQ
+								,gw.EMP_POS
+							   ,(case when coalesce(ce.YEAR,'')='' and coalesce(sy.ZY_FLAG,'')='' then 0 else coalesce(sy.DEP_Q_PROFIT,0) end) as DEP_Q_PROFIT
+							   ,(case when coalesce(ce.YEAR,'')='' and coalesce(sy.ZY_FLAG,'')='' then 0 
+							   when coalesce(sy.ZY_FLAG,'')='是' and coalesce(sy.DEP_Q_PROFIT,0)<=0 then 0
+							   else coalesce(sy.LN_Q_PROFIT,0) end) as LN_Q_PROFIT
+							   ,(case when coalesce(ce.YEAR,'')='' and coalesce(sy.ZY_FLAG,'')='' then 0 
+								when coalesce(sy.ZY_FLAG,'')='是' and coalesce(sy.DEP_Q_PROFIT,0)<=0 then 0
+								 else coalesce(sy.LN_Q_PROFIT_ext,0) end) as LN_Q_PROFIT_ext
+							   ,(case when coalesce(ce.YEAR,'')='' and coalesce(sy.ZY_FLAG,'')='' then 0 
+							   when coalesce(sy.ZY_FLAG,'')='是' and coalesce(sy.DEP_Q_PROFIT,0)<=0 then 0
+							   else coalesce(sy.LN_Q_PROFIT_new,0) end) as LN_Q_PROFIT_new
+							   ,(case when coalesce(ce.YEAR,'')='' and coalesce(sy.ZY_FLAG,'')='' then 0 
+							   when coalesce(sy.ZY_FLAG,'')='是' and coalesce(sy.DEP_Q_PROFIT,0)<=0 then 0
+							   else coalesce(mid.INCOME,0) end) as INCOME
+							   ,(case when coalesce(ce.YEAR,'')='' and coalesce(sy.ZY_FLAG,'')='' then 0 
+							   when coalesce(sy.ZY_FLAG,'')='是' and coalesce(sy.DEP_Q_PROFIT,0)<=0 then 0
+							   else tz.TZ_PROF_SUM end) as TZ_PROF_SUM
+							   ,(case when coalesce(ce.YEAR,'')='' and coalesce(sy.ZY_FLAG,'')='' then 0 
+							   when coalesce(sy.ZY_FLAG,'')='是' and coalesce(sy.DEP_Q_PROFIT,0)<=0 then 0
+							   else (coalesce(sy.DEP_Q_PROFIT,0)+coalesce(sy.LN_Q_PROFIT,0)+coalesce(mid.INCOME,0)+coalesce(tz.TZ_PROF_SUM,0)) end) as PROFIT_SUM
+							from (
+								select distinct EMP_ID
+							   ,EMP_NM
+							   ,ORG_ID
+							   ,ORG_NM
+							   ,BRANCH_ORG_ID
+							   ,BRANCH_ORG_NM
+							   ,HEAD_ORG_ID
+							   ,PSTN_TYPE
+							   ,PSTN_TYPE_NM
+							   ,SUB_PSTN_TYPE
+							   ,SUB_PSTN_TYPE_NM
+							   ,EMP_TYPE as EMP_POS
+								from IBS.T5_EMP_BZJX bz %INNERSQL%
+								where {#condition#} %SQL%
+							) gw
+							left join (
+								select 
+								pf.EMP_ID,
+								(case when rs.EMP_ID is not null then '是' else '' end) as ZY_FLAG,
+								sum(case when rs.EMP_ID is not null and coalesce(rs.DEP_QTD_PROFIT_SJ,0)>0 then coalesce(rs.DEP_QTD_PROFIT_SJ,0)
+									when rs.EMP_ID is not null and coalesce(rs.DEP_QTD_PROFIT_SJ,0)<=0 then 0
+									else DEP_Q_PROFIT end) as DEP_Q_PROFIT,
+								sum(LN_Q_PROFIT) as LN_Q_PROFIT,
+								sum(case when NEW_OR_EXIST='存量' then coalesce(LN_Q_PROFIT,0) else 0 end)as LN_Q_PROFIT_ext,
+								sum(case when NEW_OR_EXIST='新增' then coalesce(LN_Q_PROFIT,0) else 0 end) as  LN_Q_PROFIT_new
+								from IBS.T2_EMP_DEP_LN_PROFIT_SMY pf
+								inner join ibs.T99_MIDDLE_INCOME_SWITCH sw on sw.MEASURE_DT=pf.MEASURE_DT and sw.MEASURE_DT like {#MEASURE_YEAR#}||'%' %SQLExamQ%
+								left join IBS.T3_RESOURCE_MANAGER_SMY rs on rs.MEASURE_DT=pf.MEASURE_DT and rs.EMP_ID=pf.EMP_ID
+								where PSTN_TYPE='04'
+							    and pf.EMP_ID not like '1%'
+								group by pf.EMP_ID,(case when rs.EMP_ID is not null then '是' else '' end)
+							)sy on sy.EMP_ID=gw.EMP_ID
+							left join (
+								select EMP_ID , sum(INCOME) as INCOME 
+								from ibs.T1_MIDDLE_BUSINESS_INCOME sw
+								where sw.MEASURE_DT like {#MEASURE_YEAR#}||'%' %SQLExamQ%
+								group by EMP_ID
+							)mid on mid.EMP_ID=gw.EMP_ID
+							left join ibs.T5_EMP_CERTIFICATE ce on ce.EMP_ID=gw.EMP_ID
+							left join ibs.T5_EMP_GDQ_OR_GZ gd on gw.EMP_ID=gd.EMP_ID and gd.STATUS='1' and gd.MEASURE_DT like {#MEASURE_YEAR#}||'%' %SQLExamQgd%
+							left join(
+								select EMP_ID,
+								sum(BL_QTD_PROFIT_OLD-BL_QTD_PROFIT+BILL_INC+OTHER_PROFIT) as TZ_PROF_SUM
+								from ibs.T2_EMP_LN_BL_X_BILL_V
+								where CHG_DT like {#MEASURE_YEAR#}||'%' %SQLExamQtz%
+								group by EMP_ID
+							) tz on tz.EMP_ID=gw.EMP_ID 
+							 
+							
+							order by gw.HEAD_ORG_ID,gw.BRANCH_ORG_ID,gw.ORG_ID,gw.EMP_ID 
+						    ]]>
+						</value>
+						<condition name="ORG_ID0" source="session{org_id}" hidden="true">
+							<value><![CDATA[(ORG_ID='#data#' or BRANCH_ORG_ID='#data#' or HEAD_ORG_ID='#data#' )]]></value>
+						</condition>
+						<!-- 
+						<condition name="MEASURE_DT" label="统计日期" labelposition="left">
+							<value>
+							 	<![CDATA[gw.MEASURE_DT = '#data#' ]]>
+							</value>
+							<inputbox type="datepicker" styleproperty="style='width:100px'"
+								jsvalidate="isDate(#label#格式为yyyy-MM-dd)">
+							</inputbox>
+						</condition>
+						 -->
+						 <!-- 
+						<condition name="MEASURE_DT" label="考核期" labelposition="left" defaultvalue="session{exam_msr_dt_exam}">
+						<value>
+					 	<![CDATA[gw.MEASURE_DT='#data#']]>
+						</value>
+						<inputbox type="selectbox" styleproperty="style='width:130px'"  >
+							
+							<option
+								source="@{Select MEASURE_DT , SWITCH_F , REMARK from IBS.T99_MIDDLE_INCOME_SWITCH ORDER BY MEASURE_DT DESC}"
+								label="REMARK" value="MEASURE_DT" />
+						</inputbox>
+						</condition>
+						 -->
+						 <condition name="MEASURE_YEAR" label="考核年度" labelposition="left" defaultvalue="session{curYear}">
+							<value>
+							 	<![CDATA[MEASURE_DT like '#data#%' ]]>
+							</value>
+							<inputbox type="datepicker" styleproperty="style='width:100px'" dateformat="yyyy">
+							</inputbox>
+						</condition>
+						 <condition name="MEASURE_QTD" label="考核季度" labelposition="left" >
+						<value>
+					 	<![CDATA[MEASURE_DT like '%#data#']]>
+						</value>
+						<inputbox type="selectbox" styleproperty="style='width:100px'"  >
+							<option label="全部" value=""></option>
+							<option
+								source="@{select QTD , QTD_NM , QTD_CD from ibs.T9_YEAR_Q order by QTD }"
+								label="QTD_NM" value="QTD_CD" />
+						</inputbox>
+						</condition>
+						<condition name="PSTN_TYPE" labelposition="left" label="主考核类别" >
+							<value>
+								<![CDATA[PSTN_TYPE='#data#']]>
+							</value>
+							<inputbox type="selectbox" styleproperty="style='width:100px'">
+								<option
+									source="@{Select distinct PSTN_TYPE , PSTN_TYPE_NM from ibs.T9_PSTN_TYPE where PSTN_TYPE='04' order by PSTN_TYPE, PSTN_TYPE_NM }"
+									label="PSTN_TYPE_NM" value="PSTN_TYPE" />
+							</inputbox>
+						</condition>
+						<condition name="SUB_PSTN_TYPE" labelposition="left"
+							label="子考核类别">
+							<value>
+							<![CDATA[SUB_PSTN_TYPE='#data#']]>
+							</value>
+							<inputbox type="selectbox" depends="PSTN_TYPE"
+								styleproperty="style='width:150px'">
+								<option label="全部" value=""></option>
+								<option
+									source="@{select distinct SUB_PSTN_TYPE , SUB_PSTN_TYPE_NM from ibs.T9_PSTN_TYPE where PSTN_TYPE='#PSTN_TYPE#' order by SUB_PSTN_TYPE }"
+									label="SUB_PSTN_TYPE_NM" value="SUB_PSTN_TYPE" />
+							</inputbox>
+						</condition>
+						<condition name="ORG_ID1" labelposition="left" label="分行" >
+							<value>
+							<![CDATA[BRANCH_ORG_ID='#data#']]>
+							</value>
+							<inputbox type="selectbox" styleproperty="style='width:150px'" depends="ORG_ID0">
+								<option label="全部" value=""></option>
+								<option
+									source="@{SELECT DISTINCT BRANCH_ORG_ID,BRANCH_ORG_NM FROM IBS.T5_ORG WHERE ORG_TYPE_ID='EO' AND ORG_LEVEL_ID IN ('1','2','3') and (ORG_ID='#ORG_ID0#' or BRANCH_ORG_ID='#ORG_ID0#' or HEAD_ORG_ID='#ORG_ID0#') ORDER BY BRANCH_ORG_ID}"
+									label="BRANCH_ORG_NM" value="BRANCH_ORG_ID" />
+							</inputbox>
+						</condition>
+						<condition name="ORG_ID2" labelposition="left" label="支行" >
+							<value>
+							<![CDATA[ORG_ID='#data#']]>
+							</value>
+							<inputbox type="selectbox" depends="ORG_ID1;ORG_ID0"
+								styleproperty="style='width:150px'">
+								<option label="全部" value=""></option>
+								<option label="无" value="" type="false"></option>
+								<option
+									source="@{SELECT DISTINCT ORG_ID, ORG_NM FROM IBS.T5_ORG WHERE ORG_TYPE_ID='EO' AND ORG_LEVEL_ID IN ('1','2') and BRANCH_ORG_ID='#ORG_ID1#' and (HEAD_ORG_ID='#ORG_ID0#' or BRANCH_ORG_ID='#ORG_ID0#' or ORG_ID='#ORG_ID0#') ORDER BY ORG_ID}"
+									label="ORG_NM" value="ORG_ID" />
+							</inputbox>
+						</condition>
+						<!--  
+						<condition name="EMP_ID" label="员工号" labelposition="left" >
+							<value><![CDATA[sy.EMP_ID like '#data#%']]></value>
+						</condition>
+						<condition name="EMP_NM" label="员工姓名" labelposition="left">
+							<value><![CDATA[sy.EMP_NM like '#data#%']]></value>
+						</condition>
+						-->
+					</select>
+				</sql>
+				 
+				<footer><![CDATA[<div style='float:left'><font color='blue'>提示:本系统币种为本外币合计</font></div>]]></footer>
+			</report>
+
+		</vpanel>
+	</page>
+	<!--我的考核业绩汇总表 -->
+	<page id="emp_profit_smy_user"
+		js="/webresources/script/validate.js,/js/demo.js,/js/common.js">
+
+		<header>${top.header}</header>
+
+		<interceptor>
+			<imports>
+				<import>java.lang</import>
+				<import>com.wabacus.util</import>
+				<import>java.sql.Connection</import>
+				<import>java.sql.PreparedStatement</import>
+				<import>java.sql.ResultSet</import>
+				<import>javax.servlet.http.HttpSession</import>
+				<import>javax.util</import>
+				<import>javax.text</import>
+				<import>com.ljbank.market.MyMath</import>
+				<import>java.util.Date</import>
+				<import>java.text.SimpleDateFormat</import>
+			</imports>
+			<preaction>
+				<![CDATA[
+						String measure_dt = rrequest.getStringAttribute("MEASURE_DT", "");// 取出输入的查询时间
+						System.out.println("measure_dt:" + measure_dt);
+						if (measure_dt.equals("")) 
+						{
+							Connection conn = rrequest.getConnection();
+							PreparedStatement pstmt = null;
+							try {
+									String SQL = "Select DATA_DT from IBS.T8_DATA_DT";
+									pstmt = conn.prepareStatement(SQL);
+									ResultSet resultSet = pstmt.executeQuery();
+									while (resultSet.next()) {
+					                     String date=resultSet.getString("DATA_DT");
+					                     rrequest.setAttribute("MEASURE_DT", date);
+										 measure_dt=date;
+				                    }
+									System.out.println("measure_dt处理后时间为:" + measure_dt);
+									resultSet.close();
+									pstmt.close();
+								} 
+							catch (Exception e) {
+									e.printStackTrace();
+							}
+                        }
+ 				 ]]>
+			</preaction>
+		</interceptor>
+
+		<vpanel id="common_vpanel" width="1350px" align="center" title="">
+			<report id="select" title="我的考核业绩汇总表" type="listform"
+				width="1350px" top="10px" align="center" pagesize="15|20|-1" rowselect="single"
+				dataexport="richexcel" personalizeclass="default" scrollwidth="1350px" interceptor="com.customer.interceptor.InterceptorEmpProfitSmyUser">
+
+				<display>
+					<col column="{sequence:1}" label="序号" width="60px"></col>
+					<col column="MEASURE_DT" label="日期" ></col>
+					<col column="BRANCH_ORG_NM" label="分行" ></col>
+					<col column="ORG_NM" label="支行"  ></col>
+					<col column="PSTN_TYPE_NM" label="主考核类别"  ></col>
+					<col column="SUB_PSTN_TYPE_NM" label="子考核类别"  ></col>
+					<col column="EMP_ID" label="员工号" width="80px" valuestyleproperty="style='mso-number-format:\@'"></col>
+					<col column="EMP_NM" label="员工姓名" width="80px" ></col>
+					<col column="GRADE" label="资格证标识"  ></col>
+					<col column="ZY_FLAG" label="资源型标识"  ></col>
+					<col column="EMP_POS" label="岗位状态"  ></col>
+					<col column="EMP_GDQ" label="过渡期标识"  ></col>
+					<group label="贷款业绩">
+						<col column="LN_Q_PROFIT" label="合计"  align="right" datatype="double{0.00}"></col>
+						<col column="LN_Q_PROFIT_new" label="新增"  align="right" datatype="double{0.00}"></col>
+						<col column="LN_Q_PROFIT_ext" label="存量"  align="right" datatype="double{0.00}"></col>
+					</group>
+					<col column="DEP_Q_PROFIT" label="存款业绩"  align="right" datatype="double{0.00}"></col>
+					<col column="INCOME" label="中收业绩"  align="right" datatype="double{0.00}"></col>
+					<col column="TZ_PROF_SUM" label="调整业绩"  align="right" datatype="double{0.00}"></col>
+					<col column="PROFIT_SUM" label="合计"  align="right" datatype="double{0.00}"></col>
+				</display>
+				<sql>
+					<select>
+						<value><![CDATA[
+							select gw.EMP_ID
+							   ,%SQLExamCol% as MEASURE_DT
+							   ,gw.EMP_NM
+							   ,gw.ORG_ID
+							   ,gw.ORG_NM
+							   ,gw.BRANCH_ORG_ID
+							   ,gw.BRANCH_ORG_NM
+							   ,gw.HEAD_ORG_ID
+							   ,gw.PSTN_TYPE
+							   ,gw.PSTN_TYPE_NM
+							   ,gw.SUB_PSTN_TYPE
+							   ,gw.SUB_PSTN_TYPE_NM
+							   ,(coalesce(ce.YEAR,'')||coalesce(ce.GRADE,'')) as GRADE
+								,coalesce(sy.ZY_FLAG,'') as ZY_FLAG
+								,(case when gd.EMP_TYPE='过渡期' then '是' else '' end) as EMP_GDQ
+								,gw.EMP_POS
+							   ,(case when coalesce(ce.YEAR,'')='' and coalesce(sy.ZY_FLAG,'')='' then 0 else coalesce(sy.DEP_Q_PROFIT,0) end) as DEP_Q_PROFIT
+							   ,(case when coalesce(ce.YEAR,'')='' and coalesce(sy.ZY_FLAG,'')='' then 0 
+							   when coalesce(sy.ZY_FLAG,'')='是' and coalesce(sy.DEP_Q_PROFIT,0)<=0 then 0
+							   else coalesce(sy.LN_Q_PROFIT,0) end) as LN_Q_PROFIT
+							   ,(case when coalesce(ce.YEAR,'')='' and coalesce(sy.ZY_FLAG,'')='' then 0 
+								when coalesce(sy.ZY_FLAG,'')='是' and coalesce(sy.DEP_Q_PROFIT,0)<=0 then 0
+								 else coalesce(sy.LN_Q_PROFIT_ext,0) end) as LN_Q_PROFIT_ext
+							   ,(case when coalesce(ce.YEAR,'')='' and coalesce(sy.ZY_FLAG,'')='' then 0 
+							   when coalesce(sy.ZY_FLAG,'')='是' and coalesce(sy.DEP_Q_PROFIT,0)<=0 then 0
+							   else coalesce(sy.LN_Q_PROFIT_new,0) end) as LN_Q_PROFIT_new
+							   ,(case when coalesce(ce.YEAR,'')='' and coalesce(sy.ZY_FLAG,'')='' then 0 
+							   when coalesce(sy.ZY_FLAG,'')='是' and coalesce(sy.DEP_Q_PROFIT,0)<=0 then 0
+							   else coalesce(mid.INCOME,0) end) as INCOME
+							   ,(case when coalesce(ce.YEAR,'')='' and coalesce(sy.ZY_FLAG,'')='' then 0 
+							   when coalesce(sy.ZY_FLAG,'')='是' and coalesce(sy.DEP_Q_PROFIT,0)<=0 then 0
+							   else tz.TZ_PROF_SUM end) as TZ_PROF_SUM
+							   ,(case when coalesce(ce.YEAR,'')='' and coalesce(sy.ZY_FLAG,'')='' then 0 
+							   when coalesce(sy.ZY_FLAG,'')='是' and coalesce(sy.DEP_Q_PROFIT,0)<=0 then 0
+							   else (coalesce(sy.DEP_Q_PROFIT,0)+coalesce(sy.LN_Q_PROFIT,0)+coalesce(mid.INCOME,0)+coalesce(tz.TZ_PROF_SUM,0)) end) as PROFIT_SUM
+							   from (
+								select distinct EMP_ID
+							   ,EMP_NM
+							   ,ORG_ID
+							   ,ORG_NM
+							   ,BRANCH_ORG_ID
+							   ,BRANCH_ORG_NM
+							   ,HEAD_ORG_ID
+							   ,PSTN_TYPE
+							   ,PSTN_TYPE_NM
+							   ,SUB_PSTN_TYPE
+							   ,SUB_PSTN_TYPE_NM
+							   ,EMP_TYPE as EMP_POS
+								from IBS.T5_EMP_BZJX bz %INNERSQL%
+								where {#condition#}
+							) gw
+							left join (
+								select 
+								pf.EMP_ID,
+								(case when rs.EMP_ID is not null then '是' else '' end) as ZY_FLAG,
+								sum(case when rs.EMP_ID is not null and coalesce(rs.DEP_QTD_PROFIT_SJ,0)>0 then coalesce(rs.DEP_QTD_PROFIT_SJ,0)
+									when rs.EMP_ID is not null and coalesce(rs.DEP_QTD_PROFIT_SJ,0)<=0 then 0
+									else DEP_Q_PROFIT end) as DEP_Q_PROFIT,
+								sum(LN_Q_PROFIT) as LN_Q_PROFIT,
+								sum(case when NEW_OR_EXIST='存量' then coalesce(LN_Q_PROFIT,0) else 0 end)as LN_Q_PROFIT_ext,
+								sum(case when NEW_OR_EXIST='新增' then coalesce(LN_Q_PROFIT,0) else 0 end) as  LN_Q_PROFIT_new
+								from IBS.T2_EMP_DEP_LN_PROFIT_SMY pf
+								inner join ibs.T99_MIDDLE_INCOME_SWITCH sw on sw.MEASURE_DT=pf.MEASURE_DT and sw.MEASURE_DT like {#MEASURE_YEAR#}||'%' %SQLExamQ%
+								left join IBS.T3_RESOURCE_MANAGER_SMY rs on rs.MEASURE_DT=pf.MEASURE_DT and rs.EMP_ID=pf.EMP_ID
+								where PSTN_TYPE='04'
+							    and pf.EMP_ID not like '1%'
+								group by pf.EMP_ID,rs.EMP_ID
+							)sy on sy.EMP_ID=gw.EMP_ID
+							left join (
+								select EMP_ID , sum(INCOME) as INCOME 
+								from ibs.T1_MIDDLE_BUSINESS_INCOME sw
+								where sw.MEASURE_DT like {#MEASURE_YEAR#}||'%' %SQLExamQ%
+								group by EMP_ID
+							)mid on mid.EMP_ID=gw.EMP_ID
+							left join ibs.T5_EMP_CERTIFICATE ce on ce.EMP_ID=gw.EMP_ID
+							left join ibs.T5_EMP_GDQ_OR_GZ gd on gw.EMP_ID=gd.EMP_ID and gd.STATUS='1' and gd.MEASURE_DT like {#MEASURE_YEAR#}||'%' %SQLExamQgd%
+							left join(
+								select EMP_ID,
+								sum(BL_QTD_PROFIT_OLD-BL_QTD_PROFIT+BILL_INC+OTHER_PROFIT) as TZ_PROF_SUM
+								from ibs.T2_EMP_LN_BL_X_BILL_V
+								where CHG_DT like {#MEASURE_YEAR#}||'%' %SQLExamQtz%
+								group by EMP_ID
+							) tz on tz.EMP_ID=gw.EMP_ID 
+							left join IBS.T5_EMP_ASSESSMENT_Q zy on zy.EMP_ID=gw.EMP_ID 
+							
+						    ]]>
+						</value>
+						<!-- 
+						<condition name="ORG_ID0" source="session{org_id}" hidden="true">
+							<value><![CDATA[(gw.ORG_ID='#data#' or gw.BRANCH_ORG_ID='#data#' or gw.HEAD_ORG_ID='#data#' )]]></value>
+						</condition>
+						<condition name="MEASURE_DT" label="统计日期" labelposition="left">
+							<value>
+							 	<![CDATA[gw.MEASURE_DT = '#data#' ]]>
+							</value>
+							<inputbox type="datepicker" styleproperty="style='width:100px'"
+								jsvalidate="isDate(#label#格式为yyyy-MM-dd)">
+							</inputbox>
+						</condition>
+						 -->
+						 <!-- 
+						<condition name="MEASURE_DT" label="考核期" labelposition="left" defaultvalue="session{exam_msr_dt_exam}">
+							<value>
+					 		<![CDATA[gw.MEASURE_DT='#data#']]>
+							</value>
+							<inputbox type="selectbox" styleproperty="style='width:130px'" >
+							
+							<option
+								source="@{Select MEASURE_DT , SWITCH_F , REMARK from IBS.T99_MIDDLE_INCOME_SWITCH ORDER BY MEASURE_DT DESC}"
+								label="REMARK" value="MEASURE_DT" />
+							</inputbox>
+						</condition>
+						 -->
+						<condition name="MEASURE_YEAR" label="考核年度" labelposition="left" defaultvalue="session{curYear}">
+							<value>
+							 	<![CDATA[MEASURE_DT like '#data#%' ]]>
+							</value>
+							<inputbox type="datepicker" styleproperty="style='width:100px'" dateformat="yyyy">
+							</inputbox>
+						</condition>
+						 <condition name="MEASURE_QTD" label="考核季度" labelposition="left" >
+						<value>
+					 	<![CDATA[MEASURE_DT like '%#data#']]>
+						</value>
+						<inputbox type="selectbox" styleproperty="style='width:100px'"  >
+							<option label="全部" value=""></option>
+							<option
+								source="@{select QTD , QTD_NM , QTD_CD from ibs.T9_YEAR_Q order by QTD }"
+								label="QTD_NM" value="QTD_CD" />
+						</inputbox>
+						</condition>
+						<condition name="EMP_ID" label="员工号" labelposition="left" source="session{user_id}" hidden="true">
+							<value><![CDATA[EMP_ID = '#data#']]></value>
+						</condition>
+						<!--  
+						<condition name="EMP_NM" label="员工姓名" labelposition="left">
+							<value><![CDATA[sy.EMP_NM like '#data#%']]></value>
+						</condition>
+						-->
+					</select>
+				</sql>
+				<footer><![CDATA[<div style='float:left'><font color='blue'>提示:本系统币种为本外币合计</font></div>]]></footer>
+			</report>
+
+		</vpanel>
+	</page>
+</applications>

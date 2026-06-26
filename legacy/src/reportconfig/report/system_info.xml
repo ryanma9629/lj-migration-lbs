@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<applications xmlns="http://www.wabacus.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.wabacus.com ../xsd/wabacus.applications.xsd">
+
+	<page id="system_info" js="/webresources/script/validate.js">
+
+		<header>${top.header}</header>
+
+		<vpanel id="common_vpanel" align="center" width="1000px">
+
+			<report id="title" extends="title.report1"></report>
+			<report id="report1" title="" type="listform" top="10px"
+				personalizeclass="default" pagesize="15|20|-1" width="1000px"
+				navigate="${navigatepagesizepage1.report3.navigate}" scrollheight="450px">
+
+				<display colselect="false">
+					<col column="MSG_DT" label="消息日期" width="80px" br="true"></col>
+					<col column="MSE_STATE" label="消息状态" width="80px">
+						<inputbox type="selectbox" styleproperty="style='width:99%'">
+							<option label="生效" value="1"></option>
+							<option label="过期" value="0"></option>
+
+						</inputbox>
+					</col>
+					<col column="MSG_PER" label="消息发布人" width="100px" displaytype="hidden"></col>
+					<col column="MSG_INFO" label="消息内容" width="700px">
+						<inputbox type="textbox" styleproperty="style='width:99%'"></inputbox>
+					</col>
+
+				</display>
+				<sql datasource="ds_db2">
+					<select>
+						<value>
+							<![CDATA[
+							SELECT    MSG_DT
+									, MSE_STATE
+									, MSG_PER
+									, MSG_INFO
+							FROM     IBS.T99_NEW_MEGS 
+							order by MSG_DT desc
+							]]>
+						</value>
+					</select>
+					<insert>
+						<params>
+							<param name="user_id" value="session{user_id}"></param>
+							<param name="current_time" value="now{}" datatype="timestamp{yyyy-MM-dd}"></param>
+						</params>
+						<value>
+							<![CDATA[
+							INSERT INTO IBS.T99_NEW_MEGS
+							(
+								MSG_DT
+								,MSE_STATE
+								,MSG_PER
+								,MSG_INFO
+							)
+							Values
+							(
+								#{current_time}
+								,'1'
+								,#{user_id}
+							    ,@{MSG_INFO}
+							)
+							]]>
+						</value>
+					</insert>
+					<update>
+						<params>
+							<param name="user_id" value="session{user_id}"></param>
+							<param name="current_time" value="now{}" datatype="timestamp{yyyy-MM-dd}"></param>
+						</params>
+						<value>
+							<![CDATA[
+							update IBS.T99_NEW_MEGS
+							set (MSG_DT, MSE_STATE, MSG_PER, MSG_INFO)
+							=
+							(#{current_time}, @{MSE_STATE} ,#{user_id}, @{MSG_INFO} )
+							where MSG_DT=@{MSG_DT__old} and MSG_INFO=@{MSG_INFO__old} and MSE_STATE=@{MSE_STATE__old}
+							
+							;	
+							]]>
+						</value>
+					</update>
+					<delete>
+						<params>
+							<param name="user_id" value="session{user_id}"></param>
+							<param name="current_time" value="now{}" datatype="timestamp{yyyy-MM-dd}"></param>
+						</params>
+						<value>
+							<![CDATA[
+							update IBS.T99_NEW_MEGS
+							set (MSG_DT, MSE_STATE, MSG_PER, MSG_INFO)
+							=
+							(#{current_time}, '0' ,#{user_id}, @{MSG_INFO} )
+							where MSG_DT=@{MSG_DT__old} and MSG_INFO=@{MSG_INFO__old}
+							and MSE_STATE=@{MSE_STATE__old} and MSG_PER=@{MSG_PER__old}
+							;
+							]]>
+						</value>
+					</delete>
+
+				</sql>
+			</report>
+
+		</vpanel>
+	</page>
+
+</applications>

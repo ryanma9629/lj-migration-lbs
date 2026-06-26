@@ -1,0 +1,637 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<applications xmlns="http://www.wabacus.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.wabacus.com ../xsd/wabacus.applications.xsd">
+	<!--其它业务得分 总行 -->
+	<page id="qtywdf_smy"
+		js="/webresources/script/validate.js,/js/demo.js,/js/common.js">
+		<header>${top.header}</header>
+		<interceptor>
+			<imports>
+				<import>java.lang</import>
+				<import>com.wabacus.util</import>
+				<import>java.sql.Connection</import>
+				<import>java.sql.PreparedStatement</import>
+				<import>java.sql.ResultSet</import>
+				<import>javax.servlet.http.HttpSession</import>
+				<import>javax.util</import>
+				<import>javax.text</import>
+				<import>com.ljbank.market.MyMath</import>
+				<import>java.util.Date</import>
+				<import>java.text.SimpleDateFormat</import>
+			</imports>
+			<preaction>
+				<![CDATA[
+						String beginTime = rrequest.getStringAttribute("MEASURE_DT", "");// 取出输入的查询时间
+						System.out.println("beginTime:" + beginTime);
+						if (beginTime.equals("")) 
+						{
+							Connection conn = rrequest.getConnection();
+							PreparedStatement pstmt = null;
+							try {
+									String SQL = "Select DATA_DT from IBS.T8_DATA_DT";
+									pstmt = conn.prepareStatement(SQL);
+									ResultSet resultSet = pstmt.executeQuery();
+									while (resultSet.next()) {
+					                     String date=resultSet.getString("DATA_DT");
+					                     rrequest.setAttribute("MEASURE_DT", date);
+				                    }
+									
+									System.out.println("beginTime处理后时间为:" + beginTime);
+									resultSet.close();
+									pstmt.close();
+								} 
+							catch (Exception e) {
+									e.printStackTrace();
+							}
+                        }
+                    
+				]]>
+			</preaction>
+		</interceptor>
+		<vpanel id="common_vpanel" width="1000px" align="center" title="">
+
+			<report id="title" extends="title.report1" width="1000px"></report>
+			<report id="select" title="其它业务得分" type="editablelist"
+				scrollwidth="1000px" width="1000px" top="10px" align="center"
+				pagesize="15|20|-1" dataexport="richexcel" personalizeclass="default">
+
+				<display>										
+					<col column="EMP_ID" label="员工号" width="60px" valuestyleproperty="style='mso-number-format:\@'"></col>
+					<col column="EMP_NM" label="姓名" width="60px"></col>
+					<col column="BIZ_TYPE_NM" label="业务类型" width="100px"></col>
+					<col column="SCORE" label="得分" width="120px"></col>
+					<col column="ORG_ID" label="机构号" width="60px" clickorderby="false" valuestyleproperty="style='mso-number-format:\@'"></col>
+					<col column="ORG_NM" label="机构名" width="100px"></col>
+					<col column="BRANCH_ORG_ID" label="分行机构号" width="100px" ></col>
+					<col column="BRANCH_ORG_NM" label="分行机构名" width="100px"></col>
+					<col column="MEASURE_DT" label="日期" width="100px"></col>
+				</display>
+				<sql>
+					<select>
+						<value><![CDATA[
+							Select a.EMP_ID,a.EMP_NM,a.MEASURE_DT,a.BIZ_TYPE_ID,a.BIZ_TYPE_NM,a.SCORE,b.ORG_ID,b.ORG_NM,b.BRANCH_ORG_ID,b.BRANCH_ORG_NM 
+							from IBS.T2_EMP_OTHER_BIZ a
+							left join ibs.T5_EMP b
+							on a.EMP_ID=b.EMP_ID
+							WHERE {#condition#}
+							order by a.EMP_ID
+						    ]]>
+						</value>
+						<condition name="EMP_ID" label="员工号" labelposition="left">
+							<value>
+							 		<![CDATA[a.EMP_ID='#data#']]>
+							</value>
+							<inputbox styleproperty="style='width:100px'">
+								<typeprompt width="300" count="10">
+									<promptcol label="EMP_ID" value="EMP_ID" title="认领工号"
+										matchmode="anywhere" casesensitive="false" />
+									<promptcol label="EMP_NM" value="EMP_NM" title="姓名"
+										matchmode="anywhere" casesensitive="false" />
+									<datasource>
+										<option
+											source="@{Select DISTINCT EMP_ID, EMP_NM from IBS.T5_EMP  WHERE   {#matchcondition#}} " />
+									</datasource>
+								</typeprompt>
+							</inputbox>
+						</condition>
+						<condition name="EMP_NM" label="姓名" labelposition="left">
+							<value>
+							 		<![CDATA[a.EMP_NM='#data#']]>
+							</value>
+							<inputbox styleproperty="style='width:100px'">
+								<typeprompt width="300" count="10">
+									<promptcol label="EMP_ID" value="EMP_ID" title="认领工号"
+										matchmode="anywhere" casesensitive="false" />
+									<promptcol label="EMP_NM" value="EMP_NM" title="姓名"
+										matchmode="anywhere" casesensitive="false" />
+									<datasource>
+										<option
+											source="@{Select DISTINCT EMP_ID, EMP_NM from IBS.T5_EMP  WHERE   {#matchcondition#}} " />
+									</datasource>
+								</typeprompt>
+							</inputbox>
+						</condition>
+						<condition name="ORG_ID1" labelposition="left" label="分行">
+							<value>
+							<![CDATA[(b.BRANCH_ORG_ID='#data#')]]>
+							</value>
+							<inputbox type="selectbox" styleproperty="style='width:150px'">
+								<option label="全部" value=""></option>
+								<option
+									source="@{SELECT DISTINCT BRANCH_ORG_ID , CASE WHEN ORG_LEVEL_ID='2' THEN BRANCH_ORG_NM ELSE BRANCH_ORG_NM||'机关' END AS BRANCH_ORG_NM FROM IBS.T5_ORG WHERE ORG_TYPE_ID='EO' AND ORG_LEVEL_ID IN ('2','3') ORDER BY BRANCH_ORG_ID}"
+									label="BRANCH_ORG_NM" value="BRANCH_ORG_ID" />
+							</inputbox>
+						</condition>
+						<condition name="ORG_ID2" labelposition="left" label="支行">
+							<value>
+							<![CDATA[(b.ORG_ID='#data#')]]>
+							</value>
+							<inputbox type="selectbox" depends="ORG_ID1"
+								styleproperty="style='width:150px'">
+								<option label="全部" value=""></option>
+								<option label="无" value="" type="false"></option>
+								<option
+									source="@{SELECT DISTINCT ORG_ID, ORG_NM FROM IBS.T5_ORG WHERE BRANCH_ORG_ID='#ORG_ID1#' and ORG_TYPE_ID='EO' AND ORG_LEVEL_ID IN ('1','2') ORDER BY ORG_ID}"
+									label="ORG_NM" value="ORG_ID" />
+							</inputbox>
+						</condition>
+						<condition name="MEASURE_DT" label="日期" labelposition="left"
+							br="true">
+							<value>
+						 	<![CDATA[(a.MEASURE_DT='#data#')]]>
+							</value>
+							<inputbox type="datepicker" styleproperty="style='width:120px'"
+								jsvalidate="isDate(#label#格式为yyyy-MM-dd)">
+							</inputbox>
+						</condition>
+					</select>
+				</sql>
+				 
+				<format>
+					<imports>
+						<import>com.ljbank.util.*</import>
+						<import>com.wabacus.util.*</import>
+						<import>java.util.*</import>
+						<import>java.text.*</import>
+						<import>com.wabacus.system.*</import>
+					</imports>
+					<value>
+					<![CDATA[
+						
+						BRANCH_ORG_NM=BRANCH_ORG_NM==null?"":BRANCH_ORG_NM.trim();
+						String branch_org_nm=BRANCH_ORG_NM;
+		        		branch_org_nm=branch_org_nm.replaceAll("XX银行","");
+		        		if(!branch_org_nm.equals("")) BRANCH_ORG_NM=branch_org_nm;
+				
+						ORG_NM=ORG_NM==null?"":ORG_NM.trim();
+						String org_nm=ORG_NM;
+						org_nm=org_nm.replaceAll(branch_org_nm,"");
+						org_nm=org_nm.replaceAll("XX银行","");
+						if(!org_nm.equals("")) ORG_NM=org_nm;
+					]]>
+					</value>
+				</format>
+			</report>
+		</vpanel>
+	</page>
+
+	<!--其它业务得分 分行 -->
+	<page id="qtywdf_smy_branch"
+		js="/webresources/script/validate.js,/js/demo.js,/js/common.js">
+		<header>${top.header}</header>
+		<interceptor>
+			<imports>
+				<import>java.lang</import>
+				<import>com.wabacus.util</import>
+				<import>java.sql.Connection</import>
+				<import>java.sql.PreparedStatement</import>
+				<import>java.sql.ResultSet</import>
+				<import>javax.servlet.http.HttpSession</import>
+				<import>javax.util</import>
+				<import>javax.text</import>
+				<import>com.ljbank.market.MyMath</import>
+				<import>java.util.Date</import>
+				<import>java.text.SimpleDateFormat</import>
+			</imports>
+			<preaction>
+				<![CDATA[
+						String beginTime = rrequest.getStringAttribute("MEASURE_DT", "");// 取出输入的查询时间
+						System.out.println("beginTime:" + beginTime);
+						if (beginTime.equals("")) 
+						{
+							Connection conn = rrequest.getConnection();
+							PreparedStatement pstmt = null;
+							try {
+									String SQL = "Select DATA_DT from IBS.T8_DATA_DT";
+									pstmt = conn.prepareStatement(SQL);
+									ResultSet resultSet = pstmt.executeQuery();
+									while (resultSet.next()) {
+					                     String date=resultSet.getString("DATA_DT");
+					                     rrequest.setAttribute("MEASURE_DT", date);
+				                    }
+									
+									System.out.println("beginTime处理后时间为:" + beginTime);
+									resultSet.close();
+									pstmt.close();
+								} 
+							catch (Exception e) {
+									e.printStackTrace();
+							}
+                        }
+                    
+				]]>
+			</preaction>
+		</interceptor>
+
+
+		<vpanel id="common_vpanel" width="1000px" align="center" title="">
+
+			<report id="title" extends="title.report1" width="1000px"></report>
+			<report id="select" title="其它业务得分" type="editablelist"
+				scrollwidth="1000px" width="1000px" top="10px" align="center"
+				pagesize="15|20|-1" dataexport="richexcel" personalizeclass="default">
+
+				<display>
+					<col column="EMP_ID" label="员工号" width="60px" valuestyleproperty="style='mso-number-format:\@'"></col>
+					<col column="EMP_NM" label="姓名" width="60px"></col>
+					<col column="BIZ_TYPE_NM" label="业务类型" width="60px"></col>
+					<col column="SCORE" label="得分" width="120px"></col>
+					<col column="ORG_ID" label="机构号" width="60px" clickorderby="false" valuestyleproperty="style='mso-number-format:\@'"></col>
+					<col column="ORG_NM" label="机构名" width="100px"></col>
+					<col column="BRANCH_ORG_ID" label="分行机构号" width="100px" ></col>
+					<col column="BRANCH_ORG_NM" label="分行机构名" width="100px"></col>
+					<col column="MEASURE_DT" label="日期" width="100px"></col> 
+				</display>
+				<sql>
+					<select>
+						<value><![CDATA[
+						Select a.EMP_ID,a.EMP_NM,a.MEASURE_DT,a.BIZ_TYPE_ID,a.BIZ_TYPE_NM,a.SCORE,b.ORG_ID,b.ORG_NM,b.BRANCH_ORG_ID,b.BRANCH_ORG_NM 
+							from IBS.T2_EMP_OTHER_BIZ a
+							left join ibs.T5_EMP b
+							on a.EMP_ID=b.EMP_ID
+							WHERE {#condition#}
+						    ]]>
+						</value>
+
+						<condition name="EMP_ID" label="认领工号" labelposition="left">
+							<value>
+							 		<![CDATA[a.EMP_ID='#data#']]>
+							</value>
+							<inputbox styleproperty="style='width:100px'">
+								<typeprompt width="300" count="10">
+									<promptcol label="EMP_ID" value="EMP_ID" title="认领工号"
+										matchmode="anywhere" casesensitive="false" />
+									<promptcol label="EMP_NM" value="EMP_NM" title="姓名"
+										matchmode="anywhere" casesensitive="false" />
+									<datasource>
+										<option
+											source="@{Select DISTINCT EMP_ID, EMP_NM from IBS.T5_EMP  WHERE   {#matchcondition#}} " />
+									</datasource>
+								</typeprompt>
+							</inputbox>
+						</condition>
+						<condition name="EMP_NM" label="姓名" labelposition="left">
+							<value>
+							 		<![CDATA[a.EMP_NM='#data#']]>
+							</value>
+							<inputbox styleproperty="style='width:100px'">
+								<typeprompt width="300" count="10">
+									<promptcol label="EMP_ID" value="EMP_ID" title="认领工号"
+										matchmode="anywhere" casesensitive="false" />
+									<promptcol label="EMP_NM" value="EMP_NM" title="姓名"
+										matchmode="anywhere" casesensitive="false" />
+									<datasource>
+										<option
+											source="@{Select DISTINCT EMP_ID, EMP_NM from IBS.T5_EMP  WHERE   {#matchcondition#}} " />
+									</datasource>
+								</typeprompt>
+							</inputbox>
+						</condition>
+						<condition name="ORG_ID1" labelposition="left" label="分行"
+							source="session{org_id}">
+							<value>
+							<![CDATA[(b.BRANCH_ORG_ID='#data#')]]>
+							</value>
+						</condition>
+						<condition name="ORG_ID2" labelposition="left" label="支行">
+							<value>
+							<![CDATA[(b.ORG_ID='#data#')]]>
+							</value>
+							<inputbox type="selectbox" depends="ORG_ID1"
+								styleproperty="style='width:150px'">
+								<option label="全部" value=""></option>
+								<option label="无" value="" type="false"></option>
+								<option
+									source="@{SELECT DISTINCT ORG_ID, ORG_NM FROM IBS.T5_ORG WHERE BRANCH_ORG_ID='#ORG_ID1#' and ORG_TYPE_ID='EO' AND ORG_LEVEL_ID IN ('1','2') ORDER BY ORG_ID}"
+									label="ORG_NM" value="ORG_ID" />
+							</inputbox>
+						</condition>
+						<condition name="MEASURE_DT" label="日期" labelposition="left"
+							br="true">
+							<value>
+						 	<![CDATA[(a.MEASURE_DT='#data#')]]>
+							</value>
+							<inputbox type="datepicker" styleproperty="style='width:120px'"
+								jsvalidate="isDate(#label#格式为yyyy-MM-dd)">
+							</inputbox>
+						</condition>
+						
+					</select>
+				</sql>
+				
+				<format>
+					<imports>
+						<import>com.ljbank.util.*</import>
+						<import>com.wabacus.util.*</import>
+						<import>java.util.*</import>
+						<import>java.text.*</import>
+						<import>com.wabacus.system.*</import>
+					</imports>
+					<value>
+					<![CDATA[
+						BRANCH_ORG_NM=BRANCH_ORG_NM==null?"":BRANCH_ORG_NM.trim();
+						String branch_org_nm=BRANCH_ORG_NM;
+		        		branch_org_nm=branch_org_nm.replaceAll("XX银行","");
+		        		if(!branch_org_nm.equals("")) BRANCH_ORG_NM=branch_org_nm;
+				
+						ORG_NM=ORG_NM==null?"":ORG_NM.trim();
+						String org_nm=ORG_NM;
+						org_nm=org_nm.replaceAll(branch_org_nm,"");
+						org_nm=org_nm.replaceAll("XX银行","");
+						if(!org_nm.equals("")) ORG_NM=org_nm;
+				
+					]]>
+					</value>
+				</format>
+				<footer><![CDATA[<div style='float:left'><font color='blue'></font></div>]]></footer>
+			 
+			</report>
+		</vpanel>
+	</page>
+
+	<!--其它业务得分 支行 -->
+	<page id="qtywdf_smy_subbranch"
+		js="/webresources/script/validate.js,/js/demo.js,/js/common.js">
+		<header>${top.header}</header>
+		<interceptor>
+			<imports>
+				<import>java.lang</import>
+				<import>com.wabacus.util</import>
+				<import>java.sql.Connection</import>
+				<import>java.sql.PreparedStatement</import>
+				<import>java.sql.ResultSet</import>
+				<import>javax.servlet.http.HttpSession</import>
+				<import>javax.util</import>
+				<import>javax.text</import>
+				<import>com.ljbank.market.MyMath</import>
+				<import>java.util.Date</import>
+				<import>java.text.SimpleDateFormat</import>
+			</imports>
+			<preaction>
+				<![CDATA[
+						String beginTime = rrequest.getStringAttribute("MEASURE_DT", "");// 取出输入的查询时间
+						System.out.println("beginTime:" + beginTime);
+						if (beginTime.equals("")) 
+						{
+							Connection conn = rrequest.getConnection();
+							PreparedStatement pstmt = null;
+							try {
+									String SQL = "Select DATA_DT from IBS.T8_DATA_DT";
+									pstmt = conn.prepareStatement(SQL);
+									ResultSet resultSet = pstmt.executeQuery();
+									while (resultSet.next()) {
+					                     String date=resultSet.getString("DATA_DT");
+					                     rrequest.setAttribute("MEASURE_DT", date);
+				                    }
+									
+									System.out.println("beginTime处理后时间为:" + beginTime);
+									resultSet.close();
+									pstmt.close();
+								} 
+							catch (Exception e) {
+									e.printStackTrace();
+							}
+                        }
+                    
+				]]>
+			</preaction>
+		</interceptor>
+		<vpanel id="common_vpanel" width="1000px" align="center" title="">
+
+			<report id="title" extends="title.report1" width="1000px"></report>
+			<report id="select" title="其它业务得分" type="editablelist"
+				scrollwidth="1000px" width="1000px" top="10px" align="center"
+				pagesize="15|20|-1" dataexport="richexcel" personalizeclass="default">
+
+				<display>
+					<col column="EMP_ID" label="员工号" width="60px" valuestyleproperty="style='mso-number-format:\@'"></col>
+					<col column="EMP_NM" label="姓名" width="60px"></col>
+					<col column="BIZ_TYPE_NM" label="业务类型" width="100px"></col>
+					<col column="SCORE" label="得分" width="120px"></col>
+					<col column="ORG_ID" label="机构号" width="60px" clickorderby="false" valuestyleproperty="style='mso-number-format:\@'"></col>
+					<col column="ORG_NM" label="机构名" width="100px"></col>
+					<col column="BRANCH_ORG_ID" label="分行机构号" width="100px" ></col>
+					<col column="BRANCH_ORG_NM" label="分行机构名" width="100px"></col>
+					<col column="MEASURE_DT" label="日期" width="100px"></col> 
+				</display>
+
+				<sql>
+					<select>
+						<value><![CDATA[
+						    Select a.EMP_ID,a.EMP_NM,a.MEASURE_DT,a.BIZ_TYPE_ID,a.BIZ_TYPE_NM,a.SCORE,b.ORG_ID,b.ORG_NM,b.BRANCH_ORG_ID,b.BRANCH_ORG_NM 
+							from IBS.T2_EMP_OTHER_BIZ a
+							left join ibs.T5_EMP b
+							on a.EMP_ID=b.EMP_ID
+							WHERE {#condition#}
+						    ]]>
+						</value>
+
+
+						<condition name="EMP_ID" label="认领工号" labelposition="left">
+							<value>
+							 		<![CDATA[a.EMP_ID='#data#']]>
+							</value>
+							<inputbox styleproperty="style='width:100px'">
+								<typeprompt width="300" count="10">
+									<promptcol label="EMP_ID" value="EMP_ID" title="认领工号"
+										matchmode="anywhere" casesensitive="false" />
+									<promptcol label="EMP_NM" value="EMP_NM" title="姓名"
+										matchmode="anywhere" casesensitive="false" />
+									<datasource>
+										<option
+											source="@{Select DISTINCT EMP_ID, EMP_NM from IBS.T5_EMP  WHERE   {#matchcondition#}} " />
+									</datasource>
+								</typeprompt>
+							</inputbox>
+						</condition>
+						<condition name="EMP_NM" label="姓名" labelposition="left">
+							<value>
+							 		<![CDATA[a.EMP_NM='#data#']]>
+							</value>
+							<inputbox styleproperty="style='width:100px'">
+								<typeprompt width="300" count="10">
+									<promptcol label="EMP_ID" value="EMP_ID" title="认领工号"
+										matchmode="anywhere" casesensitive="false" />
+									<promptcol label="EMP_NM" value="EMP_NM" title="姓名"
+										matchmode="anywhere" casesensitive="false" />
+									<datasource>
+										<option
+											source="@{Select DISTINCT EMP_ID, EMP_NM from IBS.T5_EMP  WHERE   {#matchcondition#}} " />
+									</datasource>
+								</typeprompt>
+							</inputbox>
+						</condition>
+						<condition name="ORG_ID2" labelposition="left" label="支行"
+							source="session{org_id}">
+							<value>
+							<![CDATA[(b.ORG_ID='#data#')]]>
+							</value>
+						</condition>
+
+						<condition name="MEASURE_DT" label="日期" labelposition="left"
+							br="true">
+							<value>
+						 	<![CDATA[(a.MEASURE_DT='#data#')]]>
+							</value>
+							<inputbox type="datepicker" styleproperty="style='width:120px'"
+								jsvalidate="isDate(#label#格式为yyyy-MM-dd)">
+							</inputbox>
+						</condition>
+
+						
+					</select>
+				</sql>
+				<format>
+					<imports>
+						<import>com.ljbank.util.*</import>
+						<import>java.util.*</import>
+						<import>java.text.*</import>
+						<import>com.wabacus.system.*</import>
+					</imports>
+					<value>
+					<![CDATA[
+						
+						BRANCH_ORG_NM=BRANCH_ORG_NM==null?"":BRANCH_ORG_NM.trim();
+						String branch_org_nm=BRANCH_ORG_NM;
+		        		branch_org_nm=branch_org_nm.replaceAll("XX银行","");
+		        		if(!branch_org_nm.equals("")) BRANCH_ORG_NM=branch_org_nm;
+				
+						ORG_NM=ORG_NM==null?"":ORG_NM.trim();
+						String org_nm=ORG_NM;
+						org_nm=org_nm.replaceAll(branch_org_nm,"");
+						org_nm=org_nm.replaceAll("XX银行","");
+						if(!org_nm.equals("")) ORG_NM=org_nm;
+					]]>
+					</value>
+				</format>
+				<footer><![CDATA[<div style='float:left'><font color='blue'></font></div>]]></footer>
+
+			</report>
+		</vpanel>
+	</page>
+<!--其它业务得分 普通员工 -->
+	<page id="qtywdf_smy_user"
+		js="/webresources/script/validate.js,/js/demo.js,/js/common.js">
+		<header>${top.header}</header>
+		<interceptor>
+			<imports>
+				<import>java.lang</import>
+				<import>com.wabacus.util</import>
+				<import>java.sql.Connection</import>
+				<import>java.sql.PreparedStatement</import>
+				<import>java.sql.ResultSet</import>
+				<import>javax.servlet.http.HttpSession</import>
+				<import>javax.util</import>
+				<import>javax.text</import>
+				<import>com.ljbank.market.MyMath</import>
+				<import>java.util.Date</import>
+				<import>java.text.SimpleDateFormat</import>
+			</imports>
+			<preaction>
+				<![CDATA[
+						String beginTime = rrequest.getStringAttribute("MEASURE_DT", "");// 取出输入的查询时间
+						System.out.println("beginTime:" + beginTime);
+						if (beginTime.equals("")) 
+						{
+							Connection conn = rrequest.getConnection();
+							PreparedStatement pstmt = null;
+							try {
+									String SQL = "Select DATA_DT from IBS.T8_DATA_DT";
+									pstmt = conn.prepareStatement(SQL);
+									ResultSet resultSet = pstmt.executeQuery();
+									while (resultSet.next()) {
+					                     String date=resultSet.getString("DATA_DT");
+					                     rrequest.setAttribute("MEASURE_DT", date);
+				                    }
+									
+									System.out.println("beginTime处理后时间为:" + beginTime);
+									resultSet.close();
+									pstmt.close();
+								} 
+							catch (Exception e) {
+									e.printStackTrace();
+							}
+                        }
+                    
+				]]>
+			</preaction>
+		</interceptor>
+
+
+		<vpanel id="common_vpanel" width="1000px" align="center" title="">
+
+			<report id="title" extends="title.report1" width="1000px"></report>
+			<report id="select" title="其它业务得分" type="editablelist"
+				scrollwidth="1000px" width="1000px" top="10px" align="center"
+				pagesize="15|20|-1" dataexport="richexcel" personalizeclass="default">
+
+				<display>
+
+					<col column="EMP_ID" label="员工号" width="60px" valuestyleproperty="style='mso-number-format:\@'"></col>
+					<col column="EMP_NM" label="姓名" width="60px"></col>
+					<col column="BIZ_TYPE_NM" label="业务类型" width="100px"></col>
+					<col column="SCORE" label="得分" width="120px"></col>
+					<col column="ORG_ID" label="机构号" width="60px" clickorderby="false" valuestyleproperty="style='mso-number-format:\@'"></col>
+					<col column="ORG_NM" label="机构名" width="100px"></col>
+					<col column="BRANCH_ORG_ID" label="分行机构号" width="100px" ></col>
+					<col column="BRANCH_ORG_NM" label="分行机构名" width="100px"></col>
+					<col column="MEASURE_DT" label="日期" width="100px"></col> 
+
+				</display>
+				<sql>
+					<select>
+						<value><![CDATA[
+						    Select a.EMP_ID,a.EMP_NM,a.MEASURE_DT,a.BIZ_TYPE_ID,a.BIZ_TYPE_NM,a.SCORE,b.ORG_ID,b.ORG_NM,b.BRANCH_ORG_ID,b.BRANCH_ORG_NM 
+							from IBS.T2_EMP_OTHER_BIZ a
+							left join ibs.T5_EMP b
+							on a.EMP_ID=b.EMP_ID
+							WHERE {#condition#}
+						
+						    ]]>
+						</value>
+
+						<condition name="user_id" source="session{user_id}">
+							<value><![CDATA[a.EMP_ID='#data#']]></value>
+						</condition>
+
+						<condition name="MEASURE_DT" label="日期" labelposition="left">
+							<value>
+						 	<![CDATA[(a.MEASURE_DT='#data#')]]>
+							</value>
+							<inputbox type="datepicker" styleproperty="style='width:120px'"
+								jsvalidate="isDate(#label#格式为yyyy-MM-dd)">
+							</inputbox>
+						</condition>
+					</select>
+				</sql>
+				<format>
+					<imports>
+						<import>com.ljbank.util.*</import>
+						<import>java.util.*</import>
+						<import>java.text.*</import>
+						<import>com.wabacus.system.*</import>
+					</imports>
+					<value>
+					<![CDATA[
+
+						BRANCH_ORG_NM=BRANCH_ORG_NM==null?"":BRANCH_ORG_NM.trim();
+						String branch_org_nm=BRANCH_ORG_NM;
+		        		branch_org_nm=branch_org_nm.replaceAll("XX银行","");
+		        		if(!branch_org_nm.equals("")) BRANCH_ORG_NM=branch_org_nm;
+				
+						ORG_NM=ORG_NM==null?"":ORG_NM.trim();
+						String org_nm=ORG_NM;
+						org_nm=org_nm.replaceAll(branch_org_nm,"");
+						org_nm=org_nm.replaceAll("XX银行","");
+						if(!org_nm.equals("")) ORG_NM=org_nm;
+				
+						
+					]]>
+					</value>
+				</format>
+			</report>
+		</vpanel>
+	</page>
+	
+</applications>

@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<applications xmlns="http://www.wabacus.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.wabacus.com ../xsd/wabacus.applications.xsd">
+	<!--贵金属销售业绩排名 -->
+	<page id="emp_gold_smy"
+		js="/webresources/script/validate.js,/js/demo.js,/js/common.js">
+		<header>${top.header}</header>
+		<interceptor>
+			<imports>
+				<import>java.lang</import>
+				<import>com.wabacus.util</import>
+				<import>java.sql.Connection</import>
+				<import>java.sql.PreparedStatement</import>
+				<import>java.sql.ResultSet</import>
+				<import>javax.servlet.http.HttpSession</import>
+				<import>javax.util</import>
+				<import>javax.text</import>
+				<import>com.ljbank.market.MyMath</import>
+				<import>java.util.Date</import>
+				<import>java.text.SimpleDateFormat</import>
+			</imports>
+			<preaction>
+				<![CDATA[
+				
+				Util u = new Util();
+				String date=u.getDate();
+				String txn_dt_st = rrequest.getStringAttribute("TXN_DT_ST", "");
+				String txn_dt_ed = rrequest.getStringAttribute("TXN_DT_ED", "");
+				
+				if(txn_dt_st.equals("")){
+					rrequest.setAttribute("TXN_DT_ST", date);
+				}
+				if(txn_dt_ed.equals("")){
+					rrequest.setAttribute("TXN_DT_ED", date);
+				}
+				
+                    
+				]]>
+			</preaction>
+		</interceptor>
+		<vpanel id="common_vpanel" width="1350px" align="center" title="">
+
+			<report id="title" extends="title.report1" width="1350px"></report>
+			<report id="select" title="贵金属销售业绩" type="editablelist"
+				scrollwidth="1350px" width="1350px" top="10px" align="center"
+				pagesize="15|20|-1" dataexport="richexcel" personalizeclass="default" cellresize="2">
+
+				<display>
+					<col column="{sequence:1}" label="排名" width="40px"></col>
+					<col column="EMP_ID" label="员工号" ></col>
+					<col column="EMP_NM" label="员工姓名"></col>	
+					<col column="ORG_ID" label="机构号" ></col>
+					<col column="ORG_NM" label="机构名称"></col>
+					<col column="PSTN_TYPE_NM" label="主考核类别"></col>
+					<col column="SUB_PSTN_TYPE_NM" label="子考核类别"></col>
+					<col column="TXN_AMT" label="销售额"></col>
+					<col column="YJ_INC" label="中间业务收入"></col>
+					<col column="PRD_NUM" label="销售件数"></col>
+					<col column="CST_CNT" label="销售客户数"></col>
+				</display>
+				<sql>
+					<select>
+						<value><![CDATA[
+							SELECT *
+							FROM
+							(
+							select g.EMP_ID
+							,g.EMP_NM
+							,g.ORG_ID
+							,g.ORG_NM
+							,coalesce(g.ORG_ID,org.BRANCH_ORG_ID) BRANCH_ORG_ID
+							,coalesce(g.ORG_NM,org.BRANCH_ORG_NM) BRANCH_ORG_NM
+							,coalesce(g.ORG_ID,org.HEAD_ORG_ID) HEAD_ORG_ID
+							,g.PSTN_TYPE
+							,g.PSTN_TYPE_NM
+							,g.SUB_PSTN_TYPE
+							,g.SUB_PSTN_TYPE_NM
+							,sum(g.TXN_AMT) TXN_AMT
+							,sum(g.PRD_NUM) PRD_NUM
+							,sum(g.YJ_INC ) YJ_INC
+							,cnt.CST_CNT
+							from ibs.GOLD_EMP_SMY g
+							inner join IBS.T5_ORG org on org.ORG_ID=g.ORG_ID and org.ORG_TYPE_ID='AO'
+							inner join (
+								select EMP_ID,count(distinct IDENTN_NO ) as CST_CNT
+								from ibs.GOLD_EMP_RELA
+								where TXN_DT between {#TXN_DT_ST#} and {#TXN_DT_ED#}
+								group by EMP_ID
+							)cnt on cnt.EMP_ID=g.EMP_ID
+							where {#condition#}
+							group by  g.EMP_ID
+							,g.EMP_NM
+							,g.ORG_ID
+							,g.ORG_NM
+							,org.BRANCH_ORG_ID
+							,org.BRANCH_ORG_NM
+							,org.HEAD_ORG_ID
+							,g.PSTN_TYPE
+							,g.PSTN_TYPE_NM
+							,g.SUB_PSTN_TYPE
+							,g.SUB_PSTN_TYPE_NM
+							,cnt.CST_CNT
+							)
+							ORDER BY YJ_INC DESC 
+						    ]]>
+						</value>
+						<condition name="ORG_ID" source="session{org_id}" hidden="true">
+							<value><![CDATA[(org.ORG_ID='#data#' or org.BRANCH_ORG_ID='#data#' or org.HEAD_ORG_ID='#data#')]]></value>
+						</condition>
+						<condition name="TXN_DT_ST" label="交易日期" labelposition="left">
+							<value>
+						 	<![CDATA[g.TXN_DT between '#data#']]>
+							</value>
+							<inputbox type="datepicker" styleproperty="style='width:120px'"
+								jsvalidate="isDate(#label#格式为yyyy-MM-dd)">
+							</inputbox>
+						</condition>
+						<condition name="TXN_DT_ED" label="至" labelposition="left" >
+							<value>
+						 	<![CDATA['#data#']]>
+							</value>
+							<inputbox type="datepicker" styleproperty="style='width:120px'"
+								jsvalidate="isDate(#label#格式为yyyy-MM-dd)">
+							</inputbox>
+						</condition>
+						
+						<condition name="EMP_ID" label="认领工号" labelposition="left">
+							<value>
+							 		<![CDATA[g.EMP_ID='#data#']]>
+							</value>
+							<inputbox styleproperty="style='width:100px'">
+								<typeprompt width="300" count="10">
+									<promptcol label="EMP_ID" value="EMP_ID" title="认领工号"
+										matchmode="anywhere" casesensitive="false" />
+									<promptcol label="EMP_NM" value="EMP_NM" title="姓名"
+										matchmode="anywhere" casesensitive="false" />
+									<datasource>
+										<option
+											source="@{Select DISTINCT EMP_ID, EMP_NM from IBS.T5_EMP  WHERE   {#matchcondition#}} " />
+									</datasource>
+								</typeprompt>
+							</inputbox>
+						</condition>
+						<condition name="EMP_NM" label="姓名" labelposition="left">
+							<value>
+							 		<![CDATA[g.EMP_NM='#data#']]>
+							</value>
+							<inputbox styleproperty="style='width:100px'">
+								<typeprompt width="300" count="10">
+									<promptcol label="EMP_ID" value="EMP_ID" title="认领工号"
+										matchmode="anywhere" casesensitive="false" />
+									<promptcol label="EMP_NM" value="EMP_NM" title="姓名"
+										matchmode="anywhere" casesensitive="false" />
+									<datasource>
+										<option
+											source="@{Select DISTINCT EMP_ID, EMP_NM from IBS.T5_EMP  WHERE   {#matchcondition#}} " />
+									</datasource>
+								</typeprompt>
+							</inputbox>
+						</condition>
+						<condition name="PSTN_TYPE" labelposition="left" label="主考核类别">
+							<value>
+								<![CDATA[(g.PSTN_TYPE='#data#')]]>
+							</value>
+							<inputbox type="selectbox" styleproperty="style='width:120px'">
+								<option label="全部" value=""></option>
+								<option
+									source="@{Select distinct PSTN_TYPE , PSTN_TYPE_NM from PUB.PERSONNEL group by PSTN_TYPE, PSTN_TYPE_NM , SUB_PSTN_TYPE , SUB_PSTN_TYPE_NM order by PSTN_TYPE }"
+									label="PSTN_TYPE_NM" value="PSTN_TYPE" />
+							</inputbox>
+						</condition>
+						<condition name="SUB_PSTN_TYPE" labelposition="left"
+							label="子考核类别">
+							<value>
+							<![CDATA[(g.SUB_PSTN_TYPE='#data#')]]>
+							</value>
+							<inputbox type="selectbox" depends="PSTN_TYPE"
+								styleproperty="style='width:180px'">
+								<option label="全部" value=""></option>
+								<option label="无" value="" type="false"></option>
+								<option
+									source="@{Select distinct SUB_PSTN_TYPE , SUB_PSTN_TYPE_NM from PUB.PERSONNEL where PSTN_TYPE='#PSTN_TYPE#' group by PSTN_TYPE, PSTN_TYPE_NM , SUB_PSTN_TYPE , SUB_PSTN_TYPE_NM order by SUB_PSTN_TYPE }"
+									label="SUB_PSTN_TYPE_NM" value="SUB_PSTN_TYPE" />
+							</inputbox>
+						</condition>
+						
+					</select>
+				</sql>
+				<format>
+					<imports>
+						<import>com.ljbank.util.*</import>
+						<import>com.wabacus.util.*</import>
+						<import>java.util.*</import>
+						<import>java.text.*</import>
+						<import>com.wabacus.system.*</import>
+					</imports>
+					<value>
+					<![CDATA[
+						
+						
+					]]>
+					</value>
+				</format>
+				<footer><![CDATA[<div style='float:left'><font color='blue'></font></div>]]></footer>
+			</report>
+		</vpanel>
+	</page>
+
+	
+</applications>

@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<applications xmlns="http://www.wabacus.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.wabacus.com ../xsd/wabacus.applications.xsd">
+
+<!-- 业绩调整汇总表 -->
+<page id="emp_ln_bl_x_bill"
+	js="/webresources/script/validate.js,/js/demo.js,/js/common.js">
+	<header>${top.header}</header>
+	<vpanel id="common_vpanel" align="center" width="1000px" title="">
+		<report id="title" extends="title.report1" width="1300px"></report>
+		<report id="ln_bl_sel_rpt" type="listform" personalizeclass="default"
+			interceptor="com.customer.interceptor.InterceptorLnBlXBillV"
+			servervalidateclass="com.ljbank.market.Util ; com.ljbank.market.TestPersonnel"
+			pagesize="15|20|-1" width="1300px" dataexport="plainexcel" scrollwidth="1300px">
+
+			<display>
+				<col column="{sequence:1}" label="序号" width="40px"></col>
+				<col column="CHG_DT" label="调整期" width="100px"></col>
+				<col column="EMP_ID"  label="员工号" align="center" valuestyleproperty="style='mso-number-format:\@'" clickorderby="true"></col>
+				<col column="EMP_NM" label="员工姓名" ></col>
+				<col column="ORG_ID" label="机构号" ></col>
+				<col column="ORG_NM" label="机构名" ></col>
+				<col column="BRANCH_ORG_NM" label="分行机构名" ></col>
+				<group label="季利润调整">
+					<col column="BL_TZ_QTD_PROFIT" label="不良调整" datatype="double{0.00}"></col>
+					<!-- <col column="BILL_INC" label="票据调整" datatype="double{0.00}"></col> -->
+					<col column="OTHER_PROFIT" label="其他调整" datatype="double{0.00}"></col>
+					<col column="TZ_PROF_SUM" label="调整合计" datatype="double{0.00}"></col>
+				</group>
+			</display>
+			<sql>
+				<select>
+					<value>
+						<![CDATA[
+							select t.CHG_DT
+								,t.EMP_ID
+								,t.EMP_NM
+								,t.ORG_ID
+								,t.ORG_NM
+								,t.BRANCH_ORG_ID
+								,t.BRANCH_ORG_NM
+								,t.HEAD_ORG_ID
+								,(t.BL_QTD_PROFIT) as BL_QTD_PROFIT
+								,(t.BL_QTD_PROFIT_OLD) as BL_QTD_PROFIT_OLD
+								,(t.BILL_INC) as BILL_INC
+								,t.OTHER_PROFIT
+								,(t.BL_QTD_PROFIT_OLD-t.BL_QTD_PROFIT) as BL_TZ_QTD_PROFIT
+								,(t.BL_QTD_PROFIT_OLD-t.BL_QTD_PROFIT+t.BILL_INC+t.OTHER_PROFIT) as TZ_PROF_SUM 
+						from IBS.T2_EMP_LN_BL_X_BILL_V t
+						where {#condition#}
+						%SQL%
+						order by t.CHG_DT,t.EMP_ID	
+						]]>
+					</value>
+					<condition name="EMP_ID" label="认领工号" labelposition="left">
+						<value>
+						 		<![CDATA[t.EMP_ID='#data#']]>
+						</value>
+						<inputbox styleproperty="style='width:100px'">
+							<typeprompt width="300" count="10">
+								<promptcol label="EMP_ID" value="EMP_ID" title="认领工号"
+									matchmode="anywhere" casesensitive="false" />
+								<promptcol label="EMP_NM" value="EMP_NM" title="姓名"
+									matchmode="anywhere" casesensitive="false" />
+								<datasource>
+									<option
+										source="@{Select DISTINCT EMP_ID, EMP_NM from IBS.T5_EMP  WHERE   {#matchcondition#}} " />
+								</datasource>
+							</typeprompt>
+						</inputbox>
+					</condition>
+					<condition name="EMP_NM" label="姓名" labelposition="left">
+						<value>
+						 		<![CDATA[t.EMP_NM='#data#']]>
+						</value>
+						<inputbox styleproperty="style='width:100px'">
+							<typeprompt width="300" count="10">
+								<promptcol label="EMP_ID" value="EMP_ID" title="认领工号"
+									matchmode="anywhere" casesensitive="false" />
+								<promptcol label="EMP_NM" value="EMP_NM" title="姓名"
+									matchmode="anywhere" casesensitive="false" />
+								<datasource>
+									<option
+										source="@{Select DISTINCT EMP_ID, EMP_NM from IBS.T5_EMP  WHERE {#matchcondition#}} " />
+								</datasource>
+							</typeprompt>
+						</inputbox>
+					</condition>
+					 
+					<condition name="ORG_ID0" source="session{org_id}" hidden="true">
+						<value> 
+ 							<![CDATA[ (t.BRANCH_ORG_ID = '#data#' or t.HEAD_ORG_ID='#data#' or t.ORG_ID='#data#' )]]>
+						</value>
+					</condition>
+					 
+					<condition name="ORG_ID1" labelposition="left" label="分行" >
+						<value>
+							<![CDATA[t.BRANCH_ORG_ID='#data#']]>
+						</value>
+						<inputbox type="selectbox" styleproperty="style='width:150px'" depends="ORG_ID0">
+							<option label="全部" value=""></option>
+							<option
+								source="@{SELECT DISTINCT BRANCH_ORG_ID,BRANCH_ORG_NM FROM IBS.T5_ORG WHERE ORG_TYPE_ID='EO' AND ORG_LEVEL_ID IN ('1','2','3') and (ORG_ID='#ORG_ID0#' or BRANCH_ORG_ID='#ORG_ID0#' or HEAD_ORG_ID='#ORG_ID0#') ORDER BY BRANCH_ORG_ID}"
+								label="BRANCH_ORG_NM" value="BRANCH_ORG_ID" />
+						</inputbox>
+					</condition>
+					<condition name="ORG_ID2" labelposition="left" label="支行">
+						<value>
+						<![CDATA[t.ORG_ID='#data#']]>
+						</value>
+						<inputbox type="selectbox" depends="ORG_ID1;ORG_ID0"
+							styleproperty="style='width:150px'">
+							<option label="全部" value=""></option>
+							<option label="无" value="" type="false"></option>
+							<option
+								source="@{SELECT DISTINCT ORG_ID, ORG_NM FROM IBS.T5_ORG WHERE ORG_TYPE_ID='EO' AND ORG_LEVEL_ID IN ('1','2') and BRANCH_ORG_ID='#ORG_ID1#' and (HEAD_ORG_ID='#ORG_ID0#' or BRANCH_ORG_ID='#ORG_ID0#' or ORG_ID='#ORG_ID0#') ORDER BY ORG_ID}"
+								label="ORG_NM" value="ORG_ID" />
+						</inputbox>
+					</condition>
+					<condition name="CHG_DT" label="调整期" labelposition="left">
+						<value>
+					 	<![CDATA[t.CHG_DT='#data#']]>
+						</value>
+						<inputbox type="selectbox" styleproperty="style='width:130px'" >
+							
+							<option
+								source="@{Select MEASURE_DT , SWITCH_F , REMARK from IBS.T99_MIDDLE_INCOME_SWITCH ORDER BY MEASURE_DT DESC}"
+								label="REMARK" value="MEASURE_DT" />
+						</inputbox>
+					</condition>
+				</select>
+			</sql>
+
+			<footer><![CDATA[
+			
+			]]>
+		</footer>
+		</report>
+	</vpanel>
+</page>
+
+</applications>
+
+

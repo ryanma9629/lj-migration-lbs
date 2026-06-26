@@ -1,0 +1,555 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<applications xmlns="http://www.wabacus.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.wabacus.com ../xsd/wabacus.applications.xsd">
+	<!-- 认领调整：发起 -->
+	<page id="claimed_change" js="/webresources/script/validate.js">
+
+
+		<header>${top.header}</header>
+		<vpanel id="common_vpanel" width="1300px" align="center" title="">
+
+			<report id="title" extends="title.report1" width="1300px"></report>
+			<report id="select" type="listform" title="账户信息" width="1300px"
+				top="10px" personalizeclass="default"
+				interceptor="com.customer.interceptor.InterceptorClaimedChange" rowselect="single"><!-- InterceptorClaimedChange -->
+
+
+				<display><!--displaytype="hidden" -->
+					<col column="{sequence:1}" label="序号" width="40px"></col>
+					<col column="VUCH_NBR" label="凭证号" width="150px"
+						valuestyleproperty="style='mso-nubmer-format:\@'"></col>
+					<col column="CST_NM" label="客户名" width="250px"></col>
+					<col column="ORG_NM" label="开户机构名" width="150px"></col>
+					<col column="OPEN_DT" label="开户日期" width="80px"></col>
+					<col column="VUCH_STATUS_NM" label="凭证状态名称" width="80px"></col>
+					<col column="BIZ_TYPE_NM_NEW" label="业务类型名称" width="80px"></col>
+					<col column="SUM" label="可调整的认领比例" width="100px" datatype="int"></col>
+					
+				</display>
+
+				<sql datasource="ds_db2">
+					<select>
+						<value><![CDATA[
+							SELECT   re.VUCH_NBR,
+							         re.CST_NM,
+							         re.ORG_ID,
+							         re.ORG_NM,
+							         re.OPEN_DT,
+							         bt.BIZ_TYPE_NM_NEW,
+							         re.VUCH_STATUS_NM,
+							         (100-coalesce(t.OTHER_RATION,0)) AS SUM
+							FROM IBS.T1_VUCH_EMP_RELA re
+							inner join IBS.T9_BIZ_TYPE bt on bt.BIZ_TYPE_NM=re.BIZ_TYPE_NM
+							LEFT JOIN (
+								select VUCH_NBR,sum(RATIO) as OTHER_RATION,BIZ_TYPE_NM
+								from IBS.T1_VUCH_EMP_RELA
+								where CLAIM_STATUS_ID in ('2', '1', '21')
+								and EMP_ID <> {#EMP_ID#}
+								group by VUCH_NBR,BIZ_TYPE_NM
+							)t on t.VUCH_NBR=re.VUCH_NBR 
+							WHERE {#condition#} 
+							AND COALESCE(MARKETING_NO,'') not in ('2016qq')
+							AND re.CLAIM_STATUS_ID in ('2', '5', '6','1')  
+							ORDER BY bt.BIZ_TYPE_NM_NEW, re.VUCH_NBR
+						    ]]>
+						</value>
+						<condition name="EMP_ID" label="员工号" labelposition="left" hidden="true" source="session{user_id}">
+							<value><![CDATA[re.EMP_ID = '#data#']]></value>
+						</condition>
+						<condition name="VUCH_NBR" label="凭证号" labelposition="left">
+							<value><![CDATA[re.VUCH_NBR='#data#']]></value>
+						</condition>
+						<condition name="CST_NM" label="客户名称" labelposition="left">
+							<value><![CDATA[re.CST_NM like '#data#%']]></value>
+						</condition>
+						
+						<condition name="BIZ_TYPE_NM" labelposition="left" label="业务类型">
+							<value>
+							<![CDATA[bt.BIZ_TYPE_NM_NEW='#data#']]>
+							</value>
+							<inputbox type="selectbox">
+								<option label="全部" value=""></option>
+								<option
+									source="@{Select distinct BIZ_TYPE_NM_NEW from IBS.T9_BIZ_TYPE order by BIZ_TYPE_NM_NEW }"
+									label="BIZ_TYPE_NM_NEW" value="BIZ_TYPE_NM_NEW" />
+							</inputbox>
+						</condition>
+					</select>
+
+				</sql>
+			</report>
+			<!-- 认领信息 -->
+			<report id="other_dtl" title="认领信息" type="listform"
+				interceptor="com.customer.interceptor.InterceptorClaimedChangeDtl"
+				personalizeclass="default" depends="select" dependsparams="txtvuch=@{VUCH_NBR}"
+				top="10px" rowselect="single">
+				<display valuetdwidth="120px" labeltdwidth="80px">
+					<col column="VUCH_NBR" label="凭证号隐藏" displaytype="hidden"
+						valuestyleproperty="style='mso-nubmer-format:\@'" filter="condition{txtvuch}"></col>
+					<col column="VUCH_NBR_1" label="凭证号" width="200px"
+						valuestyleproperty="style='mso-nubmer-format:\@'"></col>
+					<col column="EMP_ID" label="认领工号" clickorderby="true"
+						valuestyleproperty="style='mso-nubmer-format:\@'"></col>
+					<col column="EMP_NM" label="认领姓名"></col>
+					<col column="RATIO" label="原认领比例(%)"></col>
+					<col column="NEW_RATIO" label="调整后比例(%)"></col>
+					<col column="CLAIM_STATUS_NM" label="认领状态"></col>
+					<col column="CLAIM_DT" label="认领时间"></col>
+					<col column="VERIFY_DT" label="审核时间"></col>
+					<col column="VERIFY_EMP_NM" label="审核人" ></col>
+					<col column="VERIFY_EMP_ID" label="审核人工号" displaytype="hidden"></col>
+					<col column="REMARK" label="备注" displaytype="hidden"></col>
+					
+					
+				</display>
+				<sql datasource="ds_db2">
+					<select>
+						<value><![CDATA[
+							SELECT  re.VUCH_NBR                        
+								,re.VUCH_NBR as VUCH_NBR_1
+								,re.EMP_ID                
+								,re.EMP_NM                
+								,re.RATIO as RATIO
+								
+								,re.CLAIM_STATUS_ID
+								,re.CLAIM_DT 
+								,re.VERIFY_DT             
+								,re.VERIFY_EMP_ID      
+								,C.EMP_NM AS VERIFY_EMP_NM
+							    ,re.REMARK   
+							    ,coalesce(rs.RVS_STATUS_NM,st.CLAIM_STATUS_NM) as CLAIM_STATUS_NM 
+							    ,RVS_RATIO as NEW_RATIO  
+							FROM IBS.T1_VUCH_EMP_RELA re            
+							LEFT JOIN IBS.T5_EMP C ON re.VERIFY_EMP_ID=C.EMP_ID
+							left join ibs.T9_CLAIM_STATUS_TYPE st on st.CLAIM_STATUS_ID=re.CLAIM_STATUS_ID
+							left join IBS.T9_RVS_STATUS_TYPE rs on rs.RVS_STATUS_ID=re.RVS_STATUS_ID
+							 
+							where (re.CLAIM_STATUS_ID in ('1','21','2', '5', '6') or coalesce(re.RVS_STATUS_ID,'') in ('1','2','21')) 
+							and COALESCE(re.MARKETING_NO,'') not in ('2016qq')
+							and {#condition#}
+							order by re.CLAIM_STATUS_ID,re.CLAIM_DT,re.VUCH_NBR 
+						    ]]>
+						</value>
+						<condition name="txtvuch" hidden="true">
+							<value><![CDATA[re.VUCH_NBR='#data#']]></value>
+						</condition>
+						<!-- 
+						<condition name="EMP_ID" hidden="true" source="session{user_id}">
+							<value><![CDATA[re.EMP_ID<>'#data#']]></value>
+						</condition>
+						 -->
+					</select>
+				</sql>
+				<format>
+					<imports>
+						<import>com.ljbank.util.*</import>
+						<import>java.util.*</import>
+						<import>java.text.*</import>
+						<import>com.wabacus.system.*</import>
+					</imports>
+					<value>
+					<![CDATA[
+					
+					]]>
+			  		</value>
+				</format>
+			</report>
+
+
+			<!-- 已审核认领信息：调整 --><!-- ;com.ljbank.market.Servervalidate_ClaimRatio_claimedchange -->
+			<report id="dtl" title="我要调整" type="listform"
+				interceptor=""
+				personalizeclass="default" servervalidateclass="com.ljbank.market.TestPersonnel"
+				depends="select"
+				dependsparams="txtvuch=@{VUCH_NBR};CST_NM=@{CST_NM};ORG_NM=@{ORG_NM};OPEN_DT=@{OPEN_DT};VUCH_STATUS_NM=@{VUCH_STATUS_NM};BIZ_TYPE_NM=@{BIZ_TYPE_NM_NEW}"
+				top="10px" rowselect="single-radiobox"><!-- ;CST_NM=@{CST_NM};ORG_NM=@{ORG_NM};OPEN_DT=@{OPEN_DT};VUCH_STATUS_NM=@{VUCH_STATUS_NM};BIZ_TYPE_NM=@{BIZ_TYPE_NM} -->
+				
+				<buttons align="right">
+					<button name="sub" position="title" positionorder="2"
+						extends="${wabacus.button2.default}" label="提交"
+						confirmessage="提交前请确认数据已经保存。提交后数据将不能修改，是否确认提交?">
+						<params>
+							<param name="user_id" value="session{user_id}"></param>
+							
+						</params>
+						invokeServerActionForComponent('claimed_change', 'dtl',
+						'com.customer.util.SubmitClaimChange',{user_id:'user_id'},true,refreshComponentDisplay('claimed_change','dtl',true))
+						
+					</button>
+				</buttons>
+				<display valuetdwidth="120px" labeltdwidth="80px">
+					<col column="VUCH_NBR" label="凭证号隐藏" displaytype="hidden"
+						filter="condition{txtvuch}">
+
+					</col>
+					<col column="VUCH_NBR_1" label="凭证号" width="200px"
+						valuestyleproperty="style='mso-nubmer-format:\@'"></col><!-- br="true" valuestyleproperty="colspan='3'" -->
+					<col column="EMP_ID" label="认领工号" clickorderby="true"
+						valuestyleproperty="style='mso-nubmer-format:\@'">
+					</col>
+					<col column="EMP_NM" label="认领姓名"></col><!-- br="true" -->
+					<col column="RATIO" label="认领比例(%)" datatype="float">
+						<inputbox styleproperty="style='width:90%'"
+							jsvalidate="isNumeric(不是合法数字);isNotEmpty(不可以为空值);isPositiveInt(请输入正确的提成比例);ChangeRatio(请核对认领比例);" ></inputbox>
+							<!-- servervalidate="isClaimRatio(请核对认领比例)" ;ChangeRatio(请核对认领比例); -->
+					</col>
+					<col column="CLAIM_STATUS_NM" label="认领状态"></col><!-- br="true" -->
+					<col column="CLAIM_STATUS_ID" label="认领状态" displaytype="hidden"></col><!-- 
+						br="true" -->
+					<col column="CLAIM_DT" label="认领时间"></col><!-- br="true" -->
+					<col column="VERIFY_DT" label="审核时间"></col><!-- br="true" -->
+					<col column="VERIFY_EMP_ID" label="审核人工号" displaytype="hidden"></col>
+					<col column="VERIFY_EMP_NM" label="审核人"></col>
+				    <col column="REMARK" label="备注" displaytype="hidden"></col>
+
+					<col column="ORG_ID" label="凭证机构号" displaytype="hidden"></col><!-- filter="condition{org_id}" -->
+					<col column="ORG_NM" label="凭证机构名" displaytype="hidden"></col>
+					<col column="CST_NM" label="客户名" displaytype="hidden"></col>
+					<col column="BIZ_TYPE_NM" label="业务类型名称" displaytype="hidden"></col>
+					<col column="VUCH_STATUS_NM" label="凭证状态名称" displaytype="hidden"></col>
+					<col column="OPEN_DT" label="开户日期" displaytype="hidden"></col>
+
+					<col column="EMP_ORG_ID" label="员工机构号" displaytype="hidden"></col>
+					<col column="EMP_ORG_NM" label="员工机构名" displaytype="hidden"></col>
+					<col column="RVS_STATUS_ID" label="调整状态" displaytype="hidden"></col>
+					<col column="RATIO_Y" label="原认领比例(%)" displaytype="hidden" datatype="float"></col>
+
+				</display>
+				<sql datasource="ds_db2"><!-- beforesave="ChangeRatio(请核对认领比例)" beforesave="ChangeRatio" -->
+					<select>
+						<value><![CDATA[
+							SELECT   re.VUCH_NBR                        
+									,re.VUCH_NBR as VUCH_NBR_1
+									,re.EMP_ID                
+									,re.EMP_NM                
+									,coalesce(re.RVS_RATIO,re.RATIO) as RATIO
+									,re.RATIO as RATIO_Y
+								    ,re.CLAIM_STATUS_ID as CLAIM_STATUS_ID_xs
+								    ,re.CLAIM_STATUS_ID
+									,re.CLAIM_DT 
+									,re.VERIFY_DT             
+									,re.VERIFY_EMP_ID      
+									,C.EMP_NM AS VERIFY_EMP_NM
+							  	    ,re.REMARK   
+							  	    ,re.ORG_ID
+									,re.ORG_NM
+									,re.CST_NM
+									,re.BIZ_TYPE_NM
+									,re.VUCH_STATUS_NM
+									,re.OPEN_DT
+									,re.EMP_ORG_ID
+									,re.EMP_ORG_NM 
+									,coalesce(rs.RVS_STATUS_NM,st.CLAIM_STATUS_NM) as CLAIM_STATUS_NM 
+									,re.RVS_STATUS_ID
+							FROM     IBS.T1_VUCH_EMP_RELA re            
+							LEFT JOIN IBS.T5_EMP C ON re.VERIFY_EMP_ID=C.EMP_ID
+							left join ibs.T9_CLAIM_STATUS_TYPE st on st.CLAIM_STATUS_ID=re.CLAIM_STATUS_ID
+							left join IBS.T9_RVS_STATUS_TYPE rs on rs.RVS_STATUS_ID=re.RVS_STATUS_ID
+							where (re.CLAIM_STATUS_ID in ('2', '5', '6') and coalesce(re.RVS_STATUS_ID,'') not in ('1','21'))
+							AND COALESCE(re.MARKETING_NO,'') not in ('2016qq')
+							and {#condition#}
+							  
+						    ]]>
+						</value>
+						<condition name="txtvuch" hidden="true">
+							<value><![CDATA[re.VUCH_NBR='#data#']]></value>
+						</condition>
+						<condition name="EMP_ID" hidden="true" source="session{user_id}">
+							<value><![CDATA[re.EMP_ID='#data#']]></value>
+						</condition>
+					</select>
+
+					<update>
+						<params>
+							<param name="user_id" value="session{user_id}"></param>
+							<param name="user_nm" value="session{user_name}"></param>
+							<param name="current_time" value="now{}" datatype="timestamp{yyyy-MM-dd}"></param>
+							<param name="current_tm" value="now{}" datatype="time{HH:mm:ss}"></param>
+							<param name="current_dt" value="now{}" datatype="date{yyyy-MM-dd}"></param>
+							<param name="txtvuch" value="url{txtvuch}"></param>
+						</params>
+						<value>
+							<![CDATA[
+							update IBS.T1_VUCH_EMP_RELA 
+							set 
+									 
+								  EMP_ORG_ID = @{EMP_ORG_ID}     
+						         ,EMP_ORG_NM =@{EMP_ORG_NM}       
+							     ,RVS_STATUS_ID='0'
+							     ,RVS_EMP_ID=#{user_id}
+							     ,RVS_EMP_NM=#{user_nm}
+							     ,RVS_DT=#{current_time}
+							     ,RVS_RATIO=@{RATIO}
+							where EMP_ID = @{EMP_ID__old}      
+							and   VUCH_NBR = @{VUCH_NBR}
+							 
+							;
+							update IBS.T6_VUCH_EMP_RELA_CHANGE_LOG set CHANGE_FLAG='1'
+							where VUCH_NBR= @{VUCH_NBR} 
+							and NEW_EMP_ID=@{EMP_ID__old}
+							AND CHANGE_FLAG='0' and NEW_CLAIM_STATUS_ID='2'
+							;
+							
+							delete from IBS.T6_VUCH_EMP_RELA_CHANGE_LOG 
+							where VUCH_NBR= @{VUCH_NBR} 
+							and NEW_EMP_ID=@{EMP_ID__old}
+							AND CHANGE_FLAG='0' 	
+							;
+													
+							Insert into IBS.T6_VUCH_EMP_RELA_CHANGE_LOG
+							(
+								 VUCH_NBR              
+								,OLD_EMP_ID           
+								,OLD_RATIO            
+								,OLD_CLAIM_STATUS_ID  
+								,OLD_CLAIM_DT         
+								,OLD_VERIFY_DT        
+								,OLD_VERIFY_EMP_ID    
+								,OLD_REMARK           
+								,NEW_EMP_ID           
+								,NEW_RATIO            
+								,NEW_CLAIM_STATUS_ID  
+								,NEW_CLAIM_DT         
+								      
+								,NEW_REMARK 
+								,CHANGE_TYPE 
+								,CHANGE_FLAG         
+							)      
+							Values
+							(
+								 #{txtvuch}
+								,@{EMP_ID__old}
+								,@{RATIO_Y}
+								,@{CLAIM_STATUS_ID}
+								,@{CLAIM_DT__old}
+								,@{VERIFY_DT__old}
+								,@{VERIFY_EMP_ID__old}
+								,@{REMARK__old}
+								,@{EMP_ID__old}
+								,@{RATIO}
+								,'0'
+								,#{current_time}
+								
+								,' 调整人工号'||#{user_id}||' 姓名'||#{user_nm}||' 时间'||#{current_dt}||' '||#{current_tm}||' 备注认领调整。'
+								,'U'
+								,'0'
+							)
+							;
+							
+
+							]]>
+						</value>
+					</update>
+					<!-- 
+					<insert>
+						<params>
+							<param name="user_id" value="session{user_id}"></param>
+							<param name="current_time" value="now{}" datatype="timestamp{yyyy-MM-dd}"></param>
+							<param name="current_time1" value="now{}"
+								datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
+							<param name="txtvuch" value="url{txtvuch}"></param>
+						</params>
+						<value>
+							<![CDATA[
+							INSERT INTO IBS.T1_VUCH_EMP_RELA
+							(
+							    VUCH_NBR         
+							   ,EMP_ID          
+							   ,RATIO            
+							   ,CLAIM_STATUS_ID  
+							   ,CLAIM_DT         
+							   ,VERIFY_DT        
+							   ,VERIFY_EMP_ID    
+							   ,REMARK     
+
+							   ,EMP_NM               
+							   ,EMP_ORG_ID        
+							   ,EMP_ORG_NM 
+							   
+							   ,RVS_STATUS_ID
+							   ,RVS_DT
+							   ,RVS_EMP_ID      
+							)
+							Values
+							(
+								#{txtvuch}                                                      
+								,#{user_id}                                                           
+								,@{RATIO}                                                            
+								,'2'                                                                 
+								,#{current_time}                                                    
+								,#{current_time}                                                    
+								,#{user_id}                                                  
+								,@{REMARK}||'有权人通过认领调整页面新增。' 
+      
+							   ,@{EMP_NM}               
+							   ,@{EMP_ORG_ID}        
+							   ,@{EMP_ORG_NM}
+							   
+							   ,'1'
+							   ,#{current_time} 
+							   ,#{user_id}    
+							)                                            
+							;
+							
+							update IBS.T1_VUCH_EMP_RELA A 
+							set (ORG_ID, ORG_NM, CST_NM, BIZ_TYPE_NM, VUCH_STATUS_NM, OPEN_DT)
+							=
+							(select ORG_ID, ORG_NM, CST_NM, BIZ_TYPE_NM, VUCH_STATUS_NM, OPEN_DT from ibs.T1_VUCH_DETAIL b where a.VUCH_NBR=b.VUCH_NBR)
+							where VUCH_NBR = #{txtvuch}
+							and EMP_ID = @{EMP_ID}  
+							;						
+							
+							Insert into IBS.T6_VUCH_EMP_RELA_CHANGE_LOG 
+							(
+								 VUCH_NBR              
+								,OLD_EMP_ID           
+								,OLD_RATIO            
+								,OLD_CLAIM_STATUS_ID  
+								,OLD_CLAIM_DT         
+								,OLD_VERIFY_DT        
+								,OLD_VERIFY_EMP_ID    
+								,OLD_REMARK           
+								,NEW_EMP_ID           
+								,NEW_RATIO            
+								,NEW_CLAIM_STATUS_ID  
+								,NEW_CLAIM_DT         
+								,NEW_VERIFY_DT        
+								,NEW_VERIFY_EMP_ID    
+								,NEW_REMARK 
+								,CHANGE_TYPE          
+							)      
+							Values
+							(
+								 #{txtvuch}
+								,@{EMP_ID__old}
+								,@{RATIO__old}
+								,@{CLAIM_STATUS_ID}
+								,#{current_time}
+								,#{current_time}
+								,@{VERIFY_EMP_ID__old}
+								,@{REMARK__old}
+								,@{EMP_ID}
+								,@{RATIO}
+								,'2'
+								,#{current_time1}
+							    ,#{current_time1}
+								,#{user_id}
+								,#{current_time1}||'有权人:'||#{user_id}||'认领调整页面添加认领信息。'
+								,'I'
+							)
+							;
+							]]>
+						</value>
+					</insert>
+					
+					update IBS.T1_VUCH_EMP_RELA 
+							set 
+								   REMARK =REMARK||' 调整人工号'||#{user_id}||' 姓名'||#{user_nm}||' 时间'||#{current_time1}||' 备注认领撤销。' 
+								   ,CLAIM_STATUS_ID='4'
+								   ,RVS_STATUS_ID='4'
+							       ,RVS_DT=#{current_time}
+							       ,RVS_EMP_ID =#{user_id}
+							       ,RVS_RATIO=0
+							where EMP_ID = @{EMP_ID__old}      
+							and VUCH_NBR = @{VUCH_NBR} 						
+							and CLAIM_STATUS_ID in('2','5','6') 
+							;
+					 -->
+
+					<delete confirmessage="是否确认撤销此条认领信息？提交后数据将不能修改，请确认。">
+						<params>
+							<param name="user_id" value="session{user_id}"></param>
+							<param name="user_nm" value="session{user_name}"></param>
+							<param name="current_time" value="now{}" datatype="timestamp{yyyy-MM-dd}"></param>
+							<param name="current_tm" value="now{}" datatype="time{HH:mm:ss}"></param>
+							<param name="current_dt" value="now{}" datatype="date{yyyy-MM-dd}"></param>
+							<param name="txtvuch" value="url{txtvuch}"></param>
+						</params><!-- and RATIO = @{RATIO__old} -->
+						<value>
+							<![CDATA[
+							
+							insert into ibs.T6_VUCH_EMP_RELA_CHANGE_LOG(
+							VUCH_NBR
+							,OLD_EMP_ID
+							,OLD_RATIO
+							,OLD_CLAIM_STATUS_ID
+							,OLD_CLAIM_DT
+							,OLD_VERIFY_DT
+							,OLD_VERIFY_EMP_ID
+							,OLD_REMARK
+							,CHANGE_TYPE 
+							,CHANGE_FLAG
+							,BIZ_TYPE_NM
+							,CST_NM
+							,ORG_ID
+							,EMP_NM
+							,OLD_FH_VERIFY_DT
+							,OLD_FH_VERIFY_EMP_ID
+							,OLD_FH_VERIFY_EMP_NM
+							
+							,NEW_EMP_ID           
+							,NEW_RATIO            
+							,NEW_CLAIM_STATUS_ID  
+							,NEW_CLAIM_DT         
+							,NEW_REMARK 
+							)
+							select VUCH_NBR 
+							, EMP_ID 
+							, RATIO 
+							, CLAIM_STATUS_ID 
+							, CLAIM_DT 
+							, VERIFY_DT 
+							, VERIFY_EMP_ID 
+							, REMARK
+							, 'D' as CHANGE_TYPE
+							, '1' as CHANGE_FLAG
+							,BIZ_TYPE_NM
+							, CST_NM
+							, ORG_ID
+							, EMP_NM
+							, FH_VERIFY_DT
+							, FH_VERIFY_EMP_ID
+							, FH_VERIFY_EMP_NM
+							
+							,@{EMP_ID__old}
+							,0
+							,'4'
+							,#{current_time}
+							,' 调整人工号'||#{user_id}||' 姓名'||#{user_nm}||' 时间'||#{current_dt}||' '||#{current_tm}||' 备注认领撤销。' 
+							from IBS.T1_VUCH_EMP_RELA
+							where VUCH_NBR=@{VUCH_NBR__old}
+							and EMP_ID=#{user_id}
+							;
+							
+							delete from IBS.T1_VUCH_EMP_RELA
+							where EMP_ID = @{EMP_ID__old}      
+							and VUCH_NBR = @{VUCH_NBR}
+							;
+							
+							
+							]]>
+						</value>
+					</delete>
+				</sql>
+				<format>
+					<imports>
+						<import>com.ljbank.util.*</import>
+						<import>java.util.*</import>
+						<import>java.text.*</import>
+						<import>com.wabacus.system.*</import>
+					</imports>
+					<value>
+					<![CDATA[
+			        
+					
+
+					]]>
+			  		</value>
+				</format>
+			</report>
+		</vpanel>
+	</page>
+
+
+</applications>

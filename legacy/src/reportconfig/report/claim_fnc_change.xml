@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<applications xmlns="http://www.wabacus.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.wabacus.com ../xsd/wabacus.applications.xsd">
+	<!-- 认领调整：发起 -->
+	<page id="claim_fnc_change" js="/webresources/script/validate.js">
+		<header>${top.header}</header>
+		<vpanel id="common_vpanel" width="1300px" align="center" title="">
+			<report id="title" extends="title.report1" width="1300px"></report>
+				<report id="list" title="我的理财认领" type="list" personalizeclass="default" 
+		servervalidateclass="com.ljbank.market.Servervalidate_Fund;com.ljbank.market.Util"
+		interceptor="com.customer.interceptor.InterceptorClaimFncDetail" top="10px" >
+				<display >
+					<col column="{sequence:1}" label="序号" width="40px"></col>
+					<col column="VUCH_NBR" label="凭证号" valuestyleproperty="style='mso-number-format:\@'"></col>
+					<col column="TXN_NO" label="流水号" ></col>
+					<col column="TXN_DT" label="交易日期" ></col>
+					<col column="PRD_NM" label="产品名称"></col>
+					<col column="ORG_NM" label="交易机构名称" br="true"></col>
+					<col column="EMP_ORG_NM" label="认领人机构名称"></col>
+					<col column="BIZ_TYPE_NM" label="业务类型"></col>
+					<col column="CST_NM" label="客户名"></col>
+					<col column="TXN_AMT" label="交易金额"></col>
+					<col column="RATIO" label="*认领比例(%)"></col>
+					<col column="CLAIM_STATUS_ID" label="认领状态"></col>
+					<col column="VERIFY_EMP_ID" label="审批人"></col>
+					<col column="VERIFY_DT" label="审批日期"></col>
+					<col column="CLAIM_DT" label="认领日期" ></col>	
+				</display>
+				<sql datasource="ds_db2">
+					<select>
+						<value>
+						<![CDATA[
+							Select RE.*,S.CLAIM_STATUS_NM,re.EMP_ID as EMP_ID_Hid
+							from IBS.T1_FNC_TXN_EMP_RELA re
+							left join IBS.T9_CLAIM_STATUS_TYPE S ON S.CLAIM_STATUS_ID=RE.CLAIM_STATUS_ID	
+							WHERE RE.CLAIM_STATUS_ID in ('2','6') AND {#condition#}
+						    ]]>
+						</value>
+							<condition name="TXN_DT_ST"  label="确认日期" >
+						<value><![CDATA[TXN_DT >= '#data#']]></value>
+						<inputbox type="datepicker" styleproperty="style='width:120px'"
+								jsvalidate="isDate(#label#格式为yyyy-MM-dd)">
+							</inputbox>
+					</condition>
+					<condition name="TXN_DT_END"  label="至" >
+						<value><![CDATA[TXN_DT <= '#data#']]></value>
+						<inputbox type="datepicker" styleproperty="style='width:120px'"
+								jsvalidate="isDate(#label#格式为yyyy-MM-dd)">
+							</inputbox>
+					</condition>
+					<condition name="VUCH_NBR" label="凭证号">
+						<value><![CDATA[VUCH_NBR='#data#']]></value>
+					</condition>
+					<condition name="TXN_NO" label="流水号">
+						<value><![CDATA[TXN_NO='#data#']]></value>
+					</condition>
+					<condition name="EMP_ID" source="session{user_id}">
+						<value><![CDATA[EMP_ID='#data#']]></value>
+					</condition>
+				</select>
+				
+				
+				</sql>
+			
+			</report>
+			
+			<!-- 填写认领信息 --><!--
+			
+		
+		<report id="report" title="理财认领分配" type="listform" pagesize="15|20|-1" personalizeclass="default"
+			servervalidateclass="com.ljbank.market.Servervalidate_ClaimFncTxn;com.ljbank.market.Util"
+			depends="list" dependsparams="TXN_NO=@{TXN_NO};TXN_DT=@{TXN_DT}" top="10px"
+			refreshid="dtl"  interceptor="com.customer.interceptor.InterceptorClaimFncDitlTxn">
+				<display>
+					<col column="VUCH_NBR" label="凭证号"  valuestyleproperty="colspan='3'"></col>
+					<col column="TXN_NO" label="流水号" ></col>
+					<col column="BIZ_TYPE_NM" label="计价系数" ></col>
+					<col column="NEW_RATIO" label="*认领比例(%)" >
+					<inputbox styleproperty="style='width:90%'"
+						jsvalidate="isNumeric(不是合法数字);isNotEmpty(不可以为空值)"/>
+					</col>
+					<col column="REMARK1" label="认领类型" br="true"></col>
+					<col column="RATIO" label="可分配比例" br="true"></col>
+					<col column="TXN_AMT" label="交易金额" br="true"></col>
+					<col column="EMP_ID" label="分配员工编号" >
+					<inputbox type="datepicker" styleproperty="style='width:100px'" ></inputbox>
+					</col>
+					<col column="EMP_NM" label="分配员工姓名" >
+						<inputbox type="datepicker" styleproperty="style='width:100px'" ></inputbox>
+					</col>	
+				</display>
+			
+				<sql>
+					<select>
+						<value>
+						<![CDATA[
+							
+						]]>
+						</value>
+					</select>		
+					<insert>
+						<params>
+							<param name="user_id" value="session{user_id}"></param>
+							<param name="current_time" value="now{}"
+								datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
+							<param name="ip" value="session{ip}"></param>
+						</params>
+						<value>
+							insert into
+							IBS.T5_YBDB_PER_FEE_RATION(
+							 PER_FEE_RATION=@{PER_FEE_RATION}
+							,ST_DT=@{ST_DT}
+							,ED_DT=@{ED_DT}
+							,MODIFY_PEOPLE=#{user_id},MODIFY_TIME=#{current_time},MODIFY_IP = #{ip}
+							);
+						</value>
+					</insert>
+					 
+					<update confirmessage="保存">
+						<params>
+							<param name="ip" value="session{ip}"></param>
+							<param name="user_id" value="session{user_id}"></param>
+							<param name="current_time" value="now{}"
+								datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
+						</params>
+						<value>
+							<![CDATA[
+								update IBS.T5_YBDB_PER_FEE_RATION
+								set PER_FEE_RATION=@{PER_FEE_RATION}
+								    ,ST_DT=@{ST_DT}
+								    ,ED_DT=@{ED_DT}
+									,MODIFY_PEOPLE = #{user_id}
+									,MODIFY_TIME = #{current_time}
+									,MODIFY_IP = #{ip}
+								where PER_FEE_RATION = @{PER_FEE_RATION__old} 
+								and ST_DT = @{ST_DT__old}
+								and ED_DT = @{ED_DT__old}
+							]]>
+						</value>
+					</update>
+					<delete>
+					    delete IBS.T5_YBDB_PER_FEE_RATION
+					    where PER_FEE_RATION = @{PER_FEE_RATION__old} 
+						and ST_DT = @{ST_DT__old}
+						and ED_DT = @{ED_DT__old}
+					</delete>
+				</sql>
+			</report>
+		--></vpanel>
+	</page>
+
+
+</applications>

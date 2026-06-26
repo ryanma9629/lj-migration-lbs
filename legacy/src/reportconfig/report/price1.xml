@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<applications xmlns="http://www.wabacus.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.wabacus.com ../xsd/wabacus.applications.xsd">
+	<!-- 签约价格表 -->
+<page id="price1" js="/webresources/script/validate.js" >
+<interceptor>
+<imports>
+<import>com.ljbank.market.Util</import>
+</imports>
+	<preaction>
+		<![CDATA[
+		Util u=new Util();
+		String ip=u.getRemoteIP(rrequest);
+		rrequest.getRequest().setAttribute("reqKey2", ip);
+		]]>
+	</preaction>
+</interceptor>
+
+	<header>${top.header}</header>
+		<vpanel id="common_vpanel" width="1000px" align="center" title="">
+			<report id="title" extends="title.report1"></report>
+			<report id="reportPrice" type="listform"   pagesize="15|20|-1" personalizeclass="default" servervalidateclass="com.ljbank.market.Util">
+				<display>
+				<col column="BRANCH_ORG_ID" label="机构号" displaytype="hidden"></col>
+				<col column="OU_NM" label="机构名称"></col>
+				<col column="TERM_INTERVAL_TYPE_ID" label="期限区间代码" displaytype="hidden"></col>
+				<col column="CHANNLE_ID" label="渠道代码" displaytype="hidden"></col> <!-- 渠道代码 -->	
+				<col column="TERM_INTERVAL_TYPE_NM" label="期限区间" ></col>		
+				<col column="CHANNLE_NM" label="渠道"></col>
+				<col column="AMT_INTERVAL_TYPE_ID" label="金额区间代码" displaytype="hidden"></col> <!-- 渠道代码 -->	
+				<col column="AMT_INTERVAL_TYPE_NM" label="金额区间" ></col>		
+				<col column="start_dt" label="修改开始日期" displaytype="hidden"></col> <!-- 修改时用，放在历史表中 -->					
+				<col column="PRICE"  label="价格">
+				<inputbox type="textbox" jsvalidate="isNumeric(#data#不是数字)" ></inputbox>
+				</col>
+				
+				<!--<col column="EFF_FLAG" label="生效标志"></col>   生效标志-->
+				
+		
+			</display>
+			<sql>
+					<select>
+					
+						<value><![CDATA[
+						
+SELECT A.BONUS_TYPE_ID,C.BONUS_TYPE_NM,A.BRANCH_ORG_ID,B.ORG_NM,A.PRICE
+FROM
+(SELECT * FROM IBS.T3_SIGN_PROD_PRICE WHERE EFF_FLAG='1') A
+LEFT JOIN IBS.T5_ORG B
+ON A.BRANCH_ORG_ID=B.ORG_ID
+AND B.ORG_TYPE_ID='AO'
+LEFT JOIN IBS.T9_BONUS_TYPE C
+ON A.BONUS_TYPE_ID=C.BONUS_TYPE_ID
+
+						where  {#condition#}
+						
+						]]>
+						</value><!-- AND B.END_DT>#{current_time}
+                        AND B.EFF_DT<=#{current_time} -->
+						<condition name="CHANNLE_ID" label="渠道"
+							labelposition="left">
+							<value> 
+  									<![CDATA[A.CHANNLE_ID ='#data#']]> 
+							</value> 
+							<inputbox type="selectbox">
+								<option label="全部" value=""></option>
+								<option
+									source="@{select distinct CHANNLE_ID,CHANNLE_NM from IBS.T9_CHANNEL}"
+									label="CHANNLE_NM" value="CHANNLE_ID"></option>
+							</inputbox>
+						</condition>
+						<condition name="TERM_INTERVAL_TYPE_ID" label="期限类型"
+							labelposition="left">
+							<value> 
+  									<![CDATA[A.TERM_INTERVAL_TYPE_ID = '#data#']]> 
+							</value> 
+							<!--  <inputbox type="textbox" jsvalidate="isNotEmpty(#label#列不允许为空)" />-->
+							<inputbox type="selectbox">
+								<option label="全部" value=""></option>
+								<option
+									source="@{select distinct TERM_INTERVAL_TYPE_ID,TERM_INTERVAL_TYPE_NM from IBS.T9_TERM_INTERVAL_TYPE}"
+									label="TERM_INTERVAL_TYPE_NM" value="TERM_INTERVAL_TYPE_ID"></option>
+							</inputbox>
+						</condition>
+							<!--  {#condition#}中的动态条件失败，{、}、#、#之间的关系混乱 -->
+						<condition name="BRANCH_ORG_ID" label="分行"
+							labelposition="left">
+							<value> 
+  									<![CDATA[A.BRANCH_ORG_ID = '#data#']]> 
+							</value> 
+							<!--  <inputbox type="textbox" jsvalidate="isNotEmpty(#label#列不允许为空)" />-->
+							<inputbox type="selectbox">
+								<option label="全部" value=""></option>
+								<option
+									source="@{SELECT OU_CD AS BRANCH_ORG_ID , OU_NM FROM dim.DIM_OU_DTIL WHERE PRN_OU_SUR_ID='200000019420110101' AND SUBSTR(OU_CD,3,2)='00' }"
+									label="OU_NM" value="BRANCH_ORG_ID"></option>
+							</inputbox>
+						</condition>
+						
+					</select>
+					
+					<!-- update cst.a_test(@{id},@{name}) where id=@{id} -->
+				<update>
+	
+				<params>
+							<param name="user_id" value="session{user_id}"></param>
+							<param name="current_time" value="now{}" datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
+							<param name="current_time1" value="now{}" datatype="timestamp{yyyy-MM-dd}"></param>
+							<param name="ip" value="request{reqKey2}" ></param><!-- "request{reqKey2}" -->
+							
+						</params>
+					<!--  	<wx:output  value=”request{reqKey2}”/>-->
+					<value>
+					<![CDATA[
+					
+					UPDATE IBS.T3_FNC_PROD_PRICE SET PRICE =@{PRICE},MODIFY_PEOPLE=#{user_id},MODIFY_TIME=#{current_time},MODIFY_IP=#{ip}
+					WHERE  BRANCH_ORG_ID=@{BRANCH_ORG_ID} 
+					AND  CHANNLE_ID=@{CHANNLE_ID}
+					AND TERM_INTERVAL_TYPE_ID=@{TERM_INTERVAL_TYPE_ID}
+					AND AMT_INTERVAL_TYPE_ID=@{AMT_INTERVAL_TYPE_ID};
+					
+					
+					
+				]]>
+				</value>
+				</update>
+				<!--  
+				insert into IBS.T4_FNC_PROD_PRICE_H 
+					(BRANCH_ORG_ID=@{BRANCH_ORG_ID} ,CHANNLE_ID=@{CHANNLE_ID},PRICE =@{PRICE__old},TERM_INTERVAL_TYPE_ID=@{TERM_INTERVAL_TYPE_ID},AMT_INTERVAL_TYPE_ID=@{AMT_INTERVAL_TYPE_ID}
+					,END_DT=#{current_time1},START_DT=@{start_dt});
+				
+				<insert>
+				<params>
+							<param name="user_id" value="session{user_id}"></param>
+							<param name="current_time" value="now{}" datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
+							<param name="ip" value="request{reqKey2}" ></param>
+							
+						</params>
+					<value>	<![CDATA[
+					insert into IBS.T3_BANUS_SHARE_RATIO ( BRANCH_ORG_ID,CHANNLE_ID,TERM_INTERVAL_TYPE_ID,AMT_INTERVAL_TYPE_ID,EFF_FLAG,MODIFY_PEOPLE,MODIFY_TIME,MODIFY_IP) 
+					VALUES (@{BRANCH_ORG_ID},@{CHANNLE_ID},@{TERM_INTERVAL_TYPE_ID},@{AMT_INTERVAL_TYPE_ID},'1',@{PRICE},#{user_id},#{current_time},#{ip})
+					]]>
+					</value>
+				</insert>
+				-->
+				<delete>
+				<params>
+							<param name="user_id" value="session{user_id}"></param>
+							<param name="current_time" value="now{}" datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
+							<param name="ip" value="request{reqKey2}" ></param><!-- "request{reqKey2}" -->
+							
+						</params>
+					<value>
+					<![CDATA[
+					update IBS.T3_FNC_PROD_PRICE set EFF_FLAG='0' ,MODIFY_PEOPLE=#{user_id},MODIFY_TIME=#{current_time},MODIFY_IP=#{ip} WHERE  BRANCH_ORG_ID=@{BRANCH_ORG_ID} 
+					AND  CHANNLE_ID=@{CHANNLE_ID}
+					AND TERM_INTERVAL_TYPE_ID=@{TERM_INTERVAL_TYPE_ID}
+					AND AMT_INTERVAL_TYPE_ID=@{AMT_INTERVAL_TYPE_ID}
+					]]>
+					</value>
+				</delete>
+				
+				
+			</sql>
+			<!--  
+			<format>
+				<value>
+				rrequest.getRequest().set
+				</value>
+			</format>
+			-->
+			</report>
+		</vpanel>
+</page>
+	
+	
+</applications>

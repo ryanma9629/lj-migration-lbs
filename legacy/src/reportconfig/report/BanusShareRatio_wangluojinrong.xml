@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<applications xmlns="http://www.wabacus.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.wabacus.com ../xsd/wabacus.applications.xsd">
+	
+<page id="ratio_wangluojinrong" js="/webresources/script/validate.js" >
+<interceptor>
+<imports>
+<import>com.ljbank.market.Util</import>
+</imports>
+	<preaction>
+		<![CDATA[
+		Util u=new Util();
+		String ip=u.getRemoteIP(rrequest);
+		rrequest.getRequest().setAttribute("reqKey2", ip);
+		]]>
+	</preaction>
+
+</interceptor>
+
+	
+
+	<header>${top.header}</header>
+		<vpanel id="common_vpanel" width="1000px" align="center" title="">
+			<report id="title" extends="title.report1"></report>
+			<report id="reportRatio" type="listform" personalizeclass="default" pagesize="15|20|-1" servervalidateclass="com.ljbank.market.TestRatioServerValidate">
+
+				
+				<display>
+				<col column="BONUS_TYPE_ID" label="奖金类型代码" displaytype="hidden"></col><!-- 奖金类型代码 -->
+				<col column="CHANNLE_ID" label="渠道代码" displaytype="hidden"></col> <!-- 渠道代码 -->	
+				<col column="BRANCH_ORG_ID" label="机构号" displaytype="hidden"></col> 
+				<col column="OU_NM" label="机构" ></col>					<!-- 通过改名字来改id时，使用 updatecol="@{BRANCH_ORG_ID}" -->	
+				<col column="BONUS_TYPE_NM" label="奖金类型" ></col>		
+				<col column="CHANNLE_NM" label="渠道"></col>
+				<col column="RECOMMEND_RATIO" label="推荐人比例">
+					<inputbox type="textbox" servervalidate="isValidRatio1(比例之和必须为100)" jsvalidate="isNumeric(#data#不是数字)" ></inputbox>
+				</col><!-- 推荐人比例jsvalidate="isHundred()" type="textbox"jsvalidate="isNumeric(#data#不是数字)" jsvalidate="isNumeric(#label#必须是数字)">-->
+				<col column="SALES_RATIO" label="销售人比例 ">				
+				<inputbox servervalidate="isValidRatio2(比例之和必须为100)" jsvalidate="isNumeric(#data#不是数字)" ></inputbox>
+				</col><!-- 销售人比例type="textbox" -->
+				<!--<col column="EFF_FLAG" label="生效标志"></col>   生效标志-->
+				<col column="start_dt" label="修改开始日期" displaytype="hidden"></col> <!-- 修改时用，放在历史表中 -->	
+				
+		
+			</display>
+			<sql>
+					<select>
+						<value><![CDATA[
+						Select A.BONUS_TYPE_ID as BONUS_TYPE_ID
+						,A.BRANCH_ORG_ID
+						,D.OU_NM
+						,B.BONUS_TYPE_NM AS BONUS_TYPE_NM
+						,A.CHANNLE_ID as CHANNLE_ID
+						,C.CHANNLE_NM AS CHANNLE_NM 
+						,CASE WHEN EFF_FLAG=1 THEN '生效' ELSE '失效' END as EFF_FLAG
+						,RECOMMEND_RATIO
+						,SALES_RATIO 
+						,SUBSTR(A.MODIFY_TIME,1,10) as start_dt
+						from (SELECT * FROM IBS.T3_BANUS_SHARE_RATIO where EFF_FLAG=1 )A
+						LEFT JOIN IBS.T9_BONUS_TYPE B
+						ON A.BONUS_TYPE_ID=B.BONUS_TYPE_ID
+						LEFT JOIN IBS.T9_CHANNEL C
+						ON A.CHANNLE_ID=C.CHANNLE_ID
+						LEFT JOIN DIM.DIM_OU_DTIL D
+						ON A.BRANCH_ORG_ID=D.OU_CD
+						AND D.END_DT>current_date
+                        AND D.EFF_DT<=current_date
+						where A.BONUS_TYPE_ID in ('02') AND {#condition#}
+						order by A.BONUS_TYPE_ID,A.BRANCH_ORG_ID,A.CHANNLE_ID
+						]]>
+						</value>
+						<condition name="CHANNLE_ID" label="渠道"
+							labelposition="left">
+							<value> 
+  									<![CDATA[A.CHANNLE_ID ='#data#']]> 
+							</value> 
+							<inputbox type="selectbox">
+								<option label="全部" value=""></option>
+								<option
+									source="@{select distinct CHANNLE_ID,CHANNLE_NM from IBS.T9_CHANNEL}"
+									label="CHANNLE_NM" value="CHANNLE_ID"></option>
+							</inputbox>
+						</condition>
+						<condition name="BONUS_TYPE_ID" label="奖金类型"
+							labelposition="left">
+							<value> 
+  									<![CDATA[A.BONUS_TYPE_ID = '#data#']]> 
+							</value> 
+							<!--  <inputbox type="textbox" jsvalidate="isNotEmpty(#label#列不允许为空)" />-->
+							<inputbox type="selectbox">
+								<option label="全部" value=""></option>
+								<option
+									source="@{select distinct BONUS_TYPE_ID,BONUS_TYPE_NM from IBS.T9_BONUS_TYPE WHERE BONUS_TYPE_ID in ('02')}"
+									label="BONUS_TYPE_NM" value="BONUS_TYPE_ID"></option>
+							</inputbox>
+						</condition>
+						
+							<condition name="BRANCH_ORG_ID" label="机构号"
+							labelposition="left">
+							<value> 
+  									<![CDATA[A.BRANCH_ORG_ID = '#data#']]> 
+							</value> 
+							<!--  <inputbox type="textbox" jsvalidate="isNotEmpty(#label#列不允许为空)" />-->
+							<inputbox type="selectbox">
+								<option label="全部" value=""></option>
+								<option
+									source="@{SELECT OU_CD AS BRANCH_ORG_ID , OU_NM FROM dim.DIM_OU_DTIL WHERE PRN_OU_SUR_ID='200000019420110101' AND SUBSTR(OU_CD,3,2)='00' }"
+									label="OU_NM" value="BRANCH_ORG_ID"></option>
+							</inputbox>
+						</condition>
+					</select>
+					
+					<!-- update cst.a_test(@{id},@{name}) where id=@{id} -->
+				
+				<update confirmessage="[@{RECOMMEND_RATIO}]+@{SALES_RATIO}==100">
+
+				<params>
+							<param name="user_id" value="session{user_id}"></param>
+							<param name="current_time" value="now{}" datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
+							<param name="ip" value="request{reqKey2}" ></param><!-- "request{reqKey2}" -->
+							<param name="current_time1" value="now{}" datatype="timestamp{yyyy-MM-dd}"></param>
+						</params>
+					<!--  	<wx:output  value=”request{reqKey2}”/>-->
+					<value>update IBS.T3_BANUS_SHARE_RATIO set RECOMMEND_RATIO=@{RECOMMEND_RATIO} , SALES_RATIO=@{SALES_RATIO},MODIFY_PEOPLE=#{user_id}
+					,MODIFY_TIME=#{current_time},MODIFY_IP=#{ip} where BONUS_TYPE_ID=@{BONUS_TYPE_ID} and CHANNLE_ID=@{CHANNLE_ID} and BRANCH_ORG_ID=@{BRANCH_ORG_ID} ;
+					
+				
+					
+					</value>
+				<!-- 	insert into IBS.T4_BANUS_SHARE_RATIO_H (BONUS_TYPE_ID=@{BONUS_TYPE_ID},BRANCH_ORG_ID=@{BRANCH_ORG_ID},CHANNLE_ID=@{CHANNLE_ID}
+					,RECOMMEND_RATIO=@{RECOMMEND_RATIO__old},SALES_RATIO=@{SALES_RATIO__old},END_DT=#{current_time1},START_DT=@{start_dt})
+
+
+				 -->
+				</update>
+				<!--  
+				<insert>
+				<params>
+							<param name="user_id" value="session{user_id}"></param>
+							<param name="current_time" value="now{}" datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
+							<param name="ip" value="request{reqKey2}" ></param>
+							
+						</params>
+					<value>
+					<![CDATA[
+					insert into IBS.T3_BANUS_SHARE_RATIO (BONUS_TYPE_ID,CHANNLE_ID,RECOMMEND_RATIO,SALES_RATIO,EFF_FLAG,MODIFY_PEOPLE,MODIFY_TIME,MODIFY_IP) 
+					VALUES(@{BONUS_TYPE_ID},@{CHANNLE_ID},@{RECOMMEND_RATIO},@{SALES_RATIO},'1',#{user_id},#{current_time},MODIFY_IP=#{ip})
+					]]>
+					</value>
+				</insert>
+				-->
+				<delete>
+					<value>
+					<![CDATA[
+					update IBS.T3_BANUS_SHARE_RATIO set EFF_FLAG='0' where BONUS_TYPE_ID=@{BONUS_TYPE_ID} and CHANNLE_ID=@{CHANNLE_ID} and BRANCH_ORG_ID=@{BRANCH_ORG_ID}
+					]]>
+					</value>
+				</delete>
+				
+				
+			</sql>
+	 <!--  
+			<format>
+				<value>
+				RECOMMEND_RATIO+SALES_RATIO==100;
+				</value>
+			</format>
+			-->
+			</report>
+		</vpanel>
+</page>
+	
+	
+</applications>

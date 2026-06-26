@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<applications xmlns="http://www.wabacus.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.wabacus.com ../xsd/wabacus.applications.xsd">
+	<!-- 资源型客户经理季度考核参数 -->
+	<page id="resource_manager_q" js="/webresources/script/validate.js">
+
+		<header>${top.header}</header>
+		<vpanel id="common_vpanel" width="1000px" align="center" title="">
+			<report id="title" extends="title.report1" width="1350px"></report>
+			<report id="report" type="listform" pagesize="15|20|-1" width="1350px"
+				personalizeclass="default" servervalidateclass="com.ljbank.market.Util" scrollwidth="1350px">
+				<display>
+					<col column="{sequence:1}" label="序号" ></col>
+					<col column="EMP_ID" label="员工号" align="center"
+						valuestyleproperty="style='mso-number-format:\@'" clickorderby="true">
+					</col>
+					<col column="EMP_NM" label="员工姓名" ></col>
+					<col column="ORG_ID" label="机构号"  clickorderby="false"
+						valuestyleproperty="style='mso-number-format:\@'"></col>
+					<col column="ORG_NM" label="机构名" ></col>
+					<col column="BRANCH_ORG_ID" label="分行机构号" 
+						displaytype="hidden"></col>
+					<col column="BRANCH_ORG_NM" label="分行机构名" ></col>
+					<col column="PSTN_TYPE" label="主考核类别"  displaytype="hidden"></col>
+					<col column="PSTN_TYPE_NM" label="主考核类别" ></col>
+					<col column="SUB_PSTN_TYPE" label="子考核类别" 
+						displaytype="hidden"></col>
+					<col column="SUB_PSTN_TYPE_NM" label="子考核类别" ></col>
+
+					<col column="ASSESSMENT" label="考核标准" align="center" 
+						clickorderby="true">
+						<inputbox styleproperty="style='width:99%'" jsvalidate="isNotEmpty(考核标准不可以为空)"></inputbox>
+					</col>
+
+					<col column="DAY_DEP_AVG_BAL" label="考核基期存量日均" align="center"
+						 clickorderby="true">
+						<inputbox styleproperty="style='width:99%'" jsvalidate="isNotEmpty(考核基期存量日均不可以为空)"></inputbox>
+					</col>
+				</display>
+
+				<sql>
+					<select>
+
+						<value><![CDATA[
+								SELECT   EMP_ID
+										,EMP_NM
+										,ORG_ID
+										,ORG_NM
+										,BRANCH_ORG_ID
+										,BRANCH_ORG_NM
+										,POSITION_ID
+										,POSITION_NM
+										,PSTN_TYPE
+										,PSTN_TYPE_NM
+										,SUB_PSTN_TYPE
+										,SUB_PSTN_TYPE_NM
+										,ASSESSMENT
+										,DAY_DEP_AVG_BAL
+								FROM     IBS.T5_EMP_ASSESSMENT_Q
+								WHERE  {#condition#}
+						        ORDER BY  EMP_ID
+						]]>
+						</value>
+
+						<condition name="EMP_ID" label="工号" labelposition="left">
+							<value>
+							 		<![CDATA[EMP_ID='#data#']]>
+							</value>
+							<inputbox styleproperty="style='width:100px'">
+								<typeprompt width="300" count="10">
+									<promptcol label="EMP_ID" value="EMP_ID" title="认领工号"
+										matchmode="anywhere" casesensitive="false" />
+									<promptcol label="EMP_NM" value="EMP_NM" title="姓名"
+										matchmode="anywhere" casesensitive="false" />
+									<datasource>
+										<option
+											source="@{Select DISTINCT EMP_ID, EMP_NM from IBS.T5_EMP  WHERE   {#matchcondition#}} " />
+									</datasource>
+								</typeprompt>
+							</inputbox>
+						</condition>
+						<condition name="EMP_NM" label="姓名" labelposition="left">
+							<value>
+							 		<![CDATA[EMP_NM='#data#']]>
+							</value>
+							<inputbox styleproperty="style='width:100px'">
+								<typeprompt width="300" count="10">
+									<promptcol label="EMP_ID" value="EMP_ID" title="认领工号"
+										matchmode="anywhere" casesensitive="false" />
+									<promptcol label="EMP_NM" value="EMP_NM" title="姓名"
+										matchmode="anywhere" casesensitive="false" />
+									<datasource>
+										<option
+											source="@{Select DISTINCT EMP_ID, EMP_NM from IBS.T5_EMP  WHERE   {#matchcondition#}} " />
+									</datasource>
+								</typeprompt>
+							</inputbox>
+						</condition>
+						<condition name="ORG_ID1" labelposition="left" label="分行">
+							<value>
+							<![CDATA[(BRANCH_ORG_ID='#data#')]]>
+							</value>
+							<inputbox type="selectbox" styleproperty="style='width:150px'">
+								<option label="全部" value=""></option>
+								<option
+									source="@{SELECT DISTINCT BRANCH_ORG_ID , CASE WHEN ORG_LEVEL_ID='2' THEN BRANCH_ORG_NM ELSE BRANCH_ORG_NM||'机关' END AS BRANCH_ORG_NM FROM IBS.T5_ORG WHERE ORG_TYPE_ID='EO' AND ORG_LEVEL_ID IN ('2','3') ORDER BY BRANCH_ORG_ID}"
+									label="BRANCH_ORG_NM" value="BRANCH_ORG_ID" />
+							</inputbox>
+						</condition>
+						<condition name="ORG_ID2" labelposition="left" label="支行">
+							<value>
+							<![CDATA[(ORG_ID='#data#')]]>
+							</value>
+							<inputbox type="selectbox" depends="ORG_ID1"
+								styleproperty="style='width:150px'">
+								<option label="全部" value=""></option>
+								<option label="无" value="" type="false"></option>
+								<option
+									source="@{SELECT DISTINCT ORG_ID, ORG_NM FROM IBS.T5_ORG WHERE BRANCH_ORG_ID='#ORG_ID1#' and ORG_TYPE_ID='EO' AND ORG_LEVEL_ID IN ('1','2') ORDER BY ORG_ID}"
+									label="ORG_NM" value="ORG_ID" />
+							</inputbox>
+						</condition>
+
+					</select>
+					<update confirmessage="保存">
+						<params>
+							<param name="ip" value="session{ip}"></param><!-- "request{reqKey2}" -->
+							<param name="user_id" value="session{user_id}"></param>
+							<param name="current_time" value="now{}"
+								datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
+						</params>
+						<value>
+							<![CDATA[
+								update IBS.T5_EMP_ASSESSMENT_Q
+								set ASSESSMENT = @{ASSESSMENT}
+								    ,DAY_DEP_AVG_BAL = @{DAY_DEP_AVG_BAL}
+									,MODIFY_PEOPLE = #{user_id}
+									,MODIFY_TIME = #{current_time}
+									,MODIFY_IP = #{ip}
+								where EMP_ID = @{EMP_ID__old}
+							]]>
+						</value>
+					</update>
+					<delete>
+					    delete IBS.T5_EMP_ASSESSMENT_Q
+					    where EMP_ID = @{EMP_ID__old}
+					</delete>
+
+				</sql>
+			</report>
+		</vpanel>
+	</page>
+
+
+</applications>

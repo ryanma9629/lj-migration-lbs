@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<applications xmlns="http://www.wabacus.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.wabacus.com ../xsd/wabacus.applications.xsd">
+
+<!--代发工资业绩排名-企业代发明细-->
+<page id="dfSlry_detail_df" js="/webresources/script/validate.js,/js/demo.js,/js/common.js">
+<header>${top.header}</header>
+<vpanel id="common_vpanel" width="1000px" align="center" title="">
+	<header>
+	  
+	  <![CDATA[
+	  	
+	    <table width="1000px" border="0" cellspacing="0" cellpadding="0">
+	    <tr><td height="10px"></td></tr>
+	  	<tr><td align="left"><a href='ShowReport.wx?PAGEID=emp_dfSlry_smy' style="font-size:15px;TEXT-DECORATION:underline">返回上一级</a></td></tr>
+	    </table>
+	  ]]>
+	  
+	</header>
+	<report id="select" title="代发工资明细" type="editablelist"
+		width="1000px" scrollwidth="1000px" top="10px" align="center" pagesize="20|20|-1"
+		dataexport="richexcel" personalizeclass="default">
+
+		<display>
+			<col column="{sequence:1}" label="序号" width="40px"></col>
+			<col column="ENT_ID" label="企业编号" displaytype="hidden"></col>
+			<col column="ENT_NM" label="企业名称" ></col>
+			<col column="DEP_LINE_NM" label="业务归属部门" ></col>
+			<col column="QTD_TXN_CNT" label="本季代发笔数"></col>
+			<col column="QTD_TXN_AMT" label="本季代发金额" ></col>
+			<col column="QTD_VUCH_CNT" label="本生代发金额" ></col>
+			<col column="RATIO" label="认领比例(%)"></col>
+		</display>
+		<sql>
+			<select>
+				<value><![CDATA[
+				select df.EMP_ID,df.EMP_NM,df.ENT_ID,df.ENT_NM,df.DEP_LINE_NM,df.RATIO,sum(TXN_AMT) as QTD_TXN_AMT, sum(TXN_CNT) as QTD_TXN_CNT,count(distinct CST_VUCH_NBR) as QTD_VUCH_CNT
+				from IBS.T2_EMP_DFSLRY_VUCH_DETAIL df
+				where {#condition#}
+				group by df.EMP_ID,df.EMP_NM,df.ENT_ID,df.ENT_NM,df.DEP_LINE_NM,df.RATIO
+				
+				    ]]>
+				</value>
+				<condition name="MEASURE_DT" label="日期" labelposition="left" hidden="true">
+					<value>
+				 	<![CDATA[MEASURE_DT = '#data#' ]]>
+					</value>
+				</condition>
+				
+				<condition name="EMP_ID"  hidden="true">
+					<value><![CDATA[EMP_ID='#data#']]></value>
+				</condition>
+				
+			</select>
+		</sql>
+		<format>
+		<imports>
+			<import>com.ljbank.util.*</import>
+			<import>com.wabacus.util.*</import>
+			<import>java.util.*</import>
+			<import>java.text.*</import>
+			<import>com.wabacus.system.*</import>
+		</imports>
+		<value>
+		<!-- 
+		<![CDATA[
+			rrequest.getRequest().getSession().setAttribute("MEASURE_DT", rrequest.getStringAttribute("MEASURE_DT", ""));
+			rrequest.getRequest().getSession().setAttribute("EMP_ID", rrequest.getStringAttribute("EMP_ID", ""));
+		]]>
+		 -->
+		<!-- 
+		
+		 -->
+		</value>
+	</format>
+		</report>
+
+	</vpanel>
+</page>
+
+
+<!--我的代发工资业绩明细 -->
+<page id="dfSlry_detail_emp" js="/webresources/script/validate.js,/js/demo.js,/js/common.js">
+	<header>${top.header}</header>
+	<interceptor>
+		<imports>
+			<import>java.lang</import>
+			<import>com.wabacus.util</import>
+			<import>java.sql.Connection</import>
+			<import>java.sql.PreparedStatement</import>
+			<import>java.sql.ResultSet</import>
+			<import>javax.servlet.http.HttpSession</import>
+			<import>javax.util</import>
+			<import>javax.text</import>
+			<import>com.ljbank.market.MyMath</import>
+			<import>java.util.Date</import>
+			<import>java.text.SimpleDateFormat</import>
+		</imports>
+		<preaction>
+			<![CDATA[
+				Util dt = new Util();
+				String date=dt.getDate();
+				
+				String measureDt = rrequest.getStringAttribute("MEASURE_DT", "");
+				measureDt=measureDt==null?"":measureDt;
+				
+				String p_mdt = (String) rrequest.getRequest().getSession().getAttribute("P_MDT");
+				p_mdt=p_mdt==null?"":p_mdt;
+				
+				if(measureDt.equals("") ){
+					if(!p_mdt.equals("")){
+						rrequest.setAttribute("MEASURE_DT", p_mdt);
+					}else{
+						rrequest.setAttribute("MEASURE_DT", date);
+					}
+				}
+				
+			 ]]>
+			 <!-- 
+				rrequest.getRequest().getSession().setAttribute("MEASURE_MTH_ST", rrequest.getStringAttribute("DT_ST", ""));
+				rrequest.getRequest().getSession().setAttribute("MEASURE_MTH_ED", rrequest.getStringAttribute("DT_ED", ""));
+			 
+			  -->
+	</preaction>
+</interceptor>
+<vpanel id="common_vpanel" width="1000px" align="center" title="">	
+	<report id="select" title="企业代发情况" type="list"
+		width="1000px" scrollwidth="1000px" top="10px" align="center" pagesize="20|20|-1"
+		dataexport="richexcel" personalizeclass="default">
+
+		<display>
+			<col column="{sequence:1}" label="序号" width="40px"></col>
+			<col column="ENT_ID" label="企业编号" displaytype="hidden"></col>
+			<col column="ENT_NM" label="企业名称" ></col>
+			<col column="DEP_LINE_NM" label="业务归属部门" ></col>
+			<col column="QTD_TXN_CNT" label="本季代发笔数"></col>
+			<col column="QTD_TXN_AMT" label="本季代发金额" ></col>
+			<col column="QTD_VUCH_CNT" label="本季代发账户数" ></col>
+			<col column="RATIO" label="认领比例(%)"></col>
+			<col column="EMP_ID" label="员工号" displaytype="hidden"></col>
+		</display>
+		<sql>
+			<select>
+				<value><![CDATA[
+				
+				select df.EMP_ID,df.EMP_NM,df.ENT_ID,df.ENT_NM,df.DEP_LINE_NM,df.RATIO,sum(TXN_AMT) as QTD_TXN_AMT, sum(TXN_CNT) as QTD_TXN_CNT,count(distinct CST_VUCH_NBR) as QTD_VUCH_CNT
+				from IBS.T2_EMP_DFSLRY_VUCH_DETAIL df
+				where {#condition#}
+				group by df.EMP_ID,df.EMP_NM,df.ENT_ID,df.ENT_NM,df.DEP_LINE_NM,df.RATIO
+				
+				    ]]>
+				</value>
+				<condition name="MEASURE_DT" label="日期" labelposition="left" >
+					<value>
+				 	<![CDATA[	
+						 MEASURE_DT = '#data#' 
+				 	]]>
+					</value>
+					<inputbox type="datepicker" styleproperty="style='width:90px'" dateformat="yyyy-MM-dd"
+						jsvalidate="isNotEmpty(日期不能为空)" >
+					</inputbox>
+				</condition>
+				<condition name="EMP_ID"  hidden="true" source="session{user_id}">
+					<value><![CDATA[EMP_ID='#data#']]></value>
+				</condition>
+			</select>
+		</sql>
+		<format>
+			<imports>
+				<import>com.ljbank.util.*</import>
+				<import>com.wabacus.util.*</import>
+				<import>java.util.*</import>
+				<import>java.text.*</import>
+				<import>com.wabacus.system.*</import>
+			</imports>
+			<value>
+			<![CDATA[
+				rrequest.getRequest().getSession().setAttribute("P_MDT", rrequest.getStringAttribute("MEASURE_DT", ""));
+			]]>
+			<!--
+			<![CDATA[
+				String MTH_DT_ST = rrequest.getStringAttribute("MTH_DT_ST", "");
+				String MTH_DT_ED = rrequest.getStringAttribute("MTH_DT_ED", "");
+			    ENT_NM="<a style='TEXT-DECORATION:underline' href='ShowReport.wx?PAGEID=dfSlry_detail_emp_df&EMP_ID="+EMP_ID+"&ENT_ID="+ENT_ID+"&MTH_DT_ST="+MTH_DT_ST+"&MTH_DT_ED="+MTH_DT_ED+"'>"+ENT_NM+"</a>"; 
+			]]>
+			  -->
+			</value>
+		</format>
+		<footer><![CDATA[<div style='float:left'><font color='blue'></font></div>]]></footer>
+		</report>
+
+	</vpanel>
+</page>
+	
+
+
+</applications>

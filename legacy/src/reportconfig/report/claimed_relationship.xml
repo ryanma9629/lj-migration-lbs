@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<applications xmlns="http://www.wabacus.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.wabacus.com ../xsd/wabacus.applications.xsd">
+	<!-- 理财认领关系修改 -->
+	<page id="claimed_relationship" js="/webresources/script/validate.js">
+		<interceptor>
+			<imports>
+				<import>com.ljbank.market.Util</import>
+			</imports>
+			<preaction>
+		<![CDATA[
+		Util u=new Util();
+		String ip=u.getRemoteIP(rrequest);
+		rrequest.getRequest().setAttribute("reqKey2", ip);
+		String riqi=u.getDate7();
+		rrequest.getRequest().setAttribute("reqKey3", riqi);
+		
+
+		]]>
+	</preaction>
+		</interceptor>
+
+		<header>${top.header}</header>
+
+
+
+		<vpanel id="common_vpanel" width="1300px" align="center" title="">
+			<report id="title" extends="title.report1" width="1300px"></report>
+			<report id="reportClaimed" type="listform" title="" width="1300px"
+				top="10px" personalizeclass="default" servervalidateclass="com.ljbank.market.TestPersonnel">
+
+				<display>
+					<col column="BONUS_TYPE_NM" width="50x" label="奖金类型"
+						clickorderby="true"></col>
+					<col column="TXN_DT" width="80px" label="交易日期" clickorderby="true"></col>
+
+					<col column="SALE_ID" width="130px" label="账号"></col>
+					<col column="CST_ID" displaytype="hidden" label="客户号"></col>
+					<col column="CST_NM" width="50x" label="客户姓名" clickorderby="true"></col>
+					<col column="BONUS_TYPE_ID" label="奖励类型" displaytype="hidden"></col>
+					<col column="TERM_DAY_CNT" label="期限天数" displaytype="hidden"
+						clickorderby="true"></col>
+					<col column="NM" label="币种" displaytype="hidden"></col>
+					<col column="AMT" width="80px" label="金额" clickorderby="true" ></col>
+					<col column="CHANNLE_ID" label="渠道代码" displaytype="hidden"></col> <!-- 渠道代码 -->
+					<col column="CHANNLE_NM" width="50x" label="渠道" clickorderby="true"></col>
+					<col column="ORG_ID" label="机构号" displaytype="hidden"></col>
+					<col column="ORG_NM" width="100px" label="机构名称" clickorderby="true"></col>
+					<col column="RECOMMEND_PEOPLE" width="80px" label="推荐人"
+						clickorderby="true">
+						<inputbox styleproperty="style='width:95%'"
+							servervalidate="isPersonnel(必须是员工号)">
+							<autocomplete columns="RECOMMEND_PEOPLE_NM"
+								colvaluecondition="RECOMMEND_PEOPLE like '%#RECOMMEND_PEOPLE#%'"
+								dataset="select * from (Select EMP_ID as RECOMMEND_PEOPLE ,EMP_NM as RECOMMEND_PEOPLE_NM from IBS.T5_EMP where EMP_TYPE_ID='E')where 1=1 {#condition#}  order by RECOMMEND_PEOPLE_NM "></autocomplete>
+						</inputbox>
+					</col>
+					<col column="RECOMMEND_PEOPLE_NM" width="80px" label="推荐人姓名">
+						<inputbox styleproperty="style='width:95%'"></inputbox>
+					</col>
+					<col column="SALES_PEOPLE" width="80px" label="销售人"
+						clickorderby="true">
+						<inputbox styleproperty="style='width:95%'"
+							servervalidate="isPersonnel(必须是员工号)">
+							<autocomplete columns="SALES_PEOPLE_NM"
+								colvaluecondition="SALES_PEOPLE like '%#SALES_PEOPLE#%'"
+								dataset="select * from (Select EMP_ID  as SALES_PEOPLE ,EMP_NM as SALES_PEOPLE_NM from IBS.T5_EMP  where EMP_TYPE_ID='E')where 1=1  {#condition#}  order by SALES_PEOPLE_NM "></autocomplete>
+						</inputbox>
+					</col>
+					<col column="SALES_PEOPLE_NM" width="80px" label="销售人姓名">
+						<inputbox styleproperty="style='width:95%'"></inputbox>
+					</col>
+					<col column="MODIFY_PEOPLE" label="修改人" displaytype="hidden"></col>
+					<col column="MODIFY_TIME" label="修改时间" displaytype="hidden"></col>
+					<col column="VALUE_DT" displaytype="hidden"></col>
+					<col column="MATURITY_DT" displaytype="hidden"></col>
+					<col column="RECOMMEND_TYPE_ID" displaytype="hidden"></col>
+					<col column="RECOMMEND_PEOPLE_MOBILE" displaytype="hidden"></col>
+					<col column="RECOMMEND_RATIO" displaytype="hidden"></col>
+					<col column="SALES_PEOPLE_MOBILE" displaytype="hidden"></col>
+					<col column="SALES_RATIO" displaytype="hidden"></col>
+					<col column="SALE_PROD_STATUS_ID" displaytype="hidden"></col>
+					<col column="SALE_PROD_STATUS_NM" displaytype="hidden"></col>
+					<col column="MODIFY_IP" label="修改IP" displaytype="hidden"></col>
+					<col column="CCY_ID" label="币种" displaytype="hidden"></col>
+					<col column="BRANCH_ORG_ID" displaytype="hidden"></col>
+					<col column="REMARK" displaytype="hidden"></col>
+				</display>
+				<sql>
+					<select>
+
+						<value>
+						<![CDATA[
+							Select A.SALE_ID 
+								,A.TXN_DT
+								,A.CST_ID
+								,A.CST_NM
+								,A.BONUS_TYPE_ID
+								,B.BONUS_TYPE_NM
+								,A.MATURITY_DT 
+								,A.TERM_DAY_CNT,A.CCY_ID,F.NM,cast(A.AMT as dec(18,0)) as AMT,A.ORG_ID,C.ORG_NM
+								,A.BRANCH_ORG_ID
+								,A.CHANNLE_ID
+								,G.CHANNLE_NM
+								,A.VALUE_DT
+								,A.MATURITY_DT
+								,A.RECOMMEND_TYPE_ID
+								,A.RECOMMEND_PEOPLE_MOBILE
+								,A.RECOMMEND_RATIO
+								,A.SALES_PEOPLE_MOBILE
+								,A.SALES_RATIO
+								,A.SALE_PROD_STATUS_ID
+								,A.SALE_PROD_STATUS_NM
+								,A.RECOMMEND_PEOPLE
+								,D.EMP_NM as RECOMMEND_PEOPLE_NM			
+								,A.SALES_PEOPLE
+								,E.EMP_NM AS SALES_PEOPLE_NM
+							    ,A.MODIFY_PEOPLE,A.MODIFY_TIME,A.MODIFY_IP
+							    ,A.REMARK
+							from IBS.T1_SALES_DETAIL A
+							LEFT JOIN IBS.T9_BONUS_TYPE B
+							ON A.BONUS_TYPE_ID=B.BONUS_TYPE_ID						
+						    LEFT JOIN IBS.T5_ORG C 
+	                        ON A.ORG_ID=C.ORG_ID
+	                        AND C.ORG_TYPE_ID='AO' 
+							LEFT JOIN IBS.T5_EMP D
+							ON A.RECOMMEND_PEOPLE=D.EMP_ID
+							LEFT JOIN IBS.T5_EMP E
+							ON A.SALES_PEOPLE=E.EMP_ID
+							LEFT JOIN PUB.CL F
+							ON A.CCY_ID=F.CL_ID
+							LEFT JOIN IBS.T9_CHANNEL G
+							ON A.CHANNLE_ID=G.CHANNLE_ID
+							WHERE A.CHANNLE_ID not in ('2300','2700') and a.BONUS_TYPE_ID='01' and {#condition#}
+							order by B.BONUS_TYPE_NM desc ,a.TXN_DT desc ,a.AMT desc
+							
+						]]>
+						</value>
+
+						<condition name="RIQI" source="request{reqKey3}" hidden="true">
+							<value>
+							<![CDATA[A.TXN_DT>='#data#']]>
+							</value>
+						</condition>
+
+
+						<condition name="org_id" source="session{org_id}"
+							hidden="true">
+							<value>
+							<![CDATA[(A.org_id='#data#' OR C.HEAD_ORG_ID='#data#')]]>
+							</value>
+						</condition>
+						<condition name="cst_nm" label="客户姓名">
+							<value>
+							<![CDATA[A.CST_NM like '%#data#%']]>
+							</value>
+						</condition>
+						<condition name="TXN_DT" label="交易日期(七日内)"
+							labelposition="left">
+							<value>
+						 	<![CDATA[A.TXN_DT='#data#']]>
+							</value>
+							<inputbox type="datepicker" styleproperty="style='width:80px'"
+								jsvalidate="isDate(#label#格式为yyyy-MM-dd)">
+
+							</inputbox>   
+						</condition>
+						<condition name="RECOMMEND_PEOPLE" label="推荐人"
+							labelposition="left">
+							<value>
+						 	<![CDATA[A.RECOMMEND_PEOPLE='#data#']]>
+							</value>
+							<inputbox type="textbox" jsvalidate="isNumeric(#label#员工号或者客户手机号)">
+
+							</inputbox>
+						</condition>
+
+
+						<condition name="SALES_PEOPLE" label="销售人"
+							labelposition="left">
+							<value>
+						 	<![CDATA[A.SALES_PEOPLE='#data#']]>
+							</value>
+							<inputbox type="textbox" jsvalidate="isNumeric(#label#员工号)">
+
+							</inputbox>
+						</condition>
+					</select>
+
+
+					<update>
+
+						<params>
+							<param name="user_id" value="session{user_id}"></param>
+							<param name="current_time" value="now{}"
+								datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
+							<param name="ip" value="request{reqKey2}"></param><!-- "request{reqKey2}" -->
+							<param name="per1nm" value="request{per1nm}"></param>
+							<param name="per2nm" value="request{per2nm}"></param>
+
+						</params>
+						<!-- <wx:output value=”request{reqKey2}”/> -->
+						<value>
+					<![CDATA[
+					UPDATE IBS.T1_SALES_DETAIL SET RECOMMEND_PEOPLE =@{RECOMMEND_PEOPLE}, RECOMMEND_TYPE_ID='E',RECOMMEND_PEOPLE_NM=@{RECOMMEND_PEOPLE_NM}
+					, SALES_PEOPLE=@{SALES_PEOPLE}, SALES_PEOPLE_NM=@{SALES_PEOPLE_NM},MODIFY_PEOPLE=#{user_id},MODIFY_TIME=#{current_time},MODIFY_IP=#{ip}
+					WHERE  BONUS_TYPE_ID=@{BONUS_TYPE_ID} 
+					AND  SALE_ID=@{SALE_ID__old}
+					AND  BONUS_TYPE_ID<>'02'
+				
+
+					
+				]]>
+						</value>
+					</update>
+
+
+
+				</sql>
+			</report>
+		</vpanel>
+	</page>
+
+
+</applications>

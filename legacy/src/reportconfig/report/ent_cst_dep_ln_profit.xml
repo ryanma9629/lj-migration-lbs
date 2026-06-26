@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<applications xmlns="http://www.wabacus.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.wabacus.com ../xsd/wabacus.applications.xsd">
+	<!--企业存贷款贡献度 -->
+	<page id="ent_cst_profit_smy"
+		js="/webresources/script/validate.js,/js/demo.js,/js/common.js">
+		<header>${top.header}</header>
+		<interceptor>
+			<imports>
+				<import>java.lang</import>
+				<import>com.wabacus.util</import>
+				<import>java.sql.Connection</import>
+				<import>java.sql.PreparedStatement</import>
+				<import>java.sql.ResultSet</import>
+				<import>javax.servlet.http.HttpSession</import>
+				<import>javax.util</import>
+				<import>javax.text</import>
+				<import>com.ljbank.market.MyMath</import>
+				<import>java.util.Date</import>
+				<import>java.text.SimpleDateFormat</import>
+			</imports>
+			<preaction>
+				<![CDATA[
+						String beginTime = rrequest.getStringAttribute("MEASURE_DT", "");// 取出输入的查询时间
+						System.out.println("beginTime:" + beginTime);
+						if (beginTime.equals("")) 
+						{
+							Connection conn = rrequest.getConnection();
+							PreparedStatement pstmt = null;
+							try {
+									String SQL = "Select DATA_DT from IBS.T8_DATA_DT";
+									pstmt = conn.prepareStatement(SQL);
+									ResultSet resultSet = pstmt.executeQuery();
+									while (resultSet.next()) {
+					                     String date=resultSet.getString("DATA_DT");
+					                     rrequest.setAttribute("MEASURE_DT", date);
+				                    }
+									
+									System.out.println("beginTime处理后时间为:" + beginTime);
+									resultSet.close();
+									pstmt.close();
+								} 
+							catch (Exception e) {
+									e.printStackTrace();
+							}
+                        }
+                    
+				]]>
+			</preaction>
+		</interceptor>
+		<vpanel id="common_vpanel" width="1350px" align="center" title="">
+
+			<report id="title" extends="title.report1" width="1350px"></report>
+			<report id="select" title="企业存贷款贡献度" type="editablelist"
+				scrollwidth="1350px" width="2000px" top="10px" align="center"
+				pagesize="15|20|-1" dataexport="richexcel" personalizeclass="default" cellresize="2">
+
+				<display>
+					<col column="MEASURE_DT" label="统计日期"  displaytype="hidden"></col>
+					<col column="EMP_ID" label="员工号" 
+						valuestyleproperty="style='mso-number-format:\@'"></col>
+					<col column="EMP_NM" label="员工姓名" ></col>
+					<col column="CCY_ID" label="币种 "  displaytype="hidden"></col>
+					<col column="CST_NM" label="企业名称" ></col>
+					<col column="CST_ID" label="企业号" displaytype="hidden"></col>
+					<group label="存款" >
+						<col column="DEP_BAL" label="余额 " datatype="double{0.00}" 
+							align="right"></col>
+						<col column="DEP_MTD_AVG_BAL" label="月日均 "  align="right" 
+							datatype="double{0.00}"></col>
+						<col column="DEP_QTD_AVG_BAL" label="季日均 "  align="right" 
+							datatype="double{0.00}"></col>
+						<col column="DEP_YTD_AVG_BAL" label="年日均 "  align="right" 
+							datatype="double{0.00}"></col>
+						<col column="DEP_Q_PROFIT" label="季利润 "  datatype="double{0.00}"
+							align="right"></col>
+					</group>
+					<group label="贷款">
+						<col column="LN_BAL" label="余额  "  datatype="double{0.00}"
+							align="right"></col>
+						<col column="LN_MTD_AVG_BAL" label="月日均" 
+							align="right" datatype="double{0.00}"></col>
+						<col column="LN_QTD_AVG_BAL" label="季日均" 
+							align="right" datatype="double{0.00}"></col>
+						<col column="LN_YTD_AVG_BAL" label="年日均" 
+							align="right" datatype="double{0.00}"></col>
+						<col column="LN_Q_PROFIT" label="季利润"  align="right"
+							datatype="double{0.00}"></col>
+					</group>
+				</display>
+				<sql>
+					<select>
+						<value><![CDATA[
+							select MEASURE_DT,EMP_ID,EMP_NM,CST_ID,CST_NM,CCY_ID,DEP_BAL,DEP_MTD_AVG_BAL,DEP_QTD_AVG_BAL,DEP_YTD_AVG_BAL,DEP_Q_PROFIT,DEP_Y_PROFIT,LN_BAL,LN_MTD_AVG_BAL,LN_QTD_AVG_BAL,LN_YTD_AVG_BAL,LN_Q_PROFIT,LN_Y_PROFIT
+							from ibs.T2_ENT_CST_DEP_LN_PROFIT
+							WHERE {#condition#}
+						    ]]>
+						</value>
+						
+						<condition name="ORG_ID1" labelposition="left" label="分行">
+							<value>
+							<![CDATA[(EMP_ID='#data#')]]>
+							</value>
+							<inputbox type="selectbox" styleproperty="style='width:150px'">
+								<option label="全部" value=""></option>
+								<option
+									source="@{Select distinct BRANCH_ORG_ID, BRANCH_ORG_NM,HEAD_ORG_ID from IBS.T5_ORG where ORG_TYPE_ID='EO' and BRANCH_ORG_ID not in ('8000','9990') ORDER BY HEAD_ORG_ID DESC, BRANCH_ORG_ID}"
+									label="BRANCH_ORG_NM" value="BRANCH_ORG_ID" />
+							</inputbox>
+						</condition>
+
+						<condition name="MEASURE_DT" label="日期" labelposition="left"
+							br="true">
+							<value>
+						 	<![CDATA[(MEASURE_DT='#data#')]]>
+							</value>
+							<inputbox type="datepicker" styleproperty="style='width:120px'"
+								jsvalidate="isDate(#label#格式为yyyy-MM-dd)">
+							</inputbox>
+						</condition>
+					</select>
+				</sql>
+				<format>
+					<imports>
+						<import>com.ljbank.util.*</import>
+						<import>com.wabacus.util.*</import>
+						<import>java.util.*</import>
+						<import>java.text.*</import>
+						<import>com.wabacus.system.*</import>
+					</imports>
+					<value>
+					<![CDATA[
+					    CST_NM="<a style='TEXT-DECORATION:underline' href='ShowReport.wx?PAGEID=ent_cst_profit_detail&CST_ID="+CST_ID+"&MEASURE_DT="+MEASURE_DT+"'>"+CST_NM+"</a>"; 
+					]]>
+					</value>
+				</format>
+				<footer><![CDATA[<div style='float:left'><font color='blue'>提示:点击企业名称,可以查询其“凭证业绩明细”功能页面</font></div>]]></footer>
+			</report>
+		</vpanel>
+	</page>
+</applications>

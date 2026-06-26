@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<applications xmlns="http://www.wabacus.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.wabacus.com ../xsd/wabacus.applications.xsd">
+	<!-- 测试页面生产未使用  认领调整 -->
+	<page id="acc_rltz" js="/webresources/script/validate.js">
+
+
+		<header>${top.header}</header>
+		<vpanel id="common_vpanel" width="1300px" align="center" title="">
+
+			<report id="title" extends="title.report1" width="1300px"></report>
+			<report id="select" type="listform" title="账户信息" width="1300px"
+				personalizeclass="default" interceptor="com.customer.InterceptorAccRltz">
+				
+				<display>
+					<col column="{sequence:1}" label="序号"></col>
+					<col column="ACC_ID" label="凭证号"></col>
+					<col column="ACC_NAME" label="户名"></col>
+					<col column="ACC_TYPE" label="类型"></col>
+					<col column="ACC_BANK" label="账户开户行"></col>
+					<col column="ACC_KIND " label="账户类型"></col>
+					<col column="ACC_BLANCE" label="账户余额"></col>
+					<col column="ACC_SDATE" label="开户日期"></col>
+					<col column="ACC_STUS" label="账户状态"></col>
+				</display>
+				<sql>
+					<select>
+						<value><![CDATA[
+							Select ACC_ID 		   
+								,ACC_NAME	   
+								,ACC_TYPE 	 
+								,ACC_BANK 	 
+								,ACC_KIND    
+								,ACC_BLANCE  
+								,ACC_SDATE   
+								,ACC_STUS	   
+							from MNG.ACCOUNT
+							where  {#condition#}
+						    ]]>
+						</value>
+						<condition name="ACC_ID" label="凭证号" labelposition="left">
+							<value><![CDATA[ACC_ID='#data#']]></value>
+						</condition>
+						<condition name="ACC_NAME" label="账户名" labelposition="left">
+							<value><![CDATA[ACC_NAME='#data#']]></value>
+						</condition>
+					</select>
+
+
+
+				</sql>
+			</report>
+			<report id="dtl" title="认领信息" type="listform" dataexport="richexcel"
+				personalizeclass="default" servervalidateclass="com.ljbank.market.TestPersonnel"
+				depends="select" dependsparams="txtaccid=@{ACC_ID}" top="10px">
+				<display valuetdwidth="120px" labeltdwidth="80px">
+					<col column="ACC_ID" label="凭证号隐藏" displaytype="hidden"></col><!-- -->
+					<col column="ACC_ID_1" label="凭证号" width="200px"></col><!-- br="true" valuestyleproperty="colspan='3'" -->
+					<col column="TLER_ID" label="认领工号" clickorderby="true"
+						valuestyleproperty="style='mso-nubmer-format:\@'">
+						<inputbox styleproperty="style='width:90%'"><!-- jsvalidate="isNotEmpty(员工号不可以为空)" 
+								servervalidate="isPersonnel(必须是员工号) " -->
+							<autocomplete columns="TLER_NM" colvaluecondition="TLER_ID like '%#TLER_ID#%'"
+								dataset="select * from (Select  PER_ID as TLER_ID , PER_NAME as TLER_NM from pub.PERSONNEL where HR_STATUS='A') where 1=1 {#condition#}  order by TLER_NM ">
+							</autocomplete>
+						</inputbox>
+					</col>
+					<col column="TLER_NM" label="认领姓名"></col><!-- br="true" -->
+					<col column="TA_SCO" label="认领比例">
+						<inputbox styleproperty="style='width:90%'" jsvalidata="isNumeric(不是合法数字)"></inputbox>
+					</col>
+					<col column="TA_DATE" label="认领时间"></col><!-- br="true" -->
+					<col column="ACC_AGREE" label="审核人"></col><!--审核人现在假字段 -->
+				</display>
+				<sql>
+					<select>
+						<value><![CDATA[
+							Select A.ACC_ID , A.ACC_ID as ACC_ID_1 , A.TLER_ID , B.PER_NAME AS TLER_NM, A.TA_SCO , A.TA_DATE , A.ACC_AGREE 
+							from MNG.CLM_ACC A
+							left join PUB.PERSONNEL B
+							ON A.TLER_ID=B.PER_ID
+							where {#condition#}
+						    ]]>
+						</value>
+						<condition name="txtaccid" hidden="true">
+							<value><![CDATA[ACC_ID='#data#']]></value>
+						</condition>
+						<!-- >condition name="ACC_NAME" label="账户名" labelposition="left"> <value><![CDATA[ACC_NAME='#data#']]></value> 
+							</condition -->
+					</select>
+
+					<update>
+						<params>
+							<param name="user_id" value="session{user_id}"></param>
+							<param name="current_time" value="now{}"
+								datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
+							<param name="current_time1" value="now{}" datatype="timestamp{yyyy-MM-dd}"></param>
+							<param name="ip" value="request{reqKey2}"></param><!-- "request{reqKey2}" -->
+						</params>
+						<value>
+							<![CDATA[
+
+			                   
+			                update MNG.CLM_ACC 
+			                set 
+			                	TLER_ID		= @{TLER_ID}
+			                   	,TA_SCO		= @{TA_SCO}
+			                   	,ADD_TIME 	= #{current_time}
+							where TLER_ID   = @{TLER_ID__old}
+							and ACC_ID      = @{ACC_ID}
+							and TA_SCO      = @{TA_SCO__old}
+							
+			                   
+							]]>
+						</value>
+
+					</update>
+
+				</sql>
+			</report>
+		</vpanel>
+	</page>
+
+
+</applications>

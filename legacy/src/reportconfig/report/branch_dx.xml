@@ -1,0 +1,702 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<applications xmlns="http://www.wabacus.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.wabacus.com ../xsd/wabacus.applications.xsd">
+	
+<!-- 分行评分项设置 -->
+<page id="branch_dx_query" js="/webresources/script/validate.js">
+
+<header>${top.header}</header>
+<vpanel id="common_vpanel" width="1000px" align="center" >
+<report id="title" extends="title.report1" width="1000px"></report>
+<report id="select" type="listform" title="评分项设置" width="1000px" pagesize="15|20|-1" dataexport="richexcel"
+	top="10px" personalizeclass="default" rowselect="multiple-checkbox" interceptor="com.customer.interceptor.InterceptorDxMod"><!-- 与branch_dx_mod 共用一个interceptor -->
+	<display>
+		<col column="{col-rowselect}" label="选择" width="50px" />
+		<col column="{sequence:1}" label="序号" width="40px"></col>
+		<col column="YEAR" label="年度" width="90px" >
+			<inputbox type="datepicker" styleproperty="style='width:90px'" dateformat="yyyy" jsvalidate="isNotEmpty(#label# 不允许为空);"  ></inputbox>
+		</col>
+		<col column="EXAM_Q" label="季度" width="100px" >
+			<inputbox type="selectbox" styleproperty="style='width:99%'" jsvalidate="isNotEmpty(#label#列不允许为空)" >
+				<option
+					source="@{select QTD , QTD_NM from ibs.T9_YEAR_Q order by QTD}"
+					label="QTD_NM" value="QTD" />
+			</inputbox>
+		</col>
+		
+		
+		<col column="BRANCH_ORG_ID" label="分行号" width="100px" >
+			<inputbox defaultvalue="session{org_id}" />
+		</col>
+		<col column="BRANCH_ORG_NM" label="分行" width="150px"  >
+			<inputbox type="selectbox" jsvalidate="isNotEmpty(#label#列不允许为空)"
+				styleproperty="style='width:99%'" depends="BRANCH_ORG_ID" >
+				
+				<option
+					source="@{Select distinct BRANCH_ORG_ID , BRANCH_ORG_NM from IBS.T5_ORG where BRANCH_ORG_ID='#BRANCH_ORG_ID#' and ORG_TYPE_ID='EO' order by BRANCH_ORG_ID}"
+					label="BRANCH_ORG_NM" value="BRANCH_ORG_NM" />
+				<!--  
+<autocomplete columns="BRANCH_ORG_NM;BRANCH_ORG_ID"
+colvaluecondition="BRANCH_ORG_NM = '#BRANCH_ORG_NM#'"
+dataset="Select distinct BRANCH_ORG_NM,BRANCH_ORG_ID from IBS.T5_ORG where BRANCH_ORG_ID!='9990' and HEAD_ORG_ID='9990' and ORG_TYPE_ID='EO' {#condition#} ">
+</autocomplete>
+-->
+		</inputbox>
+	</col>
+	<col column="PROJCT_NM" label="项目" width="100px">
+		<inputbox type="selectbox" jsvalidate="isNotEmpty(#label#列不允许为空)"
+			styleproperty="style='width:99%'">
+			<option label="请选择项目..." value=""></option>
+			<option label="营销方面" value="营销方面"></option>
+			<option label="贷后管理方面" value="贷后管理方面"></option>
+			<option label="合规方面" value="合规方面"></option>
+			<option label="工作纪律方面" value="工作纪律方面"></option>
+			<option label="其他方面" value="其他方面"></option>
+		</inputbox>
+	</col>
+	
+
+	<col column="ZB_NM" label="评分项" width="250px">
+		<inputbox type="textbox" jsvalidate="isNotEmpty(#label#列不允许为空)" styleproperty="style='width:99%'" >
+		</inputbox>
+	</col>
+	<col column="SCORE" label="分数" width="100px">
+		<inputbox type="textbox" jsvalidate="isNotEmpty(#label#列不允许为空)" styleproperty="style='width:99%'" />
+	</col>
+	<col column="STUS" label="状态" width="100px"></col>
+	<col column="EFF_FLAG" label="生效标志" displaytype="hidden"></col>
+	<col column="MODIFY_PEOPLE" label="修改人" displaytype="hidden"></col>
+	<col column="MODIFY_TIME" label="修改时间" displaytype="hidden"></col>
+	<col column="MODIFY_IP" label="修改IP" displaytype="hidden"></col>
+	<col column="REMARK" label="备注" displaytype="hidden"></col>
+	<col column="MEASURE_DT" label="日期" displaytype="hidden"></col>
+	<col column="EXAM_Q_PARM" label="季度参数" displaytype="hidden"></col>
+	<col column="ISOVER" label="设置结束" displaytype="hidden"></col>
+</display>
+<sql>
+	<select>
+		<value><![CDATA[
+			Select bra.YEAR
+				,bra.EXAM_Q
+				,bra.EXAM_Q as EXAM_Q_PARM
+				,bra.BRANCH_ORG_ID
+				,bra.BRANCH_ORG_NM
+				,bra.PROJCT_NM
+				,bra.ZB_NM
+				,bra.SCORE
+				,bra.EFF_FLAG
+				,bra.MODIFY_PEOPLE
+				,bra.MODIFY_TIME
+				,bra.MODIFY_IP
+				,bra.VERIFY_TIME
+				,bra.VERIFY_PEOPLE
+				,bra.REMARK 
+				,bra.STUS
+				,bra.MEASURE_DT
+				,bra.ISOVER
+			from IBS.T3_BRANCH_DX_ZB bra
+			inner join (select distinct BRANCH_ORG_ID, HEAD_ORG_ID from ibs.T5_ORG where ORG_TYPE_ID='EO') ou on ou.BRANCH_ORG_ID=bra.BRANCH_ORG_ID
+			where {#condition#} and bra.EFF_FLAG='1'
+			and bra.STUS='3'
+			ORDER by bra.YEAR DESC,bra.EXAM_Q DESC,bra.BRANCH_ORG_ID,bra.PROJCT_NM,bra.ZB_NM,bra.VERIFY_TIME
+		]]>
+		</value>
+	<condition name="YEAR" label="考核年度" labelposition="left" defaultvalue="session{exam_year}">
+		<value> 
+				<![CDATA[YEAR = '#data#']]>
+		</value>
+		<inputbox type="datepicker" styleproperty="style='width:100px'" dateformat="yyyy" jsvalidate="isNotEmpty(#label# 不允许为空);" ></inputbox>
+	</condition>
+	<condition name="EXAM_Q" label="考核季度" labelposition="left">
+		<value> 
+			<![CDATA[EXAM_Q = '#data#']]>
+		</value>
+		<inputbox type="selectbox" styleproperty="style='width:100px'">
+			<option label="全部" value=""></option>
+			<option
+				source="@{select QTD , QTD_NM from ibs.T9_YEAR_Q order by QTD}"
+				label="QTD_NM" value="QTD" />
+		</inputbox>
+	</condition>
+	<condition name="ORG_ID0" labelposition="left" label="用户机构" hidden="true"
+			source="session{org_id}">
+			<value>
+			<![CDATA[(bra.BRANCH_ORG_ID='#data#' or ou.HEAD_ORG_ID='#data#' )]]>
+			</value>
+	</condition>
+	<condition name="ORG_ID1" labelposition="left" label="分行">
+		<value>
+		<![CDATA[(bra.BRANCH_ORG_ID='#data#')]]>
+		</value>
+		<inputbox type="selectbox" styleproperty="style='width:140px'" depends="ORG_ID0">
+			<option label="全部" value=""></option>
+			<option
+				source="@{SELECT DISTINCT BRANCH_ORG_ID , CASE WHEN ORG_LEVEL_ID='2' THEN BRANCH_ORG_NM ELSE BRANCH_ORG_NM||'机关' END AS BRANCH_ORG_NM FROM IBS.T5_ORG 
+				WHERE ORG_TYPE_ID='EO' AND ORG_LEVEL_ID IN ('2','3') and (ORG_ID='#ORG_ID0#' or HEAD_ORG_ID='#ORG_ID0#')  ORDER BY BRANCH_ORG_ID}"
+				label="BRANCH_ORG_NM" value="BRANCH_ORG_ID" />
+		</inputbox>
+	</condition>
+</select>
+
+</sql>
+<format>
+	<value>
+	<![CDATA[
+		if(STUS.equals("0")) STUS="已保存";
+		if(STUS.equals("1")) STUS="等待审核";
+		if(STUS.equals("2")) STUS="审核不通过";
+		if(STUS.equals("3")) STUS="审核通过";
+		
+		/*
+		if(EXAM_Q.equals("01")) EXAM_Q="一季度";
+		if(EXAM_Q.equals("02")) EXAM_Q="二季度";
+		if(EXAM_Q.equals("03")) EXAM_Q="三季度";
+		if(EXAM_Q.equals("04")) EXAM_Q="四季度";
+		*/
+	]]>
+		</value>
+		</format>
+	</report>
+</vpanel>
+</page>	
+	
+<!-- 分行评分项设置 -->
+<page id="branch_dx_mod" js="/webresources/script/validate.js,/js/demo.js,/js/common.js">
+
+<header>${top.header}</header>
+<vpanel id="common_vpanel" width="1000px" align="center" title="">
+<report id="title" extends="title.report1" width="1000px"></report>
+<report id="select" type="listform" title="评分项设置" width="1000px" pagesize="15|20|-1" dataexport="richexcel"
+	top="10px" personalizeclass="default" rowselect="multiple-checkbox" interceptor="com.customer.interceptor.InterceptorDxMod">
+	
+	<buttons align="right">
+		<button name="subButn" position="title" positionorder="2" label="选中提交 "  extends="${wabacus.button2.default}"
+			confirmessage="提交后数据将不能修改，是否确认提交?">
+			invokeServerActionForReportData('branch_dx_mod','select','com.customer.interceptor.BrachDxSubmitServerCallBack',{name:'SELECTEDROW',value:true},null,true,null,null);
+		</button>
+		<button name="overButn" position="title" positionorder="2" label="设置结束 " extends="${wabacus.button2.default}"
+			confirmessage="结束后数据将不能修改，是否确认结束?" >
+			invokeServerActionForReportData('branch_dx_mod','select','com.customer.interceptor.BrachDxOverServerCallBack',null,null,true,null,testInvokeCallbackMethodRpt);
+		</button>
+		
+	</buttons>
+	<display>
+		<col column="{col-rowselect}" label="选择" width="50px" />
+		<col column="{sequence:1}" label="序号" width="40px"></col>
+		<col column="YEAR" label="年度"  >
+			<inputbox type="datepicker" styleproperty="style='width:90px'" dateformat="yyyy" jsvalidate="isNotEmpty(#label# 不允许为空);"  
+			defaultvalue="session{exam_year}" ></inputbox>
+		</col>
+		<col column="EXAM_Q" label="季度" >
+			<inputbox type="selectbox" styleproperty="style='width:99%'" jsvalidate="isNotEmpty(#label#列不允许为空)" defaultvalue="session{exam_q}">
+				<option
+					source="@{select QTD , QTD_NM from ibs.T9_YEAR_Q order by QTD}"
+					label="QTD_NM" value="QTD" />
+			</inputbox>
+		</col>
+		
+		
+		<col column="BRANCH_ORG_ID" label="分行号"  >
+			<inputbox defaultvalue="session{org_id}" />
+		</col>
+		<col column="BRANCH_ORG_NM" label="分行"   >
+			<inputbox type="selectbox" jsvalidate="isNotEmpty(#label#列不允许为空)"
+				styleproperty="style='width:99%'" depends="BRANCH_ORG_ID" >
+				<option
+					source="@{Select distinct BRANCH_ORG_ID , BRANCH_ORG_NM from IBS.T5_ORG where BRANCH_ORG_ID='#BRANCH_ORG_ID#' and ORG_TYPE_ID='EO' order by BRANCH_ORG_ID}"
+					label="BRANCH_ORG_NM" value="BRANCH_ORG_NM" />
+				<!--  
+<autocomplete columns="BRANCH_ORG_NM;BRANCH_ORG_ID"
+colvaluecondition="BRANCH_ORG_NM = '#BRANCH_ORG_NM#'"
+dataset="Select distinct BRANCH_ORG_NM,BRANCH_ORG_ID from IBS.T5_ORG where BRANCH_ORG_ID!='9990' and HEAD_ORG_ID='9990' and ORG_TYPE_ID='EO' {#condition#} ">
+</autocomplete>
+-->
+		</inputbox>
+	</col>
+	<col column="PROJCT_NM" label="项目" >
+		<inputbox type="selectbox" jsvalidate="isNotEmpty(#label#列不允许为空)"
+			styleproperty="style='width:99%'">
+			<option label="请选择项目..." value=""></option>
+			<option label="营销方面" value="营销方面"></option>
+			<option label="贷后管理方面" value="贷后管理方面"></option>
+			<option label="合规方面" value="合规方面"></option>
+			<option label="工作纪律方面" value="工作纪律方面"></option>
+			<option label="其他方面" value="其他方面"></option>
+		</inputbox>
+	</col>
+	
+
+	<col column="ZB_NM" label="评分项" >
+		<inputbox type="textbox" jsvalidate="isNotEmpty(#label#列不允许为空)" styleproperty="style='width:99%'" >
+		</inputbox>
+	</col>
+	<col column="SCORE" label="分数" >
+		<inputbox type="textbox" jsvalidate="isNotEmpty(#label#列不允许为空)" styleproperty="style='width:99%'" />
+	</col>
+	<col column="STUS" label="状态" width="100px"></col>
+	<col column="REMARK" label="审核备注" ></col>
+	
+	<col column="EFF_FLAG" label="生效标志" displaytype="hidden"></col>
+	<col column="MODIFY_PEOPLE" label="修改人" displaytype="hidden"></col>
+	<col column="MODIFY_TIME" label="修改时间" displaytype="hidden"></col>
+	<col column="MODIFY_IP" label="修改IP" displaytype="hidden"></col>
+	<col column="MEASURE_DT" label="日期" displaytype="hidden"></col>
+	<col column="EXAM_Q_PARM" label="季度参数" displaytype="hidden"></col>
+	<col column="ISOVER" label="设置结束" displaytype="hidden"></col>
+</display>
+<sql>
+	<select>
+		<value><![CDATA[
+			Select YEAR
+				,EXAM_Q
+				,EXAM_Q as EXAM_Q_PARM
+				,BRANCH_ORG_ID
+				,BRANCH_ORG_NM
+				,PROJCT_NM
+				,ZB_NM
+				,SCORE
+				,EFF_FLAG
+				,MODIFY_PEOPLE
+				,MODIFY_TIME
+				,MODIFY_IP
+				,VERIFY_TIME
+				,VERIFY_PEOPLE
+				,REMARK 
+				,STUS
+				,MEASURE_DT
+				,VER_REMARK
+				,ISOVER
+			from IBS.T3_BRANCH_DX_ZB
+			where {#condition#} and EFF_FLAG='1'
+       		ORDER by YEAR DESC,EXAM_Q DESC,BRANCH_ORG_ID,PROJCT_NM,STUS DESC,ZB_NM
+		]]>
+		</value>
+<condition name="org_id" source="session{org_id}" hidden="true">
+	<value> 
+			<![CDATA[BRANCH_ORG_ID = '#data#']]>
+	</value>
+</condition>
+<condition name="YEAR" label="考核年度" labelposition="left" defaultvalue="session{exam_year}">
+	<value> 
+			<![CDATA[YEAR = '#data#']]>
+	</value>
+	<inputbox type="datepicker" styleproperty="style='width:100px'" dateformat="yyyy" jsvalidate="isNotEmpty(#label# 不允许为空);" ></inputbox>
+</condition>
+<condition name="EXAM_Q" label="考核季度" labelposition="left">
+	<value> 
+			<![CDATA[EXAM_Q = '#data#']]>
+		</value>
+		<inputbox type="selectbox" styleproperty="style='width:100px'">
+			<option label="全部" value=""></option>
+			<option
+				source="@{select QTD , QTD_NM from ibs.T9_YEAR_Q order by QTD}"
+				label="QTD_NM" value="QTD" />
+		</inputbox>
+	</condition>
+</select>
+<update >
+	<params>
+		<param name="user_id" value="session{user_id}"></param>
+		<param name="current_time" value="now{}"
+			datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
+		<param name="ip" value="request{reqKey2}"></param>
+
+	</params>
+	<value>
+		<![CDATA[
+
+	UPDATE IBS.T3_BRANCH_DX_ZB
+	SET	
+		ZB_NM=@{ZB_NM}
+	   ,SCORE =@{SCORE}
+       ,MODIFY_PEOPLE=#{user_id}
+       ,MODIFY_TIME=#{current_time}
+       ,MODIFY_IP=#{ip}
+       
+	WHERE BRANCH_ORG_ID = @{BRANCH_ORG_ID__old} 
+	AND YEAR=@{YEAR__old}
+	AND EXAM_Q=@{EXAM_Q__old}
+	AND EFF_FLAG=1
+	AND PROJCT_NM=@{PROJCT_NM__old}
+	AND ZB_NM=@{ZB_NM__old}
+	;
+]]>
+	</value>
+</update>
+<insert>
+	<params>
+		<param name="user_id" value="session{user_id}"></param>
+		<param name="org_id" value="session{org_id}"></param>
+		<param name="current_time" value="now{}"
+			datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
+		<param name="ip" value="request{reqKey2}"></param>
+
+	</params>
+	<value> 
+
+		   INSERT INTO IBS.T3_BRANCH_DX_ZB (
+			 YEAR
+			,EXAM_Q
+			,BRANCH_ORG_ID
+			,BRANCH_ORG_NM
+			,PROJCT_NM
+			,ZB_NM
+			,SCORE
+			,EFF_FLAG
+			,MODIFY_PEOPLE
+			,MODIFY_TIME
+			,MODIFY_IP
+			
+			,MEASURE_DT
+			)
+			values(
+			@{YEAR}
+			,@{EXAM_Q}
+			,@{BRANCH_ORG_ID}
+			,@{BRANCH_ORG_NM}
+			,@{PROJCT_NM}
+			,@{ZB_NM}
+			,@{SCORE}
+			,'1'
+			,#{user_id}
+			,#{current_time}
+			,#{ip}
+			
+			,@{YEAR}||(case @{EXAM_Q} when '01' then '-03-31' when '02' then '-06-30' when '03' then '-09-30' when '04' then '-12-31' else '-01-01' end)
+			)
+			;
+	
+	</value>
+</insert>
+<delete>
+	<params>
+		<param name="user_id" value="session{user_id}"></param>
+		<param name="current_time" value="now{}"
+			datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
+		<param name="ip" value="request{reqKey2}"></param>
+
+	</params>
+	<!-- 若已删除过，则先将已删除的删掉再把生效置为无效 -->
+		delete from IBS.T3_BRANCH_DX_ZB 
+		WHERE BRANCH_ORG_ID = @{BRANCH_ORG_ID__old} 
+			AND YEAR=@{YEAR__old}
+			AND EXAM_Q=@{EXAM_Q__old}
+			AND EFF_FLAG=0
+			AND PROJCT_NM=@{PROJCT_NM__old}
+			AND ZB_NM=@{ZB_NM__old}
+		;	
+		UPDATE IBS.T3_BRANCH_DX_ZB
+		SET EFF_FLAG='0'
+			,MODIFY_PEOPLE=#{user_id}
+			,MODIFY_TIME=#{current_time}
+			,MODIFY_IP=#{ip}
+			,REMARK=@{REMARK}
+		WHERE BRANCH_ORG_ID = @{BRANCH_ORG_ID__old} 
+		AND YEAR=@{YEAR__old}
+		AND EXAM_Q=@{EXAM_Q__old}
+		AND EFF_FLAG=1
+		AND PROJCT_NM=@{PROJCT_NM__old}
+		AND ZB_NM=@{ZB_NM__old}
+		;
+	</delete>
+</sql>
+<format>
+	<value>
+	<![CDATA[
+		if(STUS.equals("0")) STUS="已保存";
+		if(STUS.equals("1")) STUS="等待审核";
+		if(STUS.equals("2")) STUS="审核不通过";
+		if(STUS.equals("3")) STUS="审核通过";
+		
+		/*
+		if(EXAM_Q.equals("01")) EXAM_Q="一季度";
+		if(EXAM_Q.equals("02")) EXAM_Q="二季度";
+		if(EXAM_Q.equals("03")) EXAM_Q="三季度";
+		if(EXAM_Q.equals("04")) EXAM_Q="四季度";
+		*/
+	]]>
+		</value>
+		</format>
+	</report>
+</vpanel>
+</page>
+
+<!-- 分行评分项审核 -->
+<page id="branch_dx_ver" js="/webresources/script/validate.js,/js/demo.js,/js/common.js">
+<header>${top.header}</header>
+<vpanel id="common_vpanel" width="1300px" align="center" title="">
+<report id="title" extends="title.report1" width="1300px"></report>
+<report id="select" type="listform" title="" width="1300px" pagesize="15|20|-1"
+	top="10px" personalizeclass="default" rowselect="multiple-checkbox" interceptor="com.customer.interceptor.InterceptorDxVer">
+	
+	<display>
+		<col column="{col-rowselect}" label="选择" width="50px" />
+		<col column="{sequence:1}" label="序号" width="40px"></col>
+		<col column="YEAR" label="年度" width="90px" ></col>
+		<col column="EXAM_Q" label="季度" width="100px"></col>
+		<col column="BRANCH_ORG_ID" label="分行号" width="100px" displaytype="hidden"></col>
+		<col column="BRANCH_ORG_NM" label="分行" width="150px" ></col>
+		<col column="PROJCT_NM" label="项目" width="100px"></col>
+		<col column="ZB_NM" label="评分项" width="250px"></col>
+		<col column="SCORE" label="分数" width="90px"></col>
+		<col column="STUS" label="状态" width="100px"></col>
+		<col column="REMARK" label="备注" displaytype="hidden"></col>
+		<col property="sh_zt_btn" column="{non-fromdb}" label="审核" width="150px"/>
+		<col column="EFF_FLAG" label="生效标志" displaytype="hidden"></col>
+		<col column="MODIFY_PEOPLE" label="修改人" displaytype="hidden"></col>
+		<col column="MODIFY_TIME" label="修改时间" displaytype="hidden"></col>
+		<col column="MODIFY_IP" label="修改IP" displaytype="hidden"></col>
+		<col column="EXAM_Q_PARM" label="季度参数" width="100px" displaytype="hidden"></col>
+	</display>
+	<sql>
+		<select>
+			<value><![CDATA[
+			Select YEAR
+				,EXAM_Q,EXAM_Q as EXAM_Q_PARM
+				,BRANCH_ORG_ID
+				,BRANCH_ORG_NM
+				,PROJCT_NM
+				,ZB_NM
+				,SCORE
+				,EFF_FLAG
+				,MODIFY_PEOPLE
+				,MODIFY_TIME
+				,MODIFY_IP
+				,VERIFY_TIME
+				,VERIFY_PEOPLE
+				,REMARK 
+				,STUS
+				,VER_REMARK
+			from IBS.T3_BRANCH_DX_ZB
+			where {#condition#} and STUS in ('1','3') and EFF_FLAG='1'
+	        ORDER by YEAR DESC,EXAM_Q DESC,BRANCH_ORG_ID,PROJCT_NM,ZB_NM
+	]]>
+	</value>
+	<condition name="org_id" source="session{org_id}" hidden="true">
+		<value> 
+				<![CDATA[BRANCH_ORG_ID = '#data#']]>
+		</value>
+	</condition>
+	<condition name="YEAR" label="考核年度" labelposition="left" defaultvalue="session{exam_year}">
+		<value> 
+				<![CDATA[YEAR = '#data#']]>
+		</value>
+		<inputbox type="datepicker" styleproperty="style='width:100px'" dateformat="yyyy" jsvalidate="isNotEmpty(#label# 不允许为空);" ></inputbox>
+	</condition>
+	<condition name="EXAM_Q" label="考核季度" labelposition="left">
+		<value> 
+				<![CDATA[EXAM_Q = '#data#']]>
+			</value>
+			<inputbox type="selectbox" styleproperty="style='width:100px'">
+				<option label="全部" value=""></option>
+				<option
+					source="@{select QTD , QTD_NM from ibs.T9_YEAR_Q order by QTD}"
+					label="QTD_NM" value="QTD" />
+			</inputbox>
+		</condition>
+	</select>
+	</sql>
+	<buttons >
+		<button name="button1" position="other" autoreportdata="false"
+						positionorder="2" class="com.wabacus.system.buttons.ServerSQLActionButton"
+						successprompt="提交成功" failedprompt="提交失败">
+			<params>
+				<param name="user_id" value="session{user_id}"></param>
+				<param name="current_time" value="now{}" datatype="timestamp{yyyy-MM-dd}"></param>
+				<param name="current_time1" value="now{}"
+					datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
+
+			</params>
+
+			<value datasource="ds_db2">
+				<![CDATA[
+				
+					UPDATE IBS.T3_BRANCH_DX_ZB
+					SET STUS='3'
+						, VERIFY_TIME=#{current_time1}
+						, VERIFY_PEOPLE=#{user_id}     
+						, VER_REMARK=coalesce(VER_REMARK,'')||'审批时间'||#{current_time1}||'审批工号'||#{user_id}||'审批理由页面批复通过。'                        					
+					WHERE BRANCH_ORG_ID = @{param_brachOrgId} 
+					AND YEAR=@{param_year}
+					AND EXAM_Q=@{param_examQ}
+					AND EFF_FLAG='1'
+					and STUS='1'
+					AND PROJCT_NM=@{param_proNm}
+					AND ZB_NM=@{param_zbNm}
+					;
+				]]>
+			</value>
+		</button>
+		<button name="sub" position="title" positionorder="2" label="选中通过" extends="${wabacus.button2.default}"
+			confirmessage="提交后数据将不能修改，是否确认提交?">
+			invokeServerActionForReportData('branch_dx_ver','select','com.customer.interceptor.BrachDxVerPassServerCallBack',{name:'SELECTEDROW',value:true},null,true,null,null);
+		</button>
+	</buttons>
+	<format>
+		<imports>
+			<import>com.customer.util.*</import>
+			<import>java.util.*</import>
+			<import>java.text.*</import>
+			<import>com.wabacus.system.*</import>
+		</imports>
+		<value>
+		<![CDATA[
+			
+			
+			if(EXAM_Q.equals("01")) EXAM_Q="一季度";
+			if(EXAM_Q.equals("02")) EXAM_Q="二季度";
+			if(EXAM_Q.equals("03")) EXAM_Q="三季度";
+			if(EXAM_Q.equals("04")) EXAM_Q="四季度";
+			
+			String btnsh_ztCls="cls-button2";
+			String btnUnsh_ztCls="cls-button2";
+			
+			String enZB_NM=StringUtil.encodeString(StringUtil.encodeString(ZB_NM));
+			String enPROJCT_NM=StringUtil.encodeString(StringUtil.encodeString(PROJCT_NM));
+			
+			String btnsh_ztEvent="if(confirm('提交后数据将不能修改，是否确认提交?')){invokeComponentSqlActionButton('branch_dx_ver','select','button1',{param_year:'"+YEAR+"', param_brachOrgId:'"+BRANCH_ORG_ID+"',param_examQ:'"+EXAM_Q_PARM+"',param_proNm:'"+PROJCT_NM+"',param_zbNm:'"+ZB_NM+"'},true,refreshPage)}";
+			String btnUnsh_ztEvent="wx_winpage('ShowReport.wx?PAGEID=branch_dx_verNo&YEAR="+YEAR+"&EXAM_Q="+EXAM_Q_PARM+"&BRANCH_ORG_ID="+BRANCH_ORG_ID+"&enPROJCT_NM="+enPROJCT_NM+"&enZB_NM="+enZB_NM+"',{width:550,height:350});art.dialog.close();";
+		
+			
+			if(STUS.equals("3")){
+				sh_zt_btn="";
+			}else{
+				sh_zt_btn="<input type=\"button\" class=\""+btnsh_ztCls+"\" value=\"通过\" onclick=\""+btnsh_ztEvent+"\">";
+				sh_zt_btn=sh_zt_btn+"<input type=\"button\" class=\""+btnUnsh_ztCls+"\" value=\"不通过\"   onclick=\""+btnUnsh_ztEvent+"\">";
+			}
+			
+			if(STUS.equals("0")) STUS="保存";
+			if(STUS.equals("1")) STUS="等待审核";
+			if(STUS.equals("2")) STUS="审核不通过";
+			if(STUS.equals("3")) STUS="审核通过";
+			
+		]]>
+		</value>
+	</format>
+	<footer>
+		<![CDATA[
+		<div style='float:left'>
+			<font color='red'>*审核不通过需逐条处理，并输入不通过理由。</font>
+		</div>]]>
+		</footer>
+	</report>
+</vpanel>
+</page>
+
+<!-- 审核不通过弹窗页面 -->
+<page id="branch_dx_verNo" js="/webresources/script/validate.js,/js/demo.js,/js/common.js">
+
+<interceptor>
+	<imports>
+		<import>com.customer.util.*</import>
+		<import>java.util.*</import>
+			<import>java.text.*</import>
+			<import>com.wabacus.system.*</import>
+	</imports>
+	<preaction>
+	<![CDATA[
+		
+		String dnPROJCT_NM=StringUtil.decodeString(rrequest.getStringAttribute("enPROJCT_NM", ""));
+		String enZB_NM=StringUtil.decodeString(rrequest.getStringAttribute("enZB_NM", ""));
+		//System.out.println("decodeString:dnPROJCT_NM"+dnPROJCT_NM);
+		rrequest.setAttribute("PROJCT_NM", dnPROJCT_NM);
+		rrequest.setAttribute("ZB_NM", enZB_NM);
+	]]>
+	</preaction>
+</interceptor>
+
+<vpanel id="common_vpanel" align="center" width="300px">
+<report id="report" title="" type="form" ><!-- form editabledetail -->
+<display valuetdwidth="300px" labeltdwidth="200px" labelbgcolor="#f0f0f0" labelalign="right" valuealign="left">
+
+	<col column="YEAR" label="年度"  br="true"></col>
+	<col column="EXAM_Q" label="季度"  br="true"></col>
+	<col column="PROJCT_NM" label="项目" br="true"></col>
+	<col column="ZB_NM" label="评分项"  br="true"></col>
+	<col column="SCORE" label="分数" br="true"></col>
+	<col column="REMARK" label="备注(不通过理由)" datatype="varchar" align="left" br="true"><!-- label="备注(不通过理由)" -->
+		<inputbox type="textareabox" jsvalidate="isNotEmpty(审核不通过的理由为必输项)"
+			styleproperty="style='width:99%,rows='6''"></inputbox>
+	</col>
+	<col column="BRANCH_ORG_ID" label="分行号"  displaytype="hidden"></col>
+</display>
+
+<sql aftersave="saveUpdate" datasource="ds_db2">
+	<select>
+		<value>
+		<![CDATA[
+			Select YEAR
+				,EXAM_Q
+				,BRANCH_ORG_ID
+				,BRANCH_ORG_NM
+				,PROJCT_NM
+				,ZB_NM
+				,SCORE
+				,EFF_FLAG
+				,MODIFY_PEOPLE
+				,MODIFY_TIME
+				,MODIFY_IP
+				,VERIFY_TIME
+				,VERIFY_PEOPLE
+				,REMARK 
+				,STUS
+				,VER_REMARK
+			from IBS.T3_BRANCH_DX_ZB
+			where {#condition#} and STUS='1'
+	        ORDER by YEAR DESC,EXAM_Q DESC,BRANCH_ORG_ID,PROJCT_NM,ZB_NM
+		 ]]>
+		</value>
+		<condition name="YEAR" hidden="true" >
+			<value><![CDATA[YEAR='#data#']]></value>
+		</condition>
+		<condition name="EXAM_Q" hidden="true">
+			<value><![CDATA[EXAM_Q='#data#']]></value>
+		</condition>
+		<condition name="BRANCH_ORG_ID" hidden="true">
+			<value><![CDATA[BRANCH_ORG_ID='#data#']]></value>
+		</condition>
+		<condition name="PROJCT_NM" hidden="true">
+			<value><![CDATA[PROJCT_NM='#data#']]></value>
+		</condition>
+		<condition name="ZB_NM" hidden="true">
+			<value><![CDATA[ZB_NM='#data#']]></value>
+		</condition>
+	</select>
+	<update crosspage="true">
+		<params>
+			<param name="user_id" value="session{user_id}"></param>
+			<param name="current_time" value="now{}" datatype="timestamp{yyyy-MM-dd}"></param>
+			<param name="current_time1" value="now{}" 
+				datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param><!-- datatype="timestamp{yyyy-MM-dd}" -->
+		</params>
+			<![CDATA[
+			UPDATE IBS.T3_BRANCH_DX_ZB
+			SET STUS='2'
+				, VERIFY_TIME=#{current_time1}
+				, VERIFY_PEOPLE=#{user_id}     
+				, VER_REMARK=coalesce(VER_REMARK,'')||'审批时间'||#{current_time1}||'审批工号'||#{user_id}||@{REMARK}
+				, REMARK=@{REMARK}                       					
+			WHERE BRANCH_ORG_ID = @{BRANCH_ORG_ID__old} 
+			AND YEAR=@{YEAR__old}
+			AND EXAM_Q=@{EXAM_Q__old}
+			AND EFF_FLAG=1
+			AND PROJCT_NM=@{PROJCT_NM__old}
+			AND ZB_NM=@{ZB_NM__old}
+			]]>
+	</update>
+</sql>
+<buttons>
+	<button name="button2" label="提交" position="title"
+		refreshpage="true" aftercallbackmethod="refreshPage"
+		confirmessage="提交后数据将不能修改，是否确认提交?" successprompt="提交成功"
+		failedprompt="提交失败" positionorder="2" extends="${save.button.default}">
+
+		saveEditableReportData({pageid:'branch_dx_verNo',savingReportIds:[{reportid:'report',updatetype:'save',}]});
+
+	</button>
+</buttons>
+</report>
+</vpanel>
+</page>
+</applications>

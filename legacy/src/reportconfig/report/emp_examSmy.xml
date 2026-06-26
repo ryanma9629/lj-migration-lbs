@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<applications xmlns="http://www.wabacus.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.wabacus.com ../xsd/wabacus.applications.xsd">
+	
+<!--员工考核汇总表 查询-->
+<page id="emp_examSmy" js="/webresources/script/validate.js">
+<interceptor>
+	<imports>
+		<import>com.ljbank.market.Util</import>
+	</imports>
+	<preaction>
+<![CDATA[
+
+]]>
+</preaction>
+	</interceptor>
+
+	<header>${top.header}</header>
+
+	<vpanel id="common_vpanel" width="1300px" align="center" title="">
+		<report id="title" extends="title.report1" width="1300px"></report>
+		<report id="select" type="listform" title="考核信息汇总" scrollwidth="1300px" width="2500px" pagesize="15|20|-1" dataexport="richexcel"
+			top="10px" personalizeclass="default" servervalidateclass="com.ljbank.market.Util" rowselect="single">
+
+			<display>
+				<col column="{sequence:1}" label="序号" width="40px"></col>
+				<col column="EXAM_YEAR" label="年度" ></col>
+				<col column="EXAM_Q" label="季度" ></col>
+				<col column="BRANCH_ORG_NM" label="分行" ></col>
+				<col column="ORG_NM" label="支行" ></col>
+				<!-- 
+				<col column="PSTN_TYPE_NM" label="主考核类别" ></col>
+				<col column="SUB_PSTN_TYPE_NM" label="子考核类别" ></col>
+				 -->
+				<col column="EMP_ID" label="工号" ></col>
+				<col column="EMP_NM" label="姓名" ></col>
+				<col column="EMP_TYPE" label="岗位状态" ></col>
+				<col column="Q_BZJX" label="应发季度绩效薪酬" datatype="double{0.00}"></col>
+				
+				<!--  <col column="ACT_BZJX" label="实际季度标准绩效薪酬" datatype="double{0.00}"></col>-->
+				
+				<group label="定性考核薪酬">
+					<col column="DX_SCORE" label="定性打分"  datatype="double{0.00}"></col>
+					<col column="DX_XZ" label="定性薪酬" datatype="double{0.00}"></col>
+				</group>
+				<group label="定量考核薪酬">
+					<group label="存量资产业绩维护薪酬">
+						<col column="LN_FTP" label="贷款FTP（存量）" datatype="double{0.00}"></col>
+						<col column="EXS_XZ" label="存量维护薪酬" datatype="double{0.00}"></col>
+					</group>
+					<!-- 
+					<col column="LN_AVG_ADD" label="贷款日均余额（新增）" datatype="double{0.00}"></col>
+					<col column="LN_AVG_EXS" label="贷款日均余额（存量）" datatype="double{0.00}"></col>
+					 -->
+					 <group label="提成制薪酬">
+						<col column="BRA_COMRATION" label="提成比例" datatype="double{0.00}"></col>
+						<col column="LN_FTP_ADD" label="贷款FTP（新增）" datatype="double{0.00}"></col>
+						<col column="DEP_FTP" label="存款FTP" datatype="double{0.00}"></col>
+						<col column="MID_INC" label="中收" datatype="double{0.00}"></col>
+						<col column="COM_XZ" label="提成制薪酬" datatype="double{0.00}"></col>
+					 </group>
+				 </group>
+				<col column="YF_XZ" label="实发季度绩效薪酬" datatype="double{0.00}" ></col>
+			</display>
+
+			<sql>
+				<select>
+
+					<value><![CDATA[
+						Select MEASURE_DT
+							,em.EXAM_YEAR
+							,em.EXAM_Q
+							,em.BRANCH_ORG_ID
+							,em.BRANCH_ORG_NM
+							,em.ORG_ID
+							,em.ORG_NM
+							,em.EMP_ID
+							,em.EMP_NM
+							,em.PSTN_TYPE_NM
+							,em.SUB_PSTN_TYPE_NM
+							,em.EMP_TYPE
+							,em.Q_BZJX
+							,em.ACT_BZJX
+							,em.BZJX
+							,em.DX_SCORE
+							,em.EXS_XZ
+							,em.MID_INC 
+							,q.QTD_NM
+							,em.DX_SCORE*em.BZJX/100 as DX_XZ
+							,em.LN_AVG_EXS
+							,em.LN_FTP
+							,em.LN_AVG_ADD
+							,em.LN_FTP_ADD
+							,em.DEP_FTP
+							,em.BRA_COMRATION
+							,em.BRA_COMRATION as COM_XZ
+							,(em.DX_SCORE*em.BZJX/100+em.EXS_XZ+em.BRA_COMRATION) as YF_XZ
+						from IBS.T5_EMP_DXJX_MX em
+						inner join ibs.T9_YEAR_Q q on q.QTD=em.EXAM_Q
+						inner join ibs.T5_ORG ou on ou.ORG_TYPE_ID='EO' and ou.ORG_ID=em.ORG_ID
+						where {#condition#}
+						ORDER by em.EXAM_YEAR DESC,em.EXAM_Q DESC,em.BRANCH_ORG_ID,em.ORG_ID,em.EMP_ID
+				]]>
+				</value>
+
+				<condition name="EXAM_YEAR" label="考核年度" labelposition="left" defaultvalue="session{exam_year}">
+					<value> 
+						<![CDATA[em.EXAM_YEAR = '#data#']]>
+					</value>
+					<inputbox type="datepicker" styleproperty="style='width:90px'" dateformat="yyyy" jsvalidate="isNotEmpty(#label# 不允许为空);" ></inputbox>
+				</condition>
+				<condition name="EXAM_Q" label="考核季度" labelposition="left" >
+					<value> 
+						<![CDATA[em.EXAM_Q = '#data#']]>
+					</value>
+					<inputbox type="selectbox" styleproperty="style='width:100px'">
+						<option label="全部" value=""></option>
+						<option label="一季度" value="01"></option>
+						<option label="二季度" value="02"></option>
+						<option label="三季度" value="03"></option>
+						<option label="四季度" value="04"></option>
+					</inputbox>
+				</condition>
+				<condition name="ORG_ID0" labelposition="left" label="用户机构" hidden="true" source="session{org_id}">
+					<value>
+					<![CDATA[(em.ORG_ID='#data#' or em.BRANCH_ORG_ID='#data#' or ou.HEAD_ORG_ID='#data#' )]]>
+					</value>
+				</condition>
+				<condition name="ORG_ID1" labelposition="left" label="分行" >
+					<value>
+					<![CDATA[em.BRANCH_ORG_ID='#data#']]>
+					</value>
+					<inputbox type="selectbox" styleproperty="style='width:150px'" depends="ORG_ID0">
+						<option label="全部" value=""></option>
+						<option
+							source="@{SELECT DISTINCT BRANCH_ORG_ID , CASE WHEN ORG_LEVEL_ID='2' THEN BRANCH_ORG_NM ELSE BRANCH_ORG_NM||'机关' END AS BRANCH_ORG_NM FROM IBS.T5_ORG 
+							WHERE ORG_TYPE_ID='EO' AND ORG_LEVEL_ID IN ('2','3') and (ORG_ID='#ORG_ID0#' or HEAD_ORG_ID='#ORG_ID0#')  ORDER BY BRANCH_ORG_ID}"
+							label="BRANCH_ORG_NM" value="BRANCH_ORG_ID" />
+					</inputbox>
+				</condition>
+				<condition name="ORG_ID2" labelposition="left" label="支行">
+					<value>
+					<![CDATA[(em.ORG_ID='#data#')]]>
+					</value>
+					<inputbox type="selectbox" depends="ORG_ID1"
+						styleproperty="style='width:140px'">
+						<option label="全部" value=""></option>
+						<option label="无" value="" type="false"></option>
+						<option
+							source="@{SELECT DISTINCT ORG_ID, ORG_NM FROM IBS.T5_ORG WHERE BRANCH_ORG_ID='#ORG_ID1#' and ORG_TYPE_ID='EO' AND ORG_LEVEL_ID IN ('1','2') ORDER BY ORG_ID}"
+							label="ORG_NM" value="ORG_ID" />
+					</inputbox>
+				</condition>
+				<condition name="EMP_ID" label="员工号" labelposition="left">
+					<value> 
+						<![CDATA[em.EMP_ID like '%#data#%']]>
+					</value>
+					<inputbox styleproperty="style='width:100px'"></inputbox>
+				</condition>
+				<condition name="EMP_NM" label="员工姓名" labelposition="left">
+					<value> 
+						<![CDATA[em.EMP_NM like '%#data#%']]>
+					</value>
+					<inputbox styleproperty="style='width:100px'"></inputbox>
+				</condition>
+			</select>
+			</sql>
+			<format>
+				<imports>
+					
+				</imports>
+				<value>
+					<![CDATA[
+					]]>
+				</value>
+		</format>
+		</report>
+	</vpanel>
+</page>
+
+<!--员工考核汇总表 员工查询-->
+<page id="emp_examSmy_user" js="/webresources/script/validate.js">
+<interceptor>
+	<imports>
+		<import>com.ljbank.market.Util</import>
+	</imports>
+	<preaction>
+<![CDATA[
+
+]]>
+</preaction>
+	</interceptor>
+
+	<header>${top.header}</header>
+
+	<vpanel id="common_vpanel" width="1300px" align="center" title="">
+		<report id="title" extends="title.report1" width="1300px"></report>
+		<report id="select" type="listform" title="考核信息汇总" scrollwidth="1300px" width="2500px" pagesize="15|20|-1" dataexport="richexcel"
+			top="10px" personalizeclass="default" servervalidateclass="com.ljbank.market.Util">
+
+			<display>
+				<col column="{sequence:1}" label="序号" width="40px"></col>
+				<col column="EXAM_YEAR" label="年度" ></col>
+				<col column="EXAM_Q" label="季度" ></col>
+				<col column="BRANCH_ORG_NM" label="分行" ></col>
+				<col column="ORG_NM" label="支行" ></col>
+				<col column="PSTN_TYPE_NM" label="主考核类别" ></col>
+				<col column="SUB_PSTN_TYPE_NM" label="子考核类别" ></col>
+				<col column="EMP_NM" label="姓名" ></col>
+				<col column="EMP_ID" label="工号" ></col>
+				<col column="EMP_TYPE" label="状态" ></col>
+				<col column="Q_BZJX" label="季度标准绩效薪酬" datatype="double{0.00}"></col>
+				<col column="ACT_BZJX" label="实际季度标准绩效薪酬" datatype="double{0.00}"></col>
+				<col column="DX_SCORE" label="定性打分"  datatype="double{0.00}"></col>
+				<col column="DX_XZ" label="定性薪酬" datatype="double{0.00}"></col>
+				<col column="LN_AVG_EXS" label="贷款日均余额（存量）" datatype="double{0.00}"></col>
+				<col column="LN_FTP" label="贷款FTP（存量）" datatype="double{0.00}"></col>
+				<col column="EXS_XZ" label="存量维护薪酬" datatype="double{0.00}"></col>
+				<col column="BRA_COMRATION" label="提成比例" datatype="double{0.00}"></col>
+				<col column="LN_AVG_ADD" label="贷款日均余额（新增）" datatype="double{0.00}"></col>
+				<col column="LN_FTP_ADD" label="贷款FTP（新增）" datatype="double{0.00}"></col>
+				<col column="DEP_FTP" label="存款FTP" datatype="double{0.00}"></col>
+				<col column="MID_INC" label="中收" datatype="double{0.00}"></col>
+				<col column="COM_XZ" label="提成制薪酬" datatype="double{0.00}"></col>
+				<col column="YF_XZ" label="应发季度绩效薪酬" datatype="double{0.00}" ></col>
+			</display>
+
+			<sql>
+				<select>
+
+					<value><![CDATA[
+						Select MEASURE_DT
+							,em.EXAM_YEAR
+							,em.EXAM_Q
+							,em.BRANCH_ORG_ID
+							,em.BRANCH_ORG_NM
+							,em.ORG_ID
+							,em.ORG_NM
+							,em.EMP_ID
+							,em.EMP_NM
+							,em.PSTN_TYPE_NM
+							,em.SUB_PSTN_TYPE_NM
+							,em.EMP_TYPE
+							,em.Q_BZJX
+							,em.ACT_BZJX
+							,em.BZJX
+							,em.DX_SCORE
+							,em.EXS_XZ
+							,em.MID_INC 
+							,q.QTD_NM
+							,em.DX_SCORE*em.BZJX/100 as DX_XZ
+							,em.LN_AVG_EXS
+							,em.LN_FTP
+							,em.LN_AVG_ADD
+							,em.LN_FTP_ADD
+							,em.DEP_FTP
+							,em.BRA_COMRATION
+							,em.BRA_COMRATION*(em.LN_FTP_ADD+em.DEP_FTP+em.MID_INC) as COM_XZ
+							,(em.DX_SCORE*em.BZJX/100+em.EXS_XZ+em.BRA_COMRATION*(em.LN_FTP_ADD+em.DEP_FTP+em.MID_INC)) as YF_XZ
+						from IBS.T5_EMP_DXJX_MX em
+						inner join ibs.T9_YEAR_Q q on q.QTD=em.EXAM_Q
+						inner join ibs.T5_ORG ou on ou.ORG_TYPE_ID='EO' and ou.ORG_ID=em.ORG_ID
+						where {#condition#}
+						ORDER by em.EXAM_YEAR DESC,em.EXAM_Q DESC,em.BRANCH_ORG_ID,em.ORG_ID,,em.EMP_ID
+				]]>
+				</value>
+
+				<condition name="EXAM_YEAR" label="考核年度" labelposition="left" defaultvalue="session{exam_year}">
+					<value> 
+						<![CDATA[em.EXAM_YEAR = '#data#']]>
+					</value>
+					<inputbox type="datepicker" styleproperty="style='width:90px'" dateformat="yyyy" jsvalidate="isNotEmpty(#label# 不允许为空);" ></inputbox>
+				</condition>
+				<condition name="EXAM_Q" label="考核季度" labelposition="left" >
+					<value> 
+						<![CDATA[em.EXAM_Q = '#data#']]>
+					</value>
+					<inputbox type="selectbox" styleproperty="style='width:100px'">
+						<option label="全部" value=""></option>
+						<option label="一季度" value="01"></option>
+						<option label="二季度" value="02"></option>
+						<option label="三季度" value="03"></option>
+						<option label="四季度" value="04"></option>
+					</inputbox>
+				</condition>
+				<condition name="ORG_ID0" labelposition="left" label="用户机构" hidden="true" source="session{org_id}">
+					<value>
+					<![CDATA[(em.ORG_ID='#data#' or em.BRANCH_ORG_ID='#data#' or ou.HEAD_ORG_ID='#data#' )]]>
+					</value>
+				</condition>
+				<condition name="EMP_ID" label="员工号" labelposition="left" defaultvalue="session{user_id}">
+					<value> 
+						<![CDATA[em.EMP_ID = '#data#']]>
+					</value>
+					<inputbox styleproperty="style='width:100px'"></inputbox>
+				</condition>
+				
+			</select>
+			</sql>
+			<format>
+				<imports>
+					
+				</imports>
+				<value>
+					<![CDATA[
+					]]>
+				</value>
+		</format>
+		</report>
+	</vpanel>
+</page>
+</applications>

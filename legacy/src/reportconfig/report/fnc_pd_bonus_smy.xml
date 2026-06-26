@@ -1,0 +1,867 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<applications xmlns="http://www.wabacus.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.wabacus.com ../xsd/wabacus.applications.xsd">
+	<!--员工理财业绩排名 总行 -->
+	<page id="fnc_pd_bonus_smy"
+		js="/webresources/script/validate.js,/js/demo.js,/js/common.js">
+		<header>${top.header}</header>
+		<interceptor>
+			<imports>
+				<import>java.lang</import>
+				<import>com.wabacus.util</import>
+				<import>java.sql.Connection</import>
+				<import>java.sql.PreparedStatement</import>
+				<import>java.sql.ResultSet</import>
+				<import>javax.servlet.http.HttpSession</import>
+				<import>javax.util</import>
+				<import>javax.text</import>
+				<import>com.ljbank.market.MyMath</import>
+				<import>java.util.Date</import>
+				<import>java.text.SimpleDateFormat</import>
+			</imports>
+			<preaction>
+				<![CDATA[
+						String beginTime = rrequest.getStringAttribute("MEASURE_DT", "");// 取出输入的查询时间
+						System.out.println("beginTime:" + beginTime);
+						if (beginTime.equals("")) 
+						{
+						  Calendar now = Calendar.getInstance();
+						  now.add(Calendar.DATE, -1);
+		                  SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		                  String curDay = dateFormat.format(now.getTime());
+						  rrequest.setAttribute("MEASURE_DT", curDay);
+                        }
+                    
+				]]>
+			</preaction>
+		</interceptor>
+		<vpanel id="common_vpanel" width="1350px" align="center" title="">
+
+			<report id="title" extends="title.report1" width="1350px"></report>
+			<report id="select" title="员工理财业绩排名" type="editablelist" scrollwidth="1350px"
+				width="1800px" top="10px" align="center" pagesize="15|20|-1"
+				dataexport="richexcel" personalizeclass="default">
+
+				<display>
+					
+                    <col column="RNK" label="季销量排名" width="70px"></col>
+					<col column="MEASURE_DT" label="统计日期" width="80px" displaytype="hidden"></col>
+					<col column="EMP_ID" label="员工号" width="60px" valuestyleproperty="style='mso-number-format:\@'"></col>
+					<col column="EMP_NM" label="员工姓名" width="60px"></col>
+					<col column="ORG_ID" label="机构号" width="60px" clickorderby="false" valuestyleproperty="style='mso-number-format:\@'"></col>
+					<col column="ORG_NM" label="机构名" width="100px"></col>
+					<col column="BRANCH_ORG_ID" label="分行机构号" width="60px" displaytype="hidden"></col>
+					<col column="BRANCH_ORG_NM" label="分行机构名" width="100px"></col>
+					<col column="PSTN_TYPE" label="主考核类别" width="80px" displaytype="hidden"></col>
+					<col column="PSTN_TYPE_NM" label="主考核类别" width="100px"></col>
+					<col column="SUB_PSTN_TYPE" label="子考核类别" width="40px" displaytype="hidden"></col>
+					<col column="SUB_PSTN_TYPE_NM" label="子考核类别" width="120px"></col>
+					<col column="CCY_ID" label="币种 " width="40px" displaytype="hidden"></col>
+					
+					<col column="MTD_AMT" label="月销量" width="90px" datatype="double{0}" align="right"></col>
+					<col column="QTD_AMT" label="季销量" width="90px" datatype="double{0}" align="right"></col>
+					<col column="YTD_AMT" label="年销量" width="90px" datatype="double{0}" align="right"></col>
+					<col column="CLS_BAL" label="余额 "  width="90px" datatype="double{0}" align="right"></col>
+					<col column="MTD_AVG_BAL" label="月日均 " width="100px" align="right" datatype="double{0.00}" displaytype="hidden"></col>
+					<col column="QTD_AVG_BAL" label="季日均 " width="100px" align="right" datatype="double{0.00}" displaytype="hidden"></col>
+					<col column="YTD_AVG_BAL" label="年日均 " width="100px" align="right" datatype="double{0.00}" displaytype="hidden"></col>
+					<col column="MTD_BONUS" label="月收益" width="90px" datatype="double{0.00}" align="right" displaytype="hidden"></col>
+					<col column="QTD_BONUS" label="季收益" width="90px" datatype="double{0.00}" align="right"></col>
+					<col column="YTD_BONUS" label="年收益" width="90px" datatype="double{0.00}" align="right" displaytype="hidden"></col>
+
+
+				</display>
+				<sql>
+					<select>
+						<value><![CDATA[
+							SELECT
+							     smy.RNK
+							    ,smy.EMP_ID
+							    ,smy.MEASURE_DT
+							    ,smy.EMP_NM
+							    ,smy.ORG_ID
+							    ,smy.ORG_NM
+							    ,smy.BRANCH_ORG_ID
+							    ,smy.BRANCH_ORG_NM
+							    ,smy.PSTN_TYPE
+							    ,smy.PSTN_TYPE_NM
+							    ,smy.SUB_PSTN_TYPE
+							    ,smy.SUB_PSTN_TYPE_NM
+							    ,smy.CCY_ID
+							    ,smy.MTD_AMT
+							    ,smy.QTD_AMT
+							    ,smy.YTD_AMT
+							    ,smy.CLS_BAL
+							    ,smy.MTD_AVG_BAL
+							    ,smy.QTD_AVG_BAL
+							    ,smy.YTD_AVG_BAL
+							    ,smy.MTD_BONUS
+							    ,smy.QTD_BONUS
+							    ,smy.YTD_BONUS
+							    ,og.HEAD_ORG_ID
+							FROM IBS.T2_EMP_FNC_PD_BONUS_SMY smy
+							inner join IBS.T5_ORG og on og.ORG_ID=smy.ORG_ID and og.ORG_TYPE_ID='EO'
+							WHERE   {#condition#}
+							ORDER BY smy.RNK
+						    ]]>
+						</value>
+						<condition name="EMP_ID" label="认领工号" labelposition="left">
+							<value>
+							 		<![CDATA[smy.EMP_ID='#data#']]>
+							</value>
+							<inputbox styleproperty="style='width:100px'">
+								<typeprompt width="300" count="10">
+									<promptcol label="EMP_ID" value="EMP_ID" title="认领工号"
+										matchmode="anywhere" casesensitive="false" />
+									<promptcol label="EMP_NM" value="EMP_NM" title="姓名"
+										matchmode="anywhere" casesensitive="false" />
+									<datasource>
+										<option
+											source="@{Select DISTINCT EMP_ID, EMP_NM from IBS.T5_EMP  WHERE   {#matchcondition#}} " />
+									</datasource>
+								</typeprompt>
+							</inputbox>
+						</condition>
+						<condition name="EMP_NM" label="姓名" labelposition="left">
+							<value>
+							 		<![CDATA[smy.EMP_NM='#data#']]>
+							</value>
+							<inputbox styleproperty="style='width:100px'">
+								<typeprompt width="300" count="10">
+									<promptcol label="EMP_ID" value="EMP_ID" title="认领工号"
+										matchmode="anywhere" casesensitive="false" />
+									<promptcol label="EMP_NM" value="EMP_NM" title="姓名"
+										matchmode="anywhere" casesensitive="false" />
+									<datasource>
+										<option
+											source="@{Select DISTINCT EMP_ID, EMP_NM from IBS.T5_EMP  WHERE   {#matchcondition#}} " />
+									</datasource>
+								</typeprompt>
+							</inputbox>
+						</condition>
+						<condition name="PSTN_TYPE" labelposition="left" label="主考核类别">
+							<value>
+								<![CDATA[(smy.PSTN_TYPE='#data#')]]>
+							</value>
+							<inputbox type="selectbox" styleproperty="style='width:100px'">
+								<option label="全部" value=""></option>
+								<option
+									source="@{Select distinct PSTN_TYPE , PSTN_TYPE_NM from PUB.PERSONNEL group by PSTN_TYPE, PSTN_TYPE_NM , SUB_PSTN_TYPE , SUB_PSTN_TYPE_NM order by PSTN_TYPE }"
+									label="PSTN_TYPE_NM" value="PSTN_TYPE" />
+							</inputbox>
+						</condition>
+						<condition name="SUB_PSTN_TYPE" labelposition="left"
+							label="子考核类别">
+							<value>
+							<![CDATA[(smy.SUB_PSTN_TYPE='#data#')]]>
+							</value>
+							<inputbox type="selectbox" depends="PSTN_TYPE"
+								styleproperty="style='width:150px'">
+								<option label="全部" value=""></option>
+								<option label="无" value="" type="false"></option>
+								<option
+									source="@{Select distinct SUB_PSTN_TYPE , SUB_PSTN_TYPE_NM from PUB.PERSONNEL where PSTN_TYPE='#PSTN_TYPE#' group by PSTN_TYPE, PSTN_TYPE_NM , SUB_PSTN_TYPE , SUB_PSTN_TYPE_NM order by SUB_PSTN_TYPE }"
+									label="SUB_PSTN_TYPE_NM" value="SUB_PSTN_TYPE" />
+							</inputbox>
+						</condition>
+						<condition name="ORG_ID0" labelposition="left" label="总行"
+							source="session{org_id}">
+							<value>
+							<![CDATA[(og.HEAD_ORG_ID='#data#')]]>
+							</value>
+						</condition>
+						<condition name="ORG_ID1" labelposition="left" label="分行">
+							<value>
+							<![CDATA[(smy.BRANCH_ORG_ID='#data#')]]>
+							</value>
+							<inputbox type="selectbox" styleproperty="style='width:150px'" depends="ORG_ID0">
+								<option label="全部" value=""></option>
+								<option
+									source="@{SELECT DISTINCT BRANCH_ORG_ID , CASE WHEN ORG_LEVEL_ID='2' THEN BRANCH_ORG_NM ELSE BRANCH_ORG_NM||'机关' END AS BRANCH_ORG_NM FROM IBS.T5_ORG WHERE ORG_TYPE_ID='EO' AND ORG_LEVEL_ID IN ('2','3') and HEAD_ORG_ID='#ORG_ID0#' ORDER BY BRANCH_ORG_ID}"
+									label="BRANCH_ORG_NM" value="BRANCH_ORG_ID" />
+							</inputbox>
+						</condition>
+						<condition name="ORG_ID2" labelposition="left" label="支行">
+							<value>
+							<![CDATA[(smy.ORG_ID='#data#')]]>
+							</value>
+							<inputbox type="selectbox" depends="ORG_ID1"
+								styleproperty="style='width:150px'">
+								<option label="全部" value=""></option>
+								<option label="无" value="" type="false"></option>
+								<option
+									source="@{SELECT DISTINCT ORG_ID, ORG_NM FROM IBS.T5_ORG WHERE BRANCH_ORG_ID='#ORG_ID1#' and ORG_TYPE_ID='EO' AND ORG_LEVEL_ID IN ('1','2') ORDER BY ORG_ID}"
+									label="ORG_NM" value="ORG_ID" />
+							</inputbox>
+						</condition>
+
+						<condition name="MEASURE_DT" label="日期" labelposition="left">
+							<value>
+						 	<![CDATA[(MEASURE_DT='#data#')]]>
+							</value>
+							<inputbox type="datepicker" styleproperty="style='width:120px'"
+								jsvalidate="isDate(#label#格式为yyyy-MM-dd)">
+							</inputbox>
+						</condition>
+
+					</select>
+				</sql>
+				<format>
+					<imports>
+						<import>com.ljbank.util.*</import>
+						<import>com.wabacus.util.*</import>
+						<import>java.util.*</import>
+						<import>java.text.*</import>
+						<import>com.wabacus.system.*</import>
+					</imports>
+					<value>
+					<![CDATA[
+						
+						BRANCH_ORG_NM=BRANCH_ORG_NM==null?"":BRANCH_ORG_NM.trim();
+						String branch_org_nm=BRANCH_ORG_NM;
+		        		branch_org_nm=branch_org_nm.replaceAll("XX银行","");
+		        		if(!branch_org_nm.equals("")) BRANCH_ORG_NM=branch_org_nm;
+				
+				
+						ORG_NM=ORG_NM==null?"":ORG_NM.trim();
+						String org_nm=ORG_NM;
+						org_nm=org_nm.replaceAll(branch_org_nm,"");
+						org_nm=org_nm.replaceAll("XX银行","");
+						if(!org_nm.equals("")) ORG_NM=org_nm;
+				
+				
+						SUB_PSTN_TYPE_NM=SUB_PSTN_TYPE_NM==null?"":SUB_PSTN_TYPE_NM.trim();
+						String sub_pstn_type_nm=SUB_PSTN_TYPE_NM;
+						sub_pstn_type_nm=sub_pstn_type_nm.replaceAll(PSTN_TYPE_NM+"-","");
+						if(!sub_pstn_type_nm.equals("")) SUB_PSTN_TYPE_NM=sub_pstn_type_nm;
+											
+					    EMP_NM="<a style='TEXT-DECORATION:underline' href='ShowReport.wx?PAGEID=fnc_pd_bonus_detail&EMP_ID="+EMP_ID +"&MEASURE_DT="+MEASURE_DT+"'>"+EMP_NM+"</a>"; 
+	
+						
+					]]>
+					</value>
+				</format>
+				<footer><![CDATA[<div style='float:left'><font color='blue'>提示:点击员工姓名,可以查询其“理财营销明细表”功能页面</font></div>]]></footer>
+			</report>
+		</vpanel>
+	</page>
+
+	<!--员工理财业绩排名   分行 -->
+	<page id="fnc_pd_bonus_smy_branch"
+		js="/webresources/script/validate.js,/js/demo.js,/js/common.js">
+		<header>${top.header}</header>
+		<interceptor>
+			<imports>
+				<import>java.lang</import>
+				<import>com.wabacus.util</import>
+				<import>java.sql.Connection</import>
+				<import>java.sql.PreparedStatement</import>
+				<import>java.sql.ResultSet</import>
+				<import>javax.servlet.http.HttpSession</import>
+				<import>javax.util</import>
+				<import>javax.text</import>
+				<import>com.ljbank.market.MyMath</import>
+				<import>java.util.Date</import>
+				<import>java.text.SimpleDateFormat</import>
+			</imports>
+			<preaction>
+				<![CDATA[
+						String beginTime = rrequest.getStringAttribute("MEASURE_DT", "");// 取出输入的查询时间
+						System.out.println("beginTime:" + beginTime);
+						if (beginTime.equals("")) 
+						{
+						  Calendar now = Calendar.getInstance();
+						  now.add(Calendar.DATE, -1);
+		                  SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		                  String curDay = dateFormat.format(now.getTime());
+						  rrequest.setAttribute("MEASURE_DT", curDay);
+                        }
+                    
+				]]>
+			</preaction>
+		</interceptor>
+
+
+		<vpanel id="common_vpanel" width="1350px" align="center" title="">
+
+			<report id="title" extends="title.report1" width="1350px"></report>
+			<report id="select" title="员工存款业绩排名" type="editablelist" scrollwidth="1350px"
+				width="1800px" top="10px" align="center" pagesize="15|20|-1"
+				dataexport="richexcel" personalizeclass="default">
+
+				<display>
+					
+                    <col column="RNK" label="季销量排名" width="70px"></col>
+					<col column="MEASURE_DT" label="统计日期" width="80px" displaytype="hidden"></col>
+					<col column="EMP_ID" label="员工号" width="60px" valuestyleproperty="style='mso-number-format:\@'"></col>
+					<col column="EMP_NM" label="员工姓名" width="60px"></col>
+					<col column="ORG_ID" label="机构号" width="60px" clickorderby="false" valuestyleproperty="style='mso-number-format:\@'"></col>
+					<col column="ORG_NM" label="机构名" width="100px"></col>
+					<col column="BRANCH_ORG_ID" label="分行机构号" width="60px" displaytype="hidden"></col>
+					<col column="BRANCH_ORG_NM" label="分行机构名" width="100px"></col>
+					<col column="PSTN_TYPE" label="主考核类别" width="80px" displaytype="hidden"></col>
+					<col column="PSTN_TYPE_NM" label="主考核类别" width="100px"></col>
+					<col column="SUB_PSTN_TYPE" label="子考核类别" width="40px" displaytype="hidden"></col>
+					<col column="SUB_PSTN_TYPE_NM" label="子考核类别" width="120px"></col>
+					<col column="CCY_ID" label="币种 " width="40px" displaytype="hidden"></col>
+					
+					<col column="MTD_AMT" label="月销量" width="90px" datatype="double{0}" align="right"></col>
+					<col column="QTD_AMT" label="季销量" width="90px" datatype="double{0}" align="right"></col>
+					<col column="YTD_AMT" label="年销量" width="90px" datatype="double{0}" align="right"></col>
+					<col column="CLS_BAL" label="余额 "  width="90px" datatype="double{0}" align="right"></col>
+					<col column="MTD_AVG_BAL" label="月日均 " width="100px" align="right" datatype="double{0.00}" displaytype="hidden"></col>
+					<col column="QTD_AVG_BAL" label="季日均 " width="100px" align="right" datatype="double{0.00}" displaytype="hidden"></col>
+					<col column="YTD_AVG_BAL" label="年日均 " width="100px" align="right" datatype="double{0.00}" displaytype="hidden"></col>
+					<col column="MTD_BONUS" label="月收益" width="90px" datatype="double{0.00}" align="right" displaytype="hidden"></col>
+					<col column="QTD_BONUS" label="季收益" width="90px" datatype="double{0.00}" align="right"></col>
+					<col column="YTD_BONUS" label="年收益" width="90px" datatype="double{0.00}" align="right" displaytype="hidden"></col>
+
+
+				</display>
+				<sql>
+					<select>
+						<value><![CDATA[
+							SELECT
+							      RNK
+							      ,EMP_ID
+							      ,MEASURE_DT
+							      ,EMP_NM
+							      ,ORG_ID
+							      ,ORG_NM
+							      ,BRANCH_ORG_ID
+							      ,BRANCH_ORG_NM
+							      ,PSTN_TYPE
+							      ,PSTN_TYPE_NM
+							      ,SUB_PSTN_TYPE
+							      ,SUB_PSTN_TYPE_NM
+							      ,CCY_ID
+							      ,MTD_AMT
+							      ,QTD_AMT
+							      ,YTD_AMT
+							      ,CLS_BAL
+							      ,MTD_AVG_BAL
+							      ,QTD_AVG_BAL
+							      ,YTD_AVG_BAL
+							      ,MTD_BONUS
+							      ,QTD_BONUS
+							      ,YTD_BONUS
+							      
+							FROM IBS.T2_EMP_FNC_PD_BONUS_SMY
+							WHERE   {#condition#}
+							ORDER BY RNK
+						    ]]>
+						</value>
+
+						<condition name="EMP_ID" label="认领工号" labelposition="left">
+							<value>
+							 		<![CDATA[EMP_ID='#data#']]>
+							</value>
+							<inputbox styleproperty="style='width:100px'">
+								<typeprompt width="300" count="10">
+									<promptcol label="EMP_ID" value="EMP_ID" title="认领工号"
+										matchmode="anywhere" casesensitive="false" />
+									<promptcol label="EMP_NM" value="EMP_NM" title="姓名"
+										matchmode="anywhere" casesensitive="false" />
+									<datasource>
+										<option
+											source="@{Select DISTINCT EMP_ID, EMP_NM from IBS.T5_EMP  WHERE   {#matchcondition#}} " />
+									</datasource>
+								</typeprompt>
+							</inputbox>
+						</condition>
+						<condition name="EMP_NM" label="姓名" labelposition="left">
+							<value>
+							 		<![CDATA[EMP_NM='#data#']]>
+							</value>
+							<inputbox styleproperty="style='width:100px'">
+								<typeprompt width="300" count="10">
+									<promptcol label="EMP_ID" value="EMP_ID" title="认领工号"
+										matchmode="anywhere" casesensitive="false" />
+									<promptcol label="EMP_NM" value="EMP_NM" title="姓名"
+										matchmode="anywhere" casesensitive="false" />
+									<datasource>
+										<option
+											source="@{Select DISTINCT EMP_ID, EMP_NM from IBS.T5_EMP  WHERE   {#matchcondition#}} " />
+									</datasource>
+								</typeprompt>
+							</inputbox>
+						</condition>
+						<condition name="PSTN_TYPE" labelposition="left" label="主考核类别">
+							<value>
+								<![CDATA[(PSTN_TYPE='#data#')]]>
+							</value>
+							<inputbox type="selectbox" styleproperty="style='width:100px'">
+								<option label="全部" value=""></option>
+								<option
+									source="@{Select distinct PSTN_TYPE , PSTN_TYPE_NM from PUB.PERSONNEL group by PSTN_TYPE, PSTN_TYPE_NM , SUB_PSTN_TYPE , SUB_PSTN_TYPE_NM order by PSTN_TYPE }"
+									label="PSTN_TYPE_NM" value="PSTN_TYPE" />
+							</inputbox>
+						</condition>
+						<condition name="SUB_PSTN_TYPE" labelposition="left"
+							label="子考核类别">
+							<value>
+							<![CDATA[(SUB_PSTN_TYPE='#data#')]]>
+							</value>
+							<inputbox type="selectbox" depends="PSTN_TYPE"
+								styleproperty="style='width:150px'">
+								<option label="全部" value=""></option>
+								<option label="无" value="" type="false"></option>
+								<option
+									source="@{Select distinct SUB_PSTN_TYPE , SUB_PSTN_TYPE_NM from PUB.PERSONNEL where PSTN_TYPE='#PSTN_TYPE#' group by PSTN_TYPE, PSTN_TYPE_NM , SUB_PSTN_TYPE , SUB_PSTN_TYPE_NM order by SUB_PSTN_TYPE }"
+									label="SUB_PSTN_TYPE_NM" value="SUB_PSTN_TYPE" />
+							</inputbox>
+						</condition>
+
+						<condition name="ORG_ID1" labelposition="left" label="分行"
+							source="session{org_id}">
+							<value>
+							<![CDATA[(BRANCH_ORG_ID='#data#')]]>
+							</value>
+						</condition>
+						<condition name="ORG_ID2" labelposition="left" label="支行">
+							<value>
+							<![CDATA[(ORG_ID='#data#')]]>
+							</value>
+							<inputbox type="selectbox" depends="ORG_ID1"
+								styleproperty="style='width:150px'">
+								<option label="全部" value=""></option>
+								<option label="无" value="" type="false"></option>
+								<option
+									source="@{SELECT DISTINCT ORG_ID, ORG_NM FROM IBS.T5_ORG WHERE BRANCH_ORG_ID='#ORG_ID1#' and ORG_TYPE_ID='EO' AND ORG_LEVEL_ID IN ('1','2') ORDER BY ORG_ID}"
+									label="ORG_NM" value="ORG_ID" />
+							</inputbox>
+						</condition>
+
+						<condition name="MEASURE_DT" label="日期" labelposition="left">
+							<value>
+						 	<![CDATA[(MEASURE_DT='#data#')]]>
+							</value>
+							<inputbox type="datepicker" styleproperty="style='width:120px'"
+								jsvalidate="isDate(#label#格式为yyyy-MM-dd)">
+							</inputbox>
+						</condition>
+					</select>
+				</sql>
+				<format>
+					<imports>
+						<import>com.ljbank.util.*</import>
+						<import>com.wabacus.util.*</import>
+						<import>java.util.*</import>
+						<import>java.text.*</import>
+						<import>com.wabacus.system.*</import>
+					</imports>
+					<value>
+					<![CDATA[
+						BRANCH_ORG_NM=BRANCH_ORG_NM==null?"":BRANCH_ORG_NM.trim();
+						String branch_org_nm=BRANCH_ORG_NM;
+		        		branch_org_nm=branch_org_nm.replaceAll("XX银行","");
+		        		if(!branch_org_nm.equals("")) BRANCH_ORG_NM=branch_org_nm;
+				
+				
+						ORG_NM=ORG_NM==null?"":ORG_NM.trim();
+						String org_nm=ORG_NM;
+						org_nm=org_nm.replaceAll(branch_org_nm,"");
+						org_nm=org_nm.replaceAll("XX银行","");
+						if(!org_nm.equals("")) ORG_NM=org_nm;
+				
+				
+						SUB_PSTN_TYPE_NM=SUB_PSTN_TYPE_NM==null?"":SUB_PSTN_TYPE_NM.trim();
+						String sub_pstn_type_nm=SUB_PSTN_TYPE_NM;
+						sub_pstn_type_nm=sub_pstn_type_nm.replaceAll(PSTN_TYPE_NM+"-","");
+						if(!sub_pstn_type_nm.equals("")) SUB_PSTN_TYPE_NM=sub_pstn_type_nm;
+											
+
+					    EMP_NM="<a style='TEXT-DECORATION:underline' href='ShowReport.wx?PAGEID=fnc_pd_bonus_detail_branch&EMP_ID="+EMP_ID +"&MEASURE_DT="+MEASURE_DT+"'>"+EMP_NM+"</a>"; 
+	
+					
+					
+					]]>
+					</value>
+				</format>
+				<footer><![CDATA[<div style='float:left'><font color='blue'>提示:点击员工姓名,可以查询其“存款凭证业绩明细”功能页面</font></div>]]></footer>
+			</report>
+		</vpanel>
+	</page>
+
+	<!--员工存款业绩汇总 (排名) 支行 -->
+	<page id="fnc_pd_bonus_smy_subbranch"
+		js="/webresources/script/validate.js,/js/demo.js,/js/common.js">
+		<header>${top.header}</header>
+		<interceptor>
+			<imports>
+				<import>java.lang</import>
+				<import>com.wabacus.util</import>
+				<import>java.sql.Connection</import>
+				<import>java.sql.PreparedStatement</import>
+				<import>java.sql.ResultSet</import>
+				<import>javax.servlet.http.HttpSession</import>
+				<import>javax.util</import>
+				<import>javax.text</import>
+				<import>com.ljbank.market.MyMath</import>
+				<import>java.util.Date</import>
+				<import>java.text.SimpleDateFormat</import>
+			</imports>
+			<preaction>
+				<![CDATA[
+						String beginTime = rrequest.getStringAttribute("MEASURE_DT", "");// 取出输入的查询时间
+						System.out.println("beginTime:" + beginTime);
+						if (beginTime.equals("")) 
+						{
+						  Calendar now = Calendar.getInstance();
+						  now.add(Calendar.DATE, -1);
+		                  SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		                  String curDay = dateFormat.format(now.getTime());
+						  rrequest.setAttribute("MEASURE_DT", curDay);
+                        }
+                    
+				]]>
+			</preaction>
+		</interceptor>
+		<vpanel id="common_vpanel" width="1350px" align="center" title="">
+
+			<report id="title" extends="title.report1" width="1350px"></report>
+			<report id="select" title="员工存款业绩排名" type="editablelist" scrollwidth="1350px"
+				width="1800px" top="10px" align="center" pagesize="15|20|-1"
+				dataexport="richexcel" personalizeclass="default">
+
+				<display>
+					
+                    <col column="RNK" label="季销量排名" width="70px"></col>
+					<col column="MEASURE_DT" label="统计日期" width="80px" displaytype="hidden"></col>
+					<col column="EMP_ID" label="员工号" width="60px" valuestyleproperty="style='mso-number-format:\@'"></col>
+					<col column="EMP_NM" label="员工姓名" width="60px"></col>
+					<col column="ORG_ID" label="机构号" width="60px" clickorderby="false" valuestyleproperty="style='mso-number-format:\@'"></col>
+					<col column="ORG_NM" label="机构名" width="100px"></col>
+					<col column="BRANCH_ORG_ID" label="分行机构号" width="60px" displaytype="hidden"></col>
+					<col column="BRANCH_ORG_NM" label="分行机构名" width="100px"></col>
+					<col column="PSTN_TYPE" label="主考核类别" width="80px" displaytype="hidden"></col>
+					<col column="PSTN_TYPE_NM" label="主考核类别" width="100px"></col>
+					<col column="SUB_PSTN_TYPE" label="子考核类别" width="40px" displaytype="hidden"></col>
+					<col column="SUB_PSTN_TYPE_NM" label="子考核类别" width="120px"></col>
+					<col column="CCY_ID" label="币种 " width="40px" displaytype="hidden"></col>
+					
+					<col column="MTD_AMT" label="月销量" width="90px" datatype="double{0}" align="right"></col>
+					<col column="QTD_AMT" label="季销量" width="90px" datatype="double{0}" align="right"></col>
+					<col column="YTD_AMT" label="年销量" width="90px" datatype="double{0}" align="right"></col>
+					<col column="CLS_BAL" label="余额 "  width="90px" datatype="double{0}" align="right"></col>
+					<col column="MTD_AVG_BAL" label="月日均 " width="100px" align="right" datatype="double{0.00}" displaytype="hidden"></col>
+					<col column="QTD_AVG_BAL" label="季日均 " width="100px" align="right" datatype="double{0.00}" displaytype="hidden"></col>
+					<col column="YTD_AVG_BAL" label="年日均 " width="100px" align="right" datatype="double{0.00}" displaytype="hidden"></col>
+					<col column="MTD_BONUS" label="月收益" width="90px" datatype="double{0.00}" align="right"> displaytype="hidden"</col>
+					<col column="QTD_BONUS" label="季收益" width="90px" datatype="double{0.00}" align="right"></col>
+					<col column="YTD_BONUS" label="年收益" width="90px" datatype="double{0.00}" align="right" displaytype="hidden"></col>
+
+
+				</display>
+				<sql>
+					<select>
+						<value><![CDATA[
+							SELECT
+							      RNK
+							      ,EMP_ID
+							      ,MEASURE_DT
+							      ,EMP_NM
+							      ,ORG_ID
+							      ,ORG_NM
+							      ,BRANCH_ORG_ID
+							      ,BRANCH_ORG_NM
+							      ,PSTN_TYPE
+							      ,PSTN_TYPE_NM
+							      ,SUB_PSTN_TYPE
+							      ,SUB_PSTN_TYPE_NM
+							      ,CCY_ID
+							      ,MTD_AMT
+							      ,QTD_AMT
+							      ,YTD_AMT
+							      ,CLS_BAL
+							      ,MTD_AVG_BAL
+							      ,QTD_AVG_BAL
+							      ,YTD_AVG_BAL
+							      ,MTD_BONUS
+							      ,QTD_BONUS
+							      ,YTD_BONUS
+							      
+							FROM IBS.T2_EMP_FNC_PD_BONUS_SMY
+							WHERE   {#condition#}
+							ORDER BY RNK
+						    ]]>
+						</value>
+
+
+						<condition name="EMP_ID" label="认领工号" labelposition="left">
+							<value>
+							 		<![CDATA[EMP_ID='#data#']]>
+							</value>
+							<inputbox styleproperty="style='width:100px'">
+								<typeprompt width="300" count="10">
+									<promptcol label="EMP_ID" value="EMP_ID" title="认领工号"
+										matchmode="anywhere" casesensitive="false" />
+									<promptcol label="EMP_NM" value="EMP_NM" title="姓名"
+										matchmode="anywhere" casesensitive="false" />
+									<datasource>
+										<option
+											source="@{Select DISTINCT EMP_ID, EMP_NM from IBS.T5_EMP  WHERE   {#matchcondition#}} " />
+									</datasource>
+								</typeprompt>
+							</inputbox>
+						</condition>
+						<condition name="EMP_NM" label="姓名" labelposition="left">
+							<value>
+							 		<![CDATA[EMP_NM='#data#']]>
+							</value>
+							<inputbox styleproperty="style='width:100px'">
+								<typeprompt width="300" count="10">
+									<promptcol label="EMP_ID" value="EMP_ID" title="认领工号"
+										matchmode="anywhere" casesensitive="false" />
+									<promptcol label="EMP_NM" value="EMP_NM" title="姓名"
+										matchmode="anywhere" casesensitive="false" />
+									<datasource>
+										<option
+											source="@{Select DISTINCT EMP_ID, EMP_NM from IBS.T5_EMP  WHERE   {#matchcondition#}} " />
+									</datasource>
+								</typeprompt>
+							</inputbox>
+						</condition>
+						<condition name="PSTN_TYPE" labelposition="left" label="主考核类别">
+							<value>
+								<![CDATA[(PSTN_TYPE='#data#')]]>
+							</value>
+							<inputbox type="selectbox" styleproperty="style='width:100px'">
+								<option label="全部" value=""></option>
+								<option
+									source="@{Select distinct PSTN_TYPE , PSTN_TYPE_NM from PUB.PERSONNEL group by PSTN_TYPE, PSTN_TYPE_NM , SUB_PSTN_TYPE , SUB_PSTN_TYPE_NM order by PSTN_TYPE }"
+									label="PSTN_TYPE_NM" value="PSTN_TYPE" />
+							</inputbox>
+						</condition>
+						<condition name="SUB_PSTN_TYPE" labelposition="left"
+							label="子考核类别">
+							<value>
+							<![CDATA[(SUB_PSTN_TYPE='#data#')]]>
+							</value>
+							<inputbox type="selectbox" depends="PSTN_TYPE"
+								styleproperty="style='width:150px'">
+								<option label="全部" value=""></option>
+								<option label="无" value="" type="false"></option>
+								<option
+									source="@{Select distinct SUB_PSTN_TYPE , SUB_PSTN_TYPE_NM from PUB.PERSONNEL where PSTN_TYPE='#PSTN_TYPE#' group by PSTN_TYPE, PSTN_TYPE_NM , SUB_PSTN_TYPE , SUB_PSTN_TYPE_NM order by SUB_PSTN_TYPE }"
+									label="SUB_PSTN_TYPE_NM" value="SUB_PSTN_TYPE" />
+							</inputbox>
+						</condition>
+
+						<condition name="ORG_ID2" labelposition="left" label="支行"
+							source="session{org_id}">
+							<value>
+							<![CDATA[(ORG_ID='#data#')]]>
+							</value>
+						</condition>
+
+						<condition name="MEASURE_DT" label="日期" labelposition="left">
+							<value>
+						 	<![CDATA[(MEASURE_DT='#data#')]]>
+							</value>
+							<inputbox type="datepicker" styleproperty="style='width:120px'"
+								jsvalidate="isDate(#label#格式为yyyy-MM-dd)">
+							</inputbox>
+						</condition>
+					</select>
+				</sql>
+				<format>
+					<imports>
+						<import>com.ljbank.util.*</import>
+						<import>java.util.*</import>
+						<import>java.text.*</import>
+						<import>com.wabacus.system.*</import>
+					</imports>
+					<value>
+					<![CDATA[
+						
+						BRANCH_ORG_NM=BRANCH_ORG_NM==null?"":BRANCH_ORG_NM.trim();
+						String branch_org_nm=BRANCH_ORG_NM;
+		        		branch_org_nm=branch_org_nm.replaceAll("XX银行","");
+		        		if(!branch_org_nm.equals("")) BRANCH_ORG_NM=branch_org_nm;
+				
+				
+						ORG_NM=ORG_NM==null?"":ORG_NM.trim();
+						String org_nm=ORG_NM;
+						org_nm=org_nm.replaceAll(branch_org_nm,"");
+						org_nm=org_nm.replaceAll("XX银行","");
+						if(!org_nm.equals("")) ORG_NM=org_nm;
+				
+				
+						SUB_PSTN_TYPE_NM=SUB_PSTN_TYPE_NM==null?"":SUB_PSTN_TYPE_NM.trim();
+						String sub_pstn_type_nm=SUB_PSTN_TYPE_NM;
+						sub_pstn_type_nm=sub_pstn_type_nm.replaceAll(PSTN_TYPE_NM+"-","");
+						if(!sub_pstn_type_nm.equals("")) SUB_PSTN_TYPE_NM=sub_pstn_type_nm;
+					
+
+						EMP_NM="<a style='TEXT-DECORATION:underline' href='ShowReport.wx?PAGEID=fnc_pd_bonus_detail_subbranch&EMP_ID="+EMP_ID +"&MEASURE_DT="+MEASURE_DT+"'>"+EMP_NM+"</a>"; 
+						
+					]]>
+					</value>
+				</format>
+				<footer><![CDATA[<div style='float:left'><font color='blue'>提示:点击员工姓名,可以查询其“存款凭证业绩明细”功能页面</font></div>]]></footer>
+
+
+			</report>
+		</vpanel>
+	</page>
+
+	<!--员工存款业绩汇总 (排名) 普通员工 -->
+	<page id="fnc_pd_bonus_smy_user"
+		js="/webresources/script/validate.js,/js/demo.js,/js/common.js">
+		<header>${top.header}</header>
+		<interceptor>
+			<imports>
+				<import>java.lang</import>
+				<import>com.wabacus.util</import>
+				<import>java.sql.Connection</import>
+				<import>java.sql.PreparedStatement</import>
+				<import>java.sql.ResultSet</import>
+				<import>javax.servlet.http.HttpSession</import>
+				<import>javax.util</import>
+				<import>javax.text</import>
+				<import>com.ljbank.market.MyMath</import>
+				<import>java.util.Date</import>
+				<import>java.text.SimpleDateFormat</import>
+			</imports>
+			<preaction>
+				<![CDATA[
+						String beginTime = rrequest.getStringAttribute("MEASURE_DT", "");// 取出输入的查询时间
+						System.out.println("beginTime:" + beginTime);
+						if (beginTime.equals("")) 
+						{
+						  Calendar now = Calendar.getInstance();
+						  now.add(Calendar.DATE, -1);
+		                  SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		                  String curDay = dateFormat.format(now.getTime());
+						  rrequest.setAttribute("MEASURE_DT", curDay);
+                        }
+                    
+				]]>
+			</preaction>
+		</interceptor>
+
+
+		<vpanel id="common_vpanel" width="1350px" align="center" title="">
+
+			<report id="title" extends="title.report1" width="1350px"></report>
+			<report id="select" title="我的存款业绩排名" type="editablelist" scrollwidth="1350px"
+				width="1800px" top="10px" align="center" pagesize="15|20|-1"
+				dataexport="richexcel" personalizeclass="default">
+
+				<display>
+					
+                    <col column="RNK" label="季销量排名" width="70px"></col>
+					<col column="MEASURE_DT" label="统计日期" width="80px" displaytype="hidden"></col>
+					<col column="EMP_ID" label="员工号" width="60px" valuestyleproperty="style='mso-number-format:\@'"></col>
+					<col column="EMP_NM" label="员工姓名" width="60px"></col>
+					<col column="ORG_ID" label="机构号" width="60px" clickorderby="false" valuestyleproperty="style='mso-number-format:\@'"></col>
+					<col column="ORG_NM" label="机构名" width="100px"></col>
+					<col column="BRANCH_ORG_ID" label="分行机构号" width="60px" displaytype="hidden"></col>
+					<col column="BRANCH_ORG_NM" label="分行机构名" width="100px"></col>
+					<col column="PSTN_TYPE" label="主考核类别" width="80px" displaytype="hidden"></col>
+					<col column="PSTN_TYPE_NM" label="主考核类别" width="100px"></col>
+					<col column="SUB_PSTN_TYPE" label="子考核类别" width="40px" displaytype="hidden"></col>
+					<col column="SUB_PSTN_TYPE_NM" label="子考核类别" width="120px"></col>
+					<col column="CCY_ID" label="币种 " width="40px" displaytype="hidden"></col>
+					
+					<col column="MTD_AMT" label="月销量" width="90px" datatype="double{0}" align="right"></col>
+					<col column="QTD_AMT" label="季销量" width="90px" datatype="double{0}" align="right"></col>
+					<col column="YTD_AMT" label="年销量" width="90px" datatype="double{0}" align="right"></col>
+					<col column="CLS_BAL" label="余额 "  width="90px" datatype="double{0}" align="right"></col>
+					<col column="MTD_AVG_BAL" label="月日均 " width="100px" align="right" datatype="double{0.00}" displaytype="hidden"></col>
+					<col column="QTD_AVG_BAL" label="季日均 " width="100px" align="right" datatype="double{0.00}" displaytype="hidden"></col>
+					<col column="YTD_AVG_BAL" label="年日均 " width="100px" align="right" datatype="double{0.00}" displaytype="hidden"></col>
+					<col column="MTD_BONUS" label="月收益" width="90px" datatype="double{0.00}" align="right" displaytype="hidden"></col>
+					<col column="QTD_BONUS" label="季收益" width="90px" datatype="double{0.00}" align="right"></col>
+					<col column="YTD_BONUS" label="年收益" width="90px" datatype="double{0.00}" align="right" displaytype="hidden"></col>
+
+
+				</display>
+				<sql>
+					<select>
+						<value><![CDATA[
+							
+
+							SELECT
+							      RNK
+							      ,EMP_ID
+							      ,MEASURE_DT
+							      ,EMP_NM
+							      ,ORG_ID
+							      ,ORG_NM
+							      ,BRANCH_ORG_ID
+							      ,BRANCH_ORG_NM
+							      ,PSTN_TYPE
+							      ,PSTN_TYPE_NM
+							      ,SUB_PSTN_TYPE
+							      ,SUB_PSTN_TYPE_NM
+							      ,CCY_ID
+							      ,MTD_AMT
+							      ,QTD_AMT
+							      ,YTD_AMT
+							      ,CLS_BAL
+							      ,MTD_AVG_BAL
+							      ,QTD_AVG_BAL
+							      ,YTD_AVG_BAL
+							      ,MTD_BONUS
+							      ,QTD_BONUS
+							      ,YTD_BONUS
+							      
+							FROM IBS.T2_EMP_FNC_PD_BONUS_SMY
+							WHERE   {#condition#}
+							ORDER BY RNK
+						    ]]>
+						</value>
+
+						<condition name="user_id" source="session{user_id}">
+							<value><![CDATA[EMP_ID='#data#']]></value>
+						</condition>
+
+						<condition name="MEASURE_DT" label="日期" labelposition="left">
+							<value>
+						 	<![CDATA[(MEASURE_DT='#data#')]]>
+							</value>
+							<inputbox type="datepicker" styleproperty="style='width:120px'"
+								jsvalidate="isDate(#label#格式为yyyy-MM-dd)">
+							</inputbox>
+						</condition>
+					</select>
+				</sql>
+				<format>
+					<imports>
+						<import>com.ljbank.util.*</import>
+						<import>java.util.*</import>
+						<import>java.text.*</import>
+						<import>com.wabacus.system.*</import>
+					</imports>
+					<value>
+					<![CDATA[
+
+						BRANCH_ORG_NM=BRANCH_ORG_NM==null?"":BRANCH_ORG_NM.trim();
+						String branch_org_nm=BRANCH_ORG_NM;
+		        		branch_org_nm=branch_org_nm.replaceAll("XX银行","");
+		        		if(!branch_org_nm.equals("")) BRANCH_ORG_NM=branch_org_nm;
+				
+				
+						ORG_NM=ORG_NM==null?"":ORG_NM.trim();
+						String org_nm=ORG_NM;
+						org_nm=org_nm.replaceAll(branch_org_nm,"");
+						org_nm=org_nm.replaceAll("XX银行","");
+						if(!org_nm.equals("")) ORG_NM=org_nm;
+				
+				
+						SUB_PSTN_TYPE_NM=SUB_PSTN_TYPE_NM==null?"":SUB_PSTN_TYPE_NM.trim();
+						String sub_pstn_type_nm=SUB_PSTN_TYPE_NM;
+						sub_pstn_type_nm=sub_pstn_type_nm.replaceAll(PSTN_TYPE_NM+"-","");
+						if(!sub_pstn_type_nm.equals("")) SUB_PSTN_TYPE_NM=sub_pstn_type_nm;
+					
+						
+					]]>
+					</value>
+				</format>
+			</report>
+		</vpanel>
+	</page>
+</applications>

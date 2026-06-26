@@ -1,0 +1,595 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<applications xmlns="http://www.wabacus.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.wabacus.com ../xsd/wabacus.applications.xsd">
+	<!--员工存贷款、中收业绩汇总表 总行 -->
+	<page id="emp_dep_ln_profit_smy"
+		js="/webresources/script/validate.js,/js/demo.js,/js/common.js">
+		<header>${top.header}</header>
+		<interceptor>
+			<imports>
+				<import>java.lang</import>
+				<import>com.wabacus.util</import>
+				<import>java.sql.Connection</import>
+				<import>java.sql.PreparedStatement</import>
+				<import>java.sql.ResultSet</import>
+				<import>javax.servlet.http.HttpSession</import>
+				<import>javax.util</import>
+				<import>javax.text</import>
+				<import>com.ljbank.market.MyMath</import>
+				<import>java.util.Date</import>
+				<import>java.text.SimpleDateFormat</import>
+			</imports>
+			<preaction>
+				<![CDATA[
+						String beginTime = rrequest.getStringAttribute("MEASURE_DT", "");// 取出输入的查询时间
+						System.out.println("beginTime:" + beginTime);
+						if (beginTime.equals("")) 
+						{
+							Connection conn = rrequest.getConnection();
+							PreparedStatement pstmt = null;
+							try {
+									String SQL = "Select DATA_DT from IBS.T8_DATA_DT";
+									pstmt = conn.prepareStatement(SQL);
+									ResultSet resultSet = pstmt.executeQuery();
+									while (resultSet.next()) {
+					                     String date=resultSet.getString("DATA_DT");
+					                     rrequest.setAttribute("MEASURE_DT", date);
+				                    }
+									
+									System.out.println("beginTime处理后时间为:" + beginTime);
+									resultSet.close();
+									pstmt.close();
+								} 
+							catch (Exception e) {
+									e.printStackTrace();
+							}
+                        }
+                    
+				]]>
+			</preaction>
+		</interceptor>
+		<vpanel id="common_vpanel" width="1350px" align="center" title="">
+
+			<report id="title" extends="title.report1" width="1350px"></report>
+			<report id="select" title="员工存贷款、中收业绩汇总表" type="editablelist"
+				scrollwidth="1350px" width="2000px" top="10px" align="center" pagesize="15|20|-1"
+				dataexport="richexcel" personalizeclass="default" interceptor="com.customer.interceptor.InterceptorDepLnProfitSmy">
+
+				<display>
+					<col column="MEASURE_DT" label="统计日期" width="80px" displaytype="hidden"></col>
+					<col column="EMP_ID" label="员工号" width="60px"
+						valuestyleproperty="style='mso-number-format:\@'"></col>
+					<col column="EMP_NM" label="员工姓名" width="60px"></col>
+					<col column="ORG_ID" label="机构号" width="60px" clickorderby="false"
+						valuestyleproperty="style='mso-number-format:\@'"></col>
+					<col column="ORG_NM" label="机构名" width="100px"></col>
+					<col column="BRANCH_ORG_ID" label="分行机构号" width="60px"
+						displaytype="hidden"></col>
+					<col column="BRANCH_ORG_NM" label="分行机构名" width="100px"></col>
+					<col column="PSTN_TYPE" label="主考核类别" width="80px" displaytype="hidden"></col>
+					<col column="PSTN_TYPE_NM" label="主考核类别" width="100px"></col>
+					<col column="SUB_PSTN_TYPE" label="子考核类别" width="40px"
+						displaytype="hidden"></col>
+					<col column="SUB_PSTN_TYPE_NM" label="子考核类别" width="120px"></col>
+					<col column="CERTI" label="资格证标识"  width="100px" ></col>
+					<col column="CCY_ID" label="币种 " width="40px" displaytype="hidden"></col>
+
+					<group label="存款汇总" labelstyleproperty="width='650px'">
+						<col column="DEP_BAL" label="余额 " width="100px" datatype="double{0.00}"
+							align="right"></col>
+						<!-- <col column="DEP_MTD_AVG_BAL" label="月日均 " width="100px" align="right"
+							datatype="double{0.00}"></col> -->
+						<col column="DEP_QTD_AVG_BAL" label="季日均 " width="100px" align="right"
+							datatype="double{0.00}"></col>
+						<col column="DEP_YTD_AVG_BAL" label="年日均 " width="100px" align="right"
+							datatype="double{0.00}"></col>
+						<col column="DEP_Q_PROFIT" label="季利润 " width="100px" datatype="double{0.00}"
+							align="right"></col>
+
+					</group>
+					<group label="贷款汇总" labelstyleproperty="width='650px'">
+						<col column="LN_BAL" label="余额 " width="100px" datatype="double{0.00}"
+							align="right"></col>
+						<!-- <col column="LN_MTD_AVG_BAL" label="月日均 " width="100px" align="right"
+							datatype="double{0.00}"></col> -->
+						<col column="LN_QTD_AVG_BAL" label="季日均 " width="100px" align="right"
+							datatype="double{0.00}"></col>
+						<col column="LN_YTD_AVG_BAL" label="年日均 " width="100px" align="right"
+							datatype="double{0.00}"></col>
+						<col column="LN_Q_PROFIT" label="季利润 " width="100px" datatype="double{0.00}"
+							align="right"></col>
+					</group>
+
+					<col column="INCOME" label="中间业务收入 " width="120px"
+						datatype="double{0.00}" align="right"></col>
+					
+					<col column="ADD_TIME" label="加载时间 " width="40px" displaytype="hidden"></col>
+
+				</display>
+				<sql>
+					<select>
+						<value><![CDATA[
+							select smy.EMP_ID
+							  ,smy.MEASURE_DT
+							  ,smy.EMP_NM
+							  ,smy.ORG_ID
+							  ,smy.ORG_NM
+							  ,smy.BRANCH_ORG_ID
+							  ,smy.BRANCH_ORG_NM
+							  ,smy.PSTN_TYPE
+							  ,smy.PSTN_TYPE_NM
+							  ,smy.SUB_PSTN_TYPE
+							  ,smy.SUB_PSTN_TYPE_NM
+							  ,cf.YEAR
+							  ,cf.GRADE
+							  ,(coalesce(cf.YEAR,'')||coalesce(cf.GRADE,'')) as CERTI
+							  ,smy.CCY_ID
+							  ,smy.ADD_TIME
+							  ,og.HEAD_ORG_ID 
+							  ,smy.DEP_BAL            
+							  ,smy.DEP_MTD_AVG_BAL    
+							  ,smy.DEP_QTD_AVG_BAL    
+							  ,smy.DEP_YTD_AVG_BAL    
+							  ,smy.DEP_Q_PROFIT       
+							  ,smy.LN_BAL             
+							  ,smy.LN_MTD_AVG_BAL     
+							  ,smy.LN_QTD_AVG_BAL     
+							  ,smy.LN_YTD_AVG_BAL     
+							  ,smy.LN_Q_PROFIT  
+							,mid.INCOME    
+							from(
+							SELECT
+							   EMP_ID
+							  ,MEASURE_DT
+							  ,EMP_NM
+							  ,ORG_ID
+							  ,ORG_NM
+							  ,BRANCH_ORG_ID
+							  ,BRANCH_ORG_NM
+							  ,PSTN_TYPE
+							  ,PSTN_TYPE_NM
+							  ,SUB_PSTN_TYPE
+							  ,SUB_PSTN_TYPE_NM
+							  ,CCY_ID
+							  ,ADD_TIME
+							  ,sum(coalesce(DEP_BAL            ,0)) as DEP_BAL            
+							  ,sum(coalesce(DEP_MTD_AVG_BAL    ,0)) as DEP_MTD_AVG_BAL    
+							  ,sum(coalesce(DEP_QTD_AVG_BAL    ,0)) as DEP_QTD_AVG_BAL    
+							  ,sum(coalesce(DEP_YTD_AVG_BAL    ,0)) as DEP_YTD_AVG_BAL    
+							  ,sum(coalesce(DEP_Q_PROFIT       ,0)) as DEP_Q_PROFIT       
+							  ,sum(coalesce(LN_BAL             ,0)) as LN_BAL             
+							  ,sum(coalesce(LN_MTD_AVG_BAL     ,0)) as LN_MTD_AVG_BAL     
+							  ,sum(coalesce(LN_QTD_AVG_BAL     ,0)) as LN_QTD_AVG_BAL     
+							  ,sum(coalesce(LN_YTD_AVG_BAL     ,0)) as LN_YTD_AVG_BAL     
+							  ,sum(coalesce(LN_Q_PROFIT        ,0)) as LN_Q_PROFIT           
+							FROM IBS.T2_EMP_DEP_LN_PROFIT_SMY smy
+							WHERE MEASURE_DT={#MEASURE_DT#} and EMP_ID not like '1%'
+							group by EMP_ID
+							  ,MEASURE_DT
+							  ,EMP_NM
+							  ,ORG_ID
+							  ,ORG_NM
+							  ,BRANCH_ORG_ID
+							  ,BRANCH_ORG_NM
+							  ,PSTN_TYPE
+							  ,PSTN_TYPE_NM
+							  ,SUB_PSTN_TYPE
+							  ,SUB_PSTN_TYPE_NM
+							  ,CCY_ID
+							  ,ADD_TIME
+							)smy
+							inner join IBS.T5_ORG og on og.ORG_ID=smy.ORG_ID and og.ORG_TYPE_ID='EO' %SQL%
+							left join IBS.T5_EMP_CERTIFICATE cf on cf.EMP_ID=smy.EMP_ID
+							left join IBS.T1_MIDDLE_BUSINESS_INCOME mid on mid.EMP_ID=smy.EMP_ID and mid.MEASURE_DT=smy.MEASURE_DT
+							where {#condition#}
+							order by smy.BRANCH_ORG_ID ,smy.ORG_ID ,smy.EMP_ID
+						    ]]>
+						</value>
+						<condition name="EMP_ID" label="认领工号" labelposition="left">
+							<value>
+							 		<![CDATA[smy.EMP_ID='#data#']]>
+							</value>
+							<inputbox styleproperty="style='width:100px'">
+								<typeprompt width="300" count="10">
+									<promptcol label="EMP_ID" value="EMP_ID" title="认领工号"
+										matchmode="anywhere" casesensitive="false" />
+									<promptcol label="EMP_NM" value="EMP_NM" title="姓名"
+										matchmode="anywhere" casesensitive="false" />
+									<datasource>
+										<option
+											source="@{Select DISTINCT EMP_ID, EMP_NM from IBS.T5_EMP  WHERE   {#matchcondition#}} " />
+									</datasource>
+								</typeprompt>
+							</inputbox>
+						</condition>
+						<condition name="EMP_NM" label="姓名" labelposition="left">
+							<value>
+							 		<![CDATA[smy.EMP_NM='#data#']]>
+							</value>
+							<inputbox styleproperty="style='width:100px'">
+								<typeprompt width="300" count="10">
+									<promptcol label="EMP_ID" value="EMP_ID" title="认领工号"
+										matchmode="anywhere" casesensitive="false" />
+									<promptcol label="EMP_NM" value="EMP_NM" title="姓名"
+										matchmode="anywhere" casesensitive="false" />
+									<datasource>
+										<option
+											source="@{Select DISTINCT EMP_ID, EMP_NM from IBS.T5_EMP  WHERE   {#matchcondition#}} " />
+									</datasource>
+								</typeprompt>
+							</inputbox>
+						</condition>
+						<condition name="PSTN_TYPE" labelposition="left" label="主考核类别">
+							<value>
+								<![CDATA[smy.PSTN_TYPE='#data#']]>
+							</value>
+							<inputbox type="selectbox" styleproperty="style='width:100px'">
+								<option label="全部" value=""></option>
+								<option
+									source="@{Select distinct PSTN_TYPE , PSTN_TYPE_NM from ibs.T9_PSTN_TYPE order by PSTN_TYPE, PSTN_TYPE_NM }"
+									label="PSTN_TYPE_NM" value="PSTN_TYPE" />
+							</inputbox>
+						</condition>
+						<condition name="SUB_PSTN_TYPE" labelposition="left"
+							label="子考核类别">
+							<value>
+							<![CDATA[smy.SUB_PSTN_TYPE='#data#']]>
+							</value>
+							<inputbox type="selectbox" depends="PSTN_TYPE" multiple="multiple"
+								styleproperty="style='width:150px'">
+								<option label="全部" value=""></option>
+								<option label="无" value="" type="false"></option>
+								<option
+									source="@{select distinct SUB_PSTN_TYPE , SUB_PSTN_TYPE_NM from ibs.T9_PSTN_TYPE where PSTN_TYPE='#PSTN_TYPE#' order by SUB_PSTN_TYPE }"
+									label="SUB_PSTN_TYPE_NM" value="SUB_PSTN_TYPE" />
+							</inputbox>
+						</condition>
+						
+						<condition name="ORG_ID0" source="session{org_id}" hidden="true">
+							<value><![CDATA[(smy.ORG_ID='#data#' or smy.BRANCH_ORG_ID='#data#' or og.HEAD_ORG_ID='#data#' )]]></value>
+						</condition>
+						<condition name="ORG_ID1" labelposition="left" label="分行" >
+							<value>
+							<![CDATA[smy.BRANCH_ORG_ID='#data#']]>
+							</value>
+							<inputbox type="selectbox" styleproperty="style='width:150px'" depends="ORG_ID0">
+								<option label="全部" value=""></option>
+								<option
+									source="@{SELECT DISTINCT BRANCH_ORG_ID,BRANCH_ORG_NM FROM IBS.T5_ORG WHERE ORG_TYPE_ID='EO' AND ORG_LEVEL_ID IN ('1','2','3') and (ORG_ID='#ORG_ID0#' or BRANCH_ORG_ID='#ORG_ID0#' or HEAD_ORG_ID='#ORG_ID0#') ORDER BY BRANCH_ORG_ID}"
+									label="BRANCH_ORG_NM" value="BRANCH_ORG_ID" />
+							</inputbox>
+						</condition>
+						<condition name="ORG_ID2" labelposition="left" label="支行">
+							<value>
+							<![CDATA[smy.ORG_ID='#data#']]>
+							</value>
+							<inputbox type="selectbox" depends="ORG_ID1;ORG_ID0"
+								styleproperty="style='width:150px'">
+								<option label="全部" value=""></option>
+								<option label="无" value="" type="false"></option>
+								<option
+									source="@{SELECT DISTINCT ORG_ID, ORG_NM FROM IBS.T5_ORG WHERE ORG_TYPE_ID='EO' AND ORG_LEVEL_ID IN ('1','2') and BRANCH_ORG_ID='#ORG_ID1#' and (HEAD_ORG_ID='#ORG_ID0#' or BRANCH_ORG_ID='#ORG_ID0#' or ORG_ID='#ORG_ID0#') ORDER BY ORG_ID}"
+									label="ORG_NM" value="ORG_ID" />
+							</inputbox>
+						</condition>
+
+						<condition name="MEASURE_DT" label="日期" labelposition="left"
+							br="true">
+							<value>
+						 	<![CDATA[smy.MEASURE_DT='#data#']]>
+							</value>
+							<inputbox type="datepicker" styleproperty="style='width:120px'"
+								jsvalidate="isDate(#label#格式为yyyy-MM-dd)">
+							</inputbox>
+						</condition>
+						
+						<condition name="GRADE_Y_N" labelposition="left" label="是否取得资格证">
+							<value>
+							<![CDATA[(case when cf.GRADE IS NULL THEN 'N' ELSE 'Y' END) = ('#data#')]]>
+							</value>
+							<inputbox type="selectbox" styleproperty="style='width:120px'">
+								<option label="全部" value=""></option>
+								<option label="是" value="Y"></option>
+								<option label="否" value="N"></option>
+							</inputbox>
+						</condition>
+						
+						<condition name="YEAR" labelposition="left" label="取得资格证年份">
+							<value>
+							<![CDATA[cf.YEAR='#data#']]>
+							</value>
+							<inputbox type="selectbox" styleproperty="style='width:120px'">
+								<option label="全部" value=""></option>
+								<option
+									source="@{select VALUE from IBS.T9_CERTIFICATE WHERE TYPE='Y' ORDER BY VALUE DESC}"
+									label="VALUE" value="VALUE"></option>
+							</inputbox>
+						</condition>
+						<condition name="GRADE" labelposition="left" label="取得资格证等级">
+							<value>
+							<![CDATA[cf.GRADE='#data#']]>
+							</value>
+							<inputbox type="selectbox" styleproperty="style='width:120px'">
+								<option label="全部" value=""></option>
+								<option
+									source="@{select VALUE from IBS.T9_CERTIFICATE WHERE TYPE='G' ORDER BY VALUE}"
+									label="VALUE" value="VALUE"></option>
+							</inputbox>
+						</condition>	
+
+					</select>
+				</sql>
+				<format>
+					<imports>
+						<import>com.ljbank.util.*</import>
+						<import>com.wabacus.util.*</import>
+						<import>java.util.*</import>
+						<import>java.text.*</import>
+						<import>com.wabacus.system.*</import>
+					</imports>
+					<value>
+					<![CDATA[
+						
+						BRANCH_ORG_NM=BRANCH_ORG_NM==null?"":BRANCH_ORG_NM.trim();
+						String branch_org_nm=BRANCH_ORG_NM;
+		        		branch_org_nm=branch_org_nm.replaceAll("XX银行","");
+		        		if(!branch_org_nm.equals("")) BRANCH_ORG_NM=branch_org_nm;
+				
+				
+						ORG_NM=ORG_NM==null?"":ORG_NM.trim();
+						String org_nm=ORG_NM;
+						org_nm=org_nm.replaceAll(branch_org_nm,"");
+						org_nm=org_nm.replaceAll("XX银行","");
+						if(!org_nm.equals("")) ORG_NM=org_nm;
+				
+				
+						SUB_PSTN_TYPE_NM=SUB_PSTN_TYPE_NM==null?"":SUB_PSTN_TYPE_NM.trim();
+						String sub_pstn_type_nm=SUB_PSTN_TYPE_NM;
+						sub_pstn_type_nm=sub_pstn_type_nm.replaceAll(PSTN_TYPE_NM+"-","");
+						if(!sub_pstn_type_nm.equals("")) SUB_PSTN_TYPE_NM=sub_pstn_type_nm;
+						
+					]]>
+					</value>
+				</format>
+			</report>
+		</vpanel>
+	</page>
+
+	<!--员工存贷款、中收业绩汇总表 普通员工 -->
+	<page id="emp_dep_ln_profit_smy_user"
+		js="/webresources/script/validate.js,/js/demo.js,/js/common.js">
+		<header>${top.header}</header>
+		<interceptor>
+			<imports>
+				<import>java.lang</import>
+				<import>com.wabacus.util</import>
+				<import>java.sql.Connection</import>
+				<import>java.sql.PreparedStatement</import>
+				<import>java.sql.ResultSet</import>
+				<import>javax.servlet.http.HttpSession</import>
+				<import>javax.util</import>
+				<import>javax.text</import>
+				<import>com.ljbank.market.MyMath</import>
+				<import>java.util.Date</import>
+				<import>java.text.SimpleDateFormat</import>
+			</imports>
+			<preaction>
+				<![CDATA[
+						String beginTime = rrequest.getStringAttribute("MEASURE_DT", "");// 取出输入的查询时间
+						System.out.println("beginTime:" + beginTime);
+						if (beginTime.equals("")) 
+						{
+							Connection conn = rrequest.getConnection();
+							PreparedStatement pstmt = null;
+							try {
+									String SQL = "Select DATA_DT from IBS.T8_DATA_DT";
+									pstmt = conn.prepareStatement(SQL);
+									ResultSet resultSet = pstmt.executeQuery();
+									while (resultSet.next()) {
+					                     String date=resultSet.getString("DATA_DT");
+					                     rrequest.setAttribute("MEASURE_DT", date);
+				                    }
+									
+									System.out.println("beginTime处理后时间为:" + beginTime);
+									resultSet.close();
+									pstmt.close();
+								} 
+							catch (Exception e) {
+									e.printStackTrace();
+							}
+                        }
+                    
+				]]>
+			</preaction>
+		</interceptor>
+
+
+		<vpanel id="common_vpanel" width="1350px" align="center" title="">
+
+			<report id="title" extends="title.report1" width="1350px"></report>
+			<report id="select" title="我的存贷款、中收业绩汇总" type="editablelist"
+				scrollwidth="1350px" width="2500px" top="10px" align="center"
+				pagesize="15|20|-1" dataexport="richexcel" personalizeclass="default">
+
+				<display>
+					<col column="MEASURE_DT" label="统计日期" width="80px" displaytype="hidden"></col>
+					<col column="EMP_ID" label="员工号" width="60px"
+						valuestyleproperty="style='mso-number-format:\@'"></col>
+					<col column="EMP_NM" label="员工姓名" width="60px"></col>
+					<col column="ORG_ID" label="机构号" width="60px" clickorderby="false"
+						valuestyleproperty="style='mso-number-format:\@'"></col>
+					<col column="ORG_NM" label="机构名" width="100px"></col>
+					<col column="BRANCH_ORG_ID" label="分行机构号" width="60px"
+						displaytype="hidden"></col>
+					<col column="BRANCH_ORG_NM" label="分行机构名" width="100px"></col>
+					<col column="PSTN_TYPE" label="主考核类别" width="80px" displaytype="hidden"></col>
+					<col column="PSTN_TYPE_NM" label="主考核类别" width="100px"></col>
+					<col column="SUB_PSTN_TYPE" label="子考核类别" width="40px"
+						displaytype="hidden"></col>
+					<col column="SUB_PSTN_TYPE_NM" label="子考核类别" width="120px"></col>
+					
+					<col column="CERTI" label="资格证标识"  width="100px" ></col>
+						
+					<col column="CCY_ID" label="币种 " width="40px" displaytype="hidden"></col>
+
+					<group label="存款汇总" labelstyleproperty="width='650px'">
+						<col column="DEP_BAL" label="余额 " width="100px" datatype="double{0.00}"
+							align="right"></col>
+						<!-- <col column="DEP_MTD_AVG_BAL" label="月日均 " width="100px" align="right"
+							datatype="double{0.00}"></col> -->
+						<col column="DEP_QTD_AVG_BAL" label="季日均 " width="100px" align="right"
+							datatype="double{0.00}"></col>
+						<col column="DEP_YTD_AVG_BAL" label="年日均 " width="100px" align="right"
+							datatype="double{0.00}"></col>
+						<col column="DEP_Q_PROFIT" label="季利润 " width="100px" datatype="double{0.00}"
+							align="right"></col>
+
+					</group>
+					<group label="贷款汇总" labelstyleproperty="width='650px'">
+						<col column="LN_BAL" label="余额 " width="100px" datatype="double{0.00}"
+							align="right"></col>
+						<!-- <col column="LN_MTD_AVG_BAL" label="月日均 " width="100px" align="right"
+							datatype="double{0.00}"></col> -->
+						<col column="LN_QTD_AVG_BAL" label="季日均 " width="100px" align="right"
+							datatype="double{0.00}"></col>
+						<col column="LN_YTD_AVG_BAL" label="年日均 " width="100px" align="right"
+							datatype="double{0.00}"></col>
+						<col column="LN_Q_PROFIT" label="季利润 " width="100px" datatype="double{0.00}"
+							align="right"></col>
+					</group>
+
+					<col column="INCOME" label="中间业务收入 " width="120px"
+						datatype="double{0.00}" align="right"></col>
+					<col column="ADD_TIME" label="加载时间 " width="40px" displaytype="hidden"></col>
+
+				</display>
+				<sql>
+					<select>
+						<value><![CDATA[
+							select smy.EMP_ID
+							  ,smy.MEASURE_DT
+							  ,smy.EMP_NM
+							  ,smy.ORG_ID
+							  ,smy.ORG_NM
+							  ,smy.BRANCH_ORG_ID
+							  ,smy.BRANCH_ORG_NM
+							  ,smy.PSTN_TYPE
+							  ,smy.PSTN_TYPE_NM
+							  ,smy.SUB_PSTN_TYPE
+							  ,smy.SUB_PSTN_TYPE_NM
+							  ,cf.YEAR
+							  ,cf.GRADE
+							  ,(coalesce(cf.YEAR,'')||coalesce(cf.GRADE,'')) as CERTI
+							  ,smy.CCY_ID
+							  ,smy.ADD_TIME
+							  ,og.HEAD_ORG_ID 
+							  ,smy.DEP_BAL            
+							  ,smy.DEP_MTD_AVG_BAL    
+							  ,smy.DEP_QTD_AVG_BAL    
+							  ,smy.DEP_YTD_AVG_BAL    
+							  ,smy.DEP_Q_PROFIT       
+							  ,smy.LN_BAL             
+							  ,smy.LN_MTD_AVG_BAL     
+							  ,smy.LN_QTD_AVG_BAL     
+							  ,smy.LN_YTD_AVG_BAL     
+							  ,smy.LN_Q_PROFIT  
+							,mid.INCOME    
+							from(
+							SELECT
+							   EMP_ID
+							  ,MEASURE_DT
+							  ,EMP_NM
+							  ,ORG_ID
+							  ,ORG_NM
+							  ,BRANCH_ORG_ID
+							  ,BRANCH_ORG_NM
+							  ,PSTN_TYPE
+							  ,PSTN_TYPE_NM
+							  ,SUB_PSTN_TYPE
+							  ,SUB_PSTN_TYPE_NM
+							  ,CCY_ID
+							  ,ADD_TIME
+							  ,sum(coalesce(DEP_BAL            ,0)) as DEP_BAL            
+							  ,sum(coalesce(DEP_MTD_AVG_BAL    ,0)) as DEP_MTD_AVG_BAL    
+							  ,sum(coalesce(DEP_QTD_AVG_BAL    ,0)) as DEP_QTD_AVG_BAL    
+							  ,sum(coalesce(DEP_YTD_AVG_BAL    ,0)) as DEP_YTD_AVG_BAL    
+							  ,sum(coalesce(DEP_Q_PROFIT       ,0)) as DEP_Q_PROFIT       
+							  ,sum(coalesce(LN_BAL             ,0)) as LN_BAL             
+							  ,sum(coalesce(LN_MTD_AVG_BAL     ,0)) as LN_MTD_AVG_BAL     
+							  ,sum(coalesce(LN_QTD_AVG_BAL     ,0)) as LN_QTD_AVG_BAL     
+							  ,sum(coalesce(LN_YTD_AVG_BAL     ,0)) as LN_YTD_AVG_BAL     
+							  ,sum(coalesce(LN_Q_PROFIT        ,0)) as LN_Q_PROFIT           
+							FROM IBS.T2_EMP_DEP_LN_PROFIT_SMY smy
+							WHERE {#condition#}
+							group by EMP_ID
+							  ,MEASURE_DT
+							  ,EMP_NM
+							  ,ORG_ID
+							  ,ORG_NM
+							  ,BRANCH_ORG_ID
+							  ,BRANCH_ORG_NM
+							  ,PSTN_TYPE
+							  ,PSTN_TYPE_NM
+							  ,SUB_PSTN_TYPE
+							  ,SUB_PSTN_TYPE_NM
+							  ,CCY_ID
+							  ,ADD_TIME
+							)smy
+							inner join IBS.T5_ORG og on og.ORG_ID=smy.ORG_ID and og.ORG_TYPE_ID='EO' 
+							left join IBS.T5_EMP_CERTIFICATE cf on cf.EMP_ID=smy.EMP_ID
+							left join IBS.T1_MIDDLE_BUSINESS_INCOME mid on mid.EMP_ID=smy.EMP_ID and mid.MEASURE_DT=smy.MEASURE_DT
+							
+						    ]]>
+						</value>
+
+						<condition name="user_id" source="session{user_id}">
+							<value><![CDATA[smy.EMP_ID='#data#']]></value>
+						</condition>
+
+						<condition name="MEASURE_DT" label="日期" labelposition="left">
+							<value>
+						 	<![CDATA[smy.MEASURE_DT='#data#']]>
+							</value>
+							<inputbox type="datepicker" styleproperty="style='width:120px'"
+								jsvalidate="isDate(#label#格式为yyyy-MM-dd)">
+							</inputbox>
+						</condition>
+					</select>
+				</sql>
+				<format>
+					<imports>
+						<import>com.ljbank.util.*</import>
+						<import>java.util.*</import>
+						<import>java.text.*</import>
+						<import>com.wabacus.system.*</import>
+					</imports>
+					<value>
+					<![CDATA[
+
+						BRANCH_ORG_NM=BRANCH_ORG_NM==null?"":BRANCH_ORG_NM.trim();
+						String branch_org_nm=BRANCH_ORG_NM;
+		        		branch_org_nm=branch_org_nm.replaceAll("XX银行","");
+		        		if(!branch_org_nm.equals("")) BRANCH_ORG_NM=branch_org_nm;
+				
+				
+						ORG_NM=ORG_NM==null?"":ORG_NM.trim();
+						String org_nm=ORG_NM;
+						org_nm=org_nm.replaceAll(branch_org_nm,"");
+						org_nm=org_nm.replaceAll("XX银行","");
+						if(!org_nm.equals("")) ORG_NM=org_nm;
+				
+				
+						SUB_PSTN_TYPE_NM=SUB_PSTN_TYPE_NM==null?"":SUB_PSTN_TYPE_NM.trim();
+						String sub_pstn_type_nm=SUB_PSTN_TYPE_NM;
+						sub_pstn_type_nm=sub_pstn_type_nm.replaceAll(PSTN_TYPE_NM+"-","");
+						if(!sub_pstn_type_nm.equals("")) SUB_PSTN_TYPE_NM=sub_pstn_type_nm;
+					
+						
+					]]>
+					</value>
+				</format>
+			</report>
+		</vpanel>
+	</page>
+</applications>

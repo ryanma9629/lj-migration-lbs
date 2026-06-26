@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<applications xmlns="http://www.wabacus.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.wabacus.com ../xsd/wabacus.applications.xsd">
+	<!--保险认领 -->
+<page id="claim_ybdb"
+	js="/webresources/script/validate.js,/js/demo.js,/js/common.js"><!-- /webresources/script/validate.js -->
+
+	<header>${top.header}</header>
+	
+	<vpanel id="common_vpanel" width="1300px" align="center" title="">
+		
+		<!-- 按保单号查询 -->
+		<report id="list" title="保单信息" type="listform" personalizeclass="default" width="1600px" scrollwidth="1300px"  pagesize="10|20|-1"
+			interceptor="com.customer.interceptor.InterceptorClaimYbdb" top="10px" >
+			<display>
+			    <col column="{sequence:1}" label="序号" width="40px"></col>
+				<col column="INSURE_NO" label="保单号" ></col>
+				<col column="HOLDER_NAME" label="投保人名称"></col>
+				<col column="HOLDER_ID_CODE" label="投保人证件号码"></col>
+				<col column="INSURED_NAME" label="被保人名称"></col>
+				<col column="INSURED_ID_CODE" label="被保人证件号码"  displaytype="hidden"></col>
+				<col column="RELATION" label="投保人被保人关系" ></col>					
+				<col column="INSURE_DATE" label="投保日期"></col>
+				<col column="PAY_YEAR" label="缴费年限"></col>
+				<col column="AMT" label="保险金额"></col>
+				<col column="INSURE_FEE" label="保险费用"></col>
+				<col column="PRD_NAME" label="产品名称"></col>
+				<col column="TA_NAME" label="公司名称"></col>
+				<col column="STATUS_CH" label="保单状态"></col>
+				<col column="BRANCH_NO_CH" label="机构名称"></col>
+				<col column="EMP_ID" label="认领人工号" ></col>
+				<col column="EMP_NM" label="认领人姓名"></col>	
+				<col column="EMP_ORG_ID" label="认领人机构号" displaytype="hidden"></col>
+				<col column="EMP_ORG_NM" label="认领人机构名称"></col>
+				<col column="RATIO" label="*认领比例(%)"></col>
+				<col column="CLAIM_STATUS_ID" label="认领状态ID" displaytype="hidden"></col>
+				<col column="CLAIM_STATUS_NM" label="认领状态"></col>
+				<col column="CLAIM_DT" label="认领日期" br="true"></col>
+				<col column="VERIFY_DT" label="审批日期" displaytype="hidden"></col>
+				<col column="VERIFY_EMP_ID" label="审批人" displaytype="hidden"></col>
+			</display>
+
+			<sql datasource="ds_db2">
+				<select>
+					<value><![CDATA[
+						Select RE.*,S.CLAIM_STATUS_NM
+						from IBS.T1_YBDB_EMP_RELA re
+						left join IBS.T9_CLAIM_STATUS_TYPE S ON S.CLAIM_STATUS_ID=RE.CLAIM_STATUS_ID	
+						WHERE {#condition#}
+						order by INSURE_NO ,RE.CLAIM_STATUS_ID,INSURE_DATE DESC
+					    ]]>
+					</value>
+					<condition name="INSURE_NO" label="保单号">
+						<value><![CDATA[INSURE_NO='#data#']]></value>
+					</condition>
+				</select>
+			</sql>
+
+			<format>
+				<imports>
+					<import>com.ljbank.util.*</import>
+					<import>java.util.*</import>
+					<import>java.text.*</import>
+					<import>com.wabacus.system.*</import>
+				</imports>
+				<value>
+				<![CDATA[
+						
+				]]>
+		  		</value>
+			</format>
+		</report>
+        <!-- 填写认领信息 -->
+		<report id="dtl" title="认领信息" type="form" personalizeclass="default"
+			servervalidateclass="com.ljbank.market.Servervalidate_ClaimYbdb;com.ljbank.market.Util"
+			depends="list" dependsparams="INSURE_NO=@{INSURE_NO};EMP_ID=@{EMP_ID}" top="10px"
+			refreshid="dtl">
+			<buttons align="right">
+				<button name="sub" position="title" positionorder="2"
+					extends="${wabacus.button2.default}" label="提交"
+					confirmessage="提交前请确认数据已经保存。提交后数据将不能修改，是否确认提交?">
+					<params>
+						<param name="user_id" value="session{user_id}"></param>
+					</params>
+					invokeServerActionForComponent('claim_ybdb', 'dtl',
+					'com.customer.util.SubmitClaimYbdb',
+					{},true,refreshComponentDisplay('claim_ybdb','list'))
+				</button>
+			</buttons>
+			<display>
+				<col column="INSURE_NO" label="保单号" valuestyleproperty="colspan='2';style='mso-number-format:\@'" ></col>
+				<col column="HOLDER_NAME" label="投保人名称"></col>
+				<col column="INSURED_NAME" label="被保人名称"></col>
+				<col column="INSURE_DATE" label="投保日期" ></col>
+				<col column="PAY_YEAR" label="缴费年限"></col>
+				<col column="AMT" label="保险金额" br="true"></col>
+				<col column="INSURE_FEE" label="保险费用" ></col>
+				<col column="PRD_NAME" label="产品名称" valuestyleproperty="colspan='2'"></col>
+				<col column="EMP_ID" label="认领人工号" ></col>
+				<col column="EMP_ID_Hid" label="认领人工号2" displaytype="hidden"></col>
+				<col column="EMP_NM" label="认领人姓名"></col>	
+				<col column="EMP_ORG_ID" label="认领人机构号" displaytype="hidden"></col>
+				<col column="EMP_ORG_NM" label="认领人机构名称" valuestyleproperty="colspan='3'" br="true"></col>
+				<col column="RATIO" label="*认领比例(%)">
+					<inputbox styleproperty="style='width:90%'"
+						jsvalidate="isNumeric(不是合法数字);isNotEmpty(不可以为空值)"
+						servervalidate="isClaimRatio()" 
+						/>
+				</col>
+				<col column="CLAIM_STATUS_NM" label="认领状态" ></col>
+				<col column="CLAIM_DT" label="认领日期" br="true"></col>
+				<col column="REMARK1" label="备注" datatype="varchar"
+						valuestyleproperty="colspan='5';rowspan='2'; align='left'" br="true">
+					<inputbox type="textareabox" styleproperty="style='width:99%'"/>		
+				</col>
+				<col column="VERIFY_DT" label="审批日期" displaytype="hidden"></col>
+				<col column="VERIFY_EMP_ID" label="审批人" displaytype="hidden"></col>
+			</display>
+
+			<sql datasource="ds_db2">
+				<select>
+					<value><![CDATA[
+						Select RE.*,S.CLAIM_STATUS_NM,re.EMP_ID as EMP_ID_Hid
+						from IBS.T1_YBDB_EMP_RELA re
+						left join IBS.T9_CLAIM_STATUS_TYPE S ON S.CLAIM_STATUS_ID=RE.CLAIM_STATUS_ID	
+						WHERE RE.CLAIM_STATUS_ID in ('0','7','3') AND {#condition#}
+						order by INSURE_NO ,RE.CLAIM_STATUS_ID,INSURE_DATE DESC
+					    ]]>
+					</value>
+					<condition name="INSURE_NO" hidden="true">
+						<value><![CDATA[INSURE_NO='#data#']]></value>
+					</condition>
+					<condition name="EMP_ID" hidden="true" >
+						<value><![CDATA[EMP_ID = '#data#']]></value>
+					</condition>
+				</select>
+ 
+				<update confirmessage="保存" refreshparentonsave="list">
+					<params>
+						<param name="user_id" value="session{user_id}"></param>
+						<param name="user_name" value="session{user_name}"></param>
+						<param name="usr_org_id" value="session{usr_org_id}"></param>
+						<param name="usr_org_nm" value="session{usr_org_nm}"></param>
+						<param name="current_time" value="now{}" datatype="timestamp{yyyy-MM-dd}"></param>
+						<param name="current_time1" value="now{}"
+							datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
+					</params>
+					<value>
+						<![CDATA[
+							update IBS.T1_YBDB_EMP_RELA
+							set RATIO = @{RATIO}
+								,CLAIM_STATUS_ID='0'
+								,EMP_ID = #{user_id}
+								,EMP_NM = #{user_name}
+								,EMP_ORG_ID = #{usr_org_id}
+								,EMP_ORG_NM = #{usr_org_nm}
+								,CLAIM_DT=#{current_time}
+								,REMARK1 = @{REMARK1}
+							where INSURE_NO=@{INSURE_NO__old}
+							and EMP_ID=@{EMP_ID_Hid__old}
+							and INSURE_DATE=@{INSURE_DATE__old}
+						]]>
+					</value>
+				</update>
+				 
+			</sql>
+
+			<format>
+				<imports>
+					<import>com.ljbank.util.*</import>
+					<import>java.util.*</import>
+					<import>java.text.*</import>
+					<import>com.wabacus.system.*</import>
+				</imports>
+				<value>
+				<![CDATA[
+					String user_id = (String) rrequest.getRequest().getSession().getAttribute("user_id");
+					String user_name = (String) rrequest.getRequest().getSession().getAttribute("user_name");
+					String usr_org_nm = (String) rrequest.getRequest().getSession().getAttribute("usr_org_nm");
+		        	EMP_ID=user_id;
+		        	EMP_NM=user_name;
+		        	EMP_ORG_NM=usr_org_nm;
+				    
+				    rrequest.getRequest().getSession().setAttribute("EMP_ID", EMP_ID);
+				   
+				    rrequest.getRequest().getSession().setAttribute("RATIO", RATIO);
+				    rrequest.getRequest().getSession().setAttribute("INSURE_NO", INSURE_NO);
+				]]>
+		  		</value>
+			</format>
+		</report>
+		<footer><![CDATA[
+			<tr><td height="20px"></td></tr>
+			<div style='float:left'>
+				<font color='green'>提示：1-只能够填写本人认领信息，不可以代人认领。</font>
+			</div>
+			<tr><td height="20px"></td></tr>
+			]]>
+			</footer>
+		</vpanel>
+	</page>
+
+
+</applications>

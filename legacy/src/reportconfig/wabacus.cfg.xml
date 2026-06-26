@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wabacus-config xmlns="http://www.wabacus.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.wabacus.com xsd/wabacus.cfg.xsd">
+
+	<system>
+		<item name="webroot" value="/LBIBS" /><!-- 应用的根URL -->
+		<item name="webroot-abspath" value="" /><!-- 默认为context.getRealPath("/")获取的值，可以直接配置根路径 -->
+		<item name="showreport-url" value="/ShowReport.wx" /><!--显示报表数据的URL，就是在web.xml中配置的<url-pattern/>的值可以带参数 -->
+		<item name="encode" value="UTF-8" />
+		<item name="show-sql" value="true" /><!-- 是否显示执行的SQL语句或存储过程 -->
+		<item name="default-cellresize" value="2" /><!-- 指定整个项目中所有单行表头的数据自动列表报表的表格单元格默认可移动性 -->
+		<item name="default-condition-labelposition" value="left" /><!-- 查询条件提示标签的显示位置 -->
+		<item name="server-validate-class" value="" /><!-- 自己开发的服务器端校验类 -->
+		<item name="default-jsvalidatetype" value="both" /><!-- 客户端校验类型。默认为失去焦点和提交时都进行校验 -->
+		<item name="skin" value="vista" /><!-- 皮肤样式 lightblue -->
+		<item name="default-mouseoverbgcolor" value="#6FF67B" /><!-- 鼠标滑过时背景色 -->
+		<item name="selectedrow-bgcolor" value="#BBC4D1" />
+		<item name="dataimport-batchupdate-size" value="30" />
+		<item name="default-checkpermission" value="true" /><!-- 本应用是否要检查权限，如果在不需要检查权限的应用中关闭它，可以改善性能 -->
+		
+		<item name="default-pagepersonalizeclass"
+			value="com.customer.personalize.TestPagePersonalizePersistenceImpl" /><!--默认保存页面个性化信息的类 -->
+		<!--  <item name="default-reportpersonalizeclass"
+			value="com.customer.personalize.TestReportPersonalizePersistenceImpl" />--><!--默认保存报表/表单个性化信息的类 -->
+		<item name="prompt-dialog-type" value="artdialog" /><!-- 提示组件类型 ymprompt;artdialog -->
+		<item name="default-chart-datatype" value="xmlurl-servlet" /><!-- 
+			默认的chart图表数据类型 -->
+	</system>
+	<!--生产环境 -->
+	<datasources default="ds_db2">
+		<!--修改参数后 -->
+		<!-- 生产-->
+		<!--
+		<datasource name="ds_db2" type="com.wabacus.config.database.datasource.C3P0DataSource" 
+			dbtype="com.wabacus.config.database.type.DB2"> <property name="driver">com.ibm.db2.jcc.DB2Driver</property> 
+			<property name="url"><![CDATA[jdbc:db2://81.17.49.230:50100/LJDM]]></property> 
+			<property name="user"></property><property name="password"></property> 
+			<property name="max_size">100</property> <property name="min_size">3</property> 
+			<property name="timeout">300</property> <property name="max_statements">100</property> 
+			<property name="idle_test_period">50</property> <property name="acquire_increment">2</property> 
+		</datasource>
+		-->
+		
+		   
+		<!-- 本地测试环境 -->
+        <!--
+		-->
+		<datasource name="ds_db2" 
+			type="com.wabacus.config.database.datasource.C3P0DataSource" dbtype="com.wabacus.config.database.type.DB2">
+			<property name="driver">com.ibm.db2.jcc.DB2Driver</property>
+			<property name="url"><![CDATA[jdbc:db2://81.33.13.106:50010/LJDM]]></property>
+			<property name="user">dmuat</property>
+			<property name="password">dmuat</property>
+			<property name="max_size">100</property>
+			<property name="min_size">3</property>
+			<property name="timeout">100</property>
+			<property name="max_statements">100</property>
+			<property name="idle_test_period">50</property>
+			<property name="acquire_increment">2</property>
+		</datasource>
+		
+
+		<!-- JNDI方式配置的数据源 -->
+		<!-- 		
+		<datasource name="ds_db2"
+			type="com.wabacus.config.database.datasource.JNDIDataSource" dbtype="com.wabacus.config.database.type.DB2">
+			<property name="jndi">61LJDM</property>
+		</datasource> 
+		 -->   
+	</datasources>
+
+	<inputbox-types />
+
+	<!-- 配置本项目中所有报表页面都必须包含的js文件 -->
+	<global-jsfiles>
+		<js-file>js/jquery-1.7.2.min.js</js-file>
+		<js-file>js/rcom-nav.js</js-file>
+		<js-file loadorder="-1">js/demo.js</js-file>
+	</global-jsfiles>
+
+	<!-- 配置本项目中所有报表页面都必须包含的css文件 -->
+	<global-cssfiles>
+		<css-file>css/base.css</css-file>
+	</global-cssfiles>
+
+	<global-interceptors>
+		<interceptor class="com.customer.security.GlobalInterceptor" />
+	</global-interceptors>
+
+	<i18n-resources file="resources/i18n/ApplicationResources.xml" />
+
+	<!-- 注册所有全局资源文件 -->
+	<global-resources>
+		<resource-file>resources/resources_report.xml</resource-file>
+		<resource-file>resources/resources_business_ch.xml</resource-file>
+	</global-resources>
+
+	<!-- 注册所有报表配置文件 --> <!-- 新增的xml放在这 -->
+	<report-files>
+		<report-file>report/system_menu.xml</report-file>
+		<report-file>report/system_account.xml</report-file>
+		<report-file>report/system_security.xml</report-file>
+		<report-file>report/system_parameter.xml</report-file>
+		<report-file>report/system_user.xml</report-file>
+		<report-file>report/system_info.xml</report-file><!--提示消息修改页面，管理员有权限 -->
+		<report-file>report/system_help.xml</report-file><!--提示消息修改页面，管理员有权限 -->
+
+		<report-file>report/basic.xml</report-file>
+		<report-file>report/menu_page.xml</report-file>
+		<report-file>report/BanusShareRatio.xml</report-file>
+		<report-file>report/price.xml</report-file>
+		<report-file>report/claimed_relationship.xml</report-file>
+		<report-file>report/bonus_detail.xml</report-file>
+		<report-file>report/bonus_sum.xml</report-file>
+		<report-file>report/bonus_sum1.xml</report-file>
+		<report-file>report/bonus_sum2.xml</report-file>
+		<report-file>report/credit_card_price.xml</report-file>
+		<report-file>report/sign_price.xml</report-file>
+		<report-file>report/per_fnc_qual.xml</report-file>
+
+		<!-- report-file>report/acc_rltz.xml</report-file -->
+		<report-file>report/claim_dep_2016qq.xml</report-file><!--蛐蛐网存款业绩认领 -->
+		<report-file>report/cst_marketing_detail.xml</report-file><!--蛐蛐网存款业绩认领 -->
+		
+		<report-file>report/claim_dep.xml</report-file><!--存款业绩认领 -->
+		<report-file>report/claim_dep_FH.xml</report-file><!--存量储蓄存款认领，2017-11-21大堂经理认领导致的变更，此页面用于分行管理员对业绩认领直接分配，分配后直接生效，不需要认领审核，解决公司业务部存量客户认领问题 -->
+		
+		
+		<report-file>report/claim_info.xml</report-file><!--业绩认领详情 -->
+		<report-file>report/claim_verify_acc.xml</report-file><!--认领审核 -->
+		<report-file>report/claimed_change.xml</report-file><!-- 认领调整 -->
+		<report-file>report/my_claimed.xml</report-file><!-- 我的认领 -->
+		<report-file>report/claim_ln.xml</report-file><!--贷款业绩认领 -->
+		<report-file>report/small_business_ln_prod_price.xml</report-file><!--小企业贷款计价维护 -->
+		<report-file>report/personal_ln_price.xml</report-file><!-- 个人贷款计价维护 -->
+		<report-file>report/dep_ln_vuch_profit_detail.xml</report-file><!-- 员工存贷款凭证业绩明细（处理小规则） -->
+		<report-file>report/dep_vuch_profit_detail.xml</report-file><!--从员工业绩认领排名进入：存款凭证业绩明细 -->
+		<report-file>report/ln_vuch_profit_detail.xml</report-file><!--从员工业绩认领排名进入：贷款凭证业绩明细 -->
+
+		<report-file>report/dep_profit_smy.xml</report-file><!--员工存款业绩汇总 (排名) -->
+		<report-file>report/ln_profit_smy.xml</report-file><!--员工贷款业绩汇总 (排名) -->
+		<report-file>report/commission_ratio.xml</report-file><!--提成比例维护 -->
+		<report-file>report/fnc_pd_bonus_detail.xml</report-file><!--理财营销明细 -->
+		<report-file>report/fnc_pd_bonus_detail_person.xml</report-file><!--个人理财营销明细 -->
+		
+		<report-file>report/fnc_pd_bonus_smy.xml</report-file><!--员工理财业绩排名 -->
+		
+		<report-file>report/emp_certificate.xml</report-file><!--客户经理上岗标示 added by 王旭 2018-06-28 -->
+		<report-file>report/middle_business_income.xml</report-file><!--中间业务收入手动录入 added by 王旭 2018-07-12 -->
+		<report-file>report/middle_business_income_select.xml</report-file><!--中间业务收入总行查询报表  added by 王旭 2018-07-20 -->		
+		<report-file>report/resource_manager_q.xml</report-file><!--资源型客户经理季度考核参数 added by 王旭 2018-07-23 -->		
+		<report-file>report/manager_y.xml</report-file><!--绩效表现评定录入 added by 王旭 2018-07-24 -->
+		
+		<report-file>report/emp_insur_bonus_smy.xml</report-file><!--员工销售保险汇总表 added by 王旭 2018-08-24 -->		
+		<report-file>report/insur_bonus_detail.xml</report-file><!--保险产品奖励明细 added by 王旭 2018-08-24 -->		
+		<report-file>report/ln_profit_other_chg.xml</report-file><!--其他调整  季度利润调整-个人数值调整 added by 王旭 2018-08-24 -->	
+		<report-file>report/emp_dep_ln_profit_smy.xml</report-file><!--员工存贷款、中收业绩汇总表 added by 王旭 2018-08-24 -->	
+		
+		<report-file>report/lobby_manager_score_q.xml</report-file><!--大堂经理服务质量打分 added by 王旭 2018-11-05 -->	
+		<report-file>report/zyljl_yj_smy.xml</report-file><!--资源型客户经理绩效考核明细 added by He Lili20190318 -->	
+		<report-file>report/qtywdf.xml</report-file><!--其它业务得分 added by He Lili20190516 -->	
+		<report-file>report/resource_manager_yj_q.xml</report-file><!--资源型客户经理参数(未入职) added by 何丽丽 2019-11-20 -->	
+		<report-file>report/resource_manager_yj.xml</report-file><!--资源型客户经理业绩查询(未入职) added by 何丽丽 2019-11-20 --> 
+		<report-file>report/resource_manager_yj_detail.xml</report-file><!--资源型客户经理业绩查询(未入职) added by 何丽丽 2019-11-20 -->
+		
+		<report-file>report/ln_profit_bl_chg.xml</report-file><!--贷款不良清收业绩调整 added by HLL 2021-01-26 -->
+		<report-file>report/bill_inc_chg.xml</report-file><!--票据业绩调整 added by HLL 2021-01-28 -->
+		<report-file>report/emp_ln_bl_x_bill_v.xml</report-file><!--业绩调整汇总表 added by HLL 2021-01-28 -->
+		<report-file>report/ent_cst_dep_ln_profit.xml</report-file><!--企业存贷款贡献度 added by HLL 2021-03-01 -->
+		<report-file>report/ent_cst_dep_ln_profit_detail.xml</report-file><!--企业存贷款贡献度 added by HLL 2021-03-01 -->
+		<report-file>report/middle_busi_sbj_inco.xml</report-file><!--中间业务科目收入  added by HLL 2021-03-08 -->
+		<report-file>report/middle_busi_sbj_inco_detail.xml</report-file><!--中间业务科目收入明细 added by HLL 2021-03-08 -->
+		
+		<report-file>report/claim_gold.xml</report-file><!--贵金属业绩认领 added by HLL 2021-04-07-->
+		<report-file>report/claim_gold_verify.xml</report-file><!--贵金属业绩认领审批 added by HLL 2021-04-14-->
+		<report-file>report/emp_gold_smy.xml</report-file><!--贵金属业绩查询 added by HLL 2021-04-14-->
+		<report-file>report/claim_verify_exs.xml</report-file><!--存量客户支行审核 added by HLL 2021-06-21-->
+		<report-file>report/claim_verify_exs_fh.xml</report-file><!--存量客户分行审核 added by HLL 2021-06-21-->
+		
+		<report-file>report/claim_thd.xml</report-file><!--第三方存管业绩认领 added by HLL 2021-07-06-->
+		<report-file>report/claim_thd_verify.xml</report-file><!--第三方存管业绩认领审批 added by HLL 2021-07-08-->
+		<report-file>report/emp_thd_smy.xml</report-file><!--第三方存管业绩查询 added by HLL 2021-07-08-->
+		
+		
+		<report-file>report/claim_fund_udln.xml</report-file><!--基金认领选项页面 added by HLL 2021-11-17-->
+		<report-file>report/claim_fund.xml</report-file><!--基金交易认领 added by HLL 2021-11-17-->
+		<report-file>report/claim_fund_verify.xml</report-file><!--基金认领审核 added by HLL 2021-11-17-->
+		<report-file>report/emp_fund_smy.xml</report-file><!--基金销售排名 added by HLL 2021-11-17-->
+		<report-file>report/fund_detail.xml</report-file><!--基金销售明细 added by HLL 2021-11-17-->
+	
+		<report-file>report/claim_df_slry.xml</report-file><!--代发工资认领页面 added by HLL 2022-06-10-->
+		<report-file>report/emp_dfSlryl_smy.xml</report-file><!--代发工资认领员工汇总 added by HLL 2022-06-10-->
+		<report-file>report/dfSlry_detail_smy.xml</report-file><!--代发工资认领明细 added by HLL 2022-06-10-->
+		<report-file>report/claim_dfSlry_verify.xml</report-file><!--代发工资认领明细 added by HLL 2022-06-10-->
+		<report-file>report/dfslry_ou_smy.xml</report-file><!--代发工资机构汇总表added by HLL 2022-06-10-->
+		
+		<report-file>report/claim_ybdb.xml</report-file><!--保险认领added by HLL 2024-04-08-->
+		<report-file>report/ybdb_detail.xml</report-file><!--保险认领added by HLL 2024-04-09-->
+		<report-file>report/claim_ybdb_verify.xml</report-file><!--保险认领added by HLL 2024-04-10-->
+		<report-file>report/emp_ybdb_smy.xml</report-file><!--保险认领added by HLL 2024-04-10-->
+		<report-file>report/ybdb_ration_p.xml</report-file><!--保险认领added by HLL 2024-04-12-->
+		
+		<report-file>report/emp_ln_vuch_profit_detail.xml</report-file><!--员工贷款凭证明细 added by HLL 2025-04-28-->
+		<report-file>report/emp_dep_vuch_profit_detail.xml</report-file><!--员工贷款凭证明细 added by HLL 2025-05-12-->
+		
+		<!-- 网络金融的 -->
+		<report-file>report/bonus_sum_wangluojinrong.xml</report-file>
+		<report-file>report/bonus_sum_geren.xml</report-file>
+		<report-file>report/system_account_branch.xml</report-file>
+		<report-file>report/bonus_sum1_wangluojinrong.xml</report-file>
+		<report-file>report/bonus_sum1_geren.xml</report-file>
+		<report-file>report/BanusShareRatio_geren.xml</report-file>
+		<report-file>report/BanusShareRatio_wangluojinrong.xml</report-file>
+		
+		<!-- 分行用户页面 -->
+		<report-file>report/BanusShareRatio_wangluojinrong.xml</report-file>
+		
+		
+		<report-file>report/claim_verify_acc_fs.xml</report-file><!--认领审核(终审) 20250429-->
+		<report-file>report/claimed_change_fs.xml</report-file><!--认领调整审核 20250429-->
+		
+		<report-file>report/emp_gdq.xml</report-file><!-- 过渡期名单  -->
+		<report-file>report/emp_jdAndGz.xml</report-file><!-- 特殊状态人员 客户经理岗位人员  -->
+		<report-file>report/emp_profit_smy.xml</report-file><!-- 客户经理考核业绩  --> 
+		<report-file>report/emp_sum_smy.xml</report-file><!-- 考核汇总表  -->
+		
+		<report-file>report/claim_fnc.xml</report-file><!-- 理财认领  -->
+		<report-file>report/claim_fnc_verify.xml</report-file><!-- 理财认领审核  -->
+		<report-file>report/claim_fnc_detail.xml</report-file><!-- 我的理财认领  -->
+		
+		<report-file>report/claim_fnc_change.xml</report-file><!-- 我的理财认领  -->
+	</report-files>
+</wabacus-config>

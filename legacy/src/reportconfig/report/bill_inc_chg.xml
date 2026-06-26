@@ -1,0 +1,403 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<applications xmlns="http://www.wabacus.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.wabacus.com ../xsd/wabacus.applications.xsd">
+<!-- 票据业绩调整 （录入权限在分行） -->
+<page id="bill_inc_chg"
+	js="/webresources/script/validate.js,/js/demo.js,/js/common.js">
+	<header>${top.header}</header>
+<interceptor>
+		<imports>
+			<import></import>
+		</imports>
+		<beforesave>
+		  <![CDATA[
+		    String chg_dt=rrequest.getStringAttribute("REMARK", "");
+			System.out.println("beforeloaddata......chg_dt="+chg_dt);
+			if(!chg_dt.equals(""))
+			{
+				rrequest.getRequest().getSession().setAttribute("p_chg_dt",chg_dt);
+				String sess_chg_dt = (String)rrequest.getRequest().getSession().getAttribute("p_chg_dt");
+				System.out.println("beforeloaddata......sess_chg_dt="+sess_chg_dt);
+				//rrequest.setAttribute("CHG_DT", chg_dt);
+			}
+		  ]]>
+		</beforesave>
+	</interceptor>
+	<vpanel id="common_vpanel" align="center" width="1000px" title="">
+		<report id="title" extends="title.report1" width="1300px"></report>
+		<report id="bill_inc_mod_rpt" type="listform" personalizeclass="default"
+			interceptor="com.customer.interceptor.InterceptorBillIncChg"
+			servervalidateclass="com.ljbank.market.Util ; com.ljbank.market.TestPersonnel"
+			pagesize="15|20|-1" width="1300px" dataexport="richexcel" scrollwidth="1300px">
+			<display>
+				<col column="{sequence:1}" label="序号" width="40px"></col>
+				<col column="CHG_DT" label="调整期" displaytype="hidden"></col>
+				<col column="MEASURE_DT" label="日期" width="120px" displaytype="hidden">
+				<!-- 
+					 
+					<inputbox type="selectbox"  styleproperty="style='width:97%'">
+						<option
+							source="@{Select MEASURE_DT from IBS.T99_MIDDLE_INCOME_SWITCH where MEASURE_DT ='#REMARK#'} "
+							label="MEASURE_DT" value="MEASURE_DT" >
+					    </option>
+					</inputbox>
+				 -->	 
+				</col>
+				<col column="EMP_ID"  label="员工号" align="center" valuestyleproperty="style='mso-number-format:\@'" clickorderby="true">
+					<inputbox jsvalidate="isNotEmpty(员工号不可以为空)"
+						servervalidate="isPersonnel(必须是员工号);isSameBranchOrg(必须是本分行员工)  "
+						styleproperty="style='width:97%'">
+						<autocomplete
+							columns="EMP_NM; PSTN_TYPE; PSTN_TYPE_NM; SUB_PSTN_TYPE; SUB_PSTN_TYPE_NM; ORG_CD; ORG_NM;CHG_DT"
+							colvaluecondition="EMP_ID like '%#EMP_ID#%'"
+							dataset="select * from (Select EMP_ID,EMP_NM, ORG_ID as ORG_CD, ORG_NM, BRANCH_ORG_ID, BRANCH_ORG_NM, PSTN_TYPE, PSTN_TYPE_NM, SUB_PSTN_TYPE, SUB_PSTN_TYPE_NM,'9999-12-31' as CHG_DT from IBS.T5_EMP) where 1=1 {#condition#}  order by EMP_NM ">
+						</autocomplete>
+					</inputbox>
+				</col>
+				<col column="EMP_NM" label="员工姓名" ><inputbox styleproperty="style='width:97%'"/></col>
+				<col column="PSTN_TYPE" label="主考核类别"  displaytype="hidden"></col>
+				<col column="PSTN_TYPE_NM" label="主考核类别" displaytype="hidden"></col>
+				<col column="SUB_PSTN_TYPE" label="子考核类别"  displaytype="hidden"></col>
+				<col column="SUB_PSTN_TYPE_NM" label="子考核类别"  displaytype="hidden"></col>
+				<col column="ORG_CD" label="机构" ><inputbox styleproperty="style='width:97%'"/></col>
+				<col column="ORG_NM" label="机构名称" ><inputbox styleproperty="style='width:97%'"/></col>
+				<col column="BILL_INC" label="票据收入" >
+					<inputbox defaultvalue="0" styleproperty="style='width:97%'" servervalidate="isBILL_INC();  "/>	
+				</col>
+				
+				
+			</display>
+			<sql >
+				<select>
+					<value>
+						<![CDATA[
+						select bi.*,org.BRANCH_ORG_ID,org.HEAD_ORG_ID
+						from ibs.T2_EMP_BILL_INCOME bi 
+						inner join ibs.T5_ORG org on org.ORG_ID=bi.ORG_CD and org.ORG_TYPE_ID='EO' %SQL%
+						WHERE {#condition#}  
+						ORDER BY bi.MEASURE_DT DESC,org.BRANCH_ORG_ID,bi.ORG_CD,bi.EMP_ID
+						]]>
+					</value>
+					<condition name="EMP_ID" label="认领工号" labelposition="left">
+						<value>
+						 		<![CDATA[EMP_ID='#data#']]>
+						</value>
+						<inputbox styleproperty="style='width:100px'">
+							<typeprompt width="300" count="10">
+								<promptcol label="EMP_ID" value="EMP_ID" title="认领工号"
+									matchmode="anywhere" casesensitive="false" />
+								<promptcol label="EMP_NM" value="EMP_NM" title="姓名"
+									matchmode="anywhere" casesensitive="false" />
+								<datasource>
+									<option
+										source="@{Select DISTINCT EMP_ID, EMP_NM from IBS.T5_EMP  WHERE   {#matchcondition#}} " />
+								</datasource>
+							</typeprompt>
+						</inputbox>
+					</condition>
+					<condition name="EMP_NM" label="姓名" labelposition="left">
+						<value>
+						 		<![CDATA[EMP_NM='#data#']]>
+						</value>
+						<inputbox styleproperty="style='width:100px'">
+							<typeprompt width="300" count="10">
+								<promptcol label="EMP_ID" value="EMP_ID" title="认领工号"
+									matchmode="anywhere" casesensitive="false" />
+								<promptcol label="EMP_NM" value="EMP_NM" title="姓名"
+									matchmode="anywhere" casesensitive="false" />
+								<datasource>
+									<option
+										source="@{Select DISTINCT EMP_ID, EMP_NM from IBS.T5_EMP  WHERE   {#matchcondition#}} " />
+								</datasource>
+							</typeprompt>
+						</inputbox>
+					</condition>
+					
+					 <condition name="ORG_ID0" source="session{org_id}" hidden="true">
+							<value><![CDATA[(org.ORG_ID='#data#' or org.BRANCH_ORG_ID='#data#' or org.HEAD_ORG_ID='#data#' )]]></value>
+						</condition>
+					<condition name="ORG_ID1" labelposition="left" label="分行" >
+						<value>
+							<![CDATA[org.BRANCH_ORG_ID='#data#']]>
+						</value>
+						<inputbox type="selectbox" styleproperty="style='width:150px'" depends="ORG_ID0">
+							<option label="全部" value=""></option>
+							<option
+								source="@{SELECT DISTINCT BRANCH_ORG_ID,BRANCH_ORG_NM FROM IBS.T5_ORG WHERE ORG_TYPE_ID='EO' AND ORG_LEVEL_ID IN ('1','2','3') and (ORG_ID='#ORG_ID0#' or BRANCH_ORG_ID='#ORG_ID0#' or HEAD_ORG_ID='#ORG_ID0#') ORDER BY BRANCH_ORG_ID}"
+								label="BRANCH_ORG_NM" value="BRANCH_ORG_ID" />
+						</inputbox>
+					</condition>
+					<condition name="ORG_ID2" labelposition="left" label="支行">
+						<value>
+						<![CDATA[bi.ORG_CD='#data#']]>
+						</value>
+						<inputbox type="selectbox" depends="ORG_ID1;ORG_ID0"
+							styleproperty="style='width:150px'">
+							<option label="全部" value=""></option>
+							<option label="无" value="" type="false"></option>
+							<option
+								source="@{SELECT DISTINCT ORG_ID, ORG_NM FROM IBS.T5_ORG WHERE ORG_TYPE_ID='EO' AND ORG_LEVEL_ID IN ('1','2') and BRANCH_ORG_ID='#ORG_ID1#' and (HEAD_ORG_ID='#ORG_ID0#' or BRANCH_ORG_ID='#ORG_ID0#' or ORG_ID='#ORG_ID0#') ORDER BY ORG_ID}"
+								label="ORG_NM" value="ORG_ID" />
+						</inputbox>
+					</condition>
+					<condition name="REMARK" label="调整期" labelposition="left" defaultvalue="session{exam_msr_dt_exam}">
+						<value>
+					 	<![CDATA[bi.CHG_DT='#data#']]>
+						</value>
+						<inputbox type="selectbox" styleproperty="style='width:100px'" >
+							<option
+								source="@{Select MEASURE_DT , SWITCH_F , REMARK from IBS.T99_MIDDLE_INCOME_SWITCH ORDER BY MEASURE_DT DESC}"
+								label="REMARK" value="MEASURE_DT" />
+						</inputbox>
+					</condition>
+				</select>
+
+				<insert>
+					<params>
+						<param name="ip" value="session{ip}"></param>
+						<param name="user_id" value="session{user_id}"></param>
+						<param name="current_time" value="now{}"
+							datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
+					</params>
+					<value>
+						insert into ibs.T2_EMP_BILL_INCOME(
+								 MEASURE_DT      
+								,EMP_ID          
+								,EMP_NM          
+								,ORG_CD          
+								,ORG_NM          
+								,PSTN_TYPE       
+								,PSTN_TYPE_NM    
+								,SUB_PSTN_TYPE   
+								,SUB_PSTN_TYPE_NM
+								,BILL_INC        
+								,MODIFY_PEOPLE   
+								,MODIFY_TIME     
+								,MODIFY_IP 
+								,CHG_DT      
+								)
+						  values(
+								 @{CHG_DT}      
+								,@{EMP_ID          }
+								,@{EMP_NM          }
+								,@{ORG_CD          }
+								,@{ORG_NM          }
+								,@{PSTN_TYPE       }
+								,@{PSTN_TYPE_NM    }
+								,@{SUB_PSTN_TYPE   }
+								,@{SUB_PSTN_TYPE_NM}
+								,@{BILL_INC        }
+								,#{user_id}
+								,#{current_time}
+								,#{ip}
+								,@{CHG_DT}
+								)
+					</value>
+				</insert>
+				<delete>
+					<params>
+						<param name="user_id" value="session{user_id}"></param>
+						<param name="current_time" value="now{}"
+							datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
+						<param name="ip" value="session{ip}"></param>
+
+					</params>
+					<![CDATA[
+						delete from ibs.T2_EMP_BILL_INCOME 
+						where EMP_ID = @{EMP_ID__old}
+						and MEASURE_DT = @{MEASURE_DT__old}
+						and ORG_CD = @{ORG_CD__old}
+					]]>
+				</delete>
+				<update>
+					<params>
+						<param name="user_id" value="session{user_id}"></param>
+						<param name="current_time" value="now{}" datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
+						<param name="ip" value="session{ip}"></param>
+					</params>
+					<value>
+					  <![CDATA[
+					  update ibs.T2_EMP_BILL_INCOME set BILL_INC =@{BILL_INC },MODIFY_PEOPLE=#{user_id},MODIFY_TIME=#{current_time},MODIFY_IP=#{ip}
+					  where EMP_ID=@{EMP_ID__old} and MEASURE_DT=@{MEASURE_DT__old} and ORG_CD = @{ORG_CD__old} 
+					  ]]>
+   					 </value>
+				</update>
+			</sql>
+			
+			<format>
+					<imports>
+						<import>com.ljbank.util.*</import>
+						<import>com.wabacus.util.*</import>
+						<import>java.util.*</import>
+						<import>java.text.*</import>
+						<import>com.wabacus.system.*</import>
+					</imports>
+					<value>
+					<![CDATA[
+						//MEASURE_DT=rrequest.getStringAttribute("REMARK", "");;
+						//CHG_DT=(String) rrequest.getRequest().getSession().getAttribute("b_chg_dt");
+						
+					]]>
+					</value>
+				</format>
+			
+			
+			<footer><![CDATA[
+			<tr><td height="20px"></td></tr>
+			<div style='float:left'>
+				<font color='green'>提示：</font>
+			</div>
+			<tr><td height="20px"></td></tr>
+			<div style='float:left'>	
+				 <font color='green'>1-分行有权人仅能维护录入本分行员工票据业绩调整，不能跨行录入。</font>
+			</div>
+			<tr><td height="20px"></td></tr>
+			<div style='float:left'>	
+				 <font color='green'>2-请在考核期内对数据进行维护，过期数据不能补录。</font>
+			</div>
+			
+			]]>
+		</footer>
+
+
+		</report>
+	</vpanel>
+</page>
+
+<!-- 票据业绩调整 （录入权限在分行） -->
+<page id="bill_inc_sel"
+	js="/webresources/script/validate.js,/js/demo.js,/js/common.js">
+	<header>${top.header}</header>
+	<vpanel id="common_vpanel" align="center" width="1000px" title="">
+		<report id="title" extends="title.report1" width="1300px"></report>
+		<report id="bill_inc_sel_rpt" type="listform" personalizeclass="default"
+			interceptor="com.customer.interceptor.InterceptorBillIncChgSel"
+			servervalidateclass="com.ljbank.market.Util ; com.ljbank.market.TestPersonnel"
+			pagesize="15|20|-1" width="1300px" dataexport="richexcel" scrollwidth="1300px">
+			<display>
+				<col column="{sequence:1}" label="序号" width="40px"></col>
+				<col column="MEASURE_DT" label="日期" width="120px"></col>
+				<col column="EMP_ID"  label="员工号" align="center" valuestyleproperty="style='mso-number-format:\@'" clickorderby="true"></col>
+				<col column="EMP_NM" label="员工姓名" ></col>
+				<col column="PSTN_TYPE" label="主考核类别"  displaytype="hidden"></col>
+				<col column="PSTN_TYPE_NM" label="主考核类别" displaytype="hidden"></col>
+				<col column="SUB_PSTN_TYPE" label="子考核类别"  displaytype="hidden"></col>
+				<col column="SUB_PSTN_TYPE_NM" label="子考核类别"  displaytype="hidden"></col>
+				<col column="ORG_CD" label="机构" ></col>
+				<col column="ORG_NM" label="机构名称" ></col>
+				<col column="BILL_INC" label="票据收入" ></col>
+			</display>
+			<sql>
+				<select>
+					<value>
+						<![CDATA[
+						select bi.*,org.BRANCH_ORG_ID,org.HEAD_ORG_ID
+						from ibs.T2_EMP_BILL_INCOME bi 
+						inner join ibs.T5_ORG org on org.ORG_ID=bi.ORG_CD and org.ORG_TYPE_ID='EO' %SQL%
+						WHERE {#condition#}  
+						ORDER BY bi.MEASURE_DT DESC,org.BRANCH_ORG_ID,bi.ORG_CD,bi.EMP_ID
+						]]>
+					</value>
+					<condition name="EMP_ID" label="认领工号" labelposition="left">
+						<value>
+						 		<![CDATA[EMP_ID='#data#']]>
+						</value>
+						<inputbox styleproperty="style='width:100px'">
+							<typeprompt width="300" count="10">
+								<promptcol label="EMP_ID" value="EMP_ID" title="认领工号"
+									matchmode="anywhere" casesensitive="false" />
+								<promptcol label="EMP_NM" value="EMP_NM" title="姓名"
+									matchmode="anywhere" casesensitive="false" />
+								<datasource>
+									<option
+										source="@{Select DISTINCT EMP_ID, EMP_NM from IBS.T5_EMP  WHERE   {#matchcondition#}} " />
+								</datasource>
+							</typeprompt>
+						</inputbox>
+					</condition>
+					<condition name="EMP_NM" label="姓名" labelposition="left">
+						<value>
+						 		<![CDATA[EMP_NM='#data#']]>
+						</value>
+						<inputbox styleproperty="style='width:100px'">
+							<typeprompt width="300" count="10">
+								<promptcol label="EMP_ID" value="EMP_ID" title="认领工号"
+									matchmode="anywhere" casesensitive="false" />
+								<promptcol label="EMP_NM" value="EMP_NM" title="姓名"
+									matchmode="anywhere" casesensitive="false" />
+								<datasource>
+									<option
+										source="@{Select DISTINCT EMP_ID, EMP_NM from IBS.T5_EMP  WHERE   {#matchcondition#}} " />
+								</datasource>
+							</typeprompt>
+						</inputbox>
+					</condition>
+					<condition name="ORG_ID0" source="session{org_id}"
+						hidden="true">
+						<value> 
+ 							<![CDATA[(org.BRANCH_ORG_ID = '#data#' or org.HEAD_ORG_ID='#data#' or org.ORG_ID='#data#')]]>
+						</value>
+					</condition>
+					<condition name="ORG_ID1" labelposition="left" label="分行" >
+						<value>
+							<![CDATA[ org.BRANCH_ORG_ID='#data#' ]]>
+						</value>
+						<inputbox type="selectbox" styleproperty="style='width:150px'" depends="ORG_ID0">
+							<option label="全部" value=""></option>
+							<option
+								source="@{SELECT DISTINCT BRANCH_ORG_ID,BRANCH_ORG_NM FROM IBS.T5_ORG WHERE ORG_TYPE_ID='EO' AND ORG_LEVEL_ID IN ('1','2','3') and (ORG_ID='#ORG_ID0#' or BRANCH_ORG_ID='#ORG_ID0#' or HEAD_ORG_ID='#ORG_ID0#') ORDER BY BRANCH_ORG_ID}"
+								label="BRANCH_ORG_NM" value="BRANCH_ORG_ID" />
+						</inputbox>
+					</condition>
+					<condition name="ORG_ID2" labelposition="left" label="支行">
+						<value>
+						<![CDATA[(bi.ORG_CD='#data#')]]>
+						</value>
+						<inputbox type="selectbox" depends="ORG_ID1;ORG_ID0"
+							styleproperty="style='width:150px'">
+							<option label="全部" value=""></option>
+							<option label="无" value="" type="false"></option>
+							<option
+								source="@{SELECT DISTINCT ORG_ID, ORG_NM FROM IBS.T5_ORG WHERE ORG_TYPE_ID='EO' AND ORG_LEVEL_ID IN ('1','2') and BRANCH_ORG_ID='#ORG_ID1#' and (HEAD_ORG_ID='#ORG_ID0#' or BRANCH_ORG_ID='#ORG_ID0#' or ORG_ID='#ORG_ID0#') ORDER BY ORG_ID}"
+								label="ORG_NM" value="ORG_ID" />
+						</inputbox>
+					</condition>
+					<condition name="REMARK" label="调整期" labelposition="left" defaultvalue="session{exam_msr_dt_exam}">
+						<value>
+					 	<![CDATA[(CHG_DT='#data#')]]>
+						</value>
+						<inputbox type="selectbox" styleproperty="style='width:100px'" >
+							<option
+								source="@{Select MEASURE_DT , SWITCH_F , REMARK from IBS.T99_MIDDLE_INCOME_SWITCH ORDER BY MEASURE_DT DESC}"
+								label="REMARK" value="MEASURE_DT" />
+						</inputbox>
+					</condition>
+				</select>
+			</sql>
+
+			<footer><![CDATA[
+			<tr><td height="20px"></td></tr>
+			<div style='float:left'>
+				<font color='green'>提示：</font>
+			</div>
+			<tr><td height="20px"></td></tr>
+			<div style='float:left'>	
+				 <font color='green'>1-分行有权人仅能维护录入本分行员工票据业绩调整，不能跨行录入。</font>
+			</div>
+			<tr><td height="20px"></td></tr>
+			<div style='float:left'>	
+				 <font color='green'>2-请在考核期内对数据进行维护，过期数据不能补录。</font>
+			</div>
+			
+			]]>
+		</footer>
+
+
+		</report>
+	</vpanel>
+</page>
+
+</applications>
+
+

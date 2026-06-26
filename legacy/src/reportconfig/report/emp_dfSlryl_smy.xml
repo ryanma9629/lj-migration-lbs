@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<applications xmlns="http://www.wabacus.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.wabacus.com ../xsd/wabacus.applications.xsd">
+
+<!--代发工资业绩排名 -->
+<page id="emp_dfSlry_smy"
+	js="/webresources/script/validate.js,/js/demo.js,/js/common.js">
+
+<header>${top.header}</header>
+
+<interceptor>
+	<imports>
+		<import>java.lang</import>
+		<import>com.wabacus.util</import>
+		<import>java.sql.Connection</import>
+		<import>java.sql.PreparedStatement</import>
+		<import>java.sql.ResultSet</import>
+		<import>javax.servlet.http.HttpSession</import>
+		<import>javax.util</import>
+		<import>javax.text</import>
+		<import>java.util.Date</import>
+		<import>java.text.SimpleDateFormat</import>
+		<import>com.ljbank.market.MyMath</import>
+		
+	</imports>
+	<!-- 
+
+-->
+<preaction>
+	<![CDATA[
+			Util dt = new Util();
+			String date=dt.getDate();
+			String measureDt = rrequest.getStringAttribute("MEASURE_DT", "");
+			measureDt=measureDt==null?"":measureDt;
+			
+			
+			String mdt = (String) rrequest.getRequest().getSession().getAttribute("MDT");
+			mdt=mdt==null?"":mdt;
+			
+			if(measureDt.equals("")){
+				if(!mdt.equals("")){
+					rrequest.setAttribute("MEASURE_DT", mdt);
+					rrequest.getRequest().getSession().setAttribute("MDT", "");
+				}else{
+					rrequest.setAttribute("MEASURE_DT", date);
+				
+				}
+			}
+			
+		 ]]>
+	</preaction>
+</interceptor>
+
+<vpanel id="common_vpanel" width="1350px" align="center" title="">
+	<header>
+	  <![CDATA[<table width="1350px" border="0" cellspacing="0" cellpadding="0">
+    <tr><td height="10px"></td></tr>
+  	<!--<tr><td align="left"><a href='ShowReport.wx?PAGEID=fnc_pd_bonus_smy' style="font-size:15px;TEXT-DECORATION:underline">返回上一级</a></td></tr>-->
+    </table>
+  ]]>
+</header>
+<report id="select" title="" type="editablelist"
+	width="1350px" top="10px" align="center" pagesize="15|20|-1"
+	dataexport="richexcel" personalizeclass="default" scrollwidth="1350px">
+
+	<display>
+		<col column="{sequence:1}" label="序号" width="40px"></col>
+		<col column="EMP_ID" label="员工号" ></col>
+		<col column="EMP_NM" label="员工姓名"></col>	
+		<col column="ORG_ID" label="机构号" hidden="true"></col>
+		<col column="ORG_NM" label="机构名称"></col>
+		<col column="PSTN_TYPE_NM" label="主考核类别"></col>
+		<col column="SUB_PSTN_TYPE_NM" label="子考核类别"></col>
+		<col column="QTD_ENT_CNT" label="本季代发企业数" clickorderby="true"></col>
+		<col column="QTD_TXN_AMT" label="本季代发金额" clickorderby="true"></col>
+		<col column="QTD_TXN_CNT" label="本季代发笔数" clickorderby="true"></col>
+		<col column="QTD_VUCH_CNT" label="本季代发账户数" clickorderby="true"></col>
+		 
+	</display>
+	<sql>
+		<select>
+			<value><![CDATA[
+			select df.EMP_ID,df.EMP_NM,df.ORG_ID, df.ORG_NM, df.PSTN_TYPE, df.PSTN_TYPE_NM, df.SUB_PSTN_TYPE, df.SUB_PSTN_TYPE_NM, og.BRANCH_ORG_ID,og.BRANCH_ORG_NM ,og.HEAD_ORG_ID, og.HEAD_ORG_NM
+			, sum(df.QTD_ENT_CNT) QTD_ENT_CNT,sum(df.QTD_TXN_AMT) QTD_TXN_AMT, sum(df.QTD_TXN_CNT) QTD_TXN_CNT, sum(df.QTD_VUCH_CNT) QTD_VUCH_CNT
+			from IBS.T2_EMP_DFSLRY_SMY df
+			inner join IBS.T5_ORG og on og.BRANCH_ORG_ID=df.BRANCH_ORG_ID and og.ORG_LEVEL_ID IN ('2','3')
+			where {#condition#} 
+			group by df.EMP_ID,df.EMP_NM,df.ORG_ID, df.ORG_NM, df.PSTN_TYPE, df.PSTN_TYPE_NM, df.SUB_PSTN_TYPE, df.SUB_PSTN_TYPE_NM, og.BRANCH_ORG_ID,og.BRANCH_ORG_NM ,og.HEAD_ORG_ID, og.HEAD_ORG_NM
+			
+			    ]]>
+			</value>
+			 
+			<condition name="MEASURE_DT" label="日期 &lt;font color=red&gt;*" labelposition="left" >
+				<value>
+			 	<![CDATA[	
+					 MEASURE_DT = '#data#' 
+			 	]]>
+				</value>
+				<inputbox type="datepicker" styleproperty="style='width:90px'" dateformat="yyyy-MM-dd"
+					jsvalidate="isNotEmpty(日期不能为空)" >
+				</inputbox>
+			</condition>
+			<condition name="EMP_ID" label="员工号">
+				<value>
+				 		<![CDATA[EMP_ID='#data#']]>
+				</value>
+				<inputbox styleproperty="style='width:100px'">
+					<typeprompt width="300" count="10">
+						<promptcol label="EMP_ID" value="EMP_ID" title="认领工号"
+							matchmode="anywhere" casesensitive="false" />
+						<promptcol label="EMP_NM" value="EMP_NM" title="姓名"
+							matchmode="anywhere" casesensitive="false" />
+						<datasource>
+							<option
+								source="@{Select DISTINCT EMP_ID, EMP_NM from IBS.T5_EMP  WHERE   {#matchcondition#}} " />
+						</datasource>
+					</typeprompt>
+				</inputbox>
+			</condition>
+			<condition name="EMP_NM" label="姓名" labelposition="left">
+				<value>
+				 		<![CDATA[EMP_NM='#data#']]>
+				</value>
+				<inputbox styleproperty="style='width:100px'">
+					<typeprompt width="300" count="10">
+						<promptcol label="EMP_ID" value="EMP_ID" title="认领工号"
+							matchmode="anywhere" casesensitive="false" />
+						<promptcol label="EMP_NM" value="EMP_NM" title="姓名"
+							matchmode="anywhere" casesensitive="false" />
+						<datasource>
+							<option
+								source="@{Select DISTINCT EMP_ID, EMP_NM from IBS.T5_EMP  WHERE   {#matchcondition#}} " />
+						</datasource>
+					</typeprompt>
+				</inputbox>
+			</condition>
+			<condition name="PSTN_TYPE" labelposition="left" label="主考核类别">
+				<value>
+					<![CDATA[(PSTN_TYPE='#data#')]]>
+				</value>
+				<inputbox type="selectbox" styleproperty="style='width:120px'">
+					<option label="全部" value=""></option>
+					<option
+						source="@{Select distinct PSTN_TYPE , PSTN_TYPE_NM from PUB.PERSONNEL group by PSTN_TYPE, PSTN_TYPE_NM , SUB_PSTN_TYPE , SUB_PSTN_TYPE_NM order by PSTN_TYPE }"
+						label="PSTN_TYPE_NM" value="PSTN_TYPE" />
+				</inputbox>
+			</condition>
+			<condition name="SUB_PSTN_TYPE" labelposition="left" label="子考核类别" br="true">
+				<value>
+				<![CDATA[(SUB_PSTN_TYPE='#data#')]]>
+				</value>
+				<inputbox type="selectbox" depends="PSTN_TYPE"
+					styleproperty="style='width:180px'">
+					<option label="全部" value=""></option>
+					<option label="无" value="" type="false"></option>
+					<option
+						source="@{Select distinct SUB_PSTN_TYPE , SUB_PSTN_TYPE_NM from PUB.PERSONNEL where PSTN_TYPE='#PSTN_TYPE#' group by PSTN_TYPE, PSTN_TYPE_NM , SUB_PSTN_TYPE , SUB_PSTN_TYPE_NM order by SUB_PSTN_TYPE }"
+						label="SUB_PSTN_TYPE_NM" value="SUB_PSTN_TYPE" />
+				</inputbox>
+			</condition>
+			
+			<condition name="ORG_ID" source="session{org_id}" hidden="true">
+				<value><![CDATA[(df.ORG_ID='#data#' or og.BRANCH_ORG_ID='#data#' or og.HEAD_ORG_ID='#data#')]]></value>
+			</condition>
+			<condition name="ORG_ID0" labelposition="left" label="总行" source="session{usr_head_id}" hidden="true" >
+				<value>
+				<![CDATA[og.HEAD_ORG_ID='#data#']]>
+				</value>
+				
+			</condition>
+			<condition name="ORG_ID1" labelposition="left" label="分行" source="session{branch_org_id}" >
+				<value>
+				<![CDATA[og.BRANCH_ORG_ID='#data#']]>
+				</value>
+				<inputbox type="selectbox" styleproperty="style='width:150px'" depends="ORG_ID0">
+					<option label="全部" value=""></option>
+					<option
+						source="@{SELECT DISTINCT BRANCH_ORG_ID , CASE WHEN ORG_LEVEL_ID='2' THEN BRANCH_ORG_NM ELSE BRANCH_ORG_NM||'机关' END AS BRANCH_ORG_NM FROM IBS.T5_ORG WHERE ORG_TYPE_ID='EO' AND ORG_LEVEL_ID IN ('2','3') and HEAD_ORG_ID='#ORG_ID0#' ORDER BY BRANCH_ORG_ID}"
+						label="BRANCH_ORG_NM" value="BRANCH_ORG_ID" />
+				</inputbox>
+			</condition>
+			<condition name="ORG_ID2" labelposition="left" label="支行">
+				<value>
+				<![CDATA[(df.ORG_ID='#data#')]]>
+				</value>
+				<inputbox type="selectbox" depends="ORG_ID1"
+					styleproperty="style='width:150px'">
+					<option label="全部" value=""></option>
+					<option label="无" value="" type="false"></option>
+					<option
+						source="@{SELECT DISTINCT ORG_ID, ORG_NM FROM IBS.T5_ORG WHERE BRANCH_ORG_ID='#ORG_ID1#' and ORG_TYPE_ID='EO' AND ORG_LEVEL_ID IN ('1','2') ORDER BY ORG_ID}"
+						label="ORG_NM" value="ORG_ID" />
+				</inputbox>
+			</condition>
+		</select>
+	</sql>
+	<format>
+		<imports>
+			<import>com.ljbank.util.*</import>
+			<import>com.wabacus.util.*</import>
+			<import>java.util.*</import>
+			<import>java.text.*</import>
+			<import>com.wabacus.system.*</import>
+		</imports>
+		<value>
+		<![CDATA[
+		
+			rrequest.getRequest().getSession().setAttribute("MDT", rrequest.getStringAttribute("MEASURE_DT", ""));
+			String p_measure_dt = rrequest.getStringAttribute("MEASURE_DT", "");
+			
+		    EMP_NM="<a style='TEXT-DECORATION:underline' href='ShowReport.wx?PAGEID=dfSlry_detail_df&EMP_ID="+EMP_ID+"'&MEASURE_DT='"+p_measure_dt+"'>"+EMP_NM+"</a>"; 
+		]]>
+		</value>
+	</format>
+	<footer><![CDATA[<div style='float:left'><font color='blue'>提示:点击员工姓名,可以查询其认领的企业代发情况”。</font></div>]]></footer>
+		</report>
+
+	</vpanel>
+</page>
+
+
+
+
+	
+
+
+</applications>

@@ -1,0 +1,753 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<applications xmlns="http://www.wabacus.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.wabacus.com ../xsd/wabacus.applications.xsd">
+<!-- 分行部门有权人 过渡期名单 -->
+<page id="emp_gdq_mod" js="/webresources/script/validate.js,/js/demo.js,/js/common.js">
+	<interceptor>
+		<imports>
+			<import>com.ljbank.market.Util</import>
+		</imports>
+		<preaction>
+	<![CDATA[
+	Util u=new Util();
+	String ip=u.getRemoteIP(rrequest);
+	rrequest.getRequest().setAttribute("reqKey2", ip);
+	]]>
+</preaction>
+	</interceptor>
+
+	<header>${top.header}</header>
+
+	<vpanel id="common_vpanel" width="1200px" align="center" title="">
+		<report id="title" extends="title.report1" width="1200px"></report>
+		<report id="select" type="listform" title="过渡期名单" width="1200px" pagesize="15|20|-1" servervalidateclass="com.ljbank.market.Util; com.ljbank.market.TestPersonnel"
+			top="10px" personalizeclass="default" rowselect="multiple-checkbox" interceptor="com.customer.interceptor.InterceptorEmpGdqMod" dataexport="richexcel">
+			<buttons align="right">
+				<button name="subButn" position="title" positionorder="2" label="选中提交 " extends="${wabacus.button2.default}" 
+					confirmessage="提交后数据将不能修改，是否确认提交?">
+					invokeServerActionForReportData('emp_gdq_mod','select','com.customer.interceptor.EmpGdqSubmitServerCallBack',{name:'SELECTEDROW',value:true},null,true,null,null);
+				</button>
+			</buttons>
+			<display>
+				<col column="{col-rowselect}" label="选择" width="50px" />
+				<col column="{sequence:1}" label="序号" width="40px"></col>
+				<col column="EXAM_YEAR" label="考核年度" width="70px">
+					<inputbox type="datepicker" styleproperty="style='width:95%'" dateformat="yyyy" jsvalidate="isNotEmpty(#label# 不允许为空);" 
+					defaultvalue="session{exam_year}"/>
+				</col>
+				<col column="EXAM_Q" label="季度" width="100px">
+					<inputbox type="selectbox" styleproperty="style='width:90%'"  jsvalidate="isNotEmpty(#label# 不允许为空);" defaultvalue="session{exam_q}">
+						<option label="一季度" value="01"></option>
+						<option label="二季度" value="02"></option>
+						<option label="三季度" value="03"></option>
+						<option label="四季度" value="04"></option>
+					</inputbox>
+				</col>
+				<col column="EMP_ID" label="工号" width="100px" valuestyleproperty="style='mso-number-format:\@'">
+					<inputbox jsvalidate="isNotEmpty(员工号不可以为空)" 
+						servervalidate="isPersonnel(必须是员工号)" styleproperty="style='width:90%'">
+						<autocomplete
+							columns="EMP_NM; ORG_ID; ORG_NM; BRANCH_ORG_ID; BRANCH_ORG_NM; PSTN_TYPE; PSTN_TYPE_NM; SUB_PSTN_TYPE; SUB_PSTN_TYPE_NM"
+							colvaluecondition="emp.EMP_ID like '%#EMP_ID#%'"
+							dataset="Select emp.EMP_ID, emp.EMP_NM, emp.ORG_ID, ou.ORG_NM, emp.BRANCH_ORG_ID, emp.BRANCH_ORG_NM,  emp.PSTN_TYPE, emp.PSTN_TYPE_NM, emp.SUB_PSTN_TYPE, emp.SUB_PSTN_TYPE_NM from IBS.T5_EMP emp inner join ibs.T5_ORG ou on ou.ORG_ID=emp.ORG_ID and ou.ORG_TYPE_ID='EO' where {#condition#}  order by emp.EMP_NM "></autocomplete>
+					</inputbox>
+				</col>
+				<col column="EMP_NM" label="姓名" width="90px"> <inputbox styleproperty="style='width:90%'" ></inputbox></col>
+				<col column="ORG_NM" label="支行" ><inputbox styleproperty="style='width:90%'" ></inputbox></col>
+				<!-- <col column="POSITION_DT" label="定岗日期" ></col> -->
+				<col column="BRANCH_ORG_ID" label="分行机构号"  displaytype="hidden"></col>
+				<col column="BRANCH_ORG_NM" label="分行机构名" displaytype="hidden"><inputbox styleproperty="style='width:90%'" ></inputbox></col>
+				<col column="ORG_ID" label="机构号" displaytype="hidden"></col>
+				<col column="PSTN_TYPE" label="主考核类别" displaytype="hidden"></col>
+				<col column="PSTN_TYPE_NM" label="主考核类别名称" displaytype="hidden"></col>
+				<col column="SUB_PSTN_TYPE" label="子考核类别" displaytype="hidden"></col>
+				<col column="SUB_PSTN_TYPE_NM" label="子考核类别名称" displaytype="hidden"></col>
+				<col column="GDQ_STDT" label="过渡期开始日期" width="120px" ><!-- styleproperty="style='width:90%';blur='blurEventGdq();'"  -->
+					<inputbox type="datepicker" styleproperty="style='width:90%';" 
+							jsvalidate="isDate(#label#格式为yyyy-MM-dd);isNotEmpty(#label# 不允许为空);" >
+					</inputbox>
+					
+				</col>
+				<col column="GDQ_ENDDT"  label="过渡期结束日期" width="120px" >
+					 
+					<inputbox  type="datepicker" styleproperty="style='width:90%'; " 
+							jsvalidate="isDate(#label#格式为yyyy-MM-dd);isNotEmpty(#label# 不允许为空);" 
+							>
+					</inputbox>
+				</col>
+				<col column="STATUS" label="状态" ></col>
+			</display>
+			<sql>
+				<select>
+					<value><![CDATA[
+							SELECT EXAM_YEAR
+									,EXAM_Q
+									,EMP_ID
+									,EMP_NM
+									,ORG_ID
+									,ORG_NM
+									,BRANCH_ORG_ID
+									,BRANCH_ORG_NM
+									,POSITION_DT
+									,GDQ_STDT
+									,GDQ_ENDDT
+									,DEL_FLAG
+									,PSTN_TYPE
+									,PSTN_TYPE_NM
+									,SUB_PSTN_TYPE
+									,SUB_PSTN_TYPE_NM
+									,STATUS
+									,EMP_TYPE
+							from IBS.T5_EMP_GDQ_OR_GZ
+							where EMP_TYPE='过渡期' 
+							and coalesce(DEL_FLAG,'0')<>'1'
+							and {#condition#}
+							order by em.STATUS,em.EXAM_YEAR desc,em.EXAM_Q desc,em.BRANCH_ORG_ID,em.ORG_ID,em.EMP_ID 						       
+					]]>
+					</value>
+					<condition name="ORG_ID0" labelposition="left" label="用户机构" source="session{org_id}" hidden="true">
+						<value>
+						<![CDATA[(ORG_ID='#data#' or BRANCH_ORG_ID='#data#')]]>
+						</value>
+					</condition>
+					<condition name="EXAM_YEAR" label="考核年度" labelposition="left" defaultvalue="session{exam_year}">
+						<value> 
+							<![CDATA[EXAM_YEAR = '#data#']]>
+						</value>
+						   <inputbox type="datepicker" styleproperty="style='width:100px'" dateformat="yyyy" jsvalidate="isNotEmpty(#label# 不允许为空);" ></inputbox>
+					</condition>
+					<condition name="EXAM_Q" label="考核季度"
+						labelposition="left">
+						<value> 
+ 									<![CDATA[EXAM_Q = '#data#']]>
+						</value>
+						<inputbox type="selectbox" styleproperty="style='width:120px'">
+							<option label="全部" value=""></option>
+							<option label="一季度" value="01"></option>
+							<option label="二季度" value="02"></option>
+							<option label="三季度" value="03"></option>
+							<option label="四季度" value="04"></option>
+						</inputbox>
+					</condition>
+					<condition name="ORG_ID1" labelposition="left" label="分行">
+						<value>
+						<![CDATA[BRANCH_ORG_ID='#data#']]>
+						</value>
+						<inputbox type="selectbox" styleproperty="style='width:150px'" depends="ORG_ID0">
+							<option label="全部" value=""></option>
+							<option
+								source="@{SELECT DISTINCT BRANCH_ORG_ID , CASE WHEN ORG_LEVEL_ID='2' THEN BRANCH_ORG_NM ELSE BRANCH_ORG_NM||'机关' END AS BRANCH_ORG_NM 
+								FROM IBS.T5_ORG 
+								WHERE ORG_TYPE_ID='EO' AND ORG_LEVEL_ID IN ('2','3') and (ORG_ID='#ORG_ID0#' or HEAD_ORG_ID='#ORG_ID0#')  
+								ORDER BY BRANCH_ORG_ID}"
+								label="BRANCH_ORG_NM" value="BRANCH_ORG_ID" />
+						</inputbox>
+					</condition>
+				</select>
+				<update>
+					<params>
+						<param name="user_id" value="session{user_id}"></param>
+						<param name="current_time" value="now{}"
+							datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
+						<param name="ip" value="request{reqKey2}"></param>
+
+					</params>
+					<value>
+						<![CDATA[
+						
+							UPDATE IBS.T5_EMP_GDQ_OR_GZ
+							SET	
+								EMP_ID=@{EMP_ID}
+							   ,EMP_NM=@{EMP_NM}	
+							   ,ORG_ID=@{ORG_ID}
+							   ,ORG_NM=@{ORG_NM}
+							   ,BRANCH_ORG_ID=@{BRANCH_ORG_ID}
+							   ,BRANCH_ORG_NM=@{BRANCH_ORG_NM}
+							   ,GDQ_STDT=@{GDQ_STDT}
+							   ,GDQ_ENDDT=@{GDQ_ENDDT}
+							   
+							   ,PSTN_TYPE=@{PSTN_TYPE}
+							   ,PSTN_TYPE_NM=@{PSTN_TYPE_NM}
+							   ,SUB_PSTN_TYPE=@{SUB_PSTN_TYPE}
+							   ,SUB_PSTN_TYPE_NM=@{SUB_PSTN_TYPE_NM}
+						       ,MODIFY_PEOPLE=#{user_id}
+						       ,MODIFY_TIME=#{current_time}
+						       ,MODIFY_IP=#{ip}
+						       ,STATUS='0'
+							WHERE EXAM_YEAR=@{EXAM_YEAR__old}
+							AND EXAM_Q=@{EXAM_Q__old}
+							AND EMP_ID=@{EMP_ID__old}
+							AND coalesce(DEL_FLAG,0)<>1
+							AND EMP_TYPE='过渡期'
+							;
+						]]>
+					</value>
+				</update>
+				<insert>
+					<params>
+						<param name="user_id" value="session{user_id}"></param>
+						<param name="current_time" value="now{}"
+							datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
+						<param name="ip" value="request{reqKey2}"></param>
+
+					</params>
+					<value> 
+						   INSERT INTO IBS.T5_EMP_GDQ_OR_GZ (
+								    EXAM_YEAR
+								   ,EXAM_Q
+								   ,EMP_ID
+								   ,EMP_NM	
+								   ,ORG_ID
+								   ,ORG_NM
+								   ,BRANCH_ORG_ID
+								   ,BRANCH_ORG_NM
+								   ,GDQ_STDT
+								   ,GDQ_ENDDT   
+								   ,PSTN_TYPE
+								   ,PSTN_TYPE_NM
+								   ,SUB_PSTN_TYPE
+								   ,SUB_PSTN_TYPE_NM
+								   ,MODIFY_PEOPLE
+								   ,MODIFY_TIME
+								   ,MODIFY_IP
+								   ,EMP_TYPE
+								   ,DEL_FLAG
+								   ,STATUS
+								   ,MEASURE_DT
+								 )
+								values(
+								  @{EXAM_YEAR} 
+								  ,@{EXAM_Q}
+								  ,@{EMP_ID}
+								  ,@{EMP_NM}
+								  ,@{ORG_ID}
+								  ,@{ORG_NM}
+								  ,@{BRANCH_ORG_ID} 
+								  ,@{BRANCH_ORG_NM} 
+								  ,@{GDQ_STDT}
+								  ,@{GDQ_ENDDT}
+								  ,@{PSTN_TYPE}
+								  ,@{PSTN_TYPE_NM} 
+								  ,@{SUB_PSTN_TYPE}
+								  ,@{SUB_PSTN_TYPE_NM}
+								  ,#{user_id}
+								  ,#{current_time}
+								  ,#{ip}
+								  ,'过渡期'
+								  ,'0' 
+								  ,'0'
+								  ,@{EXAM_YEAR}||'-'||(case @{EXAM_Q} when '01' then '03-31' when '02' then '06-30' when '03' then '09-30' when '04' then '12-31' else '01-01' end)
+								);
+					</value>
+				</insert>
+				<delete>
+					<params>
+						<param name="user_id" value="session{user_id}"></param>
+						<param name="current_time" value="now{}"
+							datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
+						<param name="ip" value="request{reqKey2}"></param>
+
+					</params>
+					DELETE FROM IBS.T5_EMP_GDQ_OR_GZ
+					WHERE EXAM_YEAR=@{EXAM_YEAR__old}
+					AND EXAM_Q=@{EXAM_Q__old}
+					AND EMP_ID=@{EMP_ID__old}
+					AND coalesce(DEL_FLAG,'0')='1'
+					AND EMP_TYPE='过渡期'
+					;		
+					UPDATE IBS.T5_EMP_GDQ_OR_GZ
+					SET DEL_FLAG='1'
+						,MODIFY_PEOPLE=#{user_id}
+						,MODIFY_TIME=#{current_time}
+						,MODIFY_IP=#{ip}
+					WHERE EXAM_YEAR=@{EXAM_YEAR__old}
+					AND EXAM_Q=@{EXAM_Q__old}
+					AND EMP_ID=@{EMP_ID__old}
+					AND coalesce(DEL_FLAG,'0')='0'
+					AND EMP_TYPE='过渡期'
+					AND STATUS not in ('1','3')
+					;
+				</delete>
+			</sql>
+			<format>
+				<value>
+				<![CDATA[
+					if(STATUS.equals("0")) STATUS="已保存";
+					if(STATUS.equals("1")) STATUS="已提交";
+					if(STATUS.equals("2")) STATUS="分行有权人审核不通过";
+					if(STATUS.equals("3")) STATUS="分行有权人审核审核通过";
+					
+				]]>
+			</value>
+			</format>
+		</report>
+	</vpanel>
+</page>
+
+<!-- *********************************************************************************************** -->
+
+<!-- 分行有权人 过渡期名单 审核  目前不用审核-->
+<page id="emp_gdq_ver" js="/webresources/script/validate.js,/js/demo.js,/js/common.js">
+	<interceptor>
+		<imports>
+			<import>com.ljbank.market.Util</import>
+		</imports>
+		<preaction>
+	<![CDATA[
+	Util u=new Util();
+	String ip=u.getRemoteIP(rrequest);
+	rrequest.getRequest().setAttribute("reqKey2", ip);
+	]]>
+</preaction>
+	</interceptor>
+
+	<header>${top.header}</header>
+
+	<vpanel id="common_vpanel" width="1200px" align="center" title="">
+		<report id="title" extends="title.report1" width="1200px"></report>
+		<report id="select" type="listform" title="过渡期名单" width="1200px" pagesize="15|20|-1" rowselect="multiple-checkbox" dataexport="richexcel"
+			top="10px" personalizeclass="default" servervalidateclass="com.ljbank.market.Util" interceptor="com.customer.interceptor.InterceptorEmpGdqVer">
+
+			<display>
+				
+				<col column="{sequence:1}" label="序号" width="60px"></col>
+				<col column="EXAM_YEAR" label="考核年度" width="70px"></col>
+				<col column="EXAM_Q" label="季度" width="100px" displaytype="hidden"></col>
+				<col column="QTD_NM" label="季度" width="100px"></col>
+				<col column="ORG_NM" label="支行" ></col>
+				<col column="EMP_ID" label="工号" width="100px" valuestyleproperty="style='mso-number-format:\@'"></col>
+				<col column="EMP_NM" label="姓名" width="90px"></col>
+				<col column="EMP_TYPE" label="岗位状态" ></col>
+				<col column="POSITION_DT" label="定岗日期" ></col>
+				<col column="BRANCH_ORG_ID" label="分行机构号"  displaytype="hidden"></col>
+				<col column="BRANCH_ORG_NM" label="分行机构名" displaytype="hidden"></col>
+				<col column="ORG_ID" label="机构号" displaytype="hidden"></col>
+				<col column="PSTN_TYPE" label="主考核类别" displaytype="hidden"></col>
+				<col column="PSTN_TYPE_NM" label="主考核类别名称" displaytype="hidden"></col>
+				<col column="SUB_PSTN_TYPE" label="子考核类别" displaytype="hidden"></col>
+				<col column="SUB_PSTN_TYPE_NM" label="子考核类别名称" displaytype="hidden"></col>
+				<col column="GDQ_STDT" label="过渡期开始日期" width="120px"></col>
+				<col column="GDQ_ENDDT" label="过渡期结束日期" width="120px"></col>
+				<col column="STATUS" label="状态" ></col>
+				<col property="sh_zt_btn" column="{non-fromdb}" label="审核" width="150px"/>
+			</display>
+			<sql>
+				<select>
+					<value><![CDATA[
+							SELECT em.EXAM_YEAR
+								,em.EXAM_Q
+								,q.QTD_NM
+								,em.EMP_ID
+								,em.EMP_NM
+								,em.ORG_ID
+								,em.ORG_NM
+								,em.BRANCH_ORG_ID
+								,em.BRANCH_ORG_NM
+								,em.POSITION_DT
+								,em.GDQ_STDT
+								,em.GDQ_ENDDT
+								,em.DEL_FLAG
+								,em.PSTN_TYPE
+								,em.PSTN_TYPE_NM
+								,em.SUB_PSTN_TYPE
+								,em.SUB_PSTN_TYPE_NM
+								,em.STATUS
+								,em.REMARK
+								,EMP_TYPE
+							from IBS.T5_EMP_GDQ_OR_GZ em 
+							left join ibs.T9_YEAR_Q q on em.EXAM_Q=q.QTD
+							where EMP_TYPE='过渡期' 
+							and coalesce(DEL_FLAG,'0')<>'1'
+							and STATUS in ('1','3')
+							and {#condition#}
+							order by em.STATUS,em.EXAM_YEAR desc,em.EXAM_Q desc,em.BRANCH_ORG_ID,em.ORG_ID,em.EMP_ID							       
+					]]>
+					</value>
+					<condition name="ORG_ID0" labelposition="left" label="用户机构" source="session{org_id}" hidden="true">
+						<value>
+						<![CDATA[(ORG_ID='#data#' or BRANCH_ORG_ID='#data#')]]>
+						</value>
+					</condition>
+					<condition name="EXAM_YEAR" label="考核年度" labelposition="left" defaultvalue="session{exam_year}">
+						<value> 
+							<![CDATA[EXAM_YEAR = '#data#']]>
+						</value>
+						   <inputbox type="datepicker" styleproperty="style='width:100px'" dateformat="yyyy" jsvalidate="isNotEmpty(#label# 不允许为空);" ></inputbox>
+					</condition>
+					<condition name="EXAM_Q" label="考核季度"
+						labelposition="left">
+						<value> 
+ 									<![CDATA[EXAM_Q = '#data#']]>
+						</value>
+						<inputbox type="selectbox" styleproperty="style='width:120px'">
+							<option label="全部" value=""></option>
+							<option label="一季度" value="01"></option>
+							<option label="二季度" value="02"></option>
+							<option label="三季度" value="03"></option>
+							<option label="四季度" value="04"></option>
+						</inputbox>
+					</condition>
+					<condition name="ORG_ID1" labelposition="left" label="分行">
+						<value>
+						<![CDATA[em.BRANCH_ORG_ID='#data#']]>
+						</value>
+						<inputbox type="selectbox" styleproperty="style='width:150px'" depends="ORG_ID0">
+							<option label="全部" value=""></option>
+							<option
+								source="@{SELECT DISTINCT BRANCH_ORG_ID , CASE WHEN ORG_LEVEL_ID='2' THEN BRANCH_ORG_NM ELSE BRANCH_ORG_NM||'机关' END AS BRANCH_ORG_NM 
+								FROM IBS.T5_ORG 
+								WHERE ORG_TYPE_ID='EO' AND ORG_LEVEL_ID IN ('2','3') and (ORG_ID='#ORG_ID0#' or HEAD_ORG_ID='#ORG_ID0#')  
+								ORDER BY BRANCH_ORG_ID}"
+								label="BRANCH_ORG_NM" value="BRANCH_ORG_ID" />
+						</inputbox>
+					</condition>
+				</select>
+				
+				
+				
+			</sql>
+			<buttons>
+			<button name="button1" position="other" autoreportdata="false"
+						positionorder="2" class="com.wabacus.system.buttons.ServerSQLActionButton"
+						successprompt="提交成功" failedprompt="提交失败">
+			<params>
+				<param name="user_id" value="session{user_id}"></param>
+				<param name="current_time" value="now{}" datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
+				<param name="userIp" value="session{ip}"></param>
+			</params>
+
+			<value datasource="ds_db2">
+				<![CDATA[
+					UPDATE IBS.T5_EMP_GDQ_OR_GZ
+					SET STATUS='3'
+						, VERIFY_TIME=#{current_time}
+						, VERIFY_PEOPLE=#{user_id} 
+						, VERIFY_IP= #{userIp}   
+						, REMARK='审批通过'                        					
+					WHERE EXAM_YEAR=@{param_year}
+					AND EXAM_Q=@{param_examQ}
+					AND EMP_ID=@{param_empId}
+					AND DEL_FLAG='0'
+					AND STATUS='1'
+					;
+					UPDATE IBS.T5_EMP_BZJX
+					set EMP_TYPE='过渡期'
+					,MODIFY_PEOPLE=#{user_id}
+					,MODIFY_TIME=#{current_time}
+					,MODIFY_IP=#{userIp}
+					where EXAM_YEAR=@{param_year}
+					AND EXAM_Q=@{param_examQ}
+					AND EMP_ID=@{param_empId}
+					;
+					
+				]]>
+			</value>
+		</button>
+		<button name="sub" position="title" positionorder="2" label="选中通过" extends="${wabacus.button2.default}"
+			confirmessage="提交后数据将不能修改，是否确认提交?">
+			invokeServerActionForReportData('emp_gdq_ver','select','com.customer.interceptor.EmpGdqVerPassServerCallBack',{name:'SELECTEDROW',value:true},null,true,null,null);
+		</button>
+		</buttons>
+		<format>
+			<imports>
+				<import>com.customer.util.*</import>
+				<import>java.util.*</import>
+				<import>java.text.*</import>
+				<import>com.wabacus.system.*</import>
+			</imports>
+			<value>
+			<![CDATA[
+				
+				
+				String btnsh_ztCls="cls-button2";
+				String btnUnsh_ztCls="cls-button2";
+				
+				String btnsh_ztEvent="if(confirm('提交后数据将不能修改，是否确认提交?')){invokeComponentSqlActionButton('emp_gdq_ver','select','button1',{param_year:'"+EXAM_YEAR+"',param_examQ:'"+EXAM_Q+"',param_empId:'"+EMP_ID+"'},true,refreshPage)}";
+				String btnUnsh_ztEvent="wx_winpage('ShowReport.wx?PAGEID=emp_gdq_verNo&EXAM_YEAR="+EXAM_YEAR+"&EXAM_Q="+EXAM_Q+"&EMP_ID="+EMP_ID+"',{width:550,height:350});art.dialog.close();";
+			
+				
+				
+				if(STATUS.equals("3")){
+					sh_zt_btn="";
+				}else{
+					sh_zt_btn="<input type=\"button\" class=\""+btnsh_ztCls+"\" value=\"通过\" onclick=\""+btnsh_ztEvent+"\">";
+					sh_zt_btn=sh_zt_btn+"<input type=\"button\" class=\""+btnUnsh_ztCls+"\" value=\"不通过\"   onclick=\""+btnUnsh_ztEvent+"\">";
+				}
+				
+				if(STATUS.equals("0")) STATUS="保存";
+				if(STATUS.equals("1")) STATUS="等待审核";
+				if(STATUS.equals("2")) STATUS="审核不通过";
+				if(STATUS.equals("3")) STATUS="审核通过";
+				
+			]]>
+			</value>
+		</format>
+		<footer>
+			<![CDATA[
+			<div style='float:left'>
+				<font color='red'>*审核不通过需逐条处理，并输入不通过理由。</font>
+			</div>]]>
+		</footer>
+		</report>
+	</vpanel>
+</page>
+<!-- 审核不通过弹窗页面 -->
+<page id="emp_gdq_verNo" js="/webresources/script/validate.js,/js/demo.js,/js/common.js">
+
+<interceptor>
+	<imports>
+		<import>com.customer.util.*</import>
+		<import>java.util.*</import>
+			<import>java.text.*</import>
+			<import>com.wabacus.system.*</import>
+	</imports>
+	<preaction>
+	<![CDATA[
+	]]>
+	</preaction>
+</interceptor>
+
+<vpanel id="common_vpanel" align="center" width="300px">
+<report id="report" title="" type="form" >
+<display valuetdwidth="300px" labeltdwidth="200px" labelbgcolor="#f0f0f0" labelalign="right" valuealign="left">
+	
+	<col column="EXAM_YEAR" label="考核年度" width="70px" br="true"></col>
+	<col column="EXAM_Q" label="季度" width="100px" displaytype="hidden"></col>
+	<col column="QTD_NM" label="季度" width="100px" br="true"></col>
+	<col column="EMP_ID" label="工号" width="100px" br="true" valuestyleproperty="style='mso-number-format:\@'"></col>
+	<col column="EMP_NM" label="姓名" width="90px" br="true"></col>
+	<col column="ORG_ID" label="机构号" displaytype="hidden"></col>
+	<col column="ORG_NM" label="支行" br="true"></col>
+	<col column="GDQ_STDT" label="过渡期开始日期" width="120px" br="true"></col>
+	<col column="GDQ_ENDDT" label="过渡期结束日期" width="120px" br="true"></col>
+	<col column="REMARK" label="备注(不通过理由)" datatype="varchar" align="left" br="true">
+		<inputbox type="textareabox" jsvalidate="isNotEmpty(审核不通过的理由为必输项)"
+			styleproperty="style='width:99%,rows='6''"></inputbox>
+	</col>
+</display>
+
+<sql aftersave="saveUpdate" datasource="ds_db2">
+	<select>
+		<value>
+		<![CDATA[
+			SELECT em.EXAM_YEAR
+				,em.EXAM_Q
+				,q.QTD_NM
+				,em.EMP_ID
+				,em.EMP_NM
+				,em.ORG_ID
+				,em.ORG_NM
+				,em.BRANCH_ORG_ID
+				,em.BRANCH_ORG_NM
+				,em.POSITION_DT
+				,em.GDQ_STDT
+				,em.GDQ_ENDDT
+				,em.DEL_FLAG
+				,em.PSTN_TYPE
+				,em.PSTN_TYPE_NM
+				,em.SUB_PSTN_TYPE
+				,em.SUB_PSTN_TYPE_NM
+				,em.STATUS
+				,em.REMARK
+			from IBS.T5_EMP_GDQ_OR_GZ em 
+			left join ibs.T9_YEAR_Q q on em.EXAM_Q=q.QTD
+			where EMP_TYPE='过渡期' 
+			and coalesce(DEL_FLAG,'0')<>'1'
+			and STATUS in ('1','3')
+			and {#condition#}
+		 ]]>
+		</value>
+		<condition name="EXAM_YEAR" hidden="true" >
+			<value><![CDATA[em.EXAM_YEAR='#data#']]></value>
+		</condition>
+		<condition name="EXAM_Q" hidden="true">
+			<value><![CDATA[em.EXAM_Q='#data#']]></value>
+		</condition>
+		<condition name="EMP_ID" hidden="true">
+			<value><![CDATA[em.EMP_ID='#data#']]></value>
+		</condition>
+	</select>
+	<update crosspage="true">
+		<params>
+			<param name="user_id" value="session{user_id}"></param>
+			<param name="current_time" value="now{}" datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
+			<param name="ip" value="session{ip}"></param>
+		</params>
+			<![CDATA[
+			UPDATE IBS.T5_EMP_GDQ_OR_GZ
+			SET STATUS='2'
+				, VERIFY_TIME=#{current_time}
+				, VERIFY_PEOPLE=#{user_id} 
+				, VERIFY_IP= #{ip}   
+				, REMARK=@{REMARK}                        					
+			WHERE EXAM_YEAR=@{EXAM_YEAR__old}
+			AND EXAM_Q=@{EXAM_Q__old}
+			AND EMP_ID=@{EMP_ID__old}
+			AND DEL_FLAG='0'
+			AND STATUS='1'
+			]]>
+	</update>
+</sql>
+<buttons>
+	<button name="button2" label="提交" position="title"
+		refreshpage="true" aftercallbackmethod="refreshPage"
+		confirmessage="提交后数据将不能修改，是否确认提交?" successprompt="提交成功"
+		failedprompt="提交失败" positionorder="2" extends="${save.button.default}">
+
+		saveEditableReportData({pageid:'emp_gdq_verNo',savingReportIds:[{reportid:'report',updatetype:'save',}]});
+
+	</button>
+</buttons>
+</report>
+</vpanel>
+</page>
+
+<!--  ********************************************************************************************************* -->
+<!--  过渡期名单 查询 -->
+<page id="emp_gdq_query" js="/webresources/script/validate.js,/js/demo.js,/js/common.js">
+	<interceptor>
+		<imports>
+			<import>com.ljbank.market.Util</import>
+		</imports>
+		<preaction>
+	<![CDATA[
+	Util u=new Util();
+	String ip=u.getRemoteIP(rrequest);
+	rrequest.getRequest().setAttribute("reqKey2", ip);
+	]]>
+</preaction>
+	</interceptor>
+
+	<header>${top.header}</header>
+
+	<vpanel id="common_vpanel" width="1200px" align="center" title="">
+		<report id="title" extends="title.report1" width="1200px"></report>
+		<report id="select" type="listform" title="过渡期名单" width="1200px" pagesize="15|20|-1" rowselect="single" dataexport="richexcel"
+			top="10px" personalizeclass="default" servervalidateclass="com.ljbank.market.Util" interceptor="com.customer.interceptor.InterceptorEmpGdqVer">
+
+			<display>
+				<col column="{sequence:1}" label="序号" width="60px"></col>
+				<col column="EXAM_YEAR" label="考核年度" width="70px"></col>
+				<col column="EXAM_Q" label="季度" width="100px" displaytype="hidden"></col>
+				<col column="QTD_NM" label="季度" width="100px"></col>
+				<col column="BRANCH_ORG_NM" label="分行" ></col>
+				<col column="ORG_NM" label="支行" ></col>
+				<col column="EMP_ID" label="工号" width="100px" valuestyleproperty="style='mso-number-format:\@'"></col>
+				<col column="EMP_NM" label="姓名" width="90px"></col>
+				<col column="EMP_TYPE" label="岗位状态" ></col>
+				<!-- <col column="POSITION_DT" label="定岗日期" ></col> -->
+				<col column="BRANCH_ORG_ID" label="分行机构号"  displaytype="hidden"></col>
+				<col column="ORG_ID" label="机构号" displaytype="hidden"></col>
+				<col column="PSTN_TYPE" label="主考核类别" displaytype="hidden"></col>
+				<col column="PSTN_TYPE_NM" label="主考核类别名称" displaytype="hidden"></col>
+				<col column="SUB_PSTN_TYPE" label="子考核类别" displaytype="hidden"></col>
+				<col column="SUB_PSTN_TYPE_NM" label="子考核类别名称" displaytype="hidden"></col>
+				<col column="GDQ_STDT" label="过渡期开始日期" width="120px"></col>
+				<col column="GDQ_ENDDT" label="过渡期结束日期" width="120px"></col>
+			</display>
+			<sql>
+				<select>
+					<value><![CDATA[
+							SELECT em.EXAM_YEAR
+								,em.EXAM_Q
+								,q.QTD_NM
+								,em.EMP_ID
+								,em.EMP_NM
+								,em.ORG_ID
+								,em.ORG_NM
+								,em.BRANCH_ORG_ID
+								,em.BRANCH_ORG_NM
+								,em.POSITION_DT
+								,em.GDQ_STDT
+								,em.GDQ_ENDDT
+								,em.DEL_FLAG
+								,em.PSTN_TYPE
+								,em.PSTN_TYPE_NM
+								,em.SUB_PSTN_TYPE
+								,em.SUB_PSTN_TYPE_NM
+								,em.STATUS
+								,em.REMARK
+								,ou.HEAD_ORG_ID
+								,EMP_TYPE
+							from IBS.T5_EMP_GDQ_OR_GZ em 
+							inner join ibs.T5_ORG ou on ou.ORG_TYPE_ID='EO' and ou.ORG_ID=em.ORG_ID %SQL%
+							left join ibs.T9_YEAR_Q q on em.EXAM_Q=q.QTD
+							where EMP_TYPE='过渡期' 
+							and coalesce(DEL_FLAG,'0')<>'1'
+							AND      STATUS ='1'
+							and {#condition#}
+							order by em.STATUS,em.EXAM_YEAR desc,em.EXAM_Q desc,em.BRANCH_ORG_ID,em.ORG_ID,em.EMP_ID							       
+					]]>
+					</value>
+					<condition name="ORG_ID0" labelposition="left" label="用户机构" source="session{org_id}" hidden="true">
+						<value>
+						<![CDATA[(em.ORG_ID='#data#' or em.BRANCH_ORG_ID='#data#' or ou.HEAD_ORG_ID='#data#' )]]>
+						</value>
+					</condition>
+					<condition name="EXAM_YEAR" label="考核年度" labelposition="left" defaultvalue="session{exam_year}">
+						<value> 
+							<![CDATA[EXAM_YEAR = '#data#']]>
+						</value>
+						   <inputbox type="datepicker" styleproperty="style='width:100px'" dateformat="yyyy" jsvalidate="isNotEmpty(#label# 不允许为空);" ></inputbox>
+					</condition>
+					<condition name="EXAM_Q" label="考核季度"
+						labelposition="left">
+						<value> 
+ 									<![CDATA[EXAM_Q = '#data#']]>
+						</value>
+						<inputbox type="selectbox" styleproperty="style='width:120px'">
+							<option label="全部" value=""></option>
+							<option label="一季度" value="01"></option>
+							<option label="二季度" value="02"></option>
+							<option label="三季度" value="03"></option>
+							<option label="四季度" value="04"></option>
+						</inputbox>
+					</condition>
+					<condition name="ORG_ID1" labelposition="left" label="分行">
+						<value>
+						<![CDATA[(em.BRANCH_ORG_ID='#data#')]]>
+						</value>
+						<inputbox type="selectbox" styleproperty="style='width:150px'" depends="ORG_ID0">
+							<option label="全部" value=""></option>
+							<option
+								source="@{SELECT DISTINCT BRANCH_ORG_ID,BRANCH_ORG_NM FROM IBS.T5_ORG WHERE ORG_TYPE_ID='EO' AND ORG_LEVEL_ID IN ('1','2','3') and (ORG_ID='#ORG_ID0#' or BRANCH_ORG_ID='#ORG_ID0#' or HEAD_ORG_ID='#ORG_ID0#') ORDER BY BRANCH_ORG_ID}"
+								label="BRANCH_ORG_NM" value="BRANCH_ORG_ID" />
+						</inputbox>
+					</condition>
+					<condition name="ORG_ID2" labelposition="left" label="支行">
+							<value>
+							<![CDATA[em.ORG_ID='#data#']]>
+							</value>
+							<inputbox type="selectbox" depends="ORG_ID1;ORG_ID0"
+								styleproperty="style='width:150px'">
+								<option label="全部" value=""></option>
+								<option label="无" value="" type="false"></option>
+								<option
+									source="@{SELECT DISTINCT ORG_ID, ORG_NM FROM IBS.T5_ORG WHERE ORG_TYPE_ID='EO' AND ORG_LEVEL_ID IN ('1','2') and BRANCH_ORG_ID='#ORG_ID1#' and (HEAD_ORG_ID='#ORG_ID0#' or BRANCH_ORG_ID='#ORG_ID0#' or ORG_ID='#ORG_ID0#') ORDER BY ORG_ID}"
+									label="ORG_NM" value="ORG_ID" />
+							</inputbox>
+						</condition>
+				</select>
+			</sql>
+		<format>
+			<imports>
+				<import>com.customer.util.*</import>
+				<import>java.util.*</import>
+				<import>java.text.*</import>
+				<import>com.wabacus.system.*</import>
+			</imports>
+			<value>
+			<![CDATA[
+				
+			]]>
+			</value>
+		</format>
+		<footer>
+			<![CDATA[
+			]]>
+		</footer>
+		</report>
+	</vpanel>
+</page>
+</applications>

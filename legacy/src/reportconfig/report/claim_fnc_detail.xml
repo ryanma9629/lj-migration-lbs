@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<applications xmlns="http://www.wabacus.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.wabacus.com ../xsd/wabacus.applications.xsd">
+
+<!--我的理财认领 -->
+<page id="claim_fnc_detail" js="/webresources/script/validate.js,/js/demo.js,/js/common.js">
+<header>${top.header}</header>
+
+<vpanel id="common_vpanel" width="1350px" align="center" title="">
+<header>
+  <![CDATA[
+  ]]>
+</header>	
+	<report id="list" title="我的理财认领" type="editablelist" personalizeclass="default" 
+		servervalidateclass="com.ljbank.market.Servervalidate_Fund;com.ljbank.market.Util"
+		interceptor="com.customer.interceptor.InterceptorClaimFncDetail" 
+		 top="10px" >
+		
+			<display>
+				<col column="{sequence:1}" label="序号" width="40px"></col>
+				<col column="VUCH_NBR" label="凭证号" valuestyleproperty="style='mso-number-format:\@'"></col>
+				<col column="TXN_NO" label="流水号" ></col>
+				<col column="TXN_DT" label="交易日期" ></col>
+				<col column="PRD_NM" label="产品名称"></col>
+				<col column="ORG_NM" label="交易机构名称" br="true"></col>
+				<col column="EMP_ORG_NM" label="认领人机构名称"></col>
+				<col column="BIZ_TYPE_NM" label="业务类型"></col>
+				<col column="CST_NM" label="客户名"></col>
+				<col column="TXN_AMT" label="交易金额"></col>
+				<col column="RATIO" label="*认领比例(%)"></col>
+				<col column="CLAIM_STATUS_ID" label="认领状态"></col>
+				<col column="VERIFY_EMP_ID" label="审批人"></col>
+				<col column="VERIFY_DT" label="审批日期"></col>
+				<col column="CLAIM_DT" label="认领日期" ></col>
+				
+			</display>
+			<sql datasource="ds_db2">
+				<select>
+					<value><![CDATA[
+						Select RE.*,S.CLAIM_STATUS_NM,re.EMP_ID as EMP_ID_Hid
+						from IBS.T1_FNC_TXN_EMP_RELA re
+						left join IBS.T9_CLAIM_STATUS_TYPE S ON S.CLAIM_STATUS_ID=RE.CLAIM_STATUS_ID
+						inner join IBS.T5_ORG ou ON ou.ORG_ID=re.ORG_ID AND ou.ORG_TYPE_ID='AO'	
+						WHERE  {#condition#}  
+						order by VUCH_NBR,RE.CLAIM_STATUS_ID,TXN_DT DESC	
+					    ]]>
+					</value>
+					<condition name="TXN_DT_ST"  label="确认日期" >
+						<value><![CDATA[TXN_DT >= '#data#']]></value>
+						<inputbox type="datepicker" styleproperty="style='width:120px'"
+								jsvalidate="isDate(#label#格式为yyyy-MM-dd)">
+						</inputbox>
+					</condition>
+					<condition name="TXN_DT_END"  label="至" >
+						<value><![CDATA[TXN_DT <= '#data#']]></value>
+						<inputbox type="datepicker" styleproperty="style='width:120px'"
+								jsvalidate="isDate(#label#格式为yyyy-MM-dd)">
+							</inputbox>
+					</condition>
+					<condition name="PRD_CD" label="产品代码">
+								<value><![CDATA[PRD_CD='#data#']]></value>
+					</condition>
+					<condition name="VUCH_NBR" label="凭证号">
+								<value><![CDATA[VUCH_NBR='#data#']]></value>
+					</condition>
+					<condition name="EMP_ID" source="session{user_id}">
+						<value><![CDATA[EMP_ID='#data#']]></value>
+					</condition>
+				</select>
+			</sql>
+		
+		<format>
+				<imports>
+					<import>com.ljbank.util.*</import>
+					<import>java.util.*</import>
+					<import>java.text.*</import>
+					<import>com.wabacus.system.*</import>
+				</imports>
+				<value>
+				<![CDATA[
+					String user_id = (String) rrequest.getRequest().getSession().getAttribute("user_id");
+				    rrequest.getRequest().getSession().setAttribute("user_id", user_id);
+					
+				]]>
+		  		</value>
+		  		
+		  		
+		  		
+			</format>
+			
+		</report>
+	
+		
+</vpanel>
+</page>
+
+
+
+</applications>

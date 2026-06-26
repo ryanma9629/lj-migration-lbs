@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<applications xmlns="http://www.wabacus.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.wabacus.com ../xsd/wabacus.applications.xsd">
+
+<!--我的保险业绩明细 -->
+<page id="ybdb_detail" js="/webresources/script/validate.js,/js/demo.js,/js/common.js">
+<header>${top.header}</header>
+  
+<interceptor>
+	<imports>
+		<import>java.lang</import>
+		<import>com.wabacus.util</import>
+		<import>java.sql.Connection</import>
+		<import>java.sql.PreparedStatement</import>
+		<import>java.sql.ResultSet</import>
+		<import>javax.servlet.http.HttpSession</import>
+		<import>javax.util</import>
+		<import>javax.text</import>
+		<import>com.ljbank.market.MyMath</import>
+		<import>java.util.Date</import>
+		<import>java.text.SimpleDateFormat</import>
+	</imports>
+	 
+	<preaction>
+		<![CDATA[
+			Util u = new Util();
+			String date=u.getDate();
+			
+			String txn_dt_st=(String)rrequest.getAttribute("TXN_DT_ST");
+			String txn_dt_ed=(String)rrequest.getAttribute("TXN_DT_ED");
+			
+			if(txn_dt_st ==null || "".equals(txn_dt_st)){
+				rrequest.setAttribute("TXN_DT_ST", date);
+			}
+			if(txn_dt_ed ==null || "".equals(txn_dt_ed)){
+				rrequest.setAttribute("TXN_DT_ED", date);
+			}
+		 	  
+		 ]]>
+	</preaction>
+</interceptor>
+
+<vpanel id="common_vpanel" width="1350px" align="center" title="">
+<header>
+  <![CDATA[
+  ]]>
+</header>
+<report id="select" title="保险销售明细" type="editablelist"
+	width="1600px" top="10px" align="center" pagesize="15|20|-1"
+	dataexport="richexcel" personalizeclass="default" scrollwidth="1350px">
+
+	<display>
+		<col column="{sequence:1}" label="序号" width="40px"></col>
+		<col column="INSURE_NO" label="保单号" ></col>
+		<col column="HOLDER_NAME" label="投保人姓名" ></col>
+		<col column="PRD_CODE" label="产品号" ></col>
+		<col column="PRD_NAME" label="产品名称" ></col>
+		<col column="TA_NAME" label="公司名称" ></col>
+		<col column="PAY_YEAR" label="期限" ></col>
+		<col column="BRANCH_NO_CH" label="交易机构"  ></col>
+		<col column="INSURE_DATE" label="投保日期"  ></col>
+		<col column="STATUS_CH" label="保单状态"  ></col>
+		<col column="TXN_AMT" label="销售额"  ></col>
+		<col column="MID_AMT" label="中收" ></col>
+		<!-- <col column="PER_FEE" label="人力费用" ></col> -->		
+        <col column="RATIO" label="认领比例(%)" ></col>
+	</display>
+	<sql>
+		<select>
+			<value>
+			<![CDATA[
+			Select re.EMP_ID,re.RATIO,re.INSURE_NO, re.PRD_CODE, re.PRD_NAME, re.TA_NAME, re.BRANCH_NO_CH, re.PAY_YEAR, re.INSURE_DATE,re.STATUS_CH
+			,re.HOLDER_NAME
+			,cast(sum(ydl.TXN_AMT*ydl.RATIO)/100 as decimal(20,2)) as TXN_AMT
+			,cast(sum(ydl.MID_AMT*ydl.RATIO)/100 as decimal(20,2)) as MID_AMT
+			,cast(sum(ydl.MID_AMT*coalesce(ra.PER_FEE_RATION,0)/100*ydl.RATIO)/100 as decimal(20,2)) as PER_FEE
+			from IBS.T1_YBDB_EMP_RELA re
+			inner join ibs.T2_YBDB_INS_DETAIL ydl on ydl.INSURE_NO=re.INSURE_NO
+			left join ibs.T5_YBDB_PER_FEE_RATION ra on ydl.MEASURE_DT>=ra.ST_DT and ydl.MEASURE_DT<=ra.ED_DT
+			where  {#condition#} and re.CLAIM_STATUS_ID in ('2','5')
+			group by re.EMP_ID,re.RATIO,re.INSURE_NO, re.PRD_CODE, re.PRD_NAME, re.TA_NAME, re.BRANCH_NO_CH, re.PAY_YEAR, re.INSURE_DATE,re.STATUS_CH,re.HOLDER_NAME
+		    ]]>
+			</value>
+			<condition name="TXN_DT_ST" label="投保日期 " labelposition="left" >
+				<value>
+			 	<![CDATA[	
+					 ydl.MEASURE_DT BETWEEN '#data#' 
+			 	]]>
+				</value>
+				<inputbox type="datepicker" styleproperty="style='width:90px'"
+					jsvalidate="isDate(#label#格式为yyyyMMdd);" >
+				</inputbox>
+			</condition>
+			<condition name="TXN_DT_ED" label="至 " labelposition="left" defaultvalue="url{TXN_DT_ST}">
+				<value>
+			 	<![CDATA['#data#']]>
+				</value>
+				<inputbox type="datepicker" styleproperty="style='width:90px'"
+					jsvalidate="isDate(#label#格式为yyyyMMdd);" >
+				</inputbox>
+			</condition>
+			<condition name="EMP_ID" defaultvalue="session{user_id}" hidden="true">
+				<value><![CDATA[re.EMP_ID='#data#']]></value>
+			</condition>
+		</select>
+	</sql>
+	<footer><![CDATA[<div style='float:left'><font color='blue'></font></div>]]></footer>
+	</report>
+</vpanel>
+</page>
+
+<!--保险销售业绩排名：保险销售业绩明细  -->
+<page id="ybdb_detail_href" js="/webresources/script/validate.js,/js/demo.js,/js/common.js">
+<header>${top.header}</header>
+<interceptor>
+	<imports>
+		<import>java.lang</import>
+		<import>com.wabacus.util</import>
+		<import>java.sql.Connection</import>
+		<import>java.sql.PreparedStatement</import>
+		<import>java.sql.ResultSet</import>
+		<import>javax.servlet.http.HttpSession</import>
+		<import>javax.util</import>
+		<import>javax.text</import>
+		<import>com.ljbank.market.MyMath</import>
+		<import>java.util.Date</import>
+		<import>java.text.SimpleDateFormat</import>
+	</imports>
+	 
+	<preaction>
+		<![CDATA[
+			Util u = new Util();
+			String date=u.getDate();
+			
+			String r_txn_dt_st=(String)rrequest.getAttribute("TXN_DT_ST");
+			String r_txn_dt_ed=(String)rrequest.getAttribute("TXN_DT_ED");
+			
+			if(r_txn_dt_st !=null && !"".equals(r_txn_dt_st)){
+				rrequest.setAttribute("TXN_DT_ST", r_txn_dt_st);
+			}else{
+				rrequest.setAttribute("TXN_DT_ST", date);
+			}
+			if(r_txn_dt_ed !=null && !"".equals(r_txn_dt_ed)){
+				rrequest.setAttribute("TXN_DT_ED", r_txn_dt_ed);
+			}else{
+				rrequest.setAttribute("TXN_DT_ED", date);
+			}
+			
+		 	  String r_emp_id=(String)rrequest.getAttribute("EMP_ID"); 
+		 	  if(r_emp_id !=null && !r_emp_id.equals("")){
+		 	  		rrequest.setAttribute("EMP_ID",r_emp_id);
+		 	  }
+		 	  
+		 	  System.out.println("ybdb_detail.xml: r_txn_dt_st="+r_txn_dt_st+";r_txn_dt_ed="+r_txn_dt_ed+";r_emp_id="+r_emp_id);
+		 ]]>
+	</preaction>
+</interceptor>
+
+<vpanel id="common_vpanel" width="1350px" align="center" title="">
+<header>
+  <![CDATA[
+  	<table width="1350px" border="0" cellspacing="0" cellpadding="0">
+	    <tr><td height="10px"></td></tr>
+	  	<tr><td align="left"><a href='ShowReport.wx?PAGEID=emp_ybdb_smy' style="font-size:15px;TEXT-DECORATION:underline">返回上一级</a></td></tr>
+    </table>
+  ]]>
+</header>
+<report id="select" title="保险销售明细" type="editablelist"
+	width="1600px" top="10px" align="center" pagesize="15|20|-1"
+	dataexport="richexcel" personalizeclass="default" scrollwidth="1350px">
+
+	<display>
+		<col column="{sequence:1}" label="序号" width="40px"></col>
+		<col column="INSURE_NO" label="保单号" ></col>
+		<col column="HOLDER_NAME" label="投保人姓名" ></col>
+		<col column="PRD_CODE" label="产品号" ></col>
+		<col column="PRD_NAME" label="产品名称" ></col>
+		<col column="TA_NAME" label="公司名称" ></col>
+		<col column="PAY_YEAR" label="期限" ></col>
+		<col column="BRANCH_NO_CH" label="交易机构"  ></col>
+		<col column="INSURE_DATE" label="投保日期"  ></col>
+		<col column="STATUS_CH" label="保单状态"  ></col>
+		<col column="TXN_AMT" label="销售额"  ></col>
+		<col column="MID_AMT" label="中收" ></col>
+		<!-- <col column="PER_FEE" label="人力费用" ></col> -->		
+        <col column="RATIO" label="认领比例(%)" ></col>
+	</display>
+	<sql>
+		<select>
+			<value>
+			<![CDATA[
+			Select ydl.EMP_ID,ydl.RATIO,re.INSURE_NO, re.PRD_CODE, re.PRD_NAME, re.TA_NAME, re.BRANCH_NO_CH, re.PAY_YEAR, re.INSURE_DATE,re.STATUS_CH
+			,re.HOLDER_NAME
+			,cast(sum(case when ydl.RATIO>0 then ydl.TXN_AMT*ydl.RATIO else ydl.TXN_AMT*100 end)/100 as decimal(20,2)) as TXN_AMT
+            ,cast(sum(case when ydl.RATIO>0 then ydl.MID_AMT*ydl.RATIO else ydl.MID_AMT*100 end )/100 as decimal(20,2)) as MID_AMT
+			,cast(sum(ydl.MID_AMT*coalesce(ra.PER_FEE_RATION,0)/100*ydl.RATIO)/100 as decimal(20,2)) as PER_FEE
+			from ibs.T2_YBDB_INS_DETAIL ydl  
+			inner join (select distinct INSURE_NO,PRD_CODE, PRD_NAME, TA_NAME, BRANCH_NO_CH, PAY_YEAR, INSURE_DATE,STATUS_CH,HOLDER_NAME from IBS.T1_YBDB_EMP_RELA) re on ydl.INSURE_NO=re.INSURE_NO
+			left join ibs.T5_YBDB_PER_FEE_RATION ra on ydl.MEASURE_DT>=ra.ST_DT and ydl.MEASURE_DT<=ra.ED_DT
+			where {#condition#} 
+			group by ydl.EMP_ID,ydl.RATIO,re.INSURE_NO, re.PRD_CODE, re.PRD_NAME, re.TA_NAME, re.BRANCH_NO_CH, re.PAY_YEAR, re.INSURE_DATE,re.STATUS_CH,re.HOLDER_NAME
+		    ]]>
+			</value>
+			<condition name="TXN_DT_ST" label="投保日期 " labelposition="left" >
+				<value>
+			 	<![CDATA[	
+					 ydl.MEASURE_DT BETWEEN '#data#' 
+			 	]]>
+				</value>
+				<inputbox type="datepicker" styleproperty="style='width:90px'"
+					jsvalidate="isDate(#label#格式为yyyyMMdd);" >
+				</inputbox>
+			</condition>
+			<condition name="TXN_DT_ED" label="至 " labelposition="left" defaultvalue="url{TXN_DT_ST}">
+				<value>
+			 	<![CDATA['#data#']]>
+				</value>
+				<inputbox type="datepicker" styleproperty="style='width:90px'"
+					jsvalidate="isDate(#label#格式为yyyyMMdd);" >
+				</inputbox>
+			</condition>
+			<condition name="EMP_ID" defaultvalue="session{user_id}" hidden="true">
+				<value><![CDATA[ydl.EMP_ID='#data#']]></value>
+			</condition>
+		</select>
+	</sql>
+	<footer><![CDATA[<div style='float:left'><font color='blue'></font></div>]]></footer>
+	</report>
+</vpanel>
+</page>
+
+
+	
+
+
+</applications>

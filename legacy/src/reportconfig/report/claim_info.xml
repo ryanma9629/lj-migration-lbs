@@ -1,0 +1,558 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<applications xmlns="http://www.wabacus.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.wabacus.com ../xsd/wabacus.applications.xsd">
+	<!--认领审核页面进入认领信息明细 -->
+	<page id="claim_info"
+		js="/webresources/script/validate.js,/js/demo.js,/js/common.js"><!-- /webresources/script/validate.js -->
+
+		<header>${top.header}</header>
+		<vpanel id="common_vpanel" width="1300px" align="center" title="">
+
+			<header>
+			  <![CDATA[<table width="1300px" border="0" cellspacing="0" cellpadding="0">
+			 	<tr><td height="22px" align="left" style="background:#F0F1F3"><font style='color:#154BA0'>☆ 业绩认领</font>>><font style='font-weight:bold;color:#154BA0'>详细</font>>></td></tr>
+			    
+				<!--
+			  	<tr><td height="10px"></td></tr>
+			  	<tr><td align="right"><a href='ShowReport.wx?PAGEID=claim_verify_acc' style="font-size:15px;TEXT-DECORATION:underline">返回上一级</a></td></tr>
+			    -->
+			    </table>
+			  ]]>
+			</header>
+			<report id="select" type="form" title="账户信息" width="1300px"
+				interceptor="com.customer.interceptor.InterceptorClaimInfo" top="10px"
+				personalizeclass="default"><!-- interceptor="com.customer.interceptor.InterceptorClaimDep" -->
+
+				<display valuetdwidth="120px" labeltdwidth="80px">
+					<!-- col column="{sequence:1}" label="序号"></col displaytype="hidden" 
+						br="true" -->
+					<col column="VUCH_NBR" label="凭证号" valuestyleproperty="style='mso-nubmer-format:\@'"></col>
+					<col column="CST_ID" label="客户号" displaytype="hidden"></col>
+					<col column="CST_NM" label="客户名"></col>
+					<col column="VUCH_TYPE_ID" label="凭证类型代码" displaytype="hidden"></col>
+					<col column="VUCH_TYPE_NM" label="凭证类型名称"></col>
+					<col column="WITH_CARD_F" label="配卡标志" displaytype="hidden"></col>
+					<col column="BIZ_TYPE_ID" label="业务类型代码" displaytype="hidden"></col>
+					<col column="BIZ_TYPE_NM" label="业务类型名称" br="true"></col>
+					<col column="ORG_ID" label="机构号" displaytype="hidden"
+						valuestyleproperty="style='mso-nubmer-format:\@'"></col>
+					<col column="ORG_NM" label="机构名"></col>
+					<col column="BRANCH_ORG_ID" label="分行机构号" displaytype="hidden"></col>
+					<col column="BRANCH_ORG_NM" label="分行机构名"></col>
+					<col column="OPEN_DT" label="开户日期"></col>
+					<col column="CLOSE_DT" label="销户日期" displaytype="hidden"></col>
+					<col column="VUCH_STATUS_ID" label="凭证状态代码" displaytype="hidden"></col>
+					<col column="VUCH_STATUS_NM" label="凭证状态名称" br="true"></col>
+					<col column="DEPT_ID" label="部门编号" displaytype="hidden"></col>
+					<col column="MARKETING_NO" label="营销活动编号"></col>
+				</display>
+				<sql datasource="ds_db2">
+					<select>
+						<value><![CDATA[
+							SELECT 		VUCH_NBR      
+										,CST_ID            
+										,CST_NM            
+										,VUCH_TYPE_ID      
+										,VUCH_TYPE_NM      
+										,WITH_CARD_F       
+										,BIZ_TYPE_ID       
+										,BIZ_TYPE_NM       
+										,ORG_ID            
+										,ORG_NM            
+										,BRANCH_ORG_ID     
+										,BRANCH_ORG_NM     
+										,OPEN_DT           
+										,CLOSE_DT          
+										,VUCH_STATUS_ID    
+										,VUCH_STATUS_NM    
+										,DEPT_ID   
+										,MARKETING_NO            
+							FROM IBS.T1_VUCH_DETAIL	
+							WHERE  COALESCE(MARKETING_NO,'') not in ('2016qq') 
+							and {#condition#}
+							WITH UR
+						    ]]>
+						</value>
+						<condition name="VUCH_NBR" hidden="true">
+							<value><![CDATA[VUCH_NBR='#data#']]></value>
+						</condition>
+					</select>
+				</sql>
+			</report>
+
+
+			<!-- 认领信息 -->
+			<report id="dtl" title="认领信息" type="form" personalizeclass="default"
+				servervalidateclass="com.ljbank.market.Servervalidate_ClaimDep"
+				depends="select" dependsparams="txtaccid=@{VUCH_NBR}" top="10px"
+				refreshid="dtl">
+
+				<display valuetdwidth="100px" labeltdwidth="40px" labelalign="center">
+
+					<col column="VUCH_NBR" label="凭证号" displaytype="hidden"
+						valuestyleproperty="style='mso-nubmer-format:\@'"></col><!-- displaytype="hidden" -->
+					<col column="EMP_ID" label="认领工号" valuestyleproperty="style='mso-nubmer-format:\@'"></col>
+					<col column="EMP_NM" label="姓名"></col>
+					<col column="EMP_ORG_ID" label="机构号" displaytype="hidden"
+						valuestyleproperty="style='mso-nubmer-format:\@'"></col>
+					<col column="EMP_ORG_NM" label="人员机构" width="150px"></col>
+
+					<col column="RATIO" label="认领比例(%)">
+					</col>
+					<col column="CLAIM_STATUS_ID" label="认领状态"></col>
+					<col column="CLAIM_DT" label="认领日期" br="true"></col>
+					<col column="VERIFY_DT" label="审批日期" displaytype="hidden"></col>
+					<col column="VERIFY_EMP_ID" label="审批人" displaytype="hidden"></col>
+					<col column="REMARK" label="备注" datetype="clob" align="left"
+						valuestyleproperty="colspan='11';align='left'"></col>
+
+				</display>
+
+				<sql datasource="ds_db2">
+					<select>
+						<value><![CDATA[
+							SELECT   VUCH_NBR
+							         ,EMP_ID
+							         ,EMP_NM
+							         ,EMP_ORG_ID
+							         ,EMP_ORG_NM
+							         ,RATIO
+							         ,CLAIM_STATUS_ID
+							         ,CLAIM_DT
+							         ,VERIFY_DT
+							         ,VERIFY_EMP_ID
+							         ,REMARK
+							FROM IBS.T1_VUCH_EMP_RELA	
+
+							WHERE  	COALESCE(MARKETING_NO,'') not in ('2016qq') 
+							and {#condition#}
+							WITH UR
+						    ]]>
+						</value>
+						<condition name="txtaccid" hidden="true">
+							<value><![CDATA[VUCH_NBR='#data#']]></value>
+						</condition>
+						<condition name="EMP_ID" hidden="true">
+							<value><![CDATA[EMP_ID='#data#']]></value>
+						</condition>
+
+
+
+
+					</select>
+
+				</sql>
+				<format>
+					<imports>
+						<import>com.ljbank.util.*</import>
+						<import>java.util.*</import>
+						<import>java.text.*</import>
+						<import>com.wabacus.system.*</import>
+					</imports>
+					<value>
+					<![CDATA[
+			        CLAIM_STATUS_ID=CLAIM_STATUS_ID==null?"":CLAIM_STATUS_ID.trim();
+					if(CLAIM_STATUS_ID.equals("0")) CLAIM_STATUS_ID="0-暂存";
+					else if(CLAIM_STATUS_ID.equals("1")) CLAIM_STATUS_ID="1-待审核";
+					else if(CLAIM_STATUS_ID.equals("2")) CLAIM_STATUS_ID="2-已审核";
+					else if(CLAIM_STATUS_ID.equals("3")) CLAIM_STATUS_ID="3-未通过";
+					else if(CLAIM_STATUS_ID.equals("4")) CLAIM_STATUS_ID="4-撤销";
+					else if(CLAIM_STATUS_ID.equals("5")) CLAIM_STATUS_ID="5-超时自动审批";
+					else if(CLAIM_STATUS_ID.equals("6")) CLAIM_STATUS_ID="6-事中认领自动审核通过";
+					else if(CLAIM_STATUS_ID.equals("21")) CLAIM_STATUS_ID="21-初审";
+					else if(CLAIM_STATUS_ID.equals("31")) CLAIM_STATUS_ID="31-初审未通过";
+					
+					
+					String remark=REMARK;
+					System.out.println("REMARK原值为："+remark);
+					if(!remark.equals("")){
+							remark=remark.replace("认领时间","<br/>认领时间");
+							remark=remark.replace("审批时间","<br/>审批时间");
+						}
+
+					System.out.println("REMARK新值为："+remark);
+					REMARK=remark;
+
+					
+					]]>
+			  		</value>
+				</format>
+			</report>
+		</vpanel>
+	</page>
+
+	<!--我的认领信息进入认领信息明细 -->
+	<page id="my_claim_info"
+		js="/webresources/script/validate.js,/js/demo.js,/js/common.js"><!-- /webresources/script/validate.js -->
+
+		<header>${top.header}</header>
+		<vpanel id="common_vpanel" width="1300px" align="center" title="">
+
+			<header>
+			  <![CDATA[<table width="1300px" border="0" cellspacing="0" cellpadding="0">
+			 	<tr><td height="22px" align="left" style="background:#F0F1F3"><font style='color:#154BA0'>☆ 我的认领</font>>><font style='font-weight:bold;color:#154BA0'>详细</font>>></td></tr>
+			    
+				
+			  	<tr><td height="10px"></td></tr>
+			  	<tr><td align="right"><a href='ShowReport.wx?PAGEID=my_claimed' style="font-size:15px;TEXT-DECORATION:underline">返回上一级</a></td></tr>
+			    </table>
+			  ]]>
+			</header>
+			<report id="select" type="form" title="账户信息" width="1300px"
+				interceptor="com.customer.interceptor.InterceptorClaimInfo" top="10px"
+				personalizeclass="default"><!-- interceptor="com.customer.interceptor.InterceptorClaimDep" -->
+
+				<display valuetdwidth="120px" labeltdwidth="80px">
+					<!-- col column="{sequence:1}" label="序号"></col displaytype="hidden" 
+						br="true" -->
+					<col column="VUCH_NBR" label="凭证号" valuestyleproperty="style='mso-nubmer-format:\@'"></col>
+					<col column="CST_ID" label="客户号" displaytype="hidden"></col>
+					<col column="CST_NM" label="客户名"></col>
+					<col column="VUCH_TYPE_ID" label="凭证类型代码" displaytype="hidden"></col>
+					<col column="VUCH_TYPE_NM" label="凭证类型名称"></col>
+					<col column="WITH_CARD_F" label="配卡标志" displaytype="hidden"></col>
+					<col column="BIZ_TYPE_ID" label="业务类型代码" displaytype="hidden"></col>
+					<col column="BIZ_TYPE_NM" label="业务类型名称" br="true"></col>
+					<col column="ORG_ID" label="机构号" displaytype="hidden"
+						valuestyleproperty="style='mso-nubmer-format:\@'"></col>
+					<col column="ORG_NM" label="机构名"></col>
+					<col column="BRANCH_ORG_ID" label="分行机构号" displaytype="hidden"
+						valuestyleproperty="style='mso-nubmer-format:\@'"></col>
+					<col column="BRANCH_ORG_NM" label="分行机构名"></col>
+					<col column="OPEN_DT" label="开户日期"></col>
+					<col column="CLOSE_DT" label="销户日期" displaytype="hidden"></col>
+					<col column="VUCH_STATUS_ID" label="凭证状态代码" displaytype="hidden"></col>
+					<col column="VUCH_STATUS_NM" label="凭证状态名称" br="true"></col>
+					<col column="DEPT_ID" label="部门编号" displaytype="hidden"></col>
+					<col column="MARKETING_NO" label="营销活动编号"></col>
+				</display>
+				<sql datasource="ds_db2">
+					<select>
+						<value><![CDATA[
+							SELECT 		VUCH_NBR      
+										,CST_ID            
+										,CST_NM            
+										,VUCH_TYPE_ID      
+										,VUCH_TYPE_NM      
+										,WITH_CARD_F       
+										,BIZ_TYPE_ID       
+										,BIZ_TYPE_NM       
+										,ORG_ID            
+										,ORG_NM            
+										,BRANCH_ORG_ID     
+										,BRANCH_ORG_NM     
+										,OPEN_DT           
+										,CLOSE_DT          
+										,VUCH_STATUS_ID    
+										,VUCH_STATUS_NM    
+										,DEPT_ID  
+										,MARKETING_NO       
+							FROM IBS.T1_VUCH_DETAIL		
+							WHERE   COALESCE(MARKETING_NO,'') not in ('2016qq') 
+							and {#condition#}
+							WITH UR
+							
+						    ]]>
+						</value>
+						<condition name="VUCH_NBR" hidden="true">
+							<value><![CDATA[VUCH_NBR='#data#']]></value>
+						</condition>
+					</select>
+				</sql>
+			</report>
+
+
+			<!-- 认领信息 -->
+			<report id="dtl" title="认领信息" type="form" personalizeclass="default"
+				servervalidateclass="com.ljbank.market.Servervalidate_ClaimDep"
+				depends="select" dependsparams="txtaccid=@{VUCH_NBR}" top="10px"
+				refreshid="dtl">
+
+				<display valuetdwidth="90px" labeltdwidth="60px" labelalign="center">
+
+					<col column="VUCH_NBR" label="凭证号" displaytype="hidden"
+						valuestyleproperty="style='mso-nubmer-format:\@'"></col><!-- displaytype="hidden" -->
+					<col column="EMP_ID" label="认领工号" valuestyleproperty="style='mso-nubmer-format:\@'"></col>
+					<col column="EMP_NM" label="姓名"></col>
+					<col column="ORG_ID" label="机构号" displaytype="hidden"
+						valuestyleproperty="style='mso-nubmer-format:\@'"></col>
+					<col column="ORG_NM" label="机构名"></col>
+					<col column="RATIO" label="认领比例(%)"></col>
+					<col column="CLAIM_STATUS_ID" label="认领状态"></col>
+					<col column="CLAIM_DT" label="认领日期" br="true"></col>
+					<col column="VERIFY_DT" label="审批日期" displaytype="hidden"></col>
+					<col column="VERIFY_EMP_ID" label="审批人" displaytype="hidden"></col>
+					<col column="REMARK" label="备注" datetype="clob" align="left"
+						valuestyleproperty="colspan='11';align='left'"></col>
+
+				</display>
+
+				<sql datasource="ds_db2">
+					<select>
+						<value><![CDATA[
+							SELECT   VUCH_NBR
+							         ,EMP_ID
+							         ,EMP_NM
+							         ,ORG_ID
+							         ,ORG_NM
+							         ,RATIO
+							         ,CLAIM_STATUS_ID
+							         ,CLAIM_DT
+							         ,VERIFY_DT
+							         ,VERIFY_EMP_ID
+							         ,REMARK
+							FROM IBS.T1_VUCH_EMP_RELA	
+							WHERE  	COALESCE(MARKETING_NO,'') not in ('2016qq') 
+							and {#condition#}
+							with ur
+						    ]]>
+						</value>
+						<condition name="txtaccid" hidden="true">
+							<value><![CDATA[VUCH_NBR='#data#']]></value>
+						</condition>
+						<condition name="EMP_ID" hidden="true">
+							<value><![CDATA[EMP_ID='#data#']]></value>
+						</condition>
+
+
+
+
+					</select>
+
+				</sql>
+				<format>
+					<imports>
+						<import>com.ljbank.util.*</import>
+						<import>java.util.*</import>
+						<import>java.text.*</import>
+						<import>com.wabacus.system.*</import>
+					</imports>
+					<value>
+					<![CDATA[
+			        CLAIM_STATUS_ID=CLAIM_STATUS_ID==null?"":CLAIM_STATUS_ID.trim();
+					if(CLAIM_STATUS_ID.equals("0")) CLAIM_STATUS_ID="0-暂存";
+					else if(CLAIM_STATUS_ID.equals("1")) CLAIM_STATUS_ID="1-待审核";
+					else if(CLAIM_STATUS_ID.equals("2")) CLAIM_STATUS_ID="2-已审核";
+					else if(CLAIM_STATUS_ID.equals("3")) CLAIM_STATUS_ID="3-未通过";
+					else if(CLAIM_STATUS_ID.equals("4")) CLAIM_STATUS_ID="4-撤销";
+					else if(CLAIM_STATUS_ID.equals("5")) CLAIM_STATUS_ID="5-超时自动审批";
+					else if(CLAIM_STATUS_ID.equals("6")) CLAIM_STATUS_ID="6-事中认领自动审核通过";
+					else if(CLAIM_STATUS_ID.equals("21")) CLAIM_STATUS_ID="21-初审";
+					else if(CLAIM_STATUS_ID.equals("31")) CLAIM_STATUS_ID="31-初审未通过";
+					
+					
+					String remark=REMARK;
+					System.out.println("REMARK原值为："+remark);
+					if(!remark.equals("")){
+							remark=remark.replace("认领时间","<br/>认领时间");
+							remark=remark.replace("审批时间","<br/>审批时间");
+						}
+
+					System.out.println("REMARK新值为："+remark);
+					REMARK=remark;
+
+					
+					]]>
+			  		</value>
+				</format>
+			</report>
+		</vpanel>
+	</page>
+
+
+	<!--认领查询（有权人） -->
+	<page id="claimed_info"
+		js="/webresources/script/validate.js,/js/demo.js,/js/common.js"><!-- /webresources/script/validate.js -->
+
+		<header>${top.header}</header>
+		<vpanel id="common_vpanel" width="1300px" align="center" title="">
+			<report id="title" extends="title.report1" width="1300px"></report>
+
+			<report id="select" type="listform" personalizeclass="default" rowselect="multiple"
+				pagesize="15|20|-1" top="10px"  dataexport="plainexcel" title="认领信息" interceptor="com.customer.interceptor.InterceptorClaimedInfo"> <!--  -->
+				<display>
+					<col column="{sequence:1}" label="序号" width="40px"></col>
+					<col column="BIZ_TYPE_NM" label="业务类型名称" width="90px"></col>
+					
+					<col column="VUCH_NBR" label="凭证号" width="150px"
+						valuestyleproperty="style='mso-nubmer-format:\@'"></col>
+					<col column="CST_NM" label="客户名" width="250px"></col>
+					
+					<col column="EMP_ID" label="认领工号" width="80px"
+						valuestyleproperty="style='mso-nubmer-format:\@'"></col>
+					<col column="EMP_NM" label="姓名" width="80px"></col>
+
+					<col column="RATIO" label="认领比例（%）" width="80px"></col>
+					<col column="CLAIM_DT" label="认领日期" width="80px"></col>
+					<col column="CLAIM_STATUS_NM" label="审核方式" width="80px"></col>
+					<col column="VERIFY_DT" label="审批日期" width="80px"></col>
+					<col column="VERIFY_EMP_ID" width="80px" label="审批工号"></col>
+					<col column="VERIFY_EMP_NM" width="80px" label="审批人"></col>
+				</display>
+
+				<sql datasource="ds_db2">
+					<select>
+						<value><![CDATA[
+							SELECT   
+									 re.BIZ_TYPE_NM     	
+									,re.VUCH_NBR     		
+									,re.CST_NM     			
+									,re.EMP_ID
+									,re.EMP_NM    	
+									,re.CLAIM_DT
+									,(case when coalesce(re.RVS_STATUS_ID,'') in ('2','21') then RVS_RATIO else re.RATIO end) as RATIO
+									,(case when coalesce(re.RVS_STATUS_ID,'') in ('2','21') then rs.EMP_NM else B.EMP_NM end) as VERIFY_EMP_NM
+									,(case when coalesce(re.RVS_STATUS_ID,'') in ('2','21') then rs.EMP_ID else B.EMP_ID end) as VERIFY_EMP_ID 
+									,(case when coalesce(re.RVS_STATUS_ID,'') in ('2','21') then RVS_CLAIM_DT else re.VERIFY_DT end) as VERIFY_DT 
+									,(case when coalesce(re.RVS_STATUS_ID,'') in ('2','21') then rstp.RVS_STATUS_NM else ctp.CLAIM_STATUS_NM end) as CLAIM_STATUS_NM
+							FROM    IBS.T1_VUCH_EMP_RELA re
+							
+							inner join ibs.T5_EMP emp on emp.EMP_ID=re.EMP_ID
+					        inner join IBS.T5_ORG pog on pog.ORG_ID=emp.ORG_ID and pog.ORG_TYPE_ID='EO'
+							inner join IBS.T5_ORG cog on cog.ORG_ID=re.ORG_ID and cog.ORG_TYPE_ID='AO'
+							%sqlinner%
+							LEFT JOIN IBS.T5_EMP B ON re.VERIFY_EMP_ID=B.EMP_ID
+							LEFT JOIN IBS.T5_EMP rs ON re.RVS_CLAIM_EMP_ID=rs.EMP_ID
+							left join ibs.T9_RVS_STATUS_TYPE rstp on rstp.RVS_STATUS_ID=re.RVS_STATUS_ID
+							left join ibs.T9_CLAIM_STATUS_TYPE ctp on ctp.CLAIM_STATUS_ID=re.CLAIM_STATUS_ID
+							WHERE 	re.CLAIM_STATUS_ID IN ('2','5','6') 
+							AND 	COALESCE(re.MARKETING_NO,'') not in ('2016qq') 
+							and {#condition#} %sqlcon%
+							ORDER BY re.CLAIM_DT desc, re.BIZ_TYPE_NM, re.VUCH_NBR
+							
+						    ]]>
+						</value>
+						<!-- 
+						<condition name="ORG_ID" source="session{org_id}"
+							hidden="true">
+							<value><![CDATA[(A.ORG_ID='#data#' or org.BRANCH_ORG_ID='#data#' or org.HEAD_ORG_ID='#data#') ]]></value>
+						</condition>
+						 -->
+						<condition name="VUCH_NBR" label="凭证号" labelposition="left">
+							<value><![CDATA[re.VUCH_NBR='#data#']]></value>
+						</condition>
+						<condition name="EMP_ID" label="认领工号" labelposition="left">
+							<value>
+							 		<![CDATA[re.EMP_ID='#data#']]>
+							</value>
+							<inputbox styleproperty="style='width:100px'">
+								<typeprompt width="300" count="10">
+									<promptcol label="EMP_ID" value="EMP_ID" title="认领工号"
+										matchmode="anywhere" casesensitive="false" />
+									<promptcol label="EMP_NM" value="EMP_NM" title="姓名"
+										matchmode="anywhere" casesensitive="false" />
+									<datasource>
+										<option
+											source="@{Select DISTINCT EMP_ID, EMP_NM from IBS.T5_EMP  WHERE   {#matchcondition#}} " />
+									</datasource>
+								</typeprompt>
+							</inputbox>
+						</condition>
+						<condition name="EMP_NM" label="姓名" labelposition="left">
+							<value>
+							 		<![CDATA[re.EMP_NM='#data#']]>
+							</value>
+							<inputbox styleproperty="style='width:100px'">
+								<typeprompt width="300" count="10">
+									<promptcol label="EMP_ID" value="EMP_ID" title="认领工号"
+										matchmode="anywhere" casesensitive="false" />
+									<promptcol label="EMP_NM" value="EMP_NM" title="姓名"
+										matchmode="anywhere" casesensitive="false" />
+									<datasource>
+										<option
+											source="@{Select DISTINCT EMP_ID, EMP_NM from IBS.T5_EMP  WHERE   {#matchcondition#}} " />
+									</datasource>
+								</typeprompt>
+							</inputbox>
+						</condition>
+						<condition name="BIZ_TYPE_NM" labelposition="left"
+							label="业务类型">
+							<value>
+							<![CDATA[re.BIZ_TYPE_NM='#data#']]>
+							</value>
+							<inputbox type="selectbox" styleproperty="style='width:100px'">
+								<option label="全部" value=""></option>
+								<option
+									source="@{Select distinct BIZ_TYPE_NM from IBS.T9_BIZ_TYPE order by BIZ_TYPE_NM}"
+									label="BIZ_TYPE_NM" value="BIZ_TYPE_NM" />
+
+							</inputbox>
+						</condition>
+						<!-- 
+						<condition name="CLAIM_STATUS_ID" labelposition="left"
+							label="审核方式">
+							<value>
+							<![CDATA[re.CLAIM_STATUS_ID='#data#']]>
+							</value>
+							<inputbox type="selectbox" styleproperty="style='width:100px'">
+								<option label="全部" value=""></option>
+								<option
+									source="@{Select distinct CLAIM_STATUS_ID, CLAIM_STATUS_NM from IBS.T9_CLAIM_STATUS_TYPE WHERE CLAIM_STATUS_ID IN ('2', '5' ,'6') order by CLAIM_STATUS_ID}"
+									label="CLAIM_STATUS_NM" value="CLAIM_STATUS_ID" />
+
+							</inputbox>
+						</condition>
+						 -->	
+						<condition name="CLAIM_DT_START" label="认领日期"
+							labelposition="left">
+							<value>
+								 	<![CDATA[ 
+										re.CLAIM_DT BETWEEN '#data#' 
+								 	]]>
+							</value>
+							<inputbox type="datepicker" styleproperty="style='width:80px'"
+								jsvalidate="isDate(#label#格式为yyyy-MM-dd)" jsvalidatetype="onsubmit">
+							</inputbox>
+						</condition>
+						<condition name="CLAIM_DT_END" label="至"
+							defaultvalue="url{CLAIM_DT_START}" labelposition="left" >
+							<value>
+								 	<![CDATA['#data#'				 	
+								 	]]>
+							</value>
+							<inputbox type="datepicker" styleproperty="style='width:80px'"
+								jsvalidate="isDate(#label#格式为yyyy-MM-dd)" jsvalidatetype="onsubmit">
+							</inputbox>
+						</condition>
+						<condition name="CST_NM" label="客户名" labelposition="left">
+							<value><![CDATA[re.CST_NM='#data#']]></value>
+						</condition>
+
+
+					</select>
+
+				</sql>
+				<format>
+					<imports>
+						<import>com.ljbank.util.*</import>
+						<import>java.util.*</import>
+						<import>java.text.*</import>
+						<import>com.wabacus.system.*</import>
+					</imports>
+					<value>
+					<!-- 
+					<![CDATA[
+			        CLAIM_STATUS_ID=CLAIM_STATUS_ID==null?"":CLAIM_STATUS_ID.trim();
+					if(CLAIM_STATUS_ID.equals("0")) CLAIM_STATUS_ID="0-暂存";
+					else if(CLAIM_STATUS_ID.equals("1")) CLAIM_STATUS_ID="1-待审核";
+					else if(CLAIM_STATUS_ID.equals("2")) CLAIM_STATUS_ID="2-已审核";
+					else if(CLAIM_STATUS_ID.equals("3")) CLAIM_STATUS_ID="3-未通过";
+					else if(CLAIM_STATUS_ID.equals("4")) CLAIM_STATUS_ID="4-撤销";
+					else if(CLAIM_STATUS_ID.equals("5")) CLAIM_STATUS_ID="5-超时自动审批";
+					else if(CLAIM_STATUS_ID.equals("6")) CLAIM_STATUS_ID="6-事中认领自动审核通过";
+					else if(CLAIM_STATUS_ID.equals("21")) CLAIM_STATUS_ID="21-初审";
+					else if(CLAIM_STATUS_ID.equals("31")) CLAIM_STATUS_ID="31-初审未通过";
+					
+					VERIFY_EMP_ID=VERIFY_EMP_ID==null?"":VERIFY_EMP_ID.trim();
+					if(VERIFY_EMP_ID.equals("ADMIN_HK")) VERIFY_EMP_NM="换卡自动审批";
+					if(VERIFY_EMP_ID.equals("ADMIN_SZ")) VERIFY_EMP_NM="事中自动审批";
+					if(VERIFY_EMP_ID.equals("ADMIN_LS")) VERIFY_EMP_NM="历史数据迁移";
+					]]>
+					 -->
+			  		</value>
+				</format>
+			</report>
+		</vpanel>
+	</page>
+</applications>

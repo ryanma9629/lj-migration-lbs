@@ -1,0 +1,359 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<applications xmlns="http://www.wabacus.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.wabacus.com ../xsd/wabacus.applications.xsd">
+
+<!--基金交易认领 -->
+<page id="claim_fund_txn"
+	js="/webresources/script/validate.js,/js/demo.js,/js/common.js"><!-- /webresources/script/validate.js -->
+
+	<header>${top.header}</header>
+	<vpanel id="common_vpanel" width="1300px" align="center" title="">
+		
+		<report id="dtl" title="认领信息" type="form" personalizeclass="default" 
+		servervalidateclass="com.ljbank.market.Servervalidate_Fund;com.ljbank.market.Util"
+		interceptor="com.customer.interceptor.InterceptorClaimFundTxn"
+			top="10px" >
+		
+			<buttons align="right">
+				<button name="sub" position="title" positionorder="2"
+					extends="${wabacus.button2.default}" label="提交"
+					confirmessage="提交前请确认数据已经保存。提交后数据将不能修改，是否确认提交?">
+					<params>
+						<param name="user_id" value="session{user_id}"></param>
+					</params>
+					invokeServerActionForComponent('claim_fund_txn', 'list',
+					'com.customer.util.SubmitClaimFundTxn',
+					{},true,refreshComponentDisplay('claim_fund_txn','list',true))
+				</button>
+			</buttons>
+			<display>
+				<col column="TXN_NO" label="流水号" valuestyleproperty="colspan='2'"></col>
+				<col column="TXN_DT" label="交易日期" ></col>
+				
+				<col column="PRD_CD" label="产品代码"></col>
+				<col column="CST_NM" label="客户名"></col>
+				<col column="TXN_AMT" label="交易金额"></col>
+				<col column="ORG_ID" label="交易机构号"  displaytype="hidden"></col>
+				<col column="ORG_NM" label="交易机构名称" br="true"></col>					
+				<col column="CLAIM_STATUS_NM" label="认领状态" valuestyleproperty="colspan='2'"></col>
+				<col column="RATIO_DFAULT" label="*认领比例(%)">
+					<inputbox styleproperty="style='width:90%'"
+						jsvalidate="isNumeric(不是合法数字);isNotEmpty(不可以为空值)"
+						servervalidate="isClaimTxnRatio()" 
+						/>
+				</col>
+				<col column="REMARK1" label="备注" datatype="varchar"
+						valuestyleproperty="colspan='7';align='left'">
+					<inputbox type="textareabox" styleproperty="style='width:99%'"/>		
+				</col>
+				<col column="EMP_ID" label="认领人" displaytype="hidden"></col>
+			</display>
+
+			<sql datasource="ds_db2">
+				<select>
+					<value><![CDATA[
+						Select RE.*,S.CLAIM_STATUS_NM,(CASE WHEN RATIO=0 THEN 100 ELSE RATIO END) as RATIO_DFAULT
+						from IBS.T1_FUND_TXN_EMP_RELA re
+						left join IBS.T9_CLAIM_STATUS_TYPE S ON S.CLAIM_STATUS_ID=RE.CLAIM_STATUS_ID	
+						WHERE RE.CLAIM_STATUS_ID in ('0','7') 
+						AND {#condition#}
+						
+					    ]]>
+					</value>
+					<condition name="TXN_NO" label="交易流水号">
+						<value><![CDATA[TXN_NO='#data#']]></value>
+					</condition>
+					<condition name="TXN_DT"  label="交易日期" >
+						<value><![CDATA[TXN_DT = '#data#']]></value>
+						<inputbox type="datepicker" styleproperty="style='width:120px'"
+								jsvalidate="isDate(#label#格式为yyyy-MM-dd)">
+							</inputbox>
+					</condition>
+				</select>
+
+				<update confirmessage="保存">
+					<params>
+						<param name="user_id" value="session{user_id}"></param>
+						<param name="user_name" value="session{user_name}"></param>
+						<param name="usr_org_id" value="session{usr_org_id}"></param>
+						<param name="usr_org_nm" value="session{usr_org_nm}"></param>
+						<param name="current_time" value="now{}" datatype="timestamp{yyyy-MM-dd}"></param>
+						<param name="current_time1" value="now{}"
+							datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
+					</params>
+					<value>
+						<![CDATA[
+							update IBS.T1_FUND_TXN_EMP_RELA
+							set RATIO = @{RATIO_DFAULT}
+								,CLAIM_STATUS_ID='0'
+								,EMP_ID = #{user_id}
+								,EMP_NM = #{user_name}
+								,EMP_ORG_ID = #{usr_org_id}
+								,EMP_ORG_NM = #{usr_org_nm}
+								,CLAIM_DT=#{current_time}
+								,REMARK1 = @{REMARK1}
+							where TXN_NO=@{TXN_NO__old}
+							and EMP_ID=@{EMP_ID__old}
+							and TXN_DT=@{TXN_DT__old}
+						]]>
+					</value>
+				</update>
+			</sql>
+
+			<format>
+				<imports>
+					<import>com.ljbank.util.*</import>
+					<import>java.util.*</import>
+					<import>java.text.*</import>
+					<import>com.wabacus.system.*</import>
+				</imports>
+				<value>
+				<![CDATA[
+					rrequest.getRequest().getSession().setAttribute("EMP_ID", EMP_ID);
+				    rrequest.getRequest().getSession().setAttribute("RATIO_DFAULT", RATIO_DFAULT);
+				]]>
+		  		</value>
+			</format>
+		</report>
+		<footer><![CDATA[
+			<tr><td height="20px"></td></tr>
+			<div style='float:left'>
+				<font color='green'>提示：1-只能够填写本人认领信息，不可以代人认领。</font>
+			</div>
+			<tr><td height="20px"></td></tr>
+			]]>
+			</footer>
+		</vpanel>
+	</page>
+	
+<!--基金客户认领 -->
+<page id="claim_fund_cst"
+	js="/webresources/script/validate.js,/js/demo.js,/js/common.js"><!-- /webresources/script/validate.js -->
+
+<header>${top.header}</header>
+<vpanel id="common_vpanel" width="1300px" align="center" title="">
+	
+	<report id="dtl" title="认领信息" type="form" personalizeclass="default" 
+	servervalidateclass="com.ljbank.market.Servervalidate_Fund;com.ljbank.market.Util"
+	interceptor="com.customer.interceptor.InterceptorClaimFundCst"
+		top="10px" >
+	
+		<buttons align="right">
+			<button name="sub" position="title" positionorder="2"
+				extends="${wabacus.button2.default}" label="提交"
+				confirmessage="提交前请确认数据已经保存。提交后数据将不能修改，是否确认提交?">
+				<params>
+					<param name="user_id" value="session{user_id}"></param>
+				</params>
+				invokeServerActionForComponent('claim_fund_cst', 'dtl',
+				'com.customer.util.SubmitClaimFundCst',
+				{},true,refreshComponentDisplay('claim_fund_cst','dtl',true))
+			</button>
+		</buttons>
+		<display>
+			<col column="IDENTN_NO" label="证件号" valuestyleproperty="colspan='2'"></col>
+			<col column="TXN_DT" label="签约日期" ></col>
+			<col column="CST_NM" label="客户名"></col>
+			<col column="ORG_ID" label="签约机构号"  displaytype="hidden"></col>
+			<col column="ORG_NM" label="签约机构" valuestyleproperty="colspan='3'" br="true" ></col>					
+			<col column="CLAIM_STATUS_NM" label="认领状态" valuestyleproperty="colspan='2'"></col>
+			<col column="RATIO_DFAULT" label="*认领比例(%)">
+				<inputbox styleproperty="style='width:90%'"
+					jsvalidate="isNumeric(不是合法数字);isNotEmpty(不可以为空值)"
+					servervalidate="isClaimCstRatio()" 
+					/>
+			</col>
+			<col column="REMARK1" label="备注" datatype="varchar"
+					valuestyleproperty="colspan='5';align='left'">
+				<inputbox type="textareabox" styleproperty="style='width:99%'"/>		
+			</col>
+			<col column="EMP_ID" label="认领人" displaytype="hidden"></col>
+		</display>
+
+		<sql datasource="ds_db2">
+			<select>
+				<value><![CDATA[
+					Select RE.*,S.CLAIM_STATUS_NM,(CASE WHEN RATIO=0 THEN 100 ELSE RATIO END) as RATIO_DFAULT
+					from IBS.T1_FUND_CST_EMP_RELA re
+					left join IBS.T9_CLAIM_STATUS_TYPE S ON S.CLAIM_STATUS_ID=RE.CLAIM_STATUS_ID	
+					WHERE RE.CLAIM_STATUS_ID in ('0','7') 
+					AND {#condition#}
+					
+				    ]]>
+				</value>
+				<condition name="IDENTN_NO" label="证件号">
+					<value><![CDATA[IDENTN_NO='#data#']]></value>
+				</condition>
+			</select>
+
+			<update confirmessage="保存">
+				<params>
+					<param name="user_id" value="session{user_id}"></param>
+					<param name="user_name" value="session{user_name}"></param>
+					<param name="usr_org_id" value="session{usr_org_id}"></param>
+					<param name="usr_org_nm" value="session{usr_org_nm}"></param>
+					<param name="current_time" value="now{}" datatype="timestamp{yyyy-MM-dd}"></param>
+					<param name="current_time1" value="now{}"
+						datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
+				</params>
+				<value>
+					<![CDATA[
+						update IBS.T1_FUND_CST_EMP_RELA
+						set RATIO = @{RATIO_DFAULT}
+							,CLAIM_STATUS_ID='0'
+							,EMP_ID = #{user_id}
+							,EMP_NM = #{user_name}
+							,EMP_ORG_ID = #{usr_org_id}
+							,EMP_ORG_NM = #{usr_org_nm}
+							,CLAIM_DT=#{current_time}
+							,REMARK1 = @{REMARK1}
+						where IDENTN_NO=@{IDENTN_NO__old}
+						and EMP_ID=@{EMP_ID__old}
+					]]>
+				</value>
+			</update>
+		</sql>
+
+		<format>
+			<imports>
+				<import>com.ljbank.util.*</import>
+				<import>java.util.*</import>
+				<import>java.text.*</import>
+				<import>com.wabacus.system.*</import>
+			</imports>
+			<value>
+			<![CDATA[
+				rrequest.getRequest().getSession().setAttribute("EMP_ID", EMP_ID);
+			    rrequest.getRequest().getSession().setAttribute("RATIO_DFAULT", RATIO_DFAULT);
+			]]>
+	  		</value>
+		</format>
+	</report>
+	<footer><![CDATA[
+		<tr><td height="20px"></td></tr>
+		<div style='float:left'>
+			<font color='green'>提示：1-只能够填写本人认领信息，不可以代人认领。</font>
+		</div>
+		<tr><td height="20px"></td></tr>
+		]]>
+		</footer>
+	</vpanel>
+</page>
+
+<!--基金定投认领 -->
+<page id="claim_fund_dt"
+	js="/webresources/script/validate.js,/js/demo.js,/js/common.js"><!-- /webresources/script/validate.js -->
+
+<header>${top.header}</header>
+<vpanel id="common_vpanel" width="1300px" align="center" title="">
+	
+	<report id="dtl" title="认领信息" type="form" personalizeclass="default" 
+	servervalidateclass="com.ljbank.market.Servervalidate_Fund;com.ljbank.market.Util"
+	interceptor="com.customer.interceptor.InterceptorClaimFundDt"
+		top="10px" >
+	
+		<buttons align="right">
+			<button name="sub" position="title" positionorder="2"
+				extends="${wabacus.button2.default}" label="提交"
+				confirmessage="提交前请确认数据已经保存。提交后数据将不能修改，是否确认提交?">
+				<params>
+					<param name="user_id" value="session{user_id}"></param>
+				</params>
+				invokeServerActionForComponent('claim_fund_dt', 'dtl',
+				'com.customer.util.SubmitClaimFundDt',
+				{},true,refreshComponentDisplay('claim_fund_dt','dtl',true))
+			</button>
+		</buttons>
+		<display>
+			<col column="SERIAL_NO" label="定投协义编号" valuestyleproperty="colspan='2'"></col>
+			<col column="TXN_DT" label="签约日期" ></col>
+			<col column="CST_NM" label="客户名"></col>
+			<col column="PRD_NM" label="产品名称"></col>
+			<col column="ORG_ID" label="签约机构号"  displaytype="hidden"></col>
+			<col column="ORG_NM" label="签约机构" valuestyleproperty="colspan='3'" br="true" ></col>					
+			<col column="CLAIM_STATUS_NM" label="认领状态" valuestyleproperty="colspan='2'"></col>
+			<col column="RATIO_DFAULT" label="*认领比例(%)">
+				<inputbox styleproperty="style='width:90%'"
+					jsvalidate="isNumeric(不是合法数字);isNotEmpty(不可以为空值)"
+					servervalidate="isClaimDtRatio()" 
+					/>
+			</col>
+			<col column="REMARK1" label="备注" datatype="varchar"
+					valuestyleproperty="colspan='5';align='left'">
+				<inputbox type="textareabox" styleproperty="style='width:99%'"/>		
+			</col>
+			<col column="EMP_ID" label="认领人" displaytype="hidden"></col>
+		</display>
+
+		<sql datasource="ds_db2">
+			<select>
+				<value><![CDATA[
+					Select RE.*,S.CLAIM_STATUS_NM,(CASE WHEN RATIO=0 THEN 100 ELSE RATIO END) as RATIO_DFAULT
+					from IBS.T1_FUND_DT_EMP_RELA re
+					left join IBS.T9_CLAIM_STATUS_TYPE S ON S.CLAIM_STATUS_ID=RE.CLAIM_STATUS_ID	
+					WHERE RE.CLAIM_STATUS_ID in ('0','7','3','31') 
+					AND {#condition#}
+					
+				    ]]>
+				</value>
+				<condition name="SERIAL_NO" label="定投协义编号">
+					<value><![CDATA[SERIAL_NO='#data#']]></value>
+				</condition>
+			</select>
+
+			<update confirmessage="保存">
+				<params>
+					<param name="user_id" value="session{user_id}"></param>
+					<param name="user_name" value="session{user_name}"></param>
+					<param name="usr_org_id" value="session{usr_org_id}"></param>
+					<param name="usr_org_nm" value="session{usr_org_nm}"></param>
+					<param name="current_time" value="now{}" datatype="timestamp{yyyy-MM-dd}"></param>
+					<param name="current_time1" value="now{}"
+						datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
+				</params>
+				<value>
+					<![CDATA[
+						update IBS.T1_FUND_DT_EMP_RELA
+						set RATIO = @{RATIO_DFAULT}
+							,CLAIM_STATUS_ID='0'
+							,EMP_ID = #{user_id}
+							,EMP_NM = #{user_name}
+							,EMP_ORG_ID = #{usr_org_id}
+							,EMP_ORG_NM = #{usr_org_nm}
+							,CLAIM_DT=#{current_time}
+							,REMARK1 = @{REMARK1}
+						where SERIAL_NO=@{SERIAL_NO__old}
+						and EMP_ID=@{EMP_ID__old}
+					]]>
+				</value>
+			</update>
+		</sql>
+
+		<format>
+			<imports>
+				<import>com.ljbank.util.*</import>
+				<import>java.util.*</import>
+				<import>java.text.*</import>
+				<import>com.wabacus.system.*</import>
+			</imports>
+			<value>
+			<![CDATA[
+				rrequest.getRequest().getSession().setAttribute("EMP_ID", EMP_ID);
+			    rrequest.getRequest().getSession().setAttribute("RATIO_DFAULT", RATIO_DFAULT);
+			]]>
+	  		</value>
+		</format>
+	</report>
+	<footer><![CDATA[
+		<tr><td height="20px"></td></tr>
+		<div style='float:left'>
+			<font color='green'>提示：1-只能够填写本人认领信息，不可以代人认领。</font>
+		</div>
+		<tr><td height="20px"></td></tr>
+		]]>
+		</footer>
+	</vpanel>
+</page>
+
+</applications>

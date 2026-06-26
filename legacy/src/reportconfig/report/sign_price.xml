@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<applications xmlns="http://www.wabacus.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.wabacus.com ../xsd/wabacus.applications.xsd">
+	<!-- 理财价格表 -->
+	<page id="sign_price" js="/webresources/script/validate.js">
+		<interceptor>
+			<imports>
+				<import>com.ljbank.market.Util</import>
+			</imports>
+			<preaction>
+		<![CDATA[
+		Util u=new Util();
+		String ip=u.getRemoteIP(rrequest);
+		rrequest.getRequest().setAttribute("reqKey2", ip);
+		]]>
+	</preaction>
+		</interceptor>
+
+		<header>${top.header}</header>
+		<vpanel id="common_vpanel" width="1000px" align="center" title="">
+			<report id="title" extends="title.report1"></report>
+			<report id="reportPrice" type="listform" pagesize="15|20|-1"
+				personalizeclass="default" servervalidateclass="com.ljbank.market.Util">
+				<display>
+					<col column="BRANCH_ORG_ID" label="机构号" displaytype="hidden"></col>
+					<col column="BRANCH_ORG_NM" label="机构名称"></col>
+					<col column="BONUS_TYPE_ID" label="奖金类型代码" displaytype="hidden"></col>
+					<col column="BONUS_TYPE_NM" label="奖金类型"></col>
+					<col column="CHANNLE_ID" label="渠道代码" displaytype="hidden"></col> 
+					<col column="CHANNLE_NM" label="渠道"></col>
+					<col column="PRICE" label="价格" datatype="double{0.00}">
+						<inputbox type="textbox" jsvalidate="isNumeric(#data#不是数字)"></inputbox>
+					</col>
+
+				</display>
+				<sql>
+					<select>
+
+						<value><![CDATA[
+								Select 
+									DISTINCT A.BONUS_TYPE_ID
+									,B.BONUS_TYPE_NM
+									, A.BRANCH_ORG_ID
+									, C.BRANCH_ORG_NM
+									,A.CHANNLE_ID
+									,D.CHANNLE_NM
+									, A.PRICE
+									, A.EFF_FLAG 
+								from IBS.T3_SIGN_PROD_PRICE A
+								LEFT JOIN IBS.T9_BONUS_TYPE B
+								ON A.BONUS_TYPE_ID=B.BONUS_TYPE_ID
+								LEFT JOIN IBS.T5_ORG C
+								ON A.BRANCH_ORG_ID=C.ORG_ID
+								AND ORG_TYPE_ID='EO'
+								LEFT JOIN IBS.T9_CHANNEL D
+								ON A.CHANNLE_ID=D.CHANNLE_ID
+								WHERE A.EFF_FLAG='1'
+								and  {#condition#}
+						        ORDER BY A.BONUS_TYPE_ID, A.BRANCH_ORG_ID, CHANNLE_ID
+						]]>
+						</value>
+						<condition name="BONUS_TYPE_ID" label="奖金类型"
+							labelposition="left">
+							<value> 
+  									<![CDATA[A.BONUS_TYPE_ID ='#data#']]>
+							</value>
+							<inputbox type="selectbox">
+								<option label="全部" value=""></option>
+								<option
+									source="@{select  distinct BONUS_TYPE_ID  , BONUS_TYPE_NM from IBS.T9_BONUS_TYPE WHERE BONUS_TYPE_ID NOT IN ('01', '02') ORDER BY BONUS_TYPE_ID}"
+									label="BONUS_TYPE_NM" value="BONUS_TYPE_ID"></option>
+							</inputbox>
+						</condition>
+
+						<condition name="BRANCH_ORG_ID" label="分行"
+							labelposition="left">
+							<value> 
+  									<![CDATA[A.BRANCH_ORG_ID = '#data#']]>
+							</value>
+							<inputbox type="selectbox">
+								<option label="全部" value=""></option>
+								<option
+									source="@{SELECT OU_CD AS BRANCH_ORG_ID , OU_NM FROM dim.DIM_OU_DTIL WHERE PRN_OU_SUR_ID='200000019420110101' AND SUBSTR(OU_CD,3,2)='00' ORDER BY OU_CD}"
+									label="OU_NM" value="BRANCH_ORG_ID"></option>
+							</inputbox>
+						</condition>
+
+						<condition name="CHANNLE_ID" label="渠道" labelposition="left">
+							<value> 
+  									<![CDATA[A.CHANNLE_ID ='#data#']]>
+							</value>
+							<inputbox type="selectbox">
+								<option label="全部" value=""></option>
+								<option
+									source="@{select distinct CHANNLE_ID, CHANNLE_NM from IBS.T9_CHANNEL ORDER BY CHANNLE_ID}"
+									label="CHANNLE_NM" value="CHANNLE_ID"></option>
+							</inputbox>
+						</condition>
+					</select>
+
+					<update>
+						<params>
+							<param name="user_id" value="session{user_id}"></param>
+							<param name="current_time" value="now{}"
+								datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
+							<param name="current_time1" value="now{}" datatype="timestamp{yyyy-MM-dd}"></param>
+							<param name="ip" value="request{reqKey2}"></param><!-- "request{reqKey2}" -->
+
+						</params>
+						<value>
+						<![CDATA[
+					           UPDATE IBS.T3_SIGN_PROD_PRICE 
+					           SET PRICE=@{PRICE}
+					               ,MODIFY_PEOPLE=#{user_id}
+					               ,MODIFY_TIME=#{current_time}
+					               ,MODIFY_IP=#{ip}
+							   WHERE BRANCH_ORG_ID=@{BRANCH_ORG_ID} 
+							   AND BONUS_TYPE_ID=@{BONUS_TYPE_ID}
+						       AND CHANNLE_ID=@{CHANNLE_ID}
+						]]>
+						</value>
+					</update>
+				</sql>
+			</report>
+		</vpanel>
+	</page>
+
+
+</applications>

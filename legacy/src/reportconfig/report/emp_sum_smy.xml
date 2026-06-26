@@ -1,0 +1,341 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<applications xmlns="http://www.wabacus.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.wabacus.com ../xsd/wabacus.applications.xsd">
+
+	<!--员工考核信息汇总 -->
+	<page id="emp_sum_smy"
+		js="/webresources/script/validate.js,/js/demo.js,/js/common.js">
+
+		<header>${top.header}</header>
+
+		<interceptor>
+			<imports>
+				<import>java.lang</import>
+				<import>com.wabacus.util</import>
+				<import>java.sql.Connection</import>
+				<import>java.sql.PreparedStatement</import>
+				<import>java.sql.ResultSet</import>
+				<import>javax.servlet.http.HttpSession</import>
+				<import>javax.util</import>
+				<import>javax.text</import>
+				<import>com.ljbank.market.MyMath</import>
+				<import>java.util.Date</import>
+				<import>java.text.SimpleDateFormat</import>
+			</imports>
+			<preaction>
+				<![CDATA[
+						String measure_dt = rrequest.getStringAttribute("MEASURE_DT", "");// 取出输入的查询时间
+						System.out.println("measure_dt:" + measure_dt);
+						if (measure_dt.equals("")) 
+						{
+							Connection conn = rrequest.getConnection();
+							PreparedStatement pstmt = null;
+							try {
+									String SQL = "Select DATA_DT from IBS.T8_DATA_DT";
+									pstmt = conn.prepareStatement(SQL);
+									ResultSet resultSet = pstmt.executeQuery();
+									while (resultSet.next()) {
+					                     String date=resultSet.getString("DATA_DT");
+					                     rrequest.setAttribute("MEASURE_DT", date);
+										 measure_dt=date;
+				                    }
+									System.out.println("measure_dt处理后时间为:" + measure_dt);
+									resultSet.close();
+									pstmt.close();
+								} 
+							catch (Exception e) {
+									e.printStackTrace();
+							}
+                        }
+ 				 ]]>
+			</preaction>
+		</interceptor>
+
+		<vpanel id="common_vpanel" width="1350px" align="center" title="">
+			<report id="select" title="考核信息汇总" type="listform"
+				width="1350px" top="10px" align="center" pagesize="15|20|-1" rowselect="single"
+				dataexport="richexcel" personalizeclass="default" scrollwidth="1350px" interceptor="com.customer.interceptor.InterceptorEmpLnDtil">
+
+				<display>
+					<col column="{sequence:1}" label="序号" width="60px"></col>
+					<col column="EXAM_YEAR" label="考核年度" ></col>
+					<col column="BRANCH_ORG_NM" label="分行" ></col>
+					<col column="ORG_NM" label="支行"  ></col>
+					<col column="PSTN_TYPE_NM" label="主考核类别"  ></col>
+					<col column="SUB_PSTN_TYPE_NM" label="子考核类别"  ></col>
+					<col column="EMP_ID" label="员工号" valuestyleproperty="style='mso-number-format:\@'"></col>
+					<col column="EMP_NM" label="员工姓名" ></col>
+					<col column="GRADE" label="资格证标识" ></col>	
+					<col column="EMP_GDQ" label="过渡期标识" ></col>	
+					<col column="EMP_POS" label="岗位状态" ></col>	
+					<group label="考核业绩">
+						<col column="PROFIT" label="本季度"  align="right" datatype="double{0.00}"></col>
+						<col column="PROFIT_YTD" label="本年累计"  align="right" datatype="double{0.00}"></col>
+					</group>
+				</display>
+				
+				<sql>
+					<select>
+						<value><![CDATA[
+						select sy.*
+						,(case when gd.EMP_TYPE='过渡期' then '是' else '' end) as EMP_GDQ
+						,em.EMP_TYPE as EMP_POS
+						,ce.GRADE
+						,em.EMP_NM
+						,ty.PSTN_TYPE_NM
+						,ty.SUB_PSTN_TYPE_NM
+						from(
+							select left(sy.MEASURE_DT,4) as EXAM_YEAR
+							,right(sy.MEASURE_DT,5) as EXAM_Q
+							,sy.MEASURE_DT
+							,q.QTD_NM
+							,q.QTD
+							,sy.EMP_ID 
+							
+							,sy.ORG_ID 
+							,og.ORG_NM
+							,og.BRANCH_ORG_ID
+							,og.BRANCH_ORG_NM
+							,og.HEAD_ORG_ID
+							,sy.PSTN_TYPE 
+							,sy.SUB_PSTN_TYPE
+							,sy.GRADE
+							,sy.RESOURCE_MANAGER_F
+							,(DEP_Q_PROFIT+LN_Q_PROFIT+IB_Q_BONUS) as PROFIT
+							,sum(DEP_Q_PROFIT+LN_Q_PROFIT+IB_Q_BONUS) over(partition by sy.EMP_ID) as PROFIT_YTD
+							from ibs.T7_EMP_SMY sy
+							inner JOIN IBS.T5_ORG og ON sy.ORG_ID = og.ORG_ID AND og.ORG_TYPE_ID = 'EO'
+							inner join ibs.T9_YEAR_Q q on q.QTD_CD=right(sy.MEASURE_DT,5)
+							where sy.MEASURE_DT like {#EXAM_YEAR#}||'%' and q.QTD<={#EXAM_Q#}
+							)sy
+							inner join ibs.T5_EMP_BZJX em on em.EMP_ID=sy.EMP_ID and em.EXAM_YEAR={#EXAM_YEAR#} and em.EXAM_Q={#EXAM_Q#}
+							left join ibs.T5_EMP_GDQ_OR_GZ gd on gd.MEASURE_DT=sy.MEASURE_DT and sy.EMP_ID=gd.EMP_ID and gd.STATUS='1' and gd.PSTN_TYPE=sy.PSTN_TYPE
+							
+							left join ibs.T5_EMP_CERTIFICATE ce on ce.EMP_ID=sy.EMP_ID
+							left join ibs.T9_PSTN_TYPE ty on ty.SUB_PSTN_TYPE=sy.SUB_PSTN_TYPE and ty.PSTN_TYPE=sy.PSTN_TYPE
+							where {#condition#}
+						    ]]>
+						</value>
+						<condition name="ORG_ID0" source="session{org_id}" hidden="true">
+							<value><![CDATA[(sy.ORG_ID='#data#' or sy.BRANCH_ORG_ID='#data#' or sy.HEAD_ORG_ID='#data#' )]]></value>
+						</condition>
+						<condition name="EXAM_YEAR" label="考核年度" labelposition="left" defaultvalue="session{exam_year}">
+							<value> 
+								<![CDATA[sy.MEASURE_DT like '#data#%']]>
+							</value>
+							   <inputbox type="datepicker" styleproperty="style='width:100px'" dateformat="yyyy" jsvalidate="isNotEmpty(#label# 不允许为空);" ></inputbox>
+						</condition>
+						<condition name="EXAM_Q" labelposition="left" label="考核季度" defaultvalue="session{exam_q}">
+							<value>
+								<![CDATA[sy.QTD='#data#']]>
+							</value>
+							<inputbox type="selectbox" styleproperty="style='width:100px'">
+								<option label="全部" value=""></option>
+								<option
+									source="@{Select QTD, QTD_NM from ibs.T9_YEAR_Q order by QTD }"
+									label="QTD_NM" value="QTD" />
+							</inputbox>
+						</condition>
+						<condition name="PSTN_TYPE" labelposition="left" label="主考核类别" defaultvalue="04">
+							<value>
+								<![CDATA[sy.PSTN_TYPE='#data#']]>
+							</value>
+							<inputbox type="selectbox" styleproperty="style='width:100px'">
+								<option
+									source="@{Select distinct PSTN_TYPE , PSTN_TYPE_NM from ibs.T9_PSTN_TYPE where PSTN_TYPE='04' order by PSTN_TYPE, PSTN_TYPE_NM }"
+									label="PSTN_TYPE_NM" value="PSTN_TYPE" />
+							</inputbox>
+						</condition>
+						<condition name="SUB_PSTN_TYPE" labelposition="left"
+							label="子考核类别">
+							<value>
+							<![CDATA[sy.SUB_PSTN_TYPE='#data#']]>
+							</value>
+							<inputbox type="selectbox" depends="PSTN_TYPE"
+								styleproperty="style='width:150px'">
+								<option label="全部" value=""></option>
+								<option label="无" value="" type="false"></option>
+								<option
+									source="@{select distinct SUB_PSTN_TYPE , SUB_PSTN_TYPE_NM from ibs.T9_PSTN_TYPE where PSTN_TYPE='#PSTN_TYPE#' order by SUB_PSTN_TYPE }"
+									label="SUB_PSTN_TYPE_NM" value="SUB_PSTN_TYPE" />
+							</inputbox>
+						</condition>
+						<condition name="ORG_ID1" labelposition="left" label="分行" >
+							<value>
+							<![CDATA[sy.BRANCH_ORG_ID='#data#']]>
+							</value>
+							<inputbox type="selectbox" styleproperty="style='width:150px'" depends="ORG_ID0">
+								<option label="全部" value=""></option>
+								<option
+									source="@{SELECT DISTINCT BRANCH_ORG_ID , CASE WHEN ORG_LEVEL_ID='2' THEN BRANCH_ORG_NM ELSE BRANCH_ORG_NM||'机关' END AS BRANCH_ORG_NM 
+									FROM IBS.T5_ORG 
+									WHERE ORG_TYPE_ID='EO' AND ORG_LEVEL_ID IN ('2','3') 
+									and (ORG_ID='#ORG_ID0#' or BRANCH_ORG_ID='#ORG_ID0#' or HEAD_ORG_ID='#ORG_ID0#') 
+									ORDER BY BRANCH_ORG_ID}"
+									label="BRANCH_ORG_NM" value="BRANCH_ORG_ID" />
+							</inputbox>
+						</condition>
+						<condition name="ORG_ID2" labelposition="left" label="支行" >
+							<value>
+							<![CDATA[sy.ORG_ID='#data#']]>
+							</value>
+							<inputbox type="selectbox" depends="ORG_ID1"
+								styleproperty="style='width:150px'">
+								<option label="全部" value=""></option>
+								<option label="无" value="" type="false"></option>
+								<option
+									source="@{SELECT DISTINCT ORG_ID, ORG_NM FROM IBS.T5_ORG WHERE BRANCH_ORG_ID='#ORG_ID1#' and ORG_TYPE_ID='EO' AND ORG_LEVEL_ID IN ('1','2') ORDER BY ORG_ID}"
+									label="ORG_NM" value="ORG_ID" />
+							</inputbox>
+						</condition>
+					</select>
+				</sql>
+				<footer><![CDATA[<div style='float:left'><font color='blue'>提示:本系统币种为本外币合计</font></div>]]></footer>
+			</report>
+
+		</vpanel>
+	</page>
+	<!--个人考核信息汇总 -->
+	<page id="emp_sum_smy_user"
+		js="/webresources/script/validate.js,/js/demo.js,/js/common.js">
+
+		<header>${top.header}</header>
+
+		<interceptor>
+			<imports>
+				<import>java.lang</import>
+				<import>com.wabacus.util</import>
+				<import>java.sql.Connection</import>
+				<import>java.sql.PreparedStatement</import>
+				<import>java.sql.ResultSet</import>
+				<import>javax.servlet.http.HttpSession</import>
+				<import>javax.util</import>
+				<import>javax.text</import>
+				<import>com.ljbank.market.MyMath</import>
+				<import>java.util.Date</import>
+				<import>java.text.SimpleDateFormat</import>
+			</imports>
+			<preaction>
+				<![CDATA[
+						String measure_dt = rrequest.getStringAttribute("MEASURE_DT", "");// 取出输入的查询时间
+						System.out.println("measure_dt:" + measure_dt);
+						if (measure_dt.equals("")) 
+						{
+							Connection conn = rrequest.getConnection();
+							PreparedStatement pstmt = null;
+							try {
+									String SQL = "Select DATA_DT from IBS.T8_DATA_DT";
+									pstmt = conn.prepareStatement(SQL);
+									ResultSet resultSet = pstmt.executeQuery();
+									while (resultSet.next()) {
+					                     String date=resultSet.getString("DATA_DT");
+					                     rrequest.setAttribute("MEASURE_DT", date);
+										 measure_dt=date;
+				                    }
+									System.out.println("measure_dt处理后时间为:" + measure_dt);
+									resultSet.close();
+									pstmt.close();
+								} 
+							catch (Exception e) {
+									e.printStackTrace();
+							}
+                        }
+ 				 ]]>
+			</preaction>
+		</interceptor>
+
+		<vpanel id="common_vpanel" width="1350px" align="center" title="">
+			<report id="select" title="考核信息汇总" type="listform"
+				width="1350px" top="10px" align="center" pagesize="15|20|-1" rowselect="single"
+				dataexport="richexcel" personalizeclass="default" scrollwidth="1350px" interceptor="com.customer.interceptor.InterceptorEmpLnDtil">
+
+				<display>
+					<col column="{sequence:1}" label="序号" width="60px"></col>
+					<col column="EXAM_YEAR" label="考核年度" ></col>
+					<col column="BRANCH_ORG_NM" label="分行" ></col>
+					<col column="ORG_NM" label="支行"  ></col>
+					<col column="PSTN_TYPE_NM" label="主考核类别"  ></col>
+					<col column="SUB_PSTN_TYPE_NM" label="子考核类别"  ></col>
+					<col column="EMP_ID" label="员工号" valuestyleproperty="style='mso-number-format:\@'"></col>
+					<col column="EMP_NM" label="员工姓名" ></col>
+					<col column="GRADE" label="资格证标识" ></col>	
+					<col column="EMP_GDQ" label="过渡期标识" ></col>	
+					<col column="EMP_POS" label="岗位状态" ></col>	
+					<group label="考核业绩">
+						<col column="PROFIT" label="本季度"  align="right" datatype="double{0.00}"></col>
+						<col column="PROFIT_YTD" label="本年累计"  align="right" datatype="double{0.00}"></col>
+					</group>
+				</display>
+				
+				<sql>
+					<select>
+						<value><![CDATA[
+						select sy.*
+						,(case when gd.EMP_TYPE='过渡期' then '是' else '' end) as EMP_GDQ
+						,em.EMP_TYPE as EMP_POS
+						,ce.GRADE
+						,em.EMP_NM
+						,ty.PSTN_TYPE_NM
+						,ty.SUB_PSTN_TYPE_NM
+						from(
+							select left(sy.MEASURE_DT,4) as EXAM_YEAR
+							,right(sy.MEASURE_DT,5) as EXAM_Q
+							,sy.MEASURE_DT
+							,q.QTD_NM
+							,q.QTD
+							,sy.EMP_ID 
+							
+							,sy.ORG_ID 
+							,og.ORG_NM
+							,og.BRANCH_ORG_ID
+							,og.BRANCH_ORG_NM
+							,og.HEAD_ORG_ID
+							,sy.PSTN_TYPE 
+							,sy.SUB_PSTN_TYPE
+							,sy.GRADE
+							,sy.RESOURCE_MANAGER_F
+							,(DEP_Q_PROFIT+LN_Q_PROFIT+IB_Q_BONUS) as PROFIT
+							,sum(DEP_Q_PROFIT+LN_Q_PROFIT+IB_Q_BONUS) over(partition by sy.EMP_ID) as PROFIT_YTD
+							from ibs.T7_EMP_SMY sy
+							inner JOIN IBS.T5_ORG og ON sy.ORG_ID = og.ORG_ID AND og.ORG_TYPE_ID = 'EO'
+							inner join ibs.T9_YEAR_Q q on q.QTD_CD=right(sy.MEASURE_DT,5)
+							where sy.MEASURE_DT like {#EXAM_YEAR#}||'%' and q.QTD<={#EXAM_Q#}
+							)sy
+							inner join ibs.T5_EMP_BZJX em on em.EMP_ID=sy.EMP_ID and em.EXAM_YEAR={#EXAM_YEAR#} and em.EXAM_Q={#EXAM_Q#}
+							left join ibs.T5_EMP_GDQ_OR_GZ gd on gd.MEASURE_DT=sy.MEASURE_DT and sy.EMP_ID=gd.EMP_ID and gd.STATUS='1' and gd.PSTN_TYPE=sy.PSTN_TYPE
+							
+							left join ibs.T5_EMP_CERTIFICATE ce on ce.EMP_ID=sy.EMP_ID
+							left join ibs.T9_PSTN_TYPE ty on ty.SUB_PSTN_TYPE=sy.SUB_PSTN_TYPE and ty.PSTN_TYPE=sy.PSTN_TYPE
+							where {#condition#}
+						    ]]>
+						</value>
+						<condition name="EMP_ID" source="session{user_id}" hidden="true">
+							<value><![CDATA[sy.EMP_ID='#data#']]></value>
+						</condition>
+						<condition name="EXAM_YEAR" label="考核年度" labelposition="left" defaultvalue="session{exam_year}">
+							<value> 
+								<![CDATA[sy.MEASURE_DT like '#data#%']]>
+							</value>
+							   <inputbox type="datepicker" styleproperty="style='width:100px'" dateformat="yyyy" jsvalidate="isNotEmpty(#label# 不允许为空);" ></inputbox>
+						</condition>
+						<condition name="EXAM_Q" labelposition="left" label="考核季度" defaultvalue="session{exam_q}">
+							<value>
+								<![CDATA[sy.QTD='#data#']]>
+							</value>
+							<inputbox type="selectbox" styleproperty="style='width:100px'">
+								<option label="全部" value=""></option>
+								<option
+									source="@{Select QTD, QTD_NM from ibs.T9_YEAR_Q order by QTD }"
+									label="QTD_NM" value="QTD" />
+							</inputbox>
+						</condition>
+						
+					</select>
+				</sql>
+				<footer><![CDATA[<div style='float:left'><font color='blue'>提示:本系统币种为本外币合计</font></div>]]></footer>
+			</report>
+
+		</vpanel>
+	</page>
+</applications>

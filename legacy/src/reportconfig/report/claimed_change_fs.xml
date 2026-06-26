@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<applications xmlns="http://www.wabacus.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.wabacus.com ../xsd/wabacus.applications.xsd">
+	<!--认领调整：审核 -->
+	<page id="claimed_change_fs"
+		js="/webresources/script/validate.js,/js/demo.js,/js/common.js"><!-- /webresources/script/validate.js -->
+
+		<header>${top.header}</header>
+		<vpanel id="common_vpanel" width="1300px" align="center" title="">
+
+			<report id="title" extends="title.report1" width="1300px"></report>
+			<report id="select" title="认领调整审核" type="editablelist" width="1300px" top="10px"
+				rowselect="multiple-checkbox" pagesize="15|20|-1" personalizeclass="default" interceptor="com.customer.interceptor.InterceptorVerifyAccFs"><!--  -->
+
+				<display>
+					<col column="{col-rowselect}" label="选择" width="50px" />
+					<col column="{sequence:1}" label="序号" width="40px"></col>
+					<col column="BIZ_TYPE_NM" label="业务类型名称" width="90px"></col>
+					<col column="VUCH_NBR" label="凭证号" width="110px"
+						valuestyleproperty="style='mso-nubmer-format:\@'" rowselectvalue="true"></col>
+					<col column="CST_NM" label="客户名" width="220px"></col>	
+					<col column="ORG_NM" label="凭证机构" ></col>
+					<col column="OPEN_DT" label="开户日期" width="75px"></col>
+					<col column="CLAIM_DT" label="认领时间" width="75px" displaytype="hidden"></col>
+					<col column="EMP_ID" label="认领工号" width="70px"
+						valuestyleproperty="style='mso-nubmer-format:\@'" rowselectvalue="true"></col>
+					<col column="EMP_NM" label="姓名" width="80px"></col>
+					<col column="RATIO" label="认领比例(%)"></col>
+					<col column="EMP_ORG_NM" label="认领机构" ></col>
+					<col property="CLAIM_INFO" column="{non-fromdb}" label="认领信息查询" />
+					<col property="sh_zt_btn" column="{non-fromdb}" label="审核" width="150px"/>
+					<col column="RVS_STATUS_ID" label="审核状态" displaytype="hidden"></col>
+				</display>
+				<sql datasource="ds_db2">
+					<select>
+						<value><![CDATA[							 
+							SELECT re.BIZ_TYPE_NM     	
+								,re.VUCH_NBR  
+								,re.CST_NM   		
+								,re.OPEN_DT     
+							    ,re.CLAIM_DT			
+								,re.RATIO AS CLAIM_INFO     	
+								,re.EMP_ID
+								,re.EMP_NM 
+								,re.ORG_NM
+								,emp.ORG_ID as EMP_ORG_ID
+								,replace(emp.ORG_NM,'XX银行','') as EMP_ORG_NM
+								,re.ORG_ID
+								,pog.ORG_LEVEL_ID
+								,cog.BRANCH_ORG_ID
+								,cog.HEAD_ORG_ID
+								,re.CLAIM_STATUS_ID
+								,re.RVS_STATUS_ID
+								,(case when re.CLAIM_STATUS_ID='4' then 0 else re.RATIO end) as RATIO
+							FROM  IBS.T1_VUCH_EMP_RELA re	
+							inner join ibs.T5_EMP emp on emp.EMP_ID=re.EMP_ID
+							inner join IBS.T5_ORG pog on pog.ORG_ID=emp.ORG_ID and pog.ORG_TYPE_ID='EO'
+							inner join IBS.T5_ORG cog on cog.ORG_ID=re.ORG_ID and cog.ORG_TYPE_ID='AO'
+							%sqlinner%
+							WHERE re.RVS_STATUS_ID = '1'
+							%sqlcon% and {#condition#}
+							ORDER BY re.CLAIM_DT, re.BIZ_TYPE_NM, re.VUCH_NBR
+						    ]]>
+						</value>
+						<!-- 测试 关闭org_id 暂时将org_id='2703' A.CLAIM_STATUS_ID = '2' (原值为1) -->
+						<!--  
+						<condition name="ORG_ID" source="session{org_id}" hidden="true">
+							<value><![CDATA[ORG_ID='#data#']]></value>
+						</condition>
+						-->
+						
+						<condition name="VUCH_NBR" label="凭证号" labelposition="left">
+							<value><![CDATA[re.VUCH_NBR='#data#']]></value>
+						</condition>
+						<condition name="EMP_ID" label="认领工号" labelposition="left">
+							<value>
+							 		<![CDATA[re.EMP_ID='#data#']]>
+							</value>
+							<inputbox>
+								<typeprompt width="300" count="10">
+									<promptcol label="EMP_ID" value="EMP_ID" title="认领工号"
+										matchmode="anywhere" casesensitive="false" />
+									<promptcol label="EMP_NM" value="EMP_NM" title="姓名"
+										matchmode="anywhere" casesensitive="false" />
+									<datasource>
+										<option
+											source="@{Select DISTINCT EMP_ID, EMP_NM from IBS.T5_EMP  WHERE   {#matchcondition#}} " />
+									</datasource>
+								</typeprompt>
+							</inputbox>
+						</condition>
+						<condition name="EMP_NM" label="姓名" labelposition="left">
+							<value>
+							 		<![CDATA[re.EMP_NM='#data#']]>
+							</value>
+							<inputbox styleproperty="style='width:100px'">
+								<typeprompt width="300" count="10">
+									<promptcol label="EMP_ID" value="EMP_ID" title="认领工号"
+										matchmode="anywhere" casesensitive="false" />
+									<promptcol label="EMP_NM" value="EMP_NM" title="姓名"
+										matchmode="anywhere" casesensitive="false" />
+									<datasource>
+										<option
+											source="@{Select DISTINCT EMP_ID, EMP_NM from IBS.T5_EMP  WHERE   {#matchcondition#}} " />
+									</datasource>
+								</typeprompt>
+							</inputbox>
+						</condition>
+						<condition name="BIZ_TYPE_NM" labelposition="left"
+							label="业务类型">
+							<value>
+							<![CDATA[re.BIZ_TYPE_NM='#data#']]>
+							</value>
+							<inputbox type="selectbox">
+								<option label="全部" value=""></option>
+								<option
+									source="@{Select distinct BIZ_TYPE_NM from IBS.T9_BIZ_TYPE order by BIZ_TYPE_NM}"
+									label="BIZ_TYPE_NM" value="BIZ_TYPE_NM" />
+
+							</inputbox>
+						</condition>
+					</select>
+				</sql>
+				<buttons >
+					<button name="button1" position="other" autoreportdata="false"
+						positionorder="2" class="com.wabacus.system.buttons.ServerSQLActionButton"
+						successprompt="提交成功" failedprompt="提交失败">
+						<params>
+							<param name="user_id" value="session{user_id}"></param>
+							<param name="current_time" value="now{}" datatype="timestamp{yyyy-MM-dd}"></param>
+							<param name="current_time1" value="now{}"
+								datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
+
+						</params>
+
+						<value datasource="ds_db2">
+							<![CDATA[
+
+								UPDATE IBS.T1_VUCH_EMP_RELA
+								SET RVS_STATUS_ID='2'
+									, RVS_CLAIM_DT=#{current_time}
+									, RVS_CLAIM_EMP_ID=#{user_id}     
+									, REMARK=REMARK||'调整审批通过。' 
+									, RATIO = @{RATIO}                       
+								WHERE RVS_STATUS_ID='1' 
+								AND VUCH_NBR=@{param_vuch} AND EMP_ID=@{param_emp}
+								;
+							]]>
+						</value>
+					</button>
+
+
+
+
+					<button name="sub" position="title" positionorder="2" label="选中数据批量通过"
+						confirmessage="提交后数据将不能修改，是否确认提交?">
+						invokeServerActionForReportData('claimed_change_fs','select','com.customer.interceptor.ClaimedRvsFsServerCallBack',{name:'SELECTEDROW',value:true},null,true,null,null);
+
+
+					</button><!-- extends="${wabacus.button2.default}" confirmessage="提交后数据将不能修改，是否确认提交?" -->
+				</buttons>
+				<format>
+					<imports>
+						<import>com.ljbank.util.*</import>
+						<import>java.util.*</import>
+						<import>java.text.*</import>
+						<import>com.wabacus.system.*</import>
+					</imports>
+					<value>
+						<![CDATA[
+							String btnsh_ztCls="cls-button2";
+							String btnUnsh_ztCls="cls-button2";
+							
+							//String btnsh_ztEvent="invokeComponentSqlActionButton('claimed_change_fs','select','button1',{param_vuch:'"+VUCH_NBR+"', param_emp:'"+EMP_ID+"'},true,refreshPage)";
+					
+							
+							String btnsh_ztEvent="if(confirm('提交后数据将不能修改，是否确认提交?')){invokeComponentSqlActionButton('claimed_change_fs','select','button1',{param_vuch:'"+VUCH_NBR+"', param_emp:'"+EMP_ID+"'},true,refreshPage)}";
+							String btnUnsh_ztEvent="wx_winpage('ShowReport.wx?PAGEID=claimedRvs_no_formfs&VUCH_NBR="+VUCH_NBR+"&EMP_ID="+EMP_ID+"',{width:550,height:350});art.dialog.close();";
+						
+							
+							sh_zt_btn="<input type=\"button\" class=\""+btnsh_ztCls+"\" value=\"通过\" onclick=\""+btnsh_ztEvent+"\">";
+							sh_zt_btn=sh_zt_btn+"<input type=\"button\" class=\""+btnUnsh_ztCls+"\" value=\"不通过\"   onclick=\""+btnUnsh_ztEvent+"\">";
+							
+							
+							CLAIM_INFO="<a style='TEXT-DECORATION:underline' href='ShowReport.wx?PAGEID=claim_info&VUCH_NBR="+VUCH_NBR+"&EMP_ID="+EMP_ID+"'>点击进入查询详细</a>";
+						]]>
+					</value>
+				</format>
+				<footer><![CDATA[
+				<div style='float:left'>
+					<font color='red'>*审核不通过需逐条处理，并输入不通过理由。</font>
+				</div>]]>
+				</footer>
+			</report>
+		</vpanel>
+	</page>
+
+	<!-- 调整审核不通过弹窗页面 -->
+	<page id="claimedRvs_no_formfs"
+		js="/webresources/script/validate.js,/js/demo.js,/js/common.js">
+		<vpanel id="common_vpanel" align="center" width="300px">
+			<report id="report" title="" type="form"
+				interceptor="com.customer.interceptor.InterceptorClaimVerifyNo"><!--  -->
+				<display valuetdwidth="300px" labeltdwidth="200px"
+					labelbgcolor="#f0f0f0" labelalign="right" valuealign="left">
+
+					<col column="VUCH_NBR" label="凭证号" br="true"
+						valuestyleproperty="style='mso-nubmer-format:\@'"></col><!-- displaytype="hidden" -->
+					<col column="EMP_ID" label="认领工号" br="true"
+						valuestyleproperty="style='mso-nubmer-format:\@'"></col>
+					<col column="EMP_NM" label="姓名" br="true"></col>
+					
+					<col column="ORG_NM" label="人员机构" br="true"></col>
+					<col column="RATIO" label="认领比例(%)" br="true"></col>
+					
+					<col column="CLAIM_DT" label="认领日期" br="true"></col>
+					
+					<col column="REMARK" label="备注(认领理由)"  align="left"
+						displaytype="hidden"></col>
+					<col column="REMARK1" label="备注(调整不通过理由)" datatype="varchar"
+						align="left"><!-- label="备注(不通过理由)" -->
+						<inputbox type="textareabox" jsvalidate="isNotEmpty(审核不通过的理由为必输项)"
+							styleproperty="style='width:99%',rows='6'"></inputbox>
+					</col>
+
+				</display>
+
+				<sql aftersave="saveUpdate" datasource="ds_db2">
+
+					<select>
+						<value><![CDATA[
+									
+									SELECT   VUCH_NBR
+									         ,EMP_ID
+									         ,EMP_NM
+									         
+									         ,ORG_NM
+									         ,RATIO
+									      
+									         ,CLAIM_DT
+									         
+									         ,REMARK
+									         ,REMARK1
+									FROM IBS.T1_VUCH_EMP_RELA	
+									WHERE  	{#condition#}
+									
+								    ]]>
+								</value>
+						<condition name="VUCH_NBR" hidden="true">
+							<value><![CDATA[VUCH_NBR='#data#']]></value>
+						</condition>
+						<condition name="EMP_ID" hidden="true">
+							<value><![CDATA[EMP_ID='#data#']]></value>
+						</condition>
+					</select>
+					<update crosspage="true"><!--CLAIM_STATUS_ID 认领状态（0-暂存；1-待审核；2-已审核；3-未通过；4-撤销; 
+							5-超时自动审批; 6-事中认领自动审核通过;） confirmessage="提交后数据将不能修改，是否确认提交?" -->
+						<params>
+							<param name="user_id" value="session{user_id}"></param>
+							<param name="current_time" value="now{}" datatype="timestamp{yyyy-MM-dd}"></param>
+							<param name="current_time1" value="now{}"
+								datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param><!-- datatype="timestamp{yyyy-MM-dd}" -->
+						</params>
+					
+							<![CDATA[
+							UPDATE IBS.T1_VUCH_EMP_RELA
+							SET RVS_STATUS_ID='3'
+								, RVS_CLAIM_DT=#{current_time}
+								, RVS_CLAIM_EMP_ID=#{user_id}       
+								, REMARK1=@{REMARK1}      
+							WHERE RVS_STATUS_ID='1' 
+							AND VUCH_NBR=@{VUCH_NBR__old} AND EMP_ID=@{EMP_ID__old}
+							;
+							
+							UPDATE IBS.T1_VUCH_EMP_RELA   
+							SET	 REMARK=REMARK||'调整审批未通过理由'||REMARK1
+								, REMARK1=''    
+							WHERE RVS_STATUS_ID='3' 
+							AND VUCH_NBR=@{VUCH_NBR__old} AND EMP_ID=@{EMP_ID__old}
+							;
+							
+							]]>
+					</update>
+
+				</sql>
+				<buttons><!-- refreshParentEditableListReport(pageid,reportid,edittype,closeme) -->
+					<button name="button2" label="提交" position="title"
+						refreshpage="true" aftercallbackmethod="refreshPage"
+						confirmessage="提交后数据将不能修改，是否确认提交?" successprompt="提交成功"
+						failedprompt="提交失败" positionorder="2" extends="${save.button.default}">
+
+						saveEditableReportData({pageid:'claimedRvs_no_formfs',savingReportIds:[{reportid:'report',updatetype:'save',}]});
+
+					</button>
+				</buttons>
+			</report>
+		</vpanel>
+	</page>
+
+
+</applications>

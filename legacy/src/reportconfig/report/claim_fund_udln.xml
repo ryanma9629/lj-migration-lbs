@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<applications xmlns="http://www.wabacus.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.wabacus.com ../xsd/wabacus.applications.xsd">
+	<!--基金认领 -->
+<page id="claim_fund"
+	js="/webresources/script/validate.js,/js/demo.js,/js/common.js"><!-- /webresources/script/validate.js -->
+	<header>${top.header}</header>
+	<vpanel id="common_vpanel" width="1300px" align="center" title="">
+	<report id="dtl" title="" type="" personalizeclass="default"  top="10px" >
+	<header>
+	<![CDATA[
+		<table width="800px" border="0" cellspacing="0" cellpadding="0" align="center" >
+      		<tr><td height="10px"></td></tr>
+      		<tr><td height="10px"></td></tr>
+         	<tr><td height="30px" align="left" style="background:#F0F1F3"><font style='color:#154BA0'><a style='TEXT-DECORATION:underline' href='ShowReport.wx?PAGEID=claim_fund_txn'>单笔交易认领</a></font></td></tr>
+         	<tr><td height="10px"></td></tr>
+         	<tr><td height="30px" align="left" style="background:#F0F1F3"><font style='color:#154BA0'><a style='TEXT-DECORATION:underline' href='ShowReport.wx?PAGEID=claim_fund_cst'>客户认领</a></font></td></tr>
+         	<tr><td height="10px"></td></tr>
+         	<tr><td height="30px" align="left" style="background:#F0F1F3"><font style='color:#154BA0'><a style='TEXT-DECORATION:underline' href='ShowReport.wx?PAGEID=claim_fund_dt'>定投认领</a></font></td></tr>
+        </table>
+	 ]]>
+	
+	</header>
+		<display>
+		</display>
+		<sql></sql>
+		
+		<format>
+			<imports>
+				<import>com.ljbank.util.*</import>
+				<import>java.util.*</import>
+				<import>java.text.*</import>
+				<import>com.wabacus.system.*</import>
+			</imports>
+			<value>
+			<![CDATA[
+				
+			]]>
+	  		</value>
+		</format>
+	</report>
+	<footer><![CDATA[
+		]]>
+	</footer>
+	</vpanel>
+	</page>
+</applications>

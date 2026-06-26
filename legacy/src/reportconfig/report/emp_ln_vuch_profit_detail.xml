@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<applications xmlns="http://www.wabacus.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.wabacus.com ../xsd/wabacus.applications.xsd">
+
+	<!--员工贷款凭证明细 -->
+	<page id="emp_ln_vuch_profit_detail"
+		js="/webresources/script/validate.js,/js/demo.js,/js/common.js">
+
+		<header>${top.header}</header>
+
+		<interceptor>
+			<imports>
+				<import>java.lang</import>
+				<import>com.wabacus.util</import>
+				<import>java.sql.Connection</import>
+				<import>java.sql.PreparedStatement</import>
+				<import>java.sql.ResultSet</import>
+				<import>javax.servlet.http.HttpSession</import>
+				<import>javax.util</import>
+				<import>javax.text</import>
+				<import>com.ljbank.market.MyMath</import>
+				<import>java.util.Date</import>
+				<import>java.text.SimpleDateFormat</import>
+			</imports>
+			<preaction>
+				<![CDATA[
+						String measure_dt = rrequest.getStringAttribute("MEASURE_DT", "");// 取出输入的查询时间
+						System.out.println("measure_dt:" + measure_dt);
+						if (measure_dt.equals("")) 
+						{
+							Connection conn = rrequest.getConnection();
+							PreparedStatement pstmt = null;
+							try {
+									String SQL = "Select DATA_DT from IBS.T8_DATA_DT";
+									pstmt = conn.prepareStatement(SQL);
+									ResultSet resultSet = pstmt.executeQuery();
+									while (resultSet.next()) {
+					                     String date=resultSet.getString("DATA_DT");
+					                     rrequest.setAttribute("MEASURE_DT", date);
+										 measure_dt=date;
+				                    }
+									System.out.println("measure_dt处理后时间为:" + measure_dt);
+									resultSet.close();
+									pstmt.close();
+								} 
+							catch (Exception e) {
+									e.printStackTrace();
+							}
+                        }
+ 				 ]]>
+			</preaction>
+		</interceptor>
+
+		<vpanel id="common_vpanel" width="1350px" align="center" title="">
+			<report id="select" title="员工贷款凭证业绩明细" type="listform"
+				width="2400px" top="10px" align="center" pagesize="15|20|-1" rowselect="single"
+				dataexport="plainexcel" personalizeclass="default" scrollwidth="1350px" interceptor="com.customer.interceptor.InterceptorEmpLnDtil">
+
+				<display>
+					<col column="{sequence:1}" label="序号" width="60px"></col>
+					<col column="MEASURE_DT" label="统计日期" width="60px" displaytype="hidden"></col>
+					<col column="EMP_BRANCH_ORG_NM" label="分行" ></col>
+					<col column="EMP_ORG_NM" label="支行"  ></col>
+					<col column="EMP_ID" label="员工号" width="80px" valuestyleproperty="style='mso-number-format:\@'"></col>
+					<col column="EMP_NM" label="员工姓名" width="80px" ></col>
+					<col column="PSTN_TYPE" label="主考核类别ID"  displaytype="hidden"></col>
+					<col column="PSTN_TYPE_NM" label="主考核类别"  ></col>
+					<col column="SUB_PSTN_TYPE" label="子考核类别ID"  displaytype="hidden"></col>
+					<col column="SUB_PSTN_TYPE_NM" label="子考核类别"  ></col>
+					
+					<col column="VUCH_NBR" label="凭证号"  valuestyleproperty="style='mso-number-format:\@'" ></col>
+					<col column="OPEN_DT" label="开户日期"  ></col>
+					
+					<col column="CST_ID" label="客户号" displaytype="hidden"></col>
+					<col column="CST_NM" label="客户名"></col>
+
+					<col column="VUCH_TYPE_ID" label="凭证类型代码" displaytype="hidden"></col>
+					<col column="VUCH_TYPE_NM" label="凭证类型" ></col>
+					<col column="BIZ_TYPE_ID" label="业务类型代码" displaytype="hidden"></col>
+					<col column="BIZ_TYPE_NM_NEW" label="业务类型" ></col>
+					<col column="ORG_ID" label="机构号" displaytype="hidden"></col>
+					<col column="ORG_NM" label="凭证归属机构名" ></col>
+					
+					<col column="VUCH_STATUS_ID" label="凭证状态代码" displaytype="hidden"></col>
+					<col column="VUCH_STATUS_NM" label="凭证状态" ></col>
+					<col column="RATIO" label="认领比例(%)" datatype="double{0.00}"></col>
+					<col column="CCY_ID" label="币种" displaytype="hidden"></col>
+					<col column="LN_AMT" label="贷款金额" displaytype="hidden"></col>
+					<col column="BAL" label="余额"  align="right" datatype="double{0.00}" ></col>
+					<!-- 
+					<col column="MTD_AVG_BAL" label="月日均" width="100px" align="right" datatype="double{0.00}"></col>
+					-->
+					<col column="QTD_AVG_BAL" label="季日均"  align="right" datatype="double{0.00}"></col>
+					<col column="YTD_AVG_BAL" label="年日均"  align="right" datatype="double{0.00}"></col>
+
+					<col column="VUCH_YTD_AVG_BAL" label="凭证年日均" displaytype="hidden"></col>
+					<col column="Q_PROFIT" label="季利润"  align="right" datatype="double{0.00}"></col>
+					<!-- col column="Y_PROFIT" label="年利润" width="70px" align="right" datatype="double{0.00}"></col--><!-- 年利润由于理解歧义，不再显示 -->
+					<col column="ACT_Q_PROFIT" label="实际季利润" displaytype="hidden"></col>
+					<col column="ACT_Y_PROFIT" label="实际年利润" displaytype="hidden"></col>
+						
+					<col column="CLAIM_DT" label="认领日期" ></col>
+					<col column="BIZ_TP_CD" label="业务品种代码" ></col>
+					<col column="BIZ_TP_NM" label="业务品种名称" ></col>
+					<col column="NEW_OR_EXIST" label="新增/存量" ></col>
+					<col column="RISK_FLAG" label="风险资产"></col>	
+				</display>
+				<sql>
+					<select>
+						<value><![CDATA[
+							SELECT 		 A.VUCH_NBR
+										,left(A.VUCH_NBR,4)||'****'||right(A.VUCH_NBR,4) as VUCH_NBR_STR
+										,A.EMP_ID
+										,A.EMP_NM
+										,A.MEASURE_DT
+										,A.CST_ID
+										,A.CST_NM
+										,A.PSTN_TYPE
+										,A.PSTN_TYPE_NM
+										,A.SUB_PSTN_TYPE
+										,A.SUB_PSTN_TYPE_NM
+										,A.VUCH_TYPE_ID
+										,A.VUCH_TYPE_NM
+										,A.BIZ_TYPE_ID
+										,bz.BIZ_TYPE_NM_NEW
+										,A.ORG_ID
+										,A.ORG_NM
+										,A.OPEN_DT
+										,A.VUCH_STATUS_ID
+										,A.VUCH_STATUS_NM
+										,A.RATIO
+										,A.CCY_ID
+										,A.LN_AMT
+										,A.BAL
+										,A.MTD_AVG_BAL
+										,A.QTD_AVG_BAL
+										,A.YTD_AVG_BAL
+										,A.VUCH_YTD_AVG_BAL
+										,A.Q_PROFIT
+										,A.Y_PROFIT
+										,A.ACT_Q_PROFIT
+										,A.ACT_Y_PROFIT
+										
+										,A.CLAIM_DT
+										,A.BIZ_TP_CD
+										,tp.BIZ_TP_NM
+										,A.NEW_OR_EXIST
+										,A.RISK_FLAG
+										,b.BRANCH_ORG_ID
+										,emp.ORG_NM as EMP_ORG_NM
+										,emp.BRANCH_ORG_NM as EMP_BRANCH_ORG_NM
+							FROM IBS.T2_EMP_DEP_LN_VUCH_PROFIT_DETAIL A
+							%SQL%
+							inner JOIN IBS.T5_ORG B
+							ON emp.ORG_ID = B.ORG_ID
+							AND B.ORG_TYPE_ID = 'EO'
+							inner join IBS.T9_BIZ_TYPE bz on bz.BIZ_TYPE_ID=A.BIZ_TYPE_ID
+							left join pub.BIZ_TP tp on tp.BIZ_TP_CD=A.BIZ_TP_CD
+							WHERE {#condition#} and A.VUCH_TYPE_ID='21'
+							order by b.BRANCH_ORG_ID,emp.ORG_ID,A.EMP_ID,A.OPEN_DT desc,A.VUCH_NBR
+						    ]]>
+						</value>
+						<condition name="ORG_ID0" source="session{org_id}" hidden="true">
+							<value><![CDATA[(b.ORG_ID='#data#' or b.BRANCH_ORG_ID='#data#' or b.HEAD_ORG_ID='#data#' )]]></value>
+						</condition>
+						<condition name="MEASURE_DT" label="统计日期" labelposition="left">
+							<value>
+							 	<![CDATA[	
+							 	 A.MEASURE_DT = '#data#'  
+							 	]]>
+							</value>
+							<inputbox type="datepicker" styleproperty="style='width:100px'"
+								jsvalidate="isDate(#label#格式为yyyy-MM-dd)">
+							</inputbox>
+						</condition>
+						
+						<condition name="PSTN_TYPE" labelposition="left" label="主考核类别" >
+							<value>
+								<![CDATA[A.PSTN_TYPE='#data#']]>
+							</value>
+							<inputbox type="selectbox" styleproperty="style='width:100px'">
+								<option label="全部" value=""></option>
+								<option
+									source="@{Select distinct PSTN_TYPE , PSTN_TYPE_NM from ibs.T9_PSTN_TYPE order by PSTN_TYPE, PSTN_TYPE_NM }"
+									label="PSTN_TYPE_NM" value="PSTN_TYPE" />
+							</inputbox>
+						</condition>
+						<condition name="SUB_PSTN_TYPE" labelposition="left"
+							label="子考核类别">
+							<value>
+							<![CDATA[A.SUB_PSTN_TYPE='#data#']]>
+							</value>
+							<inputbox type="selectbox" depends="PSTN_TYPE"
+								styleproperty="style='width:150px'">
+								<option label="全部" value=""></option>
+								<option label="无" value="" type="false"></option>
+								<option
+									source="@{select distinct SUB_PSTN_TYPE , SUB_PSTN_TYPE_NM from ibs.T9_PSTN_TYPE where PSTN_TYPE='#PSTN_TYPE#' order by SUB_PSTN_TYPE }"
+									label="SUB_PSTN_TYPE_NM" value="SUB_PSTN_TYPE" />
+							</inputbox>
+						</condition>
+						<condition name="ORG_ID1" labelposition="left" label="分行" >
+							<value>
+							<![CDATA[b.BRANCH_ORG_ID='#data#']]>
+							</value>
+							<inputbox type="selectbox" styleproperty="style='width:150px'" depends="ORG_ID0">
+								<option label="全部" value=""></option>
+								<option
+									source="@{SELECT DISTINCT BRANCH_ORG_ID,BRANCH_ORG_NM FROM IBS.T5_ORG WHERE ORG_TYPE_ID='EO' AND ORG_LEVEL_ID IN ('1','2','3') and (ORG_ID='#ORG_ID0#' or BRANCH_ORG_ID='#ORG_ID0#' or HEAD_ORG_ID='#ORG_ID0#') ORDER BY BRANCH_ORG_ID}"
+									label="BRANCH_ORG_NM" value="BRANCH_ORG_ID" />
+							</inputbox>
+						</condition>
+						<condition name="ORG_ID2" labelposition="left" label="支行" >
+							<value>
+							<![CDATA[b.ORG_ID='#data#']]>
+							</value>
+							<inputbox type="selectbox" depends="ORG_ID1;ORG_ID0"
+								styleproperty="style='width:150px'">
+								<option label="全部" value=""></option>
+								<option label="无" value="" type="false"></option>
+								<option
+									source="@{SELECT DISTINCT ORG_ID, ORG_NM FROM IBS.T5_ORG WHERE ORG_TYPE_ID='EO' AND ORG_LEVEL_ID IN ('1','2') and BRANCH_ORG_ID='#ORG_ID1#' and (HEAD_ORG_ID='#ORG_ID0#' or BRANCH_ORG_ID='#ORG_ID0#' or ORG_ID='#ORG_ID0#') ORDER BY ORG_ID}"
+									label="ORG_NM" value="ORG_ID" />
+							</inputbox>
+						</condition>
+						<condition name="BIZ_TYPE_ID" labelposition="left" label="业务类型" br="true">
+							<value>
+								<![CDATA[bz.BIZ_TYPE_NM_NEW='#data#']]>
+							</value>
+							<inputbox type="selectbox" styleproperty="style='width:100px'">
+								<option label="全部" value=""></option>
+								<option
+									source="@{Select distinct BIZ_TYPE_NM_NEW from IBS.T9_BIZ_TYPE where BIZ_TYPE_CGY = '贷款' order by BIZ_TYPE_NM_NEW}"
+									label="BIZ_TYPE_NM_NEW" value="BIZ_TYPE_NM_NEW" />
+							</inputbox>
+						</condition>
+						<condition name="EMP_ID" label="员工号" labelposition="left" >
+							<value><![CDATA[A.EMP_ID like '#data#%']]></value>
+						</condition>
+						<condition name="EMP_NM" label="姓名" labelposition="left">
+							<value><![CDATA[A.EMP_NM like '#data#%']]></value>
+						</condition>
+						<!-- 
+						<condition name="VUCH_NBR" label="凭证号" labelposition="left">
+							<value><![CDATA[A.VUCH_NBR='#data#']]></value>
+						</condition>
+						 -->
+						 <condition name="NEW_OR_EXIST" label="存量/新增" labelposition="left">
+							<value><![CDATA[A.NEW_OR_EXIST = '#data#']]></value>
+							<inputbox type="selectbox" styleproperty="style='width:100px'">
+								<option label="全部" value=""></option>
+								<option label="存量" value="存量"></option>
+								<option label="新增" value="新增"></option>
+							</inputbox>
+						</condition>
+						<condition name="RISK_FLAG" label="风险资产" labelposition="left">
+							<value><![CDATA[A.RISK_FLAG = '#data#']]></value>
+							<inputbox type="selectbox" styleproperty="style='width:100px'">
+								<option label="全部" value=""></option>
+								<option label="风险" value="风险"></option>
+								
+							</inputbox>
+						</condition>
+					</select>
+				</sql>
+				<format>
+					<imports>
+						<import>com.ljbank.util.*</import>
+						<import>com.wabacus.util.*</import>
+						<import>java.util.*</import>
+						<import>java.text.*</import>
+						<import>com.wabacus.system.*</import>
+					</imports>
+					<value>
+					<![CDATA[
+						
+						EMP_BRANCH_ORG_NM=EMP_BRANCH_ORG_NM==null?"":EMP_BRANCH_ORG_NM.trim();
+						String branch_org_nm=EMP_BRANCH_ORG_NM;
+		        		branch_org_nm=branch_org_nm.replaceAll("XX银行","");
+		        		if(!branch_org_nm.equals("")) EMP_BRANCH_ORG_NM=branch_org_nm;
+				
+				
+						EMP_ORG_NM=EMP_ORG_NM==null?"":EMP_ORG_NM.trim();
+						String org_nm=EMP_ORG_NM;
+						org_nm=org_nm.replaceAll(branch_org_nm,"");
+						org_nm=org_nm.replaceAll("XX银行","");
+						if(!org_nm.equals("")) EMP_ORG_NM=org_nm;
+					]]>
+					</value>
+				</format>
+				
+				<footer><![CDATA[<div style='float:left'><font color='blue'>提示</font>
+				<br>
+				<font color='blue'>1.本系统币种为本外币合计。</font>
+				<br>
+				<font color='blue'>2.数据量过大，请进行信息筛选后导出。</font>
+				</div>
+				 
+				]]></footer>
+			</report>
+
+		</vpanel>
+	</page>
+</applications>

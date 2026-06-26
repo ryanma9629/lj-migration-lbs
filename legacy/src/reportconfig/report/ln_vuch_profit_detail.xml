@@ -1,0 +1,716 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<applications xmlns="http://www.wabacus.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.wabacus.com ../xsd/wabacus.applications.xsd">
+
+	<!--从员工业绩认领排名进入：贷款凭证业绩明细（处理小规则）总行 -->
+	<page id="ln_vuch_profit_detail"
+		js="/webresources/script/validate.js,/js/demo.js,/js/common.js">
+
+		<header>${top.header}</header>
+
+		<interceptor>
+			<imports>
+				<import>java.lang</import>
+				<import>com.wabacus.util</import>
+				<import>java.sql.Connection</import>
+				<import>java.sql.PreparedStatement</import>
+				<import>java.sql.ResultSet</import>
+				<import>javax.servlet.http.HttpSession</import>
+				<import>javax.util</import>
+				<import>javax.text</import>
+				<import>com.ljbank.market.MyMath</import>
+				<import>java.util.Date</import>
+				<import>java.text.SimpleDateFormat</import>
+			</imports>
+			<preaction>
+				<![CDATA[
+						String beginTime = rrequest.getStringAttribute("MEASURE_DT", "");// 取出输入的查询时间
+						System.out.println("beginTime:" + beginTime);
+						if (beginTime.equals("")) 
+						{
+							Connection conn = rrequest.getConnection();
+							PreparedStatement pstmt = null;
+							try {
+									String SQL = "Select DATA_DT from IBS.T8_DATA_DT";
+									pstmt = conn.prepareStatement(SQL);
+									ResultSet resultSet = pstmt.executeQuery();
+									while (resultSet.next()) {
+					                     String date=resultSet.getString("DATA_DT");
+					                     rrequest.setAttribute("MEASURE_DT", date);
+				                    }
+									
+									System.out.println("beginTime处理后时间为:" + beginTime);
+									resultSet.close();
+									pstmt.close();
+								} 
+							catch (Exception e) {
+									e.printStackTrace();
+							}
+                        }
+                    
+                    
+
+ 				 	  String EMP_ID=rrequest.getStringAttribute("EMP_ID","");
+ 				 	  if(EMP_ID.equals("")){
+ 				 	  		EMP_ID=(String)rrequest.getRequest().getSession().getAttribute("EMP_ID");
+ 				 	        System.out.println("1----获得工号为：EMP_ID="+EMP_ID); 
+    		
+ 				 	   }
+ 				 	   else{
+    				        rrequest.getRequest().getSession().setAttribute("EMP_ID", EMP_ID);
+    				        System.out.println("2----获得工号为：EMP_ID="+(String)rrequest.getRequest().getSession().getAttribute("EMP_ID")); 
+    				   }
+    				  
+	  				   System.out.println("3----获得工号为：EMP_ID="+EMP_ID); 
+ 				 ]]>
+			</preaction>
+		</interceptor>
+
+		<vpanel id="common_vpanel" width="1350px" align="center" title="">
+			<header>
+			  <![CDATA[<table width="1350px" border="0" cellspacing="0" cellpadding="0">
+			    <tr><td height="10px"></td></tr>
+			  	<tr><td align="left"><a href='ShowReport.wx?PAGEID=ln_profit_smy' style="font-size:15px;TEXT-DECORATION:underline">返回上一级</a></td></tr>
+			    </table>
+			  ]]>
+			</header>
+			<report id="select" title="员工贷款凭证业绩明细" type="editablelist"
+				width="1700px" top="10px" align="center" pagesize="15|20|-1"
+				dataexport="richexcel" personalizeclass="default" scrollwidth="1350px" rowselect="multiple">
+
+				<display>
+					<col column="{sequence:1}" label="序号" width="35px"></col>
+					<col column="VUCH_NBR" label="凭证号" width="150px" valuestyleproperty="style='mso-number-format:\@'" clickorderby="true"></col>
+					<col column="EMP_ID" label="员工号" width="80px" displaytype="hidden"></col>
+					<col column="EMP_NM" label="员工姓名" width="80px" displaytype="hidden"></col>
+					<col column="MEASURE_DT" label="统计日期" width="60px" displaytype="hidden"></col>
+					<col column="OPEN_DT" label="开户日期" width="100px" ></col>
+					
+					<col column="CST_ID" label="客户号" width="150px" displaytype="hidden"></col>
+					<col column="CST_NM" label="客户名"></col>
+
+					<col column="PSTN_TYPE" label="主考核类别" width="150px"
+						displaytype="hidden"></col>
+					<col column="PSTN_TYPE_NM" label="主考核类别名称" width="150px"
+						displaytype="hidden"></col>
+					<col column="SUB_PSTN_TYPE" label="子考核类别" width="150px"
+						displaytype="hidden"></col>
+					<col column="SUB_PSTN_TYPE_NM" label="子考核类别名称" width="150px"
+						displaytype="hidden"></col>
+					<col column="VUCH_TYPE_ID" label="凭证类型代码" width="150px"
+						displaytype="hidden"></col>
+					<col column="VUCH_TYPE_NM" label="凭证类型" width="100px"
+						displaytype="optional"></col>
+					<col column="BIZ_TYPE_ID" label="业务类型代码" width="150px"
+						displaytype="hidden"></col>
+					<col column="BIZ_TYPE_NM_NEW" label="业务类型" width="150px"></col>
+					<col column="ORG_ID" label="机构号" width="80px" displaytype="optional"></col>
+					<col column="ORG_NM" label="凭证归属机构名" width="110px"></col>
+					
+					<col column="VUCH_STATUS_ID" label="凭证状态代码" width="150px"
+						displaytype="hidden"></col>
+					<col column="VUCH_STATUS_NM" label="凭证状态" width="80px"></col>
+					<col column="RATIO" label="认领比例(%)" width="90px" datatype="double{0.00}"></col>
+					<col column="CCY_ID" label="币种" width="80px" displaytype="hidden"></col>
+					<col column="LN_AMT" label="贷款金额" width="100px" displaytype="hidden"></col>
+					<col column="BAL" label="余额" width="100px" align="right"
+						datatype="double{0.00}" clickorderby="true"></col>
+					<!-- 
+					<col column="MTD_AVG_BAL" label="月日均" width="100px" align="right"
+						datatype="double{0.00}"></col>
+						 -->
+					<col column="QTD_AVG_BAL" label="季日均" width="100px" align="right"
+						datatype="double{0.00}"></col>
+					<col column="YTD_AVG_BAL" label="年日均" width="100px" align="right"
+						datatype="double{0.00}"></col>
+
+
+					<col column="VUCH_YTD_AVG_BAL" label="凭证年日均" width="150px"
+						displaytype="hidden"></col>
+					<col column="Q_PROFIT" label="季利润" width="100px" align="right"
+						datatype="double{0.00}"></col>
+					<!-- col column="Y_PROFIT" label="年利润" width="70px" align="right"
+						datatype="double{0.00}"></col--><!-- 年利润由于理解歧义，不再显示 -->
+					<col column="ACT_Q_PROFIT" label="实际季利润" width="100px"
+						displaytype="hidden"></col>
+					<col column="ACT_Y_PROFIT" label="实际年利润" width="100px"
+						displaytype="hidden"></col>
+						
+					<col column="CLAIM_DT" label="认领日期" clickorderby="true"></col>
+					<col column="BIZ_TP_CD" label="业务品种代码" ></col>
+					<col column="BIZ_TP_NM" label="业务品种名称" ></col>
+					<col column="NEW_OR_EXIST" label="新增/存量" clickorderby="true"></col>
+					<col column="RISK_FLAG" label="风险资产" clickorderby="true"></col>	
+				</display>
+				<sql>
+					<select>
+						<value><![CDATA[
+							SELECT 		 A.VUCH_NBR
+							,left(A.VUCH_NBR,4)||'****'||right(trim(A.VUCH_NBR),4) as VUCH_NBR_STR
+										,A.EMP_ID
+										,A.EMP_NM
+										,A.MEASURE_DT
+										,A.CST_ID
+										,A.CST_NM
+								
+										,A.PSTN_TYPE
+										,A.PSTN_TYPE_NM
+										,A.SUB_PSTN_TYPE
+										,A.SUB_PSTN_TYPE_NM
+										,A.VUCH_TYPE_ID
+										,A.VUCH_TYPE_NM
+										,A.BIZ_TYPE_ID
+										,A.BIZ_TYPE_NM
+										,A.ORG_ID
+										,A.ORG_NM
+										,A.OPEN_DT
+										,A.VUCH_STATUS_ID
+										,A.VUCH_STATUS_NM
+										,A.RATIO
+										,A.CCY_ID
+										,A.LN_AMT
+										,A.BAL
+										,A.MTD_AVG_BAL
+										,A.QTD_AVG_BAL
+										,A.YTD_AVG_BAL
+										,A.VUCH_YTD_AVG_BAL
+										,A.Q_PROFIT
+										,A.Y_PROFIT
+										,A.ACT_Q_PROFIT
+										,A.ACT_Y_PROFIT
+										
+										,A.CLAIM_DT
+										,A.BIZ_TP_CD
+										,tp.BIZ_TP_NM
+										,A.NEW_OR_EXIST
+										,A.RISK_FLAG
+										,bz.BIZ_TYPE_NM_NEW
+							FROM IBS.T2_EMP_DEP_LN_VUCH_PROFIT_DETAIL A
+							inner join ibs.T9_BIZ_TYPE bz on bz.BIZ_TYPE_ID=A.BIZ_TYPE_ID
+							LEFT JOIN IBS.T5_ORG		B
+							ON A.ORG_ID = B.ORG_ID
+							AND B.ORG_TYPE_ID = 'EO'
+							left join pub.BIZ_TP tp on tp.BIZ_TP_CD=A.BIZ_TP_CD
+							WHERE A.VUCH_TYPE_ID='21'
+							AND {#condition#}
+							order by A.BIZ_TYPE_ID, A.OPEN_DT desc
+							
+						    ]]>
+						</value>
+						<condition name="VUCH_NBR" label="凭证号" labelposition="left">
+							<value><![CDATA[A.VUCH_NBR='#data#']]></value>
+						</condition>
+						<condition name="user_id" source="session{EMP_ID}">
+							<value><![CDATA[A.EMP_ID='#data#']]></value>
+						</condition>
+						<condition name="BIZ_TYPE_ID" labelposition="left"
+							label="业务类型">
+							<value>
+								<![CDATA[bz.BIZ_TYPE_NM_NEW='#data#']]>
+							</value>
+							<inputbox type="selectbox">
+								<option label="全部" value=""></option>
+								<option
+									source="@{Select distinct BIZ_TYPE_NM_NEW from IBS.T9_BIZ_TYPE where BIZ_TYPE_CGY='贷款'}"
+									label="BIZ_TYPE_NM_NEW" value="BIZ_TYPE_NM_NEW" />
+							</inputbox>
+						</condition>
+
+						<condition name="MEASURE_DT" label="统计日期" labelposition="left">
+							<value>
+							 	<![CDATA[	
+							 	 A.MEASURE_DT = '#data#'  
+							 	]]>
+							</value>
+							<inputbox type="datepicker" styleproperty="style='width:80px'"
+								jsvalidate="isDate(#label#格式为yyyy-MM-dd)">
+
+							</inputbox>
+						</condition>
+
+					</select>
+				</sql>
+				<footer><![CDATA[<div style='float:left'><font color='blue'>提示:本系统币种为本外币合计</font></div>]]></footer>
+			</report>
+
+		</vpanel>
+	</page>
+
+
+
+
+
+
+	<!--从员工业绩认领排名进入：贷款凭证业绩明细（处理小规则）分行 -->
+	<page id="ln_vuch_profit_detail_branch"
+		js="/webresources/script/validate.js,/js/demo.js,/js/common.js">
+
+		<header>${top.header}</header>
+
+		<interceptor>
+			<imports>
+				<import>java.lang</import>
+				<import>com.wabacus.util</import>
+				<import>java.sql.Connection</import>
+				<import>java.sql.PreparedStatement</import>
+				<import>java.sql.ResultSet</import>
+				<import>javax.servlet.http.HttpSession</import>
+				<import>javax.util</import>
+				<import>javax.text</import>
+				<import>com.ljbank.market.MyMath</import>
+				<import>java.util.Date</import>
+				<import>java.text.SimpleDateFormat</import>
+			</imports>
+			<preaction>
+				<![CDATA[
+						String beginTime = rrequest.getStringAttribute("MEASURE_DT", "");// 取出输入的查询时间
+						System.out.println("beginTime:" + beginTime);
+						if (beginTime.equals("")) 
+						{
+							Connection conn = rrequest.getConnection();
+							PreparedStatement pstmt = null;
+							try {
+									String SQL = "Select DATA_DT from IBS.T8_DATA_DT";
+									pstmt = conn.prepareStatement(SQL);
+									ResultSet resultSet = pstmt.executeQuery();
+									while (resultSet.next()) {
+					                     String date=resultSet.getString("DATA_DT");
+					                     rrequest.setAttribute("MEASURE_DT", date);
+				                    }
+									
+									System.out.println("beginTime处理后时间为:" + beginTime);
+									resultSet.close();
+									pstmt.close();
+								} 
+							catch (Exception e) {
+									e.printStackTrace();
+							}
+                        }
+                    
+                    
+
+ 				 	  String EMP_ID=rrequest.getStringAttribute("EMP_ID","");
+ 				 	  if(EMP_ID.equals("")){
+ 				 	  		EMP_ID=(String)rrequest.getRequest().getSession().getAttribute("EMP_ID");
+ 				 	        System.out.println("1----获得工号为：EMP_ID="+EMP_ID); 
+    		
+ 				 	   }
+ 				 	   else{
+    				        rrequest.getRequest().getSession().setAttribute("EMP_ID", EMP_ID);
+    				        System.out.println("2----获得工号为：EMP_ID="+(String)rrequest.getRequest().getSession().getAttribute("EMP_ID")); 
+    				   }
+    				  
+	  				   System.out.println("3----获得工号为：EMP_ID="+EMP_ID); 
+ 				 ]]>
+			</preaction>
+		</interceptor>
+
+		<vpanel id="common_vpanel" width="1350px" align="center" title="">
+			<header>
+			  <![CDATA[<table width="1350px" border="0" cellspacing="0" cellpadding="0">
+			  	<tr><td height="10px"></td></tr>
+			  	<tr><td align="left"><a href='ShowReport.wx?PAGEID=ln_profit_smy_branch' style="font-size:15px;TEXT-DECORATION:underline">返回上一级</a></td></tr>
+			    </table>
+			  ]]>
+			</header>
+			<report id="select" title="员工贷款凭证业绩明细" type="editablelist"
+				width="1700px" top="10px" align="center" pagesize="15|20|-1"
+				dataexport="richexcel" personalizeclass="default" scrollwidth="1350px">
+
+
+				<display>
+					<col column="{sequence:1}" label="序号" width="35px"></col>
+					<col column="VUCH_NBR" label="凭证号" width="150px" valuestyleproperty="style='mso-number-format:\@'" clickorderby="true"></col>
+					<col column="EMP_ID" label="员工号" width="80px" displaytype="hidden"></col>
+					<col column="EMP_NM" label="员工姓名" width="80px" displaytype="hidden"></col>
+					<col column="MEASURE_DT" label="统计日期" width="60px" displaytype="hidden"></col>
+					<col column="OPEN_DT" label="开户日期" width="100px" ></col>
+					
+					<col column="CST_ID" label="客户号" width="150px" displaytype="hidden"></col>
+					<col column="CST_NM" label="客户名" width="120px"></col>
+
+					<col column="PSTN_TYPE" label="主考核类别" width="150px"
+						displaytype="hidden"></col>
+					<col column="PSTN_TYPE_NM" label="主考核类别名称" width="150px"
+						displaytype="hidden"></col>
+					<col column="SUB_PSTN_TYPE" label="子考核类别" width="150px"
+						displaytype="hidden"></col>
+					<col column="SUB_PSTN_TYPE_NM" label="子考核类别名称" width="150px"
+						displaytype="hidden"></col>
+					<col column="VUCH_TYPE_ID" label="凭证类型代码" width="100px"
+						displaytype="hidden"></col>
+					<col column="VUCH_TYPE_NM" label="凭证类型" width="100px"
+						displaytype="optional"></col>
+					<col column="BIZ_TYPE_ID" label="业务类型代码" width="150px"
+						displaytype="hidden"></col>
+					<col column="BIZ_TYPE_NM_NEW" label="业务类型" width="150px"></col>
+					<col column="ORG_ID" label="机构号" width="80px" displaytype="optional"></col>
+					<col column="ORG_NM" label="凭证归属机构名" width="110px"></col>
+					
+					<col column="VUCH_STATUS_ID" label="凭证状态代码" width="150px"
+						displaytype="hidden"></col>
+					<col column="VUCH_STATUS_NM" label="凭证状态" width="80px"></col>
+					<col column="RATIO" label="认领比例(%)" width="90px" datatype="double{0.00}"></col>
+					<col column="CCY_ID" label="币种" width="80px" displaytype="hidden"></col>
+					<col column="LN_AMT" label="贷款金额" width="100px" displaytype="hidden"></col>
+					<col column="BAL" label="余额" width="100px" align="right"
+						datatype="double{0.00}" clickorderby="true"></col>
+
+					<col column="MTD_AVG_BAL" label="月日均" width="100px" align="right"
+						datatype="double{0.00}"></col>
+					<col column="QTD_AVG_BAL" label="季日均" width="100px" align="right"
+						datatype="double{0.00}"></col>
+					<col column="YTD_AVG_BAL" label="年日均" width="100px" align="right"
+						datatype="double{0.00}"></col>
+
+
+					<col column="VUCH_YTD_AVG_BAL" label="凭证年日均" width="100px"
+						displaytype="hidden"></col>
+					<col column="Q_PROFIT" label="季利润" width="100px" align="right"
+						datatype="double{0.00}"></col>
+					<!-- col column="Y_PROFIT" label="年利润" width="70px" align="right"
+						datatype="double{0.00}"></col--><!-- 年利润由于理解歧义，不再显示 -->
+					<col column="ACT_Q_PROFIT" label="实际季利润" width="100px"
+						displaytype="hidden"></col>
+					<col column="ACT_Y_PROFIT" label="实际年利润" width="100px"
+						displaytype="hidden"></col>
+						
+				    <col column="CLAIM_DT" label="认领日期" clickorderby="true"></col>
+					<col column="BIZ_TP_CD" label="业务品种代码" ></col>
+					<col column="BIZ_TP_NM" label="业务品种名称" ></col>
+					<col column="NEW_OR_EXIST" label="新增/存量" clickorderby="true"></col>
+					<col column="RISK_FLAG" label="风险资产" clickorderby="true" ></col>
+				</display>
+				<sql>
+					<select>
+						<value><![CDATA[
+							SELECT 		 A.VUCH_NBR
+							,left(A.VUCH_NBR,4)||'****'||right(trim(A.VUCH_NBR),4) as VUCH_NBR_STR
+										,A.EMP_ID
+										,A.EMP_NM
+										,A.MEASURE_DT
+										,A.CST_ID
+										,A.CST_NM
+								
+										,A.PSTN_TYPE
+										,A.PSTN_TYPE_NM
+										,A.SUB_PSTN_TYPE
+										,A.SUB_PSTN_TYPE_NM
+										,A.VUCH_TYPE_ID
+										,A.VUCH_TYPE_NM
+										,A.BIZ_TYPE_ID
+										,A.BIZ_TYPE_NM
+										,A.ORG_ID
+										,A.ORG_NM
+										,A.OPEN_DT
+										,A.VUCH_STATUS_ID
+										,A.VUCH_STATUS_NM
+										,A.RATIO
+										,A.CCY_ID
+										,A.LN_AMT
+										,A.BAL
+										,A.MTD_AVG_BAL
+										,A.QTD_AVG_BAL
+										,A.YTD_AVG_BAL
+										,A.VUCH_YTD_AVG_BAL
+										,A.Q_PROFIT
+										,A.Y_PROFIT
+										,A.ACT_Q_PROFIT
+										,A.ACT_Y_PROFIT
+										
+										,A.CLAIM_DT
+										,A.BIZ_TP_CD
+										,tp.BIZ_TP_NM
+										,A.NEW_OR_EXIST
+										,A.RISK_FLAG
+										,bz.BIZ_TYPE_NM_NEW
+							FROM IBS.T2_EMP_DEP_LN_VUCH_PROFIT_DETAIL A
+							inner join ibs.T9_BIZ_TYPE bz on A.BIZ_TYPE_ID=bz.BIZ_TYPE_ID
+							LEFT JOIN IBS.T5_ORG		B
+							ON A.ORG_ID = B.ORG_ID
+							AND B.ORG_TYPE_ID = 'EO'
+							left join pub.BIZ_TP tp on tp.BIZ_TP_CD=A.BIZ_TP_CD
+							
+							WHERE A.VUCH_TYPE_ID ='21'
+							AND {#condition#}
+							order by A.BIZ_TYPE_ID, A.OPEN_DT desc
+							
+						    ]]>
+						</value>
+						<condition name="VUCH_NBR" label="凭证号" labelposition="left">
+							<value><![CDATA[A.VUCH_NBR='#data#']]></value>
+						</condition>
+						<condition name="user_id" source="session{EMP_ID}">
+							<value><![CDATA[A.EMP_ID='#data#']]></value>
+						</condition>
+						<condition name="BIZ_TYPE_ID" labelposition="left"
+							label="业务类型">
+							<value>
+								<![CDATA[bz.BIZ_TYPE_NM_NEW='#data#']]>
+							</value>
+							<inputbox type="selectbox">
+								<option label="全部" value=""></option>
+								<option
+									source="@{Select distinct BIZ_TYPE_NM_NEW from IBS.T9_BIZ_TYPE where BIZ_TYPE_CGY='贷款' order by BIZ_TYPE_NM_NEW}"
+									label="BIZ_TYPE_NM_NEW" value="BIZ_TYPE_NM_NEW" />
+							</inputbox>
+						</condition>
+
+						<condition name="MEASURE_DT" label="统计日期" labelposition="left">
+							<value>
+							 	<![CDATA[	
+							 	 A.MEASURE_DT = '#data#'  
+							 	]]>
+							</value>
+							<inputbox type="datepicker" styleproperty="style='width:80px'"
+								jsvalidate="isDate(#label#格式为yyyy-MM-dd)">
+
+							</inputbox>
+						</condition>
+
+					</select>
+				</sql>
+				<footer><![CDATA[<div style='float:left'><font color='blue'>提示:本系统币种为本外币合计</font></div>]]></footer>
+			</report>
+
+		</vpanel>
+	</page>
+
+
+	<!--从员工业绩认领排名进入：贷款凭证业绩明细（处理小规则）支行 -->
+	<page id="ln_vuch_profit_detail_subbranch"
+		js="/webresources/script/validate.js,/js/demo.js,/js/common.js">
+
+		<header>${top.header}</header>
+
+		<interceptor>
+			<imports>
+				<import>java.lang</import>
+				<import>com.wabacus.util</import>
+				<import>java.sql.Connection</import>
+				<import>java.sql.PreparedStatement</import>
+				<import>java.sql.ResultSet</import>
+				<import>javax.servlet.http.HttpSession</import>
+				<import>javax.util</import>
+				<import>javax.text</import>
+				<import>com.ljbank.market.MyMath</import>
+				<import>java.util.Date</import>
+				<import>java.text.SimpleDateFormat</import>
+			</imports>
+			<preaction>
+				<![CDATA[
+						String beginTime = rrequest.getStringAttribute("MEASURE_DT", "");// 取出输入的查询时间
+						System.out.println("beginTime:" + beginTime);
+						if (beginTime.equals("")) 
+						{
+							Connection conn = rrequest.getConnection();
+							PreparedStatement pstmt = null;
+							try {
+									String SQL = "Select DATA_DT from IBS.T8_DATA_DT";
+									pstmt = conn.prepareStatement(SQL);
+									ResultSet resultSet = pstmt.executeQuery();
+									while (resultSet.next()) {
+					                     String date=resultSet.getString("DATA_DT");
+					                     rrequest.setAttribute("MEASURE_DT", date);
+				                    }
+									
+									System.out.println("beginTime处理后时间为:" + beginTime);
+									resultSet.close();
+									pstmt.close();
+								} 
+							catch (Exception e) {
+									e.printStackTrace();
+							}
+                        }
+                    
+                    
+
+ 				 	  String EMP_ID=rrequest.getStringAttribute("EMP_ID","");
+ 				 	  if(EMP_ID.equals("")){
+ 				 	  		EMP_ID=(String)rrequest.getRequest().getSession().getAttribute("EMP_ID");
+ 				 	        System.out.println("1----获得工号为：EMP_ID="+EMP_ID); 
+    		
+ 				 	   }
+ 				 	   else{
+    				        rrequest.getRequest().getSession().setAttribute("EMP_ID", EMP_ID);
+    				        System.out.println("2----获得工号为：EMP_ID="+(String)rrequest.getRequest().getSession().getAttribute("EMP_ID")); 
+    				   }
+    				  
+	  				   System.out.println("3----获得工号为：EMP_ID="+EMP_ID); 
+ 				 ]]>
+			</preaction>
+		</interceptor>
+
+		<vpanel id="common_vpanel" width="1350px" align="center" title="">
+			<header>
+			  <![CDATA[<table width="1350px" border="0" cellspacing="0" cellpadding="0">
+			  	<tr><td height="10px"></td></tr>
+			  	<tr><td align="left"><a href='ShowReport.wx?PAGEID=ln_profit_smy_subbranch' style="font-size:15px;TEXT-DECORATION:underline">返回上一级</a></td></tr>
+			    </table>
+			  ]]>
+			</header>
+			<report id="select" title="员工贷款凭证业绩明细" type="editablelist"
+				width="1700px" top="10px" align="center" pagesize="15|20|-1"
+				dataexport="richexcel" personalizeclass="default" scrollwidth="1350px">
+
+
+				<display>
+					<col column="{sequence:1}" label="序号" width="35px"></col>
+					<col column="VUCH_NBR" label="凭证号" width="100px" valuestyleproperty="style='mso-number-format:\@'" clickorderby="true"></col>
+					<col column="EMP_ID" label="员工号" width="80px" displaytype="hidden"></col>
+					<col column="EMP_NM" label="员工姓名" width="80px" displaytype="hidden"></col>
+					<col column="MEASURE_DT" label="统计日期" width="60px" displaytype="hidden"></col>
+					<col column="OPEN_DT" label="开户日期" width="100px" ></col>
+					
+					<col column="CST_ID" label="客户号" width="150px" displaytype="hidden"></col>
+					<col column="CST_NM" label="客户名" width="100px"></col>
+
+					<col column="PSTN_TYPE" label="主考核类别" width="150px"
+						displaytype="hidden"></col>
+					<col column="PSTN_TYPE_NM" label="主考核类别名称" width="150px"
+						displaytype="hidden"></col>
+					<col column="SUB_PSTN_TYPE" label="子考核类别" width="150px"
+						displaytype="hidden"></col>
+					<col column="SUB_PSTN_TYPE_NM" label="子考核类别名称" width="150px"
+						displaytype="hidden"></col>
+					<col column="VUCH_TYPE_ID" label="凭证类型代码" width="150px"
+						displaytype="hidden"></col>
+					<col column="VUCH_TYPE_NM" label="凭证类型" width="100px"
+						displaytype="optional"></col>
+					<col column="BIZ_TYPE_ID" label="业务类型代码" width="150px"
+						displaytype="hidden"></col>
+					<col column="BIZ_TYPE_NM_NEW" label="业务类型" width="150px"></col>
+					<col column="ORG_ID" label="机构号" width="80px" displaytype="optional"></col>
+					<col column="ORG_NM" label="凭证归属机构名" width="110px"></col>
+					
+					<col column="VUCH_STATUS_ID" label="凭证状态代码" width="150px"
+						displaytype="hidden"></col>
+					<col column="VUCH_STATUS_NM" label="凭证状态" width="80px"></col>
+					<col column="RATIO" label="认领比例(%)" width="90px" datatype="double{0.00}"></col>
+					<col column="CCY_ID" label="币种" width="80px" displaytype="hidden"></col>
+					<col column="LN_AMT" label="贷款金额" width="100px" displaytype="hidden"></col>
+					<col column="BAL" label="余额" width="100px" align="right"
+						datatype="double{0.00}"></col>
+
+					<col column="MTD_AVG_BAL" label="月日均" width="100px" align="right"
+						datatype="double{0.00}"></col>
+					<col column="QTD_AVG_BAL" label="季日均" width="100px" align="right"
+						datatype="double{0.00}"></col>
+					<col column="YTD_AVG_BAL" label="年日均" width="100px" align="right"
+						datatype="double{0.00}" clickorderby="true"></col>
+
+
+					<col column="VUCH_YTD_AVG_BAL" label="凭证年日均" width="100px"
+						displaytype="hidden"></col>
+					<col column="Q_PROFIT" label="季利润" width="100px" align="right"
+						datatype="double{0.00}"></col>
+					<!--col column="Y_PROFIT" label="年利润" width="70px" align="right"
+						datatype="double{0.00}"></col--><!-- 年利润由于理解歧义，不再显示 -->
+					<col column="ACT_Q_PROFIT" label="实际季利润" width="100px"
+						displaytype="hidden"></col>
+					<col column="ACT_Y_PROFIT" label="实际年利润" width="100px"
+						displaytype="hidden"></col>
+						
+					<col column="CLAIM_DT" label="认领日期" clickorderby="true"></col>
+					<col column="BIZ_TP_CD" label="业务品种代码" ></col>
+					<col column="BIZ_TP_NM" label="业务品种名称" ></col>
+					<col column="NEW_OR_EXIST" label="新增/存量" clickorderby="true"></col>
+					<col column="RISK_FLAG" label="风险资产" clickorderby="true"></col>	
+				</display>
+				<sql>
+					<select>
+						<value><![CDATA[
+							SELECT 		 A.VUCH_NBR
+							,left(A.VUCH_NBR,4)||'****'||right(trim(A.VUCH_NBR),4) as VUCH_NBR_STR
+										,A.EMP_ID
+										,A.EMP_NM
+										,A.MEASURE_DT
+										,A.CST_ID
+										,A.CST_NM
+								
+										,A.PSTN_TYPE
+										,A.PSTN_TYPE_NM
+										,A.SUB_PSTN_TYPE
+										,A.SUB_PSTN_TYPE_NM
+										,A.VUCH_TYPE_ID
+										,A.VUCH_TYPE_NM
+										,A.BIZ_TYPE_ID
+										,A.BIZ_TYPE_NM
+										,A.ORG_ID
+										,A.ORG_NM
+										,A.OPEN_DT
+										,A.VUCH_STATUS_ID
+										,A.VUCH_STATUS_NM
+										,A.RATIO
+										,A.CCY_ID
+										,A.LN_AMT
+										,A.BAL
+										,A.MTD_AVG_BAL
+										,A.QTD_AVG_BAL
+										,A.YTD_AVG_BAL
+										,A.VUCH_YTD_AVG_BAL
+										,A.Q_PROFIT
+										,A.Y_PROFIT
+										,A.ACT_Q_PROFIT
+										,A.ACT_Y_PROFIT
+										
+										,A.CLAIM_DT
+										,A.BIZ_TP_CD
+										,tp.BIZ_TP_NM
+										,A.NEW_OR_EXIST
+										,A.RISK_FLAG
+										,bz.BIZ_TYPE_NM_NEW
+							FROM IBS.T2_EMP_DEP_LN_VUCH_PROFIT_DETAIL A
+							inner join ibs.T9_BIZ_TYPE bz on A.BIZ_TYPE_ID=bz.BIZ_TYPE_ID
+							LEFT JOIN IBS.T5_ORG		B
+							ON A.ORG_ID = B.ORG_ID
+							AND B.ORG_TYPE_ID = 'EO'
+							left join pub.BIZ_TP tp on tp.BIZ_TP_CD=A.BIZ_TP_CD
+							
+							WHERE A.VUCH_TYPE_ID='21'
+							AND {#condition#}
+							order by A.BIZ_TYPE_ID, A.OPEN_DT desc
+							
+						    ]]>
+						</value>
+						<condition name="VUCH_NBR" label="凭证号" labelposition="left">
+							<value><![CDATA[A.VUCH_NBR='#data#']]></value>
+						</condition>
+						<condition name="user_id" source="session{EMP_ID}">
+							<value><![CDATA[A.EMP_ID='#data#']]></value>
+						</condition>
+						<condition name="BIZ_TYPE_ID" labelposition="left"
+							label="业务类型">
+							<value>
+								<![CDATA[bz.BIZ_TYPE_NM_NEW='#data#']]>
+							</value>
+							<inputbox type="selectbox">
+								<option label="全部" value=""></option>
+								<option
+									source="@{Select distinct BIZ_TYPE_NM_NEW from IBS.T9_BIZ_TYPE where BIZ_TYPE_CGY='贷款' order by BIZ_TYPE_NM_NEW}"
+									label="BIZ_TYPE_NM_NEW" value="BIZ_TYPE_NM_NEW" />
+							</inputbox>
+						</condition>
+
+						<condition name="MEASURE_DT" label="统计日期" labelposition="left">
+							<value>
+							 	<![CDATA[	
+							 	 A.MEASURE_DT = '#data#'  
+							 	]]>
+							</value>
+							<inputbox type="datepicker" styleproperty="style='width:80px'"
+								jsvalidate="isDate(#label#格式为yyyy-MM-dd)">
+
+							</inputbox>
+						</condition>
+
+					</select>
+				</sql>
+				<footer><![CDATA[<div style='float:left'><font color='blue'>提示:本系统币种为本外币合计</font></div>]]></footer>
+			</report>
+
+		</vpanel>
+	</page>
+
+</applications>
