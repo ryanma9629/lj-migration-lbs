@@ -70,7 +70,7 @@ public class SubmitClaimFncTxnUp implements IServerAction {
 			rsCnt.next();
 			int cnt=rsCnt.getInt("cnt");
 			if(cnt>=1){
-				rrequest.getWResponse().getMessageCollector().error("此笔业务已认领，不可重复认领！", false);
+				rrequest.getWResponse().getMessageCollector().error("此笔业务已认领，不可重复认领！", "", false);
 				rsCnt.close();
 				pstmtCnt.close();
 				return "提交失败！";
@@ -95,7 +95,7 @@ public class SubmitClaimFncTxnUp implements IServerAction {
 						pstmt.setString(8, txn_run_nbr);
 						pstmt.setString(9, txn_dt);
 						pstmt.executeUpdate();
-						rrequest.getWResponse().getMessageCollector().success("提交成功！", false);// 向前台提示一条信息，这里还可以终止后续处理
+						rrequest.getWResponse().getMessageCollector().success("提交成功！", "", false);// 向前台提示一条信息，这里还可以终止后续处理
 						
 				} catch (Exception e) {
 					e.printStackTrace();

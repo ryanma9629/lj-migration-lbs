@@ -57,7 +57,7 @@ public class InterceptorClaimDep2016QQ extends AbsInterceptorDefaultAdapter {
 				if (resultSet.getRow() == 0) {//没有输入的凭证号
 					rrequest.authorize("dtl", null, null, "display", "false");
 					
-					rrequest.getWResponse().getMessageCollector().error("不存在输入的凭证号,请核对。（由于批量原因，新开户的凭证号，请明日再试。）", false);
+					rrequest.getWResponse().getMessageCollector().error("不存在输入的凭证号,请核对。（由于批量原因，新开户的凭证号，请明日再试。）", "", false);
 					System.out.println("结束判断输入的凭证号不存在，页面不显示。");
 
 				} else {
@@ -68,7 +68,7 @@ public class InterceptorClaimDep2016QQ extends AbsInterceptorDefaultAdapter {
 							// 配卡凭证
 							rrequest.authorize("dtl", null, null, "display", "false");
 						
-							rrequest.getWResponse().getMessageCollector().error("输入的储蓄存折(凭证号" + vuch_nbr + ")已关联银行卡，请对关联卡进行认领。", false);
+							rrequest.getWResponse().getMessageCollector().error("输入的储蓄存折(凭证号" + vuch_nbr + ")已关联银行卡，请对关联卡进行认领。", "", false);
 							System.out.println("此凭证有配卡，请对配卡进行认领。");
 						}
 
@@ -76,7 +76,7 @@ public class InterceptorClaimDep2016QQ extends AbsInterceptorDefaultAdapter {
 							//未参加蛐蛐网活动的凭证，则不显示
 							rrequest.authorize("dtl", null, null, "display", "false");
 							
-							rrequest.getWResponse().getMessageCollector().error("输入的凭证号" + vuch_nbr + "未参加蛐蛐网活动，不能在此认领。", false);
+							rrequest.getWResponse().getMessageCollector().error("输入的凭证号" + vuch_nbr + "未参加蛐蛐网活动，不能在此认领。", "", false);
 							System.out.println("未参加蛐蛐网活动，不能在此认领。");
 						}
 

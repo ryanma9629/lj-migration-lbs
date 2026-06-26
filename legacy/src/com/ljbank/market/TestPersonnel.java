@@ -112,7 +112,7 @@ public class TestPersonnel {
 		//String usr_org_id = (String) rrequest.getRequest().getSession().getAttribute("usr_org_id");
 		
 		if (BILL_INC == null || BILL_INC.trim().equals("") || Double.parseDouble(BILL_INC.trim())==0){
-			rrequest.getWResponse().getMessageCollector().error("票据收不能为空或0！", false);
+			rrequest.getWResponse().getMessageCollector().error("票据收不能为空或0！", "", false);
 			return false;
 			
 		}
@@ -153,7 +153,7 @@ public class TestPersonnel {
 			rsCnt.next();
 			int cnt=rsCnt.getInt("cnt");
 			if(cnt>=1){
-				rrequest.getWResponse().getMessageCollector().error("已调整，不可重复调整！", false);
+				rrequest.getWResponse().getMessageCollector().error("已调整，不可重复调整！", "", false);
 				rsCnt.close();
 				pstmtCnt.close();
 				return false;
@@ -163,7 +163,7 @@ public class TestPersonnel {
 			pstmtCnt.close();
 			conn.close();
 		}else{
-			rrequest.getWResponse().getMessageCollector().error("员工号 不能为空！", false);
+			rrequest.getWResponse().getMessageCollector().error("员工号 不能为空！", "", false);
 			return false;
 		}
 		

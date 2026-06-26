@@ -93,7 +93,7 @@ public class SubmitClaimDep implements IServerAction {
 				System.out.println("已认领比例ro============" + ro);
 				
 				if (ro > inratio || inratio==0) {
-					rrequest.getWResponse().getMessageCollector().error("提交前请核对认领比例！请调整认领比例后，再试。", false);
+					rrequest.getWResponse().getMessageCollector().error("提交前请核对认领比例！请调整认领比例后，再试。", "", false);
 					rsValRO.close();
 					pstmtValRO.close();
 					rsBrch.close();
@@ -114,7 +114,7 @@ public class SubmitClaimDep implements IServerAction {
 					pstmt.executeUpdate();
 					
 					System.out.println("======step1: 点击提交按钮将刷新CLAIM_STATUS_ID='1-待审核'==============");
-					rrequest.getWResponse().getMessageCollector().success("提交成功！", false);// 向前台提示一条信息，这里还可以终止后续处理
+					rrequest.getWResponse().getMessageCollector().success("提交成功！", "", false);// 向前台提示一条信息，这里还可以终止后续处理
 					rrequest.authorize("dtl", Consts.BUTTON_PART, "type{save}", "disabled", "true");
 					rrequest.authorize("dtl", Consts.BUTTON_PART, "sub", "disabled", "true");
 					rrequest.setAttribute("dtl_ACCESSMODE", "readonly");
@@ -129,7 +129,7 @@ public class SubmitClaimDep implements IServerAction {
 				}
 				//支用户认领对公存款 支行用户且为对公存款
 			}else if(user_id.equals(usr_org_id) && (rsBrch.getString("ORG_LEVEL_ID")).equals("1") && rsBrch.getString("BIZ_TYPE_NM").equals("对公存款")){
-				rrequest.getWResponse().getMessageCollector().error("支行用户不能认领对公业务！", false);
+				rrequest.getWResponse().getMessageCollector().error("支行用户不能认领对公业务！", "", false);
 				rsBrch.close();
 				pstmtBrch.close();
 				rsBrch.close();
@@ -163,7 +163,7 @@ public class SubmitClaimDep implements IServerAction {
 				System.out.println("员工已认领比例ro============" + ro);
 				
 				if (ro > inratio || inratio==0) {
-					rrequest.getWResponse().getMessageCollector().error("提交前请核对认领比例！请调整认领比例后，再试。", false);
+					rrequest.getWResponse().getMessageCollector().error("提交前请核对认领比例！请调整认领比例后，再试。", "", false);
 					rs.close();
 					pstmt0.close();
 					rsBrch.close();
@@ -186,7 +186,7 @@ public class SubmitClaimDep implements IServerAction {
 					pstmt.setString(5, user_id);
 					pstmt.executeUpdate();
 					System.out.println("======step1: 点击提交按钮将刷新CLAIM_STATUS_ID='1-待审核'==============");
-					rrequest.getWResponse().getMessageCollector().success("提交成功！", false);// 向前台提示一条信息，这里还可以终止后续处理
+					rrequest.getWResponse().getMessageCollector().success("提交成功！", "", false);// 向前台提示一条信息，这里还可以终止后续处理
 					rrequest.authorize("dtl", Consts.BUTTON_PART, "type{save}", "disabled", "true");
 					rrequest.authorize("dtl", Consts.BUTTON_PART, "sub", "disabled", "true");
 					rrequest.setAttribute("dtl_ACCESSMODE", "readonly");

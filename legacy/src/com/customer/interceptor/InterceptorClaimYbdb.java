@@ -38,7 +38,7 @@ public class InterceptorClaimYbdb extends AbsInterceptorDefaultAdapter {
 				while (resultSetSQL_BUTTON.next()) {
 					if (resultSetSQL_BUTTON.getInt("cnt") == 0) {
 						//rrequest.authorize("dtl", null, null, "display", "false");
-						rrequest.getWResponse().getMessageCollector().error("输入保单号不存在或批量原因，新开户的保单号，请明日再试。）", false);
+						rrequest.getWResponse().getMessageCollector().error("输入保单号不存在或批量原因，新开户的保单号，请明日再试。）", "", false);
 					}
 				}
 				resultSetSQL_BUTTON.close();

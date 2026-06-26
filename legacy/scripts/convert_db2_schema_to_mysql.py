@@ -2,8 +2,11 @@
 from pathlib import Path
 import re
 
-source = Path("refs/table_structures_utf8.txt")
-target = Path("docker/mysql/init/01-schema.sql")
+legacy_dir = Path(__file__).resolve().parents[1]
+repo_root = legacy_dir.parent
+
+source = repo_root / "refs/table_structures_utf8.txt"
+target = legacy_dir / "docker/mysql/init/01-schema.sql"
 
 allowed_schemas = {"cst", "ibs"}
 create_table_pattern = re.compile(

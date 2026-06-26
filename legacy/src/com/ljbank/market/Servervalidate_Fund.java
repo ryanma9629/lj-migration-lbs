@@ -20,7 +20,7 @@ public class Servervalidate_Fund {
 		String txn_no = rrequest.getStringAttribute("TXN_NO", "");
 		String txn_dt = rrequest.getStringAttribute("TXN_DT", "");
 		if (RATIO == null || RATIO.trim().equals("") || Double.parseDouble(RATIO.trim())==0){
-			rrequest.getWResponse().getMessageCollector().error("认领比例不可输入空值或0！", false);
+			rrequest.getWResponse().getMessageCollector().error("认领比例不可输入空值或0！", "", false);
 			return false;
 		}
 		
@@ -39,7 +39,7 @@ public class Servervalidate_Fund {
 		rsCnt.next();
 		int cnt=rsCnt.getInt("cnt");
 		if(cnt>=1){
-			rrequest.getWResponse().getMessageCollector().error("此笔业务你已认领，不可重复认领！", false);
+			rrequest.getWResponse().getMessageCollector().error("此笔业务你已认领，不可重复认领！", "", false);
 			rsCnt.close();
 			pstmtCnt.close();
 			return false;
@@ -59,7 +59,7 @@ public class Servervalidate_Fund {
 			Double ro =Double.parseDouble(RATIO);
 			if (ro > inratio) {
 				
-				rrequest.getWResponse().getMessageCollector().error("剩余认领比例为："+inratio+"！请调整认领比例后，再试。", false);
+				rrequest.getWResponse().getMessageCollector().error("剩余认领比例为："+inratio+"！请调整认领比例后，再试。", "", false);
 				pstmt.close();
 				rs.close();
 				return false;
@@ -89,7 +89,7 @@ public class Servervalidate_Fund {
 			
 			String ide_no = rrequest.getStringAttribute("IDENTN_NO", "");
 			if (RATIO == null || RATIO.trim().equals("") || Double.parseDouble(RATIO.trim())==0){
-				rrequest.getWResponse().getMessageCollector().error("认领比例不可输入空值或0！", false);
+				rrequest.getWResponse().getMessageCollector().error("认领比例不可输入空值或0！", "", false);
 				return false;
 			}
 			
@@ -107,7 +107,7 @@ public class Servervalidate_Fund {
 			rsCnt.next();
 			int cnt=rsCnt.getInt("cnt");
 			if(cnt>=1){
-				rrequest.getWResponse().getMessageCollector().error("此笔业务你已认领，不可重复认领！", false);
+				rrequest.getWResponse().getMessageCollector().error("此笔业务你已认领，不可重复认领！", "", false);
 				rsCnt.close();
 				pstmtCnt.close();
 				return false;
@@ -126,7 +126,7 @@ public class Servervalidate_Fund {
 				Double ro =Double.parseDouble(RATIO);
 				if (ro > inratio) {
 					
-					rrequest.getWResponse().getMessageCollector().error("剩余认领比例为："+inratio+"！请调整认领比例后，再试。", false);
+					rrequest.getWResponse().getMessageCollector().error("剩余认领比例为："+inratio+"！请调整认领比例后，再试。", "", false);
 					pstmt.close();
 					rs.close();
 					return false;
@@ -157,7 +157,7 @@ public class Servervalidate_Fund {
 			
 			String ser_no = rrequest.getStringAttribute("SERIAL_NO", "");
 			if (RATIO == null || RATIO.trim().equals("") || Double.parseDouble(RATIO.trim())==0){
-				rrequest.getWResponse().getMessageCollector().error("认领比例不可输入空值或0！", false);
+				rrequest.getWResponse().getMessageCollector().error("认领比例不可输入空值或0！", "", false);
 				return false;
 			}
 			
@@ -175,7 +175,7 @@ public class Servervalidate_Fund {
 			rsCnt.next();
 			int cnt=rsCnt.getInt("cnt");
 			if(cnt>=1){
-				rrequest.getWResponse().getMessageCollector().error("此笔业务你已认领，不可重复认领！", false);
+				rrequest.getWResponse().getMessageCollector().error("此笔业务你已认领，不可重复认领！", "", false);
 				rsCnt.close();
 				pstmtCnt.close();
 				return false;
@@ -194,7 +194,7 @@ public class Servervalidate_Fund {
 				Double ro =Double.parseDouble(RATIO);
 				if (ro > inratio) {
 					
-					rrequest.getWResponse().getMessageCollector().error("剩余认领比例为："+inratio+"！请调整认领比例后，再试。", false);
+					rrequest.getWResponse().getMessageCollector().error("剩余认领比例为："+inratio+"！请调整认领比例后，再试。", "", false);
 					pstmt.close();
 					rs.close();
 					return false;

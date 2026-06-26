@@ -58,7 +58,7 @@ public class InterceptorClaimDep_OLD extends AbsInterceptorDefaultAdapter {
 						// 输入的凭证号不存在
 						rrequest.authorize("dtl", null, null, "display", "false");
 						rrequest.authorize("other_dtl", null, null, "display", "false");
-						rrequest.getWResponse().getMessageCollector().error("不存在输入的凭证号,请核对。", false);
+						rrequest.getWResponse().getMessageCollector().error("不存在输入的凭证号,请核对。", "", false);
 						System.out.println("结束判断输入的凭证号不存在，页面不显示。");
 					} else {
 						/************************** step3 判断输入的凭证号是否存在配卡 *************************************************/
@@ -93,7 +93,7 @@ public class InterceptorClaimDep_OLD extends AbsInterceptorDefaultAdapter {
 								// 只能对卡进行认领
 								rrequest.authorize("dtl", null, null, "display", "false");
 								rrequest.authorize("other_dtl", null, null, "display", "false");
-								rrequest.getWResponse().getMessageCollector().error("输入的储蓄存折(凭证号" + vuch_nbr + ")已关联银行卡，请对关联卡进行认领。", false);
+								rrequest.getWResponse().getMessageCollector().error("输入的储蓄存折(凭证号" + vuch_nbr + ")已关联银行卡，请对关联卡进行认领。", "", false);
 								System.out.println("此凭证有配卡，请对配卡进行认领。");
 							} else {
 								// 无配卡

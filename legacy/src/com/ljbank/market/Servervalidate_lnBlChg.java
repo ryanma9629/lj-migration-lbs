@@ -55,7 +55,7 @@ public class Servervalidate_lnBlChg {
 			rsCnt.next();
 			int cnt=rsCnt.getInt("cnt");
 			if(cnt>=1){
-				rrequest.getWResponse().getMessageCollector().error("此凭已调整，不可重复调整！", false);
+				rrequest.getWResponse().getMessageCollector().error("此凭已调整，不可重复调整！", "", false);
 				rsCnt.close();
 				pstmtCnt.close();
 				return false;
@@ -65,7 +65,7 @@ public class Servervalidate_lnBlChg {
 			pstmtCnt.close();
 			conn.close();
 		}else{
-			rrequest.getWResponse().getMessageCollector().error("统计日期、员工号、凭证号不能为空！", false);
+			rrequest.getWResponse().getMessageCollector().error("统计日期、员工号、凭证号不能为空！", "", false);
 			return false;
 		}
 		

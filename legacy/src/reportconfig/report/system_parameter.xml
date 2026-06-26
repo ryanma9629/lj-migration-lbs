@@ -2,25 +2,9 @@
 <applications xmlns="http://www.wabacus.com"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.wabacus.com ../xsd/wabacus.applications.xsd">
-
-	<!-- 设置主题风格 -->
-	<page xmlns="http://www.wabacus.com" id="set_system_skin">
-		<header>${top.header}</header>
-		<vpanel id="common_vpanel" align="center" width="1000px">
-			<report id="title" extends="title.report1"></report>
-			<vpanel id="vp1" border="1" bordercolor="green">
-				<jsp id="jsp1">
-					/jsp/set_system_skin.jsp
-				</jsp>
-			<report id="report" extends="home.report1"></report>
-			</vpanel>
-		</vpanel>
-	</page>
-	
 	<page id="system_parameter" js="/webresources/script/validate.js">
 		<header>${top.header}</header>
 		<vpanel id="common_vpanel" width="1000px" align="center">
-			<report id="title" extends="title.report1"></report>
 			<report id="report1" title="通用参数设置" type="editablelist2" pagesize="10|20|-1" navigate="${navigatepagesizepage1.report3.navigate}"
 			width="1000px" scrollheight="450px">
 				<display colselect="false">
@@ -74,7 +58,6 @@
 	<page id="system_consts" js="/webresources/script/validate.js">
 		<header>${top.header}</header>
 		<vpanel id="common_vpanel" width="1000px" align="center">
-			<report id="title" extends="title.report1"></report>
 			<report id="report1" title="Consts设定" type="editablelist2" pagesize="10|20|-1" navigate="${navigatepagesizepage1.report3.navigate}"
 			width="1000px" scrollheight="450px">
 				<display colselect="false">

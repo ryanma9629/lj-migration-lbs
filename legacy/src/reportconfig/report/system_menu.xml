@@ -6,7 +6,6 @@
 	<page id="system_menu" js="/webresources/script/validate.js">
 		<header>${top.header}</header>
 		<vpanel id="common_vpanel" align="center" width="1000px">
-			<report id="title" extends="title.report1"></report>
 			<report id="report1" title="菜单" type="listform" width="1000px" scrollheight="200px" pagesize="10|20|-1" navigate="${navigatepagesizepage1.report3.navigate}">
 				<display colselect="false">
 					<col column="{sequence:1}" label="序号" width="40px"/>

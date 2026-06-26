@@ -87,7 +87,7 @@ public class InterceptorClaimDep_NEW extends AbsInterceptorDefaultAdapter {
 				if (resultSet.getRow() == 0) {
 					rrequest.authorize("dtl", null, null, "display", "false");
 					rrequest.authorize("other_dtl", null, null, "display", "false");
-					rrequest.getWResponse().getMessageCollector().error("不存在输入的凭证号,请核对。（由于批量原因，新开户的凭证号，请明日再试。）", false);
+					rrequest.getWResponse().getMessageCollector().error("不存在输入的凭证号,请核对。（由于批量原因，新开户的凭证号，请明日再试。）", "", false);
 					System.out.println("结束判断输入的凭证号不存在，页面不显示。");
 
 				}
@@ -118,7 +118,7 @@ public class InterceptorClaimDep_NEW extends AbsInterceptorDefaultAdapter {
 									
 								}else{
 									if (resultSetOrg.getInt("orgCnt")<1){
-										rrequest.getWResponse().getMessageCollector().error("此凭证号的开户机构不是本机构。", false);
+										rrequest.getWResponse().getMessageCollector().error("此凭证号的开户机构不是本机构。", "", false);
 									}
 								}
 							}
@@ -135,7 +135,7 @@ public class InterceptorClaimDep_NEW extends AbsInterceptorDefaultAdapter {
 							/*20210525 delete
 							rrequest.authorize("dtl", null, null, "display", "false");
 							rrequest.authorize("other_dtl", null, null, "display", "false");
-							rrequest.getWResponse().getMessageCollector().error("该凭证是存量客户的凭证,客户开户日期为："+cst_open_date+"，不支持认领，如确有认领需求，可向分行有权人申请或分行个人业务部咨询。", false);
+							rrequest.getWResponse().getMessageCollector().error("该凭证是存量客户的凭证,客户开户日期为："+cst_open_date+"，不支持认领，如确有认领需求，可向分行有权人申请或分行个人业务部咨询。", "", false);
 							System.out.println("老存量客户，不准在页面进行认领！");
 							*/
 						//} else {
@@ -195,13 +195,13 @@ public class InterceptorClaimDep_NEW extends AbsInterceptorDefaultAdapter {
 								// 配卡凭证
 								rrequest.authorize("dtl", null, null, "display", "false");
 								rrequest.authorize("other_dtl", null, null, "display", "false");
-								rrequest.getWResponse().getMessageCollector().error("输入的储蓄存折(凭证号" + vuch_nbr + ")已关联银行卡，请对关联卡进行认领。", false);
+								rrequest.getWResponse().getMessageCollector().error("输入的储蓄存折(凭证号" + vuch_nbr + ")已关联银行卡，请对关联卡进行认领。", "", false);
 								System.out.println("此凭证有配卡，请对配卡进行认领。");
 							} else if (resultSet.getString("MARKETING_NO").trim().equals("2016qq")) {
 								// 参加蛐蛐网活动的凭证，则存款凭证不可以再次认领
 								rrequest.authorize("dtl", null, null, "display", "false");
 								rrequest.authorize("other_dtl", null, null, "display", "false");
-								rrequest.getWResponse().getMessageCollector().error("输入的凭证号" + vuch_nbr + "已参加蛐蛐网活动，不能再次认领。", false);
+								rrequest.getWResponse().getMessageCollector().error("输入的凭证号" + vuch_nbr + "已参加蛐蛐网活动，不能再次认领。", "", false);
 								System.out.println("参加蛐蛐网活动的凭证，则存款凭证不可以再次认领。");
 							}
 							
@@ -211,7 +211,7 @@ public class InterceptorClaimDep_NEW extends AbsInterceptorDefaultAdapter {
 								// 参加蛐蛐网活动的凭证，则存款凭证不可以再次认领
 								rrequest.authorize("dtl", null, null, "display", "false");
 								rrequest.authorize("other_dtl", null, null, "display", "false");
-								rrequest.getWResponse().getMessageCollector().error("输入的凭证号" + vuch_nbr + "已参加蛐蛐网活动，不能再次认领。", false);
+								rrequest.getWResponse().getMessageCollector().error("输入的凭证号" + vuch_nbr + "已参加蛐蛐网活动，不能再次认领。", "", false);
 								System.out.println("参加蛐蛐网活动的凭证，则存款凭证不可以再次认领。");
 							}
 					//}

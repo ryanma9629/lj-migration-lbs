@@ -71,7 +71,7 @@ public class InterceptorSubmitVerifyNo  implements IServerAction{
 	        pstmt.setString(4,user_id);
 	        pstmt.executeUpdate();
 	        System.out.println("======step1: 点击提交按钮将刷新CLAIM_STATUS_ID='1-待审核'==============");
-	        rrequest.getWResponse().getMessageCollector().success("提交成功！", false);//向前台提示一条信息，这里还可以终止后续处理
+	        rrequest.getWResponse().getMessageCollector().success("提交成功！", "", false);//向前台提示一条信息，这里还可以终止后续处理
 			rrequest.authorize("dtl", Consts.BUTTON_PART, "type{save}",	"disabled", "true");
 			rrequest.authorize("dtl", Consts.BUTTON_PART, "sub", "disabled", "true");
 			rrequest.setAttribute("dtl_ACCESSMODE", "readonly");

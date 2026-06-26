@@ -5,7 +5,7 @@ ENV APP_CONTEXT=LBIBS
 
 WORKDIR /workspace
 
-COPY legacy /workspace/legacy
+COPY . /workspace/legacy
 COPY docker/app/entrypoint.sh /entrypoint.sh
 COPY docker/app/lib /opt/legacy-lib
 

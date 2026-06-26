@@ -52,7 +52,7 @@ public class InterceptorClaimFncDitlTxn extends AbsInterceptorDefaultAdapter {
 				while (resultSetSQL_BUTTON.next()) {
 					
 					if (resultSetSQL_BUTTON.getInt("cnt") == 0 || resultSetSQL_BUTTON.getDouble("val_ro")==100 || resultSetSQL_BUTTON.getInt("self_val")>0) {
-						rrequest.getWResponse().getMessageCollector().error("输入的流水号或凭证号不存在， 或已被认领，若是当日的交易，请明日再试。", false);
+						rrequest.getWResponse().getMessageCollector().error("输入的流水号或凭证号不存在， 或已被认领，若是当日的交易，请明日再试。", "", false);
 					}
 					int a = resultSetSQL_BUTTON.getInt("cnt");
 					

@@ -1,24 +1,12 @@
 package com.customer;
 
-import net.sourceforge.pinyin4j.PinyinHelper;
-
 public class PinYintoWord {
 
 	public static String getPinYinHeadChar(String str) {
 		String convert = "";
 		for (int j = 0; j < str.length(); j++) {
-			// 提取每一个汉字 ！Char能存储汉字 这个是Java基础哦。
 			char word = str.charAt(j);
-			// 提取汉字的首字母
-			String[] pinyinArray = PinyinHelper.toHanyuPinyinStringArray(word);
-
-			if (pinyinArray != null) {
-				// 如果是汉字能提取当前首字母
-				convert += pinyinArray[0].charAt(0);
-			} else {
-				// 如果不是汉字 非汉字类型 英语类型 不用转换
-				convert += word;
-			}
+			convert += word;
 		}
 		return convert;
 	}

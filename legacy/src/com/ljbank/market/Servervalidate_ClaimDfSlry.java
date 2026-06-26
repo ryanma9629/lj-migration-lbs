@@ -20,7 +20,7 @@ public class Servervalidate_ClaimDfSlry {
 		String agent_no = rrequest.getStringAttribute("AGENT_NO", "");
 		String ent_id = rrequest.getStringAttribute("ENT_ID", "");
 		if (RATIO == null || RATIO.trim().equals("") || Double.parseDouble(RATIO.trim())==0){
-			rrequest.getWResponse().getMessageCollector().error("认领比例不可输入空值或0！", false);
+			rrequest.getWResponse().getMessageCollector().error("认领比例不可输入空值或0！", "", false);
 			return false;
 		}
 		
@@ -38,7 +38,7 @@ public class Servervalidate_ClaimDfSlry {
 		rsCnt.next();
 		int cnt=rsCnt.getInt("cnt");
 		if(cnt>=1){
-			rrequest.getWResponse().getMessageCollector().error("此笔业务已认领，不可重复认领！", false);
+			rrequest.getWResponse().getMessageCollector().error("此笔业务已认领，不可重复认领！", "", false);
 			rsCnt.close();
 			pstmtCnt.close();
 			return false;
@@ -57,7 +57,7 @@ public class Servervalidate_ClaimDfSlry {
 			Double ro =Double.parseDouble(RATIO);
 			if (ro > inratio) {
 				
-				rrequest.getWResponse().getMessageCollector().error("提交前请核对认领比例！请调整认领比例后，再试。", false);
+				rrequest.getWResponse().getMessageCollector().error("提交前请核对认领比例！请调整认领比例后，再试。", "", false);
 				pstmt.close();
 				rs.close();
 				return false;

@@ -39,7 +39,7 @@ public class ClaimedRvsFsServerCallBack implements IServerAction {
 			Map<String, String> mCustomizedData) {
 		System.out
 				.println("调用executeSeverAction(ReportRequest rrequest,IComponentConfigBean ccbean,List<Map<String,String>> lstData)方法...");
-//		rrequest.getWResponse().getMessageCollector().success("数据处理中...",false);//("批量审核通过，数据处理中...");//("批量审核通过，数据处理中...",false);//向前台提示一条信息，这里还可以终止后续处理
+//		rrequest.getWResponse().getMessageCollector().success("数据处理中...",false);//("批量审核通过，数据处理中...");//("批量审核通过，数据处理中...", "", false);//向前台提示一条信息，这里还可以终止后续处理
 		// printLstParams(lstData);//打印客户端传过来的参数
 		String user_id = (String) rrequest.getRequest().getSession()
 				.getAttribute("user_id");// 审核人
@@ -115,7 +115,7 @@ public class ClaimedRvsFsServerCallBack implements IServerAction {
 			}
 
 		}
-		rrequest.getWResponse().getMessageCollector().success("数据处理完成！",false);
+		rrequest.getWResponse().getMessageCollector().success("数据处理完成！", "", false);
 		return "调用成功!!!";
 	}
 }

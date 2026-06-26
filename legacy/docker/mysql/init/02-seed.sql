@@ -1,3 +1,5 @@
+SET NAMES utf8mb4;
+
 USE cst;
 
 DELETE FROM cst.SYS_C_SEC_USER WHERE USER_ID='admin';

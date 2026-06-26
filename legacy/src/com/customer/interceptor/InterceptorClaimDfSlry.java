@@ -46,7 +46,7 @@ public class InterceptorClaimDfSlry extends AbsInterceptorDefaultAdapter {
 //					}
 					if (resultSetSQL_BUTTON.getInt("cnt") == 0) {
 						//rrequest.authorize("dtl", null, null, "display", "false");
-						rrequest.getWResponse().getMessageCollector().error("输入的凭企业名称不存在或批量原因，若新开户的凭证号，请明日再试。）", false);
+						rrequest.getWResponse().getMessageCollector().error("输入的凭企业名称不存在或批量原因，若新开户的凭证号，请明日再试。）", "", false);
 					}
 				}
 				resultSetSQL_BUTTON.close();

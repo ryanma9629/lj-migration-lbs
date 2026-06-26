@@ -9,12 +9,14 @@
 ## Build the MySQL schema file
 
 ```bash
+cd legacy
 python3 scripts/convert_db2_schema_to_mysql.py
 ```
 
 ## Start the stack
 
 ```bash
+cd legacy
 docker compose up --build
 ```
 
@@ -34,10 +36,18 @@ docker compose up --build
 - `system_parameter`
 - `system_consts`
 
+The current Docker profile is intentionally reduced to those core pages. Legacy business reports outside this set are not loaded during startup.
+
 ## Smoke check
 
 ```bash
 ./scripts/smoke-check.sh
+```
+
+If your local environment cannot reach Docker-published localhost ports from the current shell, you can verify the same flow inside the app container:
+
+```bash
+docker compose exec app sh -lc 'cookie=$(mktemp); body=$(mktemp); base=http://127.0.0.1:8080/LBIBS; curl -fsS -c "$cookie" "$base/jsp/login/login.html" >/dev/null && curl -fsS -L -c "$cookie" -b "$cookie" -d "TxtUserID=admin" -d "TxtPassword=12345" "$base/jsp/login/login.jsp" >/dev/null && for page in home system_menu system_parameter system_consts; do curl -fsS -b "$cookie" "$base/ShowReport.wx?PAGEID=$page" > "$body"; done; rm -f "$cookie" "$body"'
 ```
 
 ## Expected first troubleshooting areas
@@ -51,7 +61,7 @@ docker compose up --build
 
 ### 2026-06-26 attempt
 
-Executed from `/Users/ryanma/work/lj-migration-lbs`:
+Executed from `/Users/ryanma/work/lj-migration-lbs/legacy`:
 
 ```bash
 python3 scripts/convert_db2_schema_to_mysql.py
@@ -82,7 +92,7 @@ Interpretation:
 
 ### 2026-06-27 continuation
 
-Executed from `/Users/ryanma/work/lj-migration-lbs` after adding `platform: linux/amd64` to the `mysql` service in `docker-compose.yml`:
+Executed from `/Users/ryanma/work/lj-migration-lbs/legacy` after adding `platform: linux/amd64` to the `mysql` service in `docker-compose.yml`:
 
 ```bash
 docker compose up --build
@@ -127,3 +137,28 @@ Exact dependency evidence recorded in `docker/app/lib/README.md`:
 
 - Wabacus packages rooted at `com.wabacus.*`
 - `com.lenovo.ebank.pub.SopIntf`
+
+### 2026-06-27 core-page bring-up
+
+Executed from `/Users/ryanma/work/lj-migration-lbs/legacy` after vendoring Wabacus jars, replacing the Druid datasource implementation, stubbing Lenovo SSO/SOP integration points, and reducing Wabacus startup to the core system pages:
+
+```bash
+docker compose up --build -d
+docker compose logs app --tail=120
+docker compose exec app sh -lc 'cookie=$(mktemp); body=$(mktemp); base=http://127.0.0.1:8080/LBIBS; curl -fsS -c "$cookie" "$base/jsp/login/login.html" >/dev/null && curl -fsS -L -c "$cookie" -b "$cookie" -d "TxtUserID=admin" -d "TxtPassword=12345" "$base/jsp/login/login.jsp" >/dev/null && for page in home system_menu system_parameter system_consts; do curl -fsS -b "$cookie" "$base/ShowReport.wx?PAGEID=$page" > "$body"; done; rm -f "$cookie" "$body"'
+```
+
+Observed results:
+
+- `docker compose logs app --tail=120` included `wabacus应用启动完成!`.
+- Tomcat stayed up with `0.0.0.0:18080->8080/tcp`.
+- An authenticated in-container smoke check reached all four target pages and validated:
+  - `home` contains `所有功能`
+  - `system_menu` contains `菜单名称`
+  - `system_parameter` contains `通用参数设置`
+  - `system_consts` contains `Consts设定`
+
+Interpretation:
+
+- The Dockerized legacy runtime is now operational for the agreed core validation set.
+- Remaining unported business pages are intentionally outside the startup scope and still need incremental compatibility work if you want them loaded in this environment.

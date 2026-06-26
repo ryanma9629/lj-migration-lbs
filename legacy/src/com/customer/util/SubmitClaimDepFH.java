@@ -78,7 +78,7 @@ public class SubmitClaimDepFH implements IServerAction {
 			if (ro > inratio) {
 				pstmt0.close();
 				rs.close();
-				rrequest.getWResponse().getMessageCollector().error("提交前请核对认领比例！请调整认领比例后，再试。", false);
+				rrequest.getWResponse().getMessageCollector().error("提交前请核对认领比例！请调整认领比例后，再试。", "", false);
 				return "提交失败！";
 			} else {
 
@@ -95,7 +95,7 @@ public class SubmitClaimDepFH implements IServerAction {
 				pstmt.setString(5, user_id);
 				pstmt.executeUpdate();
 				System.out.println("======step1: 点击提交按钮将刷新CLAIM_STATUS_ID='1-待审核'==============");
-				rrequest.getWResponse().getMessageCollector().success("提交成功！", false);// 向前台提示一条信息，这里还可以终止后续处理
+				rrequest.getWResponse().getMessageCollector().success("提交成功！", "", false);// 向前台提示一条信息，这里还可以终止后续处理
 //				rrequest.authorize("dtl", Consts.BUTTON_PART, "type{save}", "disabled", "true");
 //				rrequest.authorize("dtl", Consts.BUTTON_PART, "sub", "disabled", "true");
 //				rrequest.setAttribute("dtl_ACCESSMODE", "readonly");

@@ -53,7 +53,7 @@ public class InterceptorClaimFundTxn extends AbsInterceptorDefaultAdapter {
 //					}
 					if (resultSetSQL_BUTTON.getInt("cnt") == 0 || resultSetSQL_BUTTON.getDouble("val_ro")==100 || resultSetSQL_BUTTON.getInt("self_val")>0) {
 						//rrequest.authorize("dtl", null, null, "display", "false");
-						rrequest.getWResponse().getMessageCollector().error("输入的交易流水号不存在， 或已被认领，若是当日的交易流水号，请明日再试。", false);
+						rrequest.getWResponse().getMessageCollector().error("输入的交易流水号不存在， 或已被认领，若是当日的交易流水号，请明日再试。", "", false);
 					}
 					if(resultSetSQL_BUTTON.getInt("cnt") > 0 && resultSetSQL_BUTTON.getInt("is_inst")!=1 && resultSetSQL_BUTTON.getInt("self")==0 && resultSetSQL_BUTTON.getDouble("val_ro")!=100) {
 						String SQL_INSRT = "insert into ibs.T1_FUND_TXN_EMP_RELA(TXN_NO,VUCH_NBR,EMP_ID,RATIO,CLAIM_STATUS_ID,ORG_ID,ORG_NM,CST_NM,IDENTN_NO,BIZ_TYPE_CD,BIZ_TYPE_NM,TXN_DT,EMP_NM,EMP_ORG_ID,EMP_ORG_NM,TXN_AMT,PRD_CD,PRD_NM,MID_INC)" +

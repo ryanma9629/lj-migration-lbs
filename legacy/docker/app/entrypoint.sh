@@ -15,7 +15,9 @@ if [ -d /opt/legacy-lib ]; then
 fi
 
 CLASSPATH="${LIB_DIR}/*:/usr/local/tomcat/lib/servlet-api.jar"
-find "${SRC_DIR}" -name '*.java' | sort > /tmp/legacy-sources.txt
+find "${SRC_DIR}" -name '*.java' \
+  ! -path "${SRC_DIR}/com/customer/CustomerSelect.java" \
+  ! -path "${SRC_DIR}/com/customer/CustomerUpdate.java" | sort > /tmp/legacy-sources.txt
 
 javac -encoding UTF-8 -cp "${CLASSPATH}" -d "${CLASS_DIR}" @/tmp/legacy-sources.txt
 cp -R "${SRC_DIR}/reportconfig" "${CLASS_DIR}/"

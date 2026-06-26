@@ -69,7 +69,7 @@ public class InterceptorClaimLn_OLD extends AbsInterceptorDefaultAdapter {
 						// 输入的借据号不存在
 						rrequest.authorize("dtl", null, null, "display", "false");
 						rrequest.authorize("other_dtl", null, null, "display", "false");
-						rrequest.getWResponse().getMessageCollector().error("不存在输入的借据号,请核对。", false);
+						rrequest.getWResponse().getMessageCollector().error("不存在输入的借据号,请核对。", "", false);
 						System.out.println("结束判断输入的借据号不存在，页面不显示。");
 					} else {
 						/************************** step3 判断输入的借据号否存在他人认领信息 *************************************************/

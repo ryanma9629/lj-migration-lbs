@@ -7,4 +7,24 @@
   		<wx:output value="session{menu_list}" />
   		]]>
 	</resource>
+
+	<resource key="navigatepagesizepage1.report3.navigate" type="com.wabacus.config.resource.TemplateRes">
+		<![CDATA[
+			<table width="100%" border="0" cellspacing="0" cellpadding="0">
+				<tr><td align="left">
+					当前页<wx:navigate type="pageno"/>/<wx:navigate type="pagecount"/>
+					记录数：<wx:navigate type="recordcount"/>
+					跳转到第<wx:navigate type="pageno">selectbox</wx:navigate>页
+					页大小：<wx:navigate type="pagesize"/>
+				</td>
+				<td align="right">
+					<wx:navigate type="first"/>
+					<wx:navigate type="previous"/>
+					<wx:navigate type="sequence" minlength="2"><u>[<font color="blue">%PAGENO%</font>]</u></wx:navigate>
+					<wx:navigate type="next"/>
+					<wx:navigate type="last"/>
+				</td></tr>
+			</table>
+		]]>
+	</resource>
 </resources>

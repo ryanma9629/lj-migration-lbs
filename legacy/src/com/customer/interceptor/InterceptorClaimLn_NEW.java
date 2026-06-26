@@ -81,7 +81,7 @@ public class InterceptorClaimLn_NEW extends AbsInterceptorDefaultAdapter {
 				if (resultSet.getRow() == 0) {
 					rrequest.authorize("dtl", null, null, "display", "false");
 					rrequest.authorize("other_dtl", null, null, "display", "false");
-					rrequest.getWResponse().getMessageCollector().error("不存在输入的凭证号,请核对。不存在输入的凭证号,请核对。（由于批量原因，新开户的凭证号，请明日再试。）", false);
+					rrequest.getWResponse().getMessageCollector().error("不存在输入的凭证号,请核对。不存在输入的凭证号,请核对。（由于批量原因，新开户的凭证号，请明日再试。）", "", false);
 					System.out.println("结束判断输入的凭证号不存在，页面不显示。");
 
 				} else {
@@ -113,7 +113,7 @@ public class InterceptorClaimLn_NEW extends AbsInterceptorDefaultAdapter {
 									
 								}else{
 									if (resultSetOrg.getInt("orgCnt")<1){
-										rrequest.getWResponse().getMessageCollector().error("此凭证号的开户机构不是本机构。", false);
+										rrequest.getWResponse().getMessageCollector().error("此凭证号的开户机构不是本机构。", "", false);
 									}
 								}
 							}

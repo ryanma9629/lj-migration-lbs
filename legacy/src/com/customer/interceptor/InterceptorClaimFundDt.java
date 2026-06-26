@@ -51,7 +51,7 @@ public class InterceptorClaimFundDt extends AbsInterceptorDefaultAdapter {
 //					}
 					if (resultSetSQL_BUTTON.getInt("cnt") == 0 || resultSetSQL_BUTTON.getDouble("val_ro")==100 || resultSetSQL_BUTTON.getInt("self_val")>0) {
 						//rrequest.authorize("dtl", null, null, "display", "false");
-						rrequest.getWResponse().getMessageCollector().error("输入的证件号不存在， 或已被认领，若是当日的证件号，请明日再试。", false);
+						rrequest.getWResponse().getMessageCollector().error("输入的证件号不存在， 或已被认领，若是当日的证件号，请明日再试。", "", false);
 					}
 					if(resultSetSQL_BUTTON.getInt("cnt") > 0 && resultSetSQL_BUTTON.getInt("is_inst")!=1 && resultSetSQL_BUTTON.getInt("self")==0 && resultSetSQL_BUTTON.getDouble("val_ro")!=100) {
 						String SQL_INSRT = "insert into ibs.T1_FUND_DT_EMP_RELA(SERIAL_NO,VUCH_NBR,EMP_ID,RATIO,CLAIM_STATUS_ID,ORG_ID,ORG_NM,CST_NM,IDENTN_NO,TXN_DT,PRD_CD,PRD_NM,EMP_NM,EMP_ORG_ID,EMP_ORG_NM,TXN_AMT) " +

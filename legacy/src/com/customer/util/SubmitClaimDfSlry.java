@@ -68,7 +68,7 @@ public class SubmitClaimDfSlry implements IServerAction {
 			int zcCnt=rsZC.getInt("zcCnt");
 			
 			if(zcCnt<1){
-				rrequest.getWResponse().getMessageCollector().error("请先保存,再提交！", false);
+				rrequest.getWResponse().getMessageCollector().error("请先保存,再提交！", "", false);
 				rsZC.close();
 				pstmtZC.close();
 				return "提交失败！";
@@ -82,7 +82,7 @@ public class SubmitClaimDfSlry implements IServerAction {
 			rsCnt.next();
 			int cnt=rsCnt.getInt("cnt");
 			if(cnt>=1){
-				rrequest.getWResponse().getMessageCollector().error("此笔业务已认领，不可重复认领！", false);
+				rrequest.getWResponse().getMessageCollector().error("此笔业务已认领，不可重复认领！", "", false);
 				rsCnt.close();
 				pstmtCnt.close();
 				return "提交失败！";
@@ -107,7 +107,7 @@ public class SubmitClaimDfSlry implements IServerAction {
 					if (ro > inratio) {
 						pstmt0.close();
 						rs.close();
-						rrequest.getWResponse().getMessageCollector().error("提交前请核对认领比例！请调整认领比例后，再试。", false);
+						rrequest.getWResponse().getMessageCollector().error("提交前请核对认领比例！请调整认领比例后，再试。", "", false);
 						return "提交失败！";
 					} else {
 						
@@ -125,7 +125,7 @@ public class SubmitClaimDfSlry implements IServerAction {
 						pstmt.setString(8, old_emp_id);
 						//pstmt.setString(9, txn_dt);
 						pstmt.executeUpdate();
-						rrequest.getWResponse().getMessageCollector().success("提交成功！", false);// 向前台提示一条信息，这里还可以终止后续处理
+						rrequest.getWResponse().getMessageCollector().success("提交成功！", "", false);// 向前台提示一条信息，这里还可以终止后续处理
 						rrequest.authorize("dtl", Consts.BUTTON_PART, "type{save}", "disabled", "true");
 						rrequest.authorize("dtl", Consts.BUTTON_PART, "sub", "disabled", "true");
 						rrequest.setAttribute("dtl_ACCESSMODE", "readonly");

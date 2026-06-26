@@ -92,7 +92,7 @@ public class SubmitClaimLn implements IServerAction {
 				System.out.println("已认领比例ro============" + ro);
 				
 				if (ro > inratio || inratio==0) {
-					rrequest.getWResponse().getMessageCollector().error("提交前请核对认领比例！请调整认领比例后，再试。", false);
+					rrequest.getWResponse().getMessageCollector().error("提交前请核对认领比例！请调整认领比例后，再试。", "", false);
 					rsValRO.close();
 					pstmtValRO.close();
 					rsBrch.close();
@@ -112,7 +112,7 @@ public class SubmitClaimLn implements IServerAction {
 					pstmt.setString(5, user_id);
 					pstmt.executeUpdate();
 					
-					rrequest.getWResponse().getMessageCollector().success("提交成功！", false);
+					rrequest.getWResponse().getMessageCollector().success("提交成功！", "", false);
 					rrequest.authorize("dtl", Consts.BUTTON_PART, "type{save}", "disabled", "true");
 					rrequest.authorize("dtl", Consts.BUTTON_PART, "sub", "disabled", "true");
 					rrequest.setAttribute("dtl_ACCESSMODE", "readonly");
@@ -127,7 +127,7 @@ public class SubmitClaimLn implements IServerAction {
 				}
 				//支用户认领对公存款 支行用户且为对公存款
 			}else if(user_id.equals(usr_org_id) && (rsBrch.getString("ORG_LEVEL_ID")).equals("1") && rsBrch.getString("BIZ_TYPE_NM").equals("公司贷款")){
-				rrequest.getWResponse().getMessageCollector().error("支行用户不能认领对公业务！", false);
+				rrequest.getWResponse().getMessageCollector().error("支行用户不能认领对公业务！", "", false);
 				rsBrch.close();
 				pstmtBrch.close();
 				rsBrch.close();
@@ -163,7 +163,7 @@ public class SubmitClaimLn implements IServerAction {
 				if (ro > inratio || inratio==0) {
 					pstmt0.close();
 					rs.close();
-					rrequest.getWResponse().getMessageCollector().error("提交前请核对认领比例！请调整认领比例后，再试。", false);
+					rrequest.getWResponse().getMessageCollector().error("提交前请核对认领比例！请调整认领比例后，再试。", "", false);
 					return "提交失败！";
 				} else {
 					
@@ -194,7 +194,7 @@ public class SubmitClaimLn implements IServerAction {
 					pstmt1.executeUpdate();
 					//System.out.println("======step2: 点击提交按钮将IBS.T1_LN_LOBBY_MANAGER_RELA刷新CLAIM_DT为提交的统一时间============");
 					
-					rrequest.getWResponse().getMessageCollector().success("提交成功！", false);// 向前台提示一条信息，这里还可以终止后续处理
+					rrequest.getWResponse().getMessageCollector().success("提交成功！", "", false);// 向前台提示一条信息，这里还可以终止后续处理
 					rrequest.authorize("dtl", Consts.BUTTON_PART, "type{save}", "disabled", "true");
 					rrequest.authorize("dtl", Consts.BUTTON_PART, "sub", "disabled", "true");
 					rrequest.setAttribute("dtl_ACCESSMODE", "readonly");
