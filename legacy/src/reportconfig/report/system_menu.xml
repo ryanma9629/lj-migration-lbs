@@ -32,8 +32,10 @@
 							<param name="current_time" value="now{}" datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
 						</params>
 						<value>
-							insert into
-							cst.sys_c_app_menu(@{menu_id},@{menu_name},@{seq},@{menu_type},lm_user=#{user_id},lm_time=#{current_time},service_id='060');
+							insert into cst.sys_c_app_menu
+							(menu_id,menu_name,seq,menu_type,lm_user,lm_time,service_id)
+							values
+							(@{menu_id},@{menu_name},case when @{seq}='' then null else @{seq} end,@{menu_type},#{user_id},#{current_time},'060');
 						</value>
 					</insert>
 					<update>
@@ -42,10 +44,15 @@
 							<param name="current_time" value="now{}" datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
 						</params>
 						<value>
-							update
-							cst.sys_c_app_menu(@{menu_id},@{menu_name},@{seq},@{menu_type},lm_user=#{user_id},lm_time=#{current_time})
+							update cst.sys_c_app_menu
+							set menu_id=@{menu_id},
+								menu_name=@{menu_name},
+								seq=case when @{seq}='' then null else @{seq} end,
+								menu_type=@{menu_type},
+								lm_user=#{user_id},
+								lm_time=#{current_time}
 							where menu_id=@{menu_id__old} and service_id='060';
-							update cst.sys_c_app_mnlt(@{menu_id}) where menu_id=@{menu_id__old};
+							update cst.sys_c_app_mnlt set menu_id=@{menu_id} where menu_id=@{menu_id__old};
 						</value>
 					</update>
 					<delete>
@@ -110,9 +117,11 @@ where b.SERVICE_ID='060' and {#condition#} order by group_id,seq  ]]>
 							<param name="current_time" value="now{}" datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
 						</params>
 						<value>
-							insert into
-							cst.sys_c_app_mnlt(id=uuid{},menu_id=#{url_menu_id},@{group_id},@{page_id},@{page_name},@{url_param},
-							@{seq},@{is_show},lm_user=#{user_id},lm_time=#{current_time});
+							insert into cst.sys_c_app_mnlt
+							(id,menu_id,group_id,page_id,page_name,url_param,seq,is_show,lm_user,lm_time)
+							values
+							(uuid{},#{url_menu_id},@{group_id},@{page_id},@{page_name},@{url_param},
+							case when @{seq}='' then null else @{seq} end,@{is_show},#{user_id},#{current_time});
 						</value>
 					</insert>
 					<update>
@@ -121,9 +130,16 @@ where b.SERVICE_ID='060' and {#condition#} order by group_id,seq  ]]>
 							<param name="current_time" value="now{}" datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
 						</params>
 						<value>
-							update
-							cst.sys_c_app_mnlt(@{menu_id},@{group_id},@{page_id},@{page_name},@{url_param},
-							@{seq},@{is_show},lm_user=#{user_id},lm_time=#{current_time})
+							update cst.sys_c_app_mnlt
+							set menu_id=@{menu_id},
+								group_id=@{group_id},
+								page_id=@{page_id},
+								page_name=@{page_name},
+								url_param=@{url_param},
+								seq=case when @{seq}='' then null else @{seq} end,
+								is_show=@{is_show},
+								lm_user=#{user_id},
+								lm_time=#{current_time}
 							where id=@{id__old};
 						</value>
 					</update>

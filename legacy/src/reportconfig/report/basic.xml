@@ -15,4 +15,62 @@
 			]]></html>
 		</vpanel>
 	</page>
+
+	<!-- 单据页title部分,包含标题,公用按钮 -->
+	<page xmlns="http://www.wabacus.com" id="title" js="/js/demo.js">
+		<report id="report1" width="1000px" pagesize="-1" top="0" border="none0">
+			<display dataheader="" mouseoverbgcolor="#F0F1F3">
+				<col property="title" column="{non-fromdb}" align="left"
+					valuestyleproperty="style='background:#F0F1F3'"></col>
+				<col column="is_favor" displaytype="hidden"></col>
+				<col column="page_id" displaytype="hidden"></col>
+				<col column="menu_name" displaytype="hidden"></col>
+				<col column="page_name" displaytype="hidden"></col>
+			</display>
+			<sql>
+				<select>
+					<value><![CDATA[
+						 select distinct case when f.page_id is null then 'non_favor' else 'favor' end as is_favor,
+							 m.menu_name,mt.page_id,mt.page_name
+						from cst.sys_c_sec_user u
+						left join cst.sys_c_sec_user_group ug on u.user_id=ug.user_id
+				        left join cst.SYS_C_SEC_GROP g on ug.group_id=g.GROUP_ID
+						left join cst.sys_c_app_mnlt mt on g.group_id=mt.group_id and mt.is_show='Y'
+						left join cst.sys_c_app_menu m on mt.menu_id=m.menu_id
+						left join cst.sys_c_per_fvor f on f.page_id=mt.page_id and u.user_id=f.user_id and f.service_id='060'
+						where {#condition#}and g.SERVICE_ID='060'  and m.SERVICE_ID='060'
+						and u.is_enable='Y'
+					]]></value>
+					<condition name="txt_user_id" source="session{user_id}" hidden="true">
+						<value>u.user_id='#data#'</value>
+					</condition>
+					<condition name="PAGEID" hidden="true">
+						<value>mt.page_id='#data#'</value>
+					</condition>
+				</select>
+			</sql>
+			<format>
+				<value><![CDATA[
+				String favor="";
+				if("non_favor".equals(is_favor)){
+					favor="<img src=\"images/star_off.gif\" style='padding-left:1px;padding-right:5px;float:left;width:15px;height:15px;cursor: pointer;' title=\"点击收藏\" onclick=\"invokeServerAction('com.customer.personalize.FavorPage',{pageid:'"+page_id+"'},InvokeCallbackMethod_refreshTitle,null);\">";
+				}else{
+					favor="<img src=\"images/star_on.gif\" style='padding-left:1px;padding-right:5px;float:left;width:15px;height:15px;cursor: pointer;' title=\"取消收藏\" onclick=\"invokeServerAction('com.customer.personalize.FavorPage',{pageid:'"+page_id+"'},InvokeCallbackMethod_refreshTitle,null);\">";
+				}
+				title=favor+"<font style='color:#154BA0'>"+menu_name+"</font>>><font style='font-weight:bold;color:#154BA0'>"+page_name+"</font>";
+				]]></value>
+			</format>
+		</report>
+	</page>
+
+	<!-- 单据页title部分,包含标题,不带收藏按钮 -->
+	<page xmlns="http://www.wabacus.com" id="title2" js="/js/demo.js">
+		<report id="report1" extends="title.report1">
+			<format>
+				<value><![CDATA[
+				title="<font style='color:#154BA0'>"+menu_name+"</font>>><font style='font-weight:bold;color:#154BA0'>"+page_name+"</font>";
+				]]></value>
+			</format>
+		</report>
+	</page>
 </applications>

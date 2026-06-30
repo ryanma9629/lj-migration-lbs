@@ -8,8 +8,9 @@
 
 		<header>${top.header}</header>
 		<vpanel id="common_vpanel" width="1300px" align="center" title="">
-
-			<report id="title" extends="title.report1" width="1300px"></report>
+			<html id="claim_ln_title"><![CDATA[
+				<div style="width:1300px;margin:0 auto;padding:8px 0 4px 0;color:#154BA0;font-weight:bold;">贷款认领</div>
+			]]></html>
 			<report id="select" type="form" title="账户信息" width="1300px"
 				interceptor="com.customer.interceptor.InterceptorClaimLn_NEW" top="10px"
 				personalizeclass="default">
@@ -60,7 +61,6 @@
 										,MARKETING_NO       
 							FROM IBS.T1_VUCH_DETAIL		
 							WHERE   {#condition#}
-							WITH UR
 						    ]]>
 						</value>
 						<condition name="VUCH_NBR" label="借据号" labelposition="left">
@@ -171,7 +171,6 @@
 
 					<col column="RATIO" label="*认领比例(%)">
 						<inputbox styleproperty="style='width:90%'"
-							jsvalidate="isNumeric(不是合法数字);isNotEmpty(不可以为空值);isPositiveInt(请输入正确的认领比例)"
 							servervalidate="isClaimRatio(请核对认领比例)">
 						</inputbox><!-- jsvalidate="isNumeric(不是合法数字);isNotEmpty(不可以为空值)" servervalidate="isClaimRatio(请核对认领比例)" -->
 					</col>
@@ -246,12 +245,12 @@
 								set RATIO = @{RATIO}
 									,CLAIM_STATUS_ID='0'
 									,REMARK1 = @{REMARK1}
-								where VUCH_NBR=@{VUCH_NBR__old}
+								where VUCH_NBR=@{VUCH_NBR}
 								and EMP_ID=#{user_id}
 								;
 								
 								delete from IBS.T1_LN_LOBBY_MANAGER_RELA
-								where BIZ_DIL_NBR=@{VUCH_NBR__old}
+								where BIZ_DIL_NBR=@{VUCH_NBR}
 								;
 							
 								insert into IBS.T1_LN_LOBBY_MANAGER_RELA
@@ -262,13 +261,13 @@
 								)                                        
 								VALUES                                   
 								(	                                       
-									@{VUCH_NBR__old}                        
+									@{VUCH_NBR}                        
 									,@{DT_EMP_ID}                                  
 									,#{user_id}                                
 								);
 								
 								delete from IBS.T1_LN_LOBBY_MANAGER_RELA
-								where BIZ_DIL_NBR=@{VUCH_NBR__old}
+								where BIZ_DIL_NBR=@{VUCH_NBR}
 								and EMP_ID=''
 								;
 								
@@ -283,12 +282,12 @@
 						<value>
 							<![CDATA[
 								delete from IBS.T1_VUCH_EMP_RELA
-								where VUCH_NBR=@{VUCH_NBR__old}
+								where VUCH_NBR=@{VUCH_NBR}
 								and EMP_ID=#{user_id}
 								;
 								
 								delete from IBS.T1_LN_LOBBY_MANAGER_RELA
-								where BIZ_DIL_NBR=@{VUCH_NBR__old}
+								where BIZ_DIL_NBR=@{VUCH_NBR}
 								and MANAGER_EMP_ID=#{user_id}
 								;
 							]]>

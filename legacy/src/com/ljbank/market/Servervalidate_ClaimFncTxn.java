@@ -27,7 +27,7 @@ public class Servervalidate_ClaimFncTxn {
 		
 		RATIO = RATIO.trim();
 		Connection conn = Config.getInstance().getDataSource("ds_db2").getConnection();// 取DB2数据源配置
-		String sqlcnt="SELECT count(1) as cnt FROM IBS.T1_FNC_TXN_EMP_RELA WHERE TXN_NO=? and TXN_DT=? and EMP_ID=? and RATIO<>0 and CLAIM_STATUS_ID in ('1','2','5','6') with ur";
+		String sqlcnt="SELECT count(1) as cnt FROM IBS.T1_FNC_TXN_EMP_RELA WHERE TXN_NO=? and TXN_DT=? and EMP_ID=? and RATIO<>0 and CLAIM_STATUS_ID in ('1','2','5','6')";
 		PreparedStatement pstmtCnt = null;
 		pstmtCnt = conn.prepareStatement(sqlcnt);
 		
@@ -46,7 +46,7 @@ public class Servervalidate_ClaimFncTxn {
 		}
 		
 		try {
-			String sql = "SELECT 100-SUM(CASE WHEN EMP_ID<>'000000'  and CLAIM_STATUS_ID in ('1','2','5','6') THEN ratio ELSE 0 END) AS inratio FROM IBS.T1_FNC_TXN_EMP_RELA WHERE TXN_NO=? and TXN_DT=? with ur" 
+			String sql = "SELECT 100-SUM(CASE WHEN EMP_ID<>'000000'  and CLAIM_STATUS_ID in ('1','2','5','6') THEN ratio ELSE 0 END) AS inratio FROM IBS.T1_FNC_TXN_EMP_RELA WHERE TXN_NO=? and TXN_DT=?" 
 				;
 			PreparedStatement pstmt = null;
 			pstmt = conn.prepareStatement(sql);
@@ -99,7 +99,7 @@ public class Servervalidate_ClaimFncTxn {
 		
 		RATIO = RATIO.trim();
 		Connection conn = Config.getInstance().getDataSource("ds_db2").getConnection();// 取DB2数据源配置
-		String sqlcnt="SELECT count(1) as cnt FROM IBS.T1_FNC_TXN_EMP_RELA WHERE TXN_NO=? and TXN_DT=? and EMP_ID=? and RATIO<>0 and CLAIM_STATUS_ID in ('1','2','5','6') with ur";
+		String sqlcnt="SELECT count(1) as cnt FROM IBS.T1_FNC_TXN_EMP_RELA WHERE TXN_NO=? and TXN_DT=? and EMP_ID=? and RATIO<>0 and CLAIM_STATUS_ID in ('1','2','5','6')";
 		PreparedStatement pstmtCnt = null;
 		pstmtCnt = conn.prepareStatement(sqlcnt);
 		
@@ -118,7 +118,7 @@ public class Servervalidate_ClaimFncTxn {
 		}
 		
 		try {
-			String sql = "SELECT 100-SUM(CASE WHEN EMP_ID<>'000000' and CLAIM_STATUS_ID in ('1','2','5','6') THEN ratio ELSE 0 END) AS inratio FROM IBS.T1_FNC_TXN_EMP_RELA WHERE TXN_NO=? and TXN_DT=? with ur" 
+			String sql = "SELECT 100-SUM(CASE WHEN EMP_ID<>'000000' and CLAIM_STATUS_ID in ('1','2','5','6') THEN ratio ELSE 0 END) AS inratio FROM IBS.T1_FNC_TXN_EMP_RELA WHERE TXN_NO=? and TXN_DT=?" 
 				;
 			PreparedStatement pstmt = null;
 			pstmt = conn.prepareStatement(sql);

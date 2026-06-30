@@ -73,13 +73,13 @@ public class ClaimVerifyFundServerCallBack implements IServerAction {
 				try {
 
 					PreparedStatement pstmt = null;
-					String sqlTxn ="UPDATE ibs.T1_FUND_TXN_EMP_RELA SET CLAIM_STATUS_ID='2',VERIFY_DT=?,VERIFY_EMP_ID=?,REMARK=REMARK||'审批时间'||?||'审批工号'||?||'审批理由页面批复通过。' " +
+					String sqlTxn ="UPDATE ibs.T1_FUND_TXN_EMP_RELA SET CLAIM_STATUS_ID='2',VERIFY_DT=?,VERIFY_EMP_ID=?,REMARK=CONCAT(COALESCE(REMARK,''),'审批时间',?,'审批工号',?,'审批理由页面批复通过。') " +
 					"WHERE TXN_NO=? AND TXN_DT=? AND EMP_ID=? AND CLAIM_STATUS_ID='1' " ;
 					
-					String sqlCst ="UPDATE ibs.T1_FUND_CST_EMP_RELA SET CLAIM_STATUS_ID='2',VERIFY_DT=?, VERIFY_EMP_ID=?, REMARK=REMARK||'审批时间'||?||'审批工号'||?||'审批理由页面批复通过。'  " +
+					String sqlCst ="UPDATE ibs.T1_FUND_CST_EMP_RELA SET CLAIM_STATUS_ID='2',VERIFY_DT=?, VERIFY_EMP_ID=?, REMARK=CONCAT(COALESCE(REMARK,''),'审批时间',?,'审批工号',?,'审批理由页面批复通过。')  " +
 					"WHERE IDENTN_NO=? AND EMP_ID=? AND TXN_DT=?  AND CLAIM_STATUS_ID='1' ";
 					
-					String sqlDt="UPDATE ibs.T1_FUND_DT_EMP_RELA SET CLAIM_STATUS_ID='2', VERIFY_DT=?, VERIFY_EMP_ID=?,REMARK=REMARK||'审批时间'||?||'审批工号'||?||'审批理由页面批复通过。' " +
+					String sqlDt="UPDATE ibs.T1_FUND_DT_EMP_RELA SET CLAIM_STATUS_ID='2', VERIFY_DT=?, VERIFY_EMP_ID=?,REMARK=CONCAT(COALESCE(REMARK,''),'审批时间',?,'审批工号',?,'审批理由页面批复通过。') " +
 					"WHERE SERIAL_NO=? AND EMP_ID=? AND TXN_DT=?  AND CLAIM_STATUS_ID='1'";
 					
 					//System.out.println("sqlTxn="+sqlTxn);
@@ -131,8 +131,7 @@ public class ClaimVerifyFundServerCallBack implements IServerAction {
 			}
 
 		}
-		rrequest.getWResponse().getMessageCollector().success("数据处理完成！", "", false);
+		rrequest.getWResponse().getMessageCollector().success("数据处理完成！", false);
 		return "成功!!!";
 	}
 }
-

@@ -31,8 +31,10 @@
 							<param name="current_time" value="now{}" datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
 						</params>
 						<value>
-							insert into
-							cst.sys_c_set_parm(@{param_type},@{param_name},@{param_id},@{param_value},@{seq},lm_user=#{user_id},lm_time=#{current_time});
+							insert into cst.sys_c_set_parm
+							(param_type,param_name,param_id,param_value,seq,lm_user,lm_time)
+							values
+							(@{param_type},@{param_name},@{param_id},@{param_value},case when @{seq}='' then null else @{seq} end,#{user_id},#{current_time});
 						</value>
 					</insert>
 					<update>
@@ -41,8 +43,14 @@
 							<param name="current_time" value="now{}" datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
 						</params>
 						<value>
-							update
-							cst.sys_c_set_parm(@{param_type},@{param_name},@{param_id},@{param_value},@{seq},lm_user=#{user_id},lm_time=#{current_time})
+							update cst.sys_c_set_parm
+							set param_type=@{param_type},
+								param_name=@{param_name},
+								param_id=@{param_id},
+								param_value=@{param_value},
+								seq=case when @{seq}='' then null else @{seq} end,
+								lm_user=#{user_id},
+								lm_time=#{current_time}
 							where param_type=@{param_type__old} and param_id=@{param_id__old};
 						</value>
 					</update>
@@ -90,8 +98,10 @@
 							<param name="current_time" value="now{}" datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
 						</params>
 						<value>
-							insert into
-							cst.sys_c_app_consts(@{const_type},@{const_name},@{const_value},@{data_type},@{const_description},@{seq},lm_user=#{user_id},lm_time=#{current_time});
+							insert into cst.sys_c_app_consts
+							(const_type,const_name,const_value,data_type,const_description,seq,lm_user,lm_time)
+							values
+							(@{const_type},@{const_name},@{const_value},@{data_type},@{const_description},case when @{seq}='' then null else @{seq} end,#{user_id},#{current_time});
 						</value>
 					</insert>
 					<update>
@@ -100,9 +110,16 @@
 							<param name="current_time" value="now{}" datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
 						</params>
 						<value>
-							update
-							cst.sys_c_app_consts(@{const_type},@{const_name},@{const_value},@{data_type},@{const_description},@{seq},lm_user=#{user_id},lm_time=#{current_time})
-							where const_name=@{const_name__old} ;
+							update cst.sys_c_app_consts
+							set const_type=@{const_type},
+								const_name=@{const_name},
+								const_value=@{const_value},
+								data_type=@{data_type},
+								const_description=@{const_description},
+								seq=case when @{seq}='' then null else @{seq} end,
+								lm_user=#{user_id},
+								lm_time=#{current_time}
+							where const_name=case when @{const_name__old}='' then @{const_name} else @{const_name__old} end ;
 						</value>
 					</update>
 					<delete>

@@ -9,7 +9,6 @@
 
 		<vpanel id="common_vpanel" align="center" width="1000px">
 
-			<report id="title" extends="title.report1"></report>
 			<report id="report1" title="" type="form" top="10px"
 				personalizeclass="default" pagesize="-1" width="1000px"
 				navigate="${navigatepagesizepage1.report3.navigate}" scrollheight="450px">

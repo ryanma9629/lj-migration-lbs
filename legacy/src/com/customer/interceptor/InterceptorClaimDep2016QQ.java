@@ -43,7 +43,7 @@ public class InterceptorClaimDep2016QQ extends AbsInterceptorDefaultAdapter {
 		else {
 			try {
 				// SQL:获取输入凭证号码的是否配卡信息+活动编号信息
-				String SQL = "Select WITH_CARD_F, COALESCE(MARKETING_NO,'') as MARKETING_NO from IBS.T1_VUCH_DETAIL where VUCH_NBR=? and  VUCH_TYPE_ID in ('10','11','12','13','14','15','16','17','18') with ur";
+				String SQL = "Select WITH_CARD_F, COALESCE(MARKETING_NO,'') as MARKETING_NO from IBS.T1_VUCH_DETAIL where VUCH_NBR=? and  VUCH_TYPE_ID in ('10','11','12','13','14','15','16','17','18')";
 				PreparedStatement pstmt = conn.prepareStatement(SQL, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 
 				pstmt.setString(1, vuch_nbr);

@@ -103,7 +103,7 @@
 							where EMP_TYPE='过渡期' 
 							and coalesce(DEL_FLAG,'0')<>'1'
 							and {#condition#}
-							order by em.STATUS,em.EXAM_YEAR desc,em.EXAM_Q desc,em.BRANCH_ORG_ID,em.ORG_ID,em.EMP_ID 						       
+							order by STATUS,EXAM_YEAR desc,EXAM_Q desc,BRANCH_ORG_ID,ORG_ID,EMP_ID
 					]]>
 					</value>
 					<condition name="ORG_ID0" labelposition="left" label="用户机构" source="session{org_id}" hidden="true">
@@ -137,7 +137,7 @@
 						<inputbox type="selectbox" styleproperty="style='width:150px'" depends="ORG_ID0">
 							<option label="全部" value=""></option>
 							<option
-								source="@{SELECT DISTINCT BRANCH_ORG_ID , CASE WHEN ORG_LEVEL_ID='2' THEN BRANCH_ORG_NM ELSE BRANCH_ORG_NM||'机关' END AS BRANCH_ORG_NM 
+								source="@{SELECT DISTINCT BRANCH_ORG_ID , CASE WHEN ORG_LEVEL_ID='2' THEN BRANCH_ORG_NM ELSE CONCAT(BRANCH_ORG_NM,'机关') END AS BRANCH_ORG_NM
 								FROM IBS.T5_ORG 
 								WHERE ORG_TYPE_ID='EO' AND ORG_LEVEL_ID IN ('2','3') and (ORG_ID='#ORG_ID0#' or HEAD_ORG_ID='#ORG_ID0#')  
 								ORDER BY BRANCH_ORG_ID}"
@@ -237,7 +237,7 @@
 								  ,'过渡期'
 								  ,'0' 
 								  ,'0'
-								  ,@{EXAM_YEAR}||'-'||(case @{EXAM_Q} when '01' then '03-31' when '02' then '06-30' when '03' then '09-30' when '04' then '12-31' else '01-01' end)
+								  ,CONCAT(@{EXAM_YEAR},'-',(case @{EXAM_Q} when '01' then '03-31' when '02' then '06-30' when '03' then '09-30' when '04' then '12-31' else '01-01' end))
 								);
 					</value>
 				</insert>
@@ -395,7 +395,7 @@
 						<inputbox type="selectbox" styleproperty="style='width:150px'" depends="ORG_ID0">
 							<option label="全部" value=""></option>
 							<option
-								source="@{SELECT DISTINCT BRANCH_ORG_ID , CASE WHEN ORG_LEVEL_ID='2' THEN BRANCH_ORG_NM ELSE BRANCH_ORG_NM||'机关' END AS BRANCH_ORG_NM 
+								source="@{SELECT DISTINCT BRANCH_ORG_ID , CASE WHEN ORG_LEVEL_ID='2' THEN BRANCH_ORG_NM ELSE CONCAT(BRANCH_ORG_NM,'机关') END AS BRANCH_ORG_NM
 								FROM IBS.T5_ORG 
 								WHERE ORG_TYPE_ID='EO' AND ORG_LEVEL_ID IN ('2','3') and (ORG_ID='#ORG_ID0#' or HEAD_ORG_ID='#ORG_ID0#')  
 								ORDER BY BRANCH_ORG_ID}"

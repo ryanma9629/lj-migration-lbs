@@ -61,7 +61,7 @@ public class SubmitClaimDepFH implements IServerAction {
 		Connection conn = Config.getInstance().getDataSource("ds_db2").getConnection();// 取DB2数据源配置
 
 		try { // 提交按钮补充校验判断凭证认领剩余比例
-			String sqlvalidate = "SELECT COALESCE(SUM(CASE WHEN EMP_ID=? THEN ratio ELSE 0 END ),0) AS ro, 100-COALESCE(SUM(CASE WHEN EMP_ID<>?  and CLAIM_STATUS_ID in ('1','2','5','6') THEN ratio ELSE 0 END),0) AS inratio FROM IBS.T1_VUCH_EMP_RELA WHERE VUCH_NBR=? with ur";
+			String sqlvalidate = "SELECT COALESCE(SUM(CASE WHEN EMP_ID=? THEN ratio ELSE 0 END ),0) AS ro, 100-COALESCE(SUM(CASE WHEN EMP_ID<>?  and CLAIM_STATUS_ID in ('1','2','5','6') THEN ratio ELSE 0 END),0) AS inratio FROM IBS.T1_VUCH_EMP_RELA WHERE VUCH_NBR=?";
 			PreparedStatement pstmt0 = null;
 			pstmt0 = conn.prepareStatement(sqlvalidate);
 			pstmt0.setString(1, user_id);
@@ -84,7 +84,7 @@ public class SubmitClaimDepFH implements IServerAction {
 
 //				 存款业绩填写完成后，点击提交按钮将刷新CLAIM_STATUS_ID="1-待审核"
 //				 【认领状态（0-暂存；1-待审核；2-已审核；3-未通过；4-撤销; 5-超时自动审批）】，并填写提交时间
-				String sql1 = "update IBS.T1_VUCH_EMP_RELA set  CLAIM_DT=?, REMARK='认领时间'||?||'认领工号'||?||'认领理由'||REMARK1, REMARK1=''  where VUCH_NBR=? and EMP_ID=? and coalesce(CLAIM_STATUS_ID,'0')='0' ";
+				String sql1 = "update IBS.T1_VUCH_EMP_RELA set  CLAIM_DT=?, REMARK=CONCAT('认领时间',?,'认领工号',?,'认领理由',COALESCE(REMARK1,'')), REMARK1=''  where VUCH_NBR=? and EMP_ID=? and coalesce(CLAIM_STATUS_ID,'0')='0' ";
 
 				PreparedStatement pstmt = null;
 				pstmt = conn.prepareStatement(sql1);
@@ -95,7 +95,7 @@ public class SubmitClaimDepFH implements IServerAction {
 				pstmt.setString(5, user_id);
 				pstmt.executeUpdate();
 				System.out.println("======step1: 点击提交按钮将刷新CLAIM_STATUS_ID='1-待审核'==============");
-				rrequest.getWResponse().getMessageCollector().success("提交成功！", "", false);// 向前台提示一条信息，这里还可以终止后续处理
+				rrequest.getWResponse().getMessageCollector().success("提交成功！", false);// 向前台提示一条信息，这里还可以终止后续处理
 //				rrequest.authorize("dtl", Consts.BUTTON_PART, "type{save}", "disabled", "true");
 //				rrequest.authorize("dtl", Consts.BUTTON_PART, "sub", "disabled", "true");
 //				rrequest.setAttribute("dtl_ACCESSMODE", "readonly");

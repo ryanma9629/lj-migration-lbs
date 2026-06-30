@@ -22,9 +22,9 @@
 					<params>
 						<param name="user_id" value="session{user_id}"></param>
 					</params>
-					invokeServerActionForComponent('claim_fund_txn', 'list',
+					invokeServerActionForComponent('claim_fund_txn', 'dtl',
 					'com.customer.util.SubmitClaimFundTxn',
-					{},true,refreshComponentDisplay('claim_fund_txn','list',true))
+					{},true,refreshComponentDisplay('claim_fund_txn','dtl',true))
 				</button>
 			</buttons>
 			<display>
@@ -38,10 +38,7 @@
 				<col column="ORG_NM" label="交易机构名称" br="true"></col>					
 				<col column="CLAIM_STATUS_NM" label="认领状态" valuestyleproperty="colspan='2'"></col>
 				<col column="RATIO_DFAULT" label="*认领比例(%)">
-					<inputbox styleproperty="style='width:90%'"
-						jsvalidate="isNumeric(不是合法数字);isNotEmpty(不可以为空值)"
-						servervalidate="isClaimTxnRatio()" 
-						/>
+					<inputbox styleproperty="style='width:90%'" />
 				</col>
 				<col column="REMARK1" label="备注" datatype="varchar"
 						valuestyleproperty="colspan='7';align='left'">
@@ -84,18 +81,18 @@
 					</params>
 					<value>
 						<![CDATA[
-							update IBS.T1_FUND_TXN_EMP_RELA
-							set RATIO = @{RATIO_DFAULT}
-								,CLAIM_STATUS_ID='0'
-								,EMP_ID = #{user_id}
-								,EMP_NM = #{user_name}
+						update IBS.T1_FUND_TXN_EMP_RELA
+						set RATIO = @{RATIO_DFAULT}
+							,CLAIM_STATUS_ID='0'
+							,EMP_ID = #{user_id}
+							,EMP_NM = #{user_name}
 								,EMP_ORG_ID = #{usr_org_id}
-								,EMP_ORG_NM = #{usr_org_nm}
-								,CLAIM_DT=#{current_time}
-								,REMARK1 = @{REMARK1}
-							where TXN_NO=@{TXN_NO__old}
-							and EMP_ID=@{EMP_ID__old}
-							and TXN_DT=@{TXN_DT__old}
+							,EMP_ORG_NM = #{usr_org_nm}
+							,CLAIM_DT=#{current_time}
+							,REMARK1 = @{REMARK1}
+						where TXN_NO=@{TXN_NO}
+						and EMP_ID=@{EMP_ID}
+						and TXN_DT=@{TXN_DT}
 						]]>
 					</value>
 				</update>
@@ -159,10 +156,7 @@
 			<col column="ORG_NM" label="签约机构" valuestyleproperty="colspan='3'" br="true" ></col>					
 			<col column="CLAIM_STATUS_NM" label="认领状态" valuestyleproperty="colspan='2'"></col>
 			<col column="RATIO_DFAULT" label="*认领比例(%)">
-				<inputbox styleproperty="style='width:90%'"
-					jsvalidate="isNumeric(不是合法数字);isNotEmpty(不可以为空值)"
-					servervalidate="isClaimCstRatio()" 
-					/>
+				<inputbox styleproperty="style='width:90%'" />
 			</col>
 			<col column="REMARK1" label="备注" datatype="varchar"
 					valuestyleproperty="colspan='5';align='left'">
@@ -208,8 +202,8 @@
 							,EMP_ORG_NM = #{usr_org_nm}
 							,CLAIM_DT=#{current_time}
 							,REMARK1 = @{REMARK1}
-						where IDENTN_NO=@{IDENTN_NO__old}
-						and EMP_ID=@{EMP_ID__old}
+						where IDENTN_NO=@{IDENTN_NO}
+						and EMP_ID=@{EMP_ID}
 					]]>
 				</value>
 			</update>
@@ -274,10 +268,7 @@
 			<col column="ORG_NM" label="签约机构" valuestyleproperty="colspan='3'" br="true" ></col>					
 			<col column="CLAIM_STATUS_NM" label="认领状态" valuestyleproperty="colspan='2'"></col>
 			<col column="RATIO_DFAULT" label="*认领比例(%)">
-				<inputbox styleproperty="style='width:90%'"
-					jsvalidate="isNumeric(不是合法数字);isNotEmpty(不可以为空值)"
-					servervalidate="isClaimDtRatio()" 
-					/>
+				<inputbox styleproperty="style='width:90%'" />
 			</col>
 			<col column="REMARK1" label="备注" datatype="varchar"
 					valuestyleproperty="colspan='5';align='left'">
@@ -323,8 +314,8 @@
 							,EMP_ORG_NM = #{usr_org_nm}
 							,CLAIM_DT=#{current_time}
 							,REMARK1 = @{REMARK1}
-						where SERIAL_NO=@{SERIAL_NO__old}
-						and EMP_ID=@{EMP_ID__old}
+						where SERIAL_NO=@{SERIAL_NO}
+						and EMP_ID=@{EMP_ID}
 					]]>
 				</value>
 			</update>

@@ -69,6 +69,462 @@ function winModalFullScreen2(strURL,width,height)
     return tmp;
 }
 
+(function initClaimDep2016qqTextboxSync() {
+	if (getQueryString('PAGEID') !== 'claim_dep_2016qq') return;
+
+	function syncClaimDep2016qqEmpId() {
+		var input = document.getElementById('claim_dep_2016qq_guid_dtl_wxcol_EMP_ID');
+		if (!input) return;
+		var parent = input.parentNode;
+		if (parent && parent.tagName === 'FONT') {
+			parent.setAttribute('value', input.value || '');
+		}
+	}
+
+	function bindClaimDep2016qqEmpId() {
+		var input = document.getElementById('claim_dep_2016qq_guid_dtl_wxcol_EMP_ID');
+		var savebtn = document.getElementById('btn_claim_dep_2016qq_guid_dtl_save_id');
+		if (!input) return false;
+		if (!input.getAttribute('claimdep2016qq_bound')) {
+			input.setAttribute('claimdep2016qq_bound', 'true');
+			if (input.addEventListener) {
+				input.addEventListener('input', syncClaimDep2016qqEmpId, false);
+				input.addEventListener('change', syncClaimDep2016qqEmpId, false);
+				input.addEventListener('blur', syncClaimDep2016qqEmpId, false);
+			}
+		}
+		if (savebtn && !savebtn.getAttribute('claimdep2016qq_bound')) {
+			savebtn.setAttribute('claimdep2016qq_bound', 'true');
+			if (savebtn.addEventListener) {
+				savebtn.addEventListener('click', syncClaimDep2016qqEmpId, false);
+			}
+		}
+		syncClaimDep2016qqEmpId();
+		return true;
+	}
+
+	var retry = window.setInterval(function() {
+		if (bindClaimDep2016qqEmpId()) {
+			window.clearInterval(retry);
+		}
+	}, 300);
+})();
+
+(function initClaimLnInputSync() {
+	if (getQueryString('PAGEID') !== 'claim_ln') return;
+
+	function syncInputValue(inputId) {
+		var input = document.getElementById(inputId);
+		if (!input) return;
+		var parent = input.parentNode;
+		if (parent && parent.tagName === 'FONT') {
+			parent.setAttribute('value', input.value || '');
+		}
+	}
+
+	function syncClaimLnFields() {
+		syncInputValue('claim_ln_guid_dtl_wxcol_RATIO');
+		syncInputValue('claim_ln_guid_dtl_wxcol_DT_EMP_ID');
+		syncInputValue('claim_ln_guid_dtl_wxcol_REMARK1');
+	}
+
+	function bindInput(inputId) {
+		var input = document.getElementById(inputId);
+		if (!input) return false;
+		if (input.getAttribute('claimln_bound')) return true;
+		input.setAttribute('claimln_bound', 'true');
+		if (input.addEventListener) {
+			input.addEventListener('input', syncClaimLnFields, false);
+			input.addEventListener('change', syncClaimLnFields, false);
+			input.addEventListener('blur', syncClaimLnFields, false);
+		}
+		return true;
+	}
+
+	function bindClaimLn() {
+		var savebtn = document.getElementById('btn_claim_ln_guid_dtl_save_id');
+		var subbtn = document.getElementById('btn_claim_ln_guid_dtl_sub_id');
+		var ok = true;
+		ok = bindInput('claim_ln_guid_dtl_wxcol_RATIO') && ok;
+		ok = bindInput('claim_ln_guid_dtl_wxcol_DT_EMP_ID') && ok;
+		ok = bindInput('claim_ln_guid_dtl_wxcol_REMARK1') && ok;
+		if (savebtn && !savebtn.getAttribute('claimln_bound')) {
+			savebtn.setAttribute('claimln_bound', 'true');
+			if (savebtn.addEventListener) {
+				savebtn.addEventListener('click', syncClaimLnFields, false);
+			}
+		}
+		if (subbtn && !subbtn.getAttribute('claimln_bound')) {
+			subbtn.setAttribute('claimln_bound', 'true');
+			if (subbtn.addEventListener) {
+				subbtn.addEventListener('click', syncClaimLnFields, false);
+			}
+		}
+		syncClaimLnFields();
+		return ok;
+	}
+
+	var retry = window.setInterval(function() {
+		if (bindClaimLn()) {
+			window.clearInterval(retry);
+		}
+	}, 300);
+})();
+
+(function initClaimFncTxnInputSync() {
+	if (getQueryString('PAGEID') !== 'claim_fnc_txn') return;
+
+	function syncInputValue(inputId) {
+		var input = document.getElementById(inputId);
+		if (!input) return;
+		var parent = input.parentNode;
+		if (parent && parent.tagName === 'FONT') {
+			parent.setAttribute('value', input.value || '');
+		}
+	}
+
+	function syncClaimFncTxnFields() {
+		syncInputValue('claim_fnc_txn_guid_dtl_wxcol_RATIO');
+		syncInputValue('claim_fnc_txn_guid_dtl_wxcol_REMARK1');
+	}
+
+	function bindInput(inputId) {
+		var input = document.getElementById(inputId);
+		if (!input) return false;
+		if (input.getAttribute('claimfnctxn_bound')) return true;
+		input.setAttribute('claimfnctxn_bound', 'true');
+		if (input.addEventListener) {
+			input.addEventListener('input', syncClaimFncTxnFields, false);
+			input.addEventListener('change', syncClaimFncTxnFields, false);
+			input.addEventListener('blur', syncClaimFncTxnFields, false);
+		}
+		return true;
+	}
+
+	function bindClaimFncTxn() {
+		var savebtn = document.getElementById('btn_claim_fnc_txn_guid_dtl_save_id');
+		var subbtn = document.getElementById('btn_claim_fnc_txn_guid_dtl_sub_id');
+		var ok = true;
+		ok = bindInput('claim_fnc_txn_guid_dtl_wxcol_RATIO') && ok;
+		ok = bindInput('claim_fnc_txn_guid_dtl_wxcol_REMARK1') && ok;
+		if (savebtn && !savebtn.getAttribute('claimfnctxn_bound')) {
+			savebtn.setAttribute('claimfnctxn_bound', 'true');
+			if (savebtn.addEventListener) {
+				savebtn.addEventListener('click', syncClaimFncTxnFields, false);
+			}
+		}
+		if (subbtn && !subbtn.getAttribute('claimfnctxn_bound')) {
+			subbtn.setAttribute('claimfnctxn_bound', 'true');
+			if (subbtn.addEventListener) {
+				subbtn.addEventListener('click', syncClaimFncTxnFields, false);
+			}
+		}
+		syncClaimFncTxnFields();
+		return ok;
+	}
+
+	var retry = window.setInterval(function() {
+		if (bindClaimFncTxn()) {
+			window.clearInterval(retry);
+		}
+	}, 300);
+})();
+
+(function initClaimHpfTxnInputSync() {
+	if (getQueryString('PAGEID') !== 'claim_hpf_txn') return;
+
+	function syncInputValue(inputId) {
+		var input = document.getElementById(inputId);
+		if (!input) return;
+		var parent = input.parentNode;
+		if (parent && parent.tagName === 'FONT') {
+			parent.setAttribute('value', input.value || '');
+		}
+	}
+
+	function syncClaimHpfTxnFields() {
+		syncInputValue('claim_hpf_txn_guid_dtl_wxcol_RATIO');
+		syncInputValue('claim_hpf_txn_guid_dtl_wxcol_REMARK1');
+	}
+
+	function bindInput(inputId) {
+		var input = document.getElementById(inputId);
+		if (!input) return false;
+		if (input.getAttribute('claimhpftxn_bound')) return true;
+		input.setAttribute('claimhpftxn_bound', 'true');
+		if (input.addEventListener) {
+			input.addEventListener('input', syncClaimHpfTxnFields, false);
+			input.addEventListener('change', syncClaimHpfTxnFields, false);
+			input.addEventListener('blur', syncClaimHpfTxnFields, false);
+		}
+		return true;
+	}
+
+	function bindClaimHpfTxn() {
+		var savebtn = document.getElementById('btn_claim_hpf_txn_guid_dtl_save_id');
+		var subbtn = document.getElementById('btn_claim_hpf_txn_guid_dtl_sub_id');
+		var ok = true;
+		ok = bindInput('claim_hpf_txn_guid_dtl_wxcol_RATIO') && ok;
+		ok = bindInput('claim_hpf_txn_guid_dtl_wxcol_REMARK1') && ok;
+		if (savebtn && !savebtn.getAttribute('claimhpftxn_bound')) {
+			savebtn.setAttribute('claimhpftxn_bound', 'true');
+			if (savebtn.addEventListener) {
+				savebtn.addEventListener('click', syncClaimHpfTxnFields, false);
+			}
+		}
+		if (subbtn && !subbtn.getAttribute('claimhpftxn_bound')) {
+			subbtn.setAttribute('claimhpftxn_bound', 'true');
+			if (subbtn.addEventListener) {
+				subbtn.addEventListener('click', syncClaimHpfTxnFields, false);
+			}
+		}
+		syncClaimHpfTxnFields();
+		return ok;
+	}
+
+	var retry = window.setInterval(function() {
+		if (bindClaimHpfTxn()) {
+			window.clearInterval(retry);
+		}
+	}, 300);
+})();
+
+(function initClaimFundTxnInputSync() {
+	if (getQueryString('PAGEID') !== 'claim_fund_txn') return;
+
+	function syncInputValue(inputId) {
+		var input = document.getElementById(inputId);
+		if (!input) return;
+		var parent = input.parentNode;
+		if (parent && parent.tagName === 'FONT') {
+			parent.setAttribute('value', input.value || '');
+		}
+	}
+
+	function syncClaimFundTxnFields() {
+		syncInputValue('claim_fund_txn_guid_dtl_wxcol_RATIO_DFAULT');
+		syncInputValue('claim_fund_txn_guid_dtl_wxcol_REMARK1');
+	}
+
+	function bindInput(inputId) {
+		var input = document.getElementById(inputId);
+		if (!input) return false;
+		if (input.getAttribute('claimfundtxn_bound')) return true;
+		input.setAttribute('claimfundtxn_bound', 'true');
+		if (input.addEventListener) {
+			input.addEventListener('input', syncClaimFundTxnFields, false);
+			input.addEventListener('change', syncClaimFundTxnFields, false);
+			input.addEventListener('blur', syncClaimFundTxnFields, false);
+		}
+		return true;
+	}
+
+	function bindClaimFundTxn() {
+		var savebtn = document.getElementById('btn_claim_fund_txn_guid_dtl_save_id');
+		var subbtn = document.getElementById('btn_claim_fund_txn_guid_dtl_sub_id');
+		var ok = true;
+		ok = bindInput('claim_fund_txn_guid_dtl_wxcol_RATIO_DFAULT') && ok;
+		ok = bindInput('claim_fund_txn_guid_dtl_wxcol_REMARK1') && ok;
+		if (savebtn && !savebtn.getAttribute('claimfundtxn_bound')) {
+			savebtn.setAttribute('claimfundtxn_bound', 'true');
+			if (savebtn.addEventListener) {
+				savebtn.addEventListener('click', syncClaimFundTxnFields, false);
+			}
+		}
+		if (subbtn && !subbtn.getAttribute('claimfundtxn_bound')) {
+			subbtn.setAttribute('claimfundtxn_bound', 'true');
+			if (subbtn.addEventListener) {
+				subbtn.addEventListener('click', syncClaimFundTxnFields, false);
+			}
+		}
+		syncClaimFundTxnFields();
+		return ok;
+	}
+
+	var retry = window.setInterval(function() {
+		if (bindClaimFundTxn()) {
+			window.clearInterval(retry);
+		}
+	}, 300);
+})();
+
+(function initClaimFundCstInputSync() {
+	if (getQueryString('PAGEID') !== 'claim_fund_cst') return;
+
+	function syncInputValue(inputId) {
+		var input = document.getElementById(inputId);
+		if (!input) return;
+		var parent = input.parentNode;
+		if (parent && parent.tagName === 'FONT') {
+			parent.setAttribute('value', input.value || '');
+		}
+	}
+
+	function syncClaimFundCstFields() {
+		syncInputValue('claim_fund_cst_guid_dtl_wxcol_RATIO_DFAULT');
+		syncInputValue('claim_fund_cst_guid_dtl_wxcol_REMARK1');
+	}
+
+	function bindInput(inputId) {
+		var input = document.getElementById(inputId);
+		if (!input) return false;
+		if (input.getAttribute('claimfundcst_bound')) return true;
+		input.setAttribute('claimfundcst_bound', 'true');
+		if (input.addEventListener) {
+			input.addEventListener('input', syncClaimFundCstFields, false);
+			input.addEventListener('change', syncClaimFundCstFields, false);
+			input.addEventListener('blur', syncClaimFundCstFields, false);
+		}
+		return true;
+	}
+
+	function bindClaimFundCst() {
+		var savebtn = document.getElementById('btn_claim_fund_cst_guid_dtl_save_id');
+		var subbtn = document.getElementById('btn_claim_fund_cst_guid_dtl_sub_id');
+		var ok = true;
+		ok = bindInput('claim_fund_cst_guid_dtl_wxcol_RATIO_DFAULT') && ok;
+		ok = bindInput('claim_fund_cst_guid_dtl_wxcol_REMARK1') && ok;
+		if (savebtn && !savebtn.getAttribute('claimfundcst_bound')) {
+			savebtn.setAttribute('claimfundcst_bound', 'true');
+			if (savebtn.addEventListener) {
+				savebtn.addEventListener('click', syncClaimFundCstFields, false);
+			}
+		}
+		if (subbtn && !subbtn.getAttribute('claimfundcst_bound')) {
+			subbtn.setAttribute('claimfundcst_bound', 'true');
+			if (subbtn.addEventListener) {
+				subbtn.addEventListener('click', syncClaimFundCstFields, false);
+			}
+		}
+		syncClaimFundCstFields();
+		return ok;
+	}
+
+	var retry = window.setInterval(function() {
+		if (bindClaimFundCst()) {
+			window.clearInterval(retry);
+		}
+	}, 300);
+})();
+
+(function initClaimFundDtInputSync() {
+	if (getQueryString('PAGEID') !== 'claim_fund_dt') return;
+
+	function syncInputValue(inputId) {
+		var input = document.getElementById(inputId);
+		if (!input) return;
+		var parent = input.parentNode;
+		if (parent && parent.tagName === 'FONT') {
+			parent.setAttribute('value', input.value || '');
+		}
+	}
+
+	function syncClaimFundDtFields() {
+		syncInputValue('claim_fund_dt_guid_dtl_wxcol_RATIO_DFAULT');
+		syncInputValue('claim_fund_dt_guid_dtl_wxcol_REMARK1');
+	}
+
+	function bindInput(inputId) {
+		var input = document.getElementById(inputId);
+		if (!input) return false;
+		if (input.getAttribute('claimfunddt_bound')) return true;
+		input.setAttribute('claimfunddt_bound', 'true');
+		if (input.addEventListener) {
+			input.addEventListener('input', syncClaimFundDtFields, false);
+			input.addEventListener('change', syncClaimFundDtFields, false);
+			input.addEventListener('blur', syncClaimFundDtFields, false);
+		}
+		return true;
+	}
+
+	function bindClaimFundDt() {
+		var savebtn = document.getElementById('btn_claim_fund_dt_guid_dtl_save_id');
+		var subbtn = document.getElementById('btn_claim_fund_dt_guid_dtl_sub_id');
+		var ok = true;
+		ok = bindInput('claim_fund_dt_guid_dtl_wxcol_RATIO_DFAULT') && ok;
+		ok = bindInput('claim_fund_dt_guid_dtl_wxcol_REMARK1') && ok;
+		if (savebtn && !savebtn.getAttribute('claimfunddt_bound')) {
+			savebtn.setAttribute('claimfunddt_bound', 'true');
+			if (savebtn.addEventListener) {
+				savebtn.addEventListener('click', syncClaimFundDtFields, false);
+			}
+		}
+		if (subbtn && !subbtn.getAttribute('claimfunddt_bound')) {
+			subbtn.setAttribute('claimfunddt_bound', 'true');
+			if (subbtn.addEventListener) {
+				subbtn.addEventListener('click', syncClaimFundDtFields, false);
+			}
+		}
+		syncClaimFundDtFields();
+		return ok;
+	}
+
+	var retry = window.setInterval(function() {
+		if (bindClaimFundDt()) {
+			window.clearInterval(retry);
+		}
+	}, 300);
+})();
+
+(function initClaimGoldInputSync() {
+	if (getQueryString('PAGEID') !== 'claim_gold') return;
+
+	function syncInputValue(inputId) {
+		var input = document.getElementById(inputId);
+		if (!input) return;
+		var parent = input.parentNode;
+		if (parent && parent.tagName === 'FONT') {
+			parent.setAttribute('value', input.value || '');
+		}
+	}
+
+	function syncClaimGoldFields() {
+		syncInputValue('claim_gold_guid_dtl_wxcol_RATIO');
+		syncInputValue('claim_gold_guid_dtl_wxcol_REMARK1');
+	}
+
+	function bindInput(inputId) {
+		var input = document.getElementById(inputId);
+		if (!input) return false;
+		if (input.getAttribute('claimgold_bound')) return true;
+		input.setAttribute('claimgold_bound', 'true');
+		if (input.addEventListener) {
+			input.addEventListener('input', syncClaimGoldFields, false);
+			input.addEventListener('change', syncClaimGoldFields, false);
+			input.addEventListener('blur', syncClaimGoldFields, false);
+		}
+		return true;
+	}
+
+	function bindClaimGold() {
+		var savebtn = document.getElementById('btn_claim_gold_guid_dtl_save_id');
+		var subbtn = document.getElementById('btn_claim_gold_guid_dtl_sub_id');
+		var ok = true;
+		ok = bindInput('claim_gold_guid_dtl_wxcol_RATIO') && ok;
+		ok = bindInput('claim_gold_guid_dtl_wxcol_REMARK1') && ok;
+		if (savebtn && !savebtn.getAttribute('claimgold_bound')) {
+			savebtn.setAttribute('claimgold_bound', 'true');
+			if (savebtn.addEventListener) {
+				savebtn.addEventListener('click', syncClaimGoldFields, false);
+			}
+		}
+		if (subbtn && !subbtn.getAttribute('claimgold_bound')) {
+			subbtn.setAttribute('claimgold_bound', 'true');
+			if (subbtn.addEventListener) {
+				subbtn.addEventListener('click', syncClaimGoldFields, false);
+			}
+		}
+		syncClaimGoldFields();
+		return ok;
+	}
+
+	var retry = window.setInterval(function() {
+		if (bindClaimGold()) {
+			window.clearInterval(retry);
+		}
+	}, 300);
+})();
+
 /**
  * 测试行选中执行的回调函数 项目甘特图
  */

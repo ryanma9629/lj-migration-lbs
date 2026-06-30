@@ -71,7 +71,6 @@
 							FROM IBS.T1_VUCH_DETAIL	
 							WHERE  COALESCE(MARKETING_NO,'') not in ('2016qq') 
 							and {#condition#}
-							WITH UR
 						    ]]>
 						</value>
 						<condition name="VUCH_NBR" hidden="true">
@@ -127,7 +126,6 @@
 
 							WHERE  	COALESCE(MARKETING_NO,'') not in ('2016qq') 
 							and {#condition#}
-							WITH UR
 						    ]]>
 						</value>
 						<condition name="txtaccid" hidden="true">
@@ -251,7 +249,6 @@
 							FROM IBS.T1_VUCH_DETAIL		
 							WHERE   COALESCE(MARKETING_NO,'') not in ('2016qq') 
 							and {#condition#}
-							WITH UR
 							
 						    ]]>
 						</value>
@@ -305,7 +302,6 @@
 							FROM IBS.T1_VUCH_EMP_RELA	
 							WHERE  	COALESCE(MARKETING_NO,'') not in ('2016qq') 
 							and {#condition#}
-							with ur
 						    ]]>
 						</value>
 						<condition name="txtaccid" hidden="true">
@@ -362,14 +358,16 @@
 
 
 	<!--认领查询（有权人） -->
-	<page id="claimed_info"
-		js="/webresources/script/validate.js,/js/demo.js,/js/common.js"><!-- /webresources/script/validate.js -->
+		<page id="claimed_info"
+			js="/webresources/script/validate.js,/js/demo.js,/js/common.js"><!-- /webresources/script/validate.js -->
 
-		<header>${top.header}</header>
-		<vpanel id="common_vpanel" width="1300px" align="center" title="">
-			<report id="title" extends="title.report1" width="1300px"></report>
+			<header>${top.header}</header>
+			<vpanel id="common_vpanel" width="1300px" align="center" title="">
+				<html id="claimed_info_title"><![CDATA[
+					<div style="width:1300px;margin:0 auto;padding:8px 0 4px 0;color:#154BA0;font-weight:bold;">认领查询</div>
+				]]></html>
 
-			<report id="select" type="listform" personalizeclass="default" rowselect="multiple"
+				<report id="select" type="listform" personalizeclass="default" rowselect="multiple"
 				pagesize="15|20|-1" top="10px"  dataexport="plainexcel" title="认领信息" interceptor="com.customer.interceptor.InterceptorClaimedInfo"> <!--  -->
 				<display>
 					<col column="{sequence:1}" label="序号" width="40px"></col>

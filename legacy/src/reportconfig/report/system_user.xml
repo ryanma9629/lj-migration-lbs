@@ -9,7 +9,6 @@
 
 		<vpanel id="common_vpanel" align="center" width="1000px">
 
-			<report id="title" extends="title.report1"></report>
 			<report id="report1" title="人员列表" type="listform" top="10px"
 				personalizeclass="default" pagesize="15|20|-1" width="1000px"
 				navigate="${navigatepagesizepage1.report3.navigate}" scrollheight="450px">
@@ -41,18 +40,18 @@
 							         a.ORG_ID,
 							         a.IS_ENABLE,
 							         a.DEPARTMENT,
-							         b.PER_BRANCH_ID
-							FROM     cst.sys_c_sec_user a 
-							left join pub.personnel b 
-							on a.USER_ID=b.PER_ID							
-							where  {#condition#} 
-							and b.HR_STATUS='A'
-							order by user_id
+							         b.BRANCH_ORG_ID
+							FROM     cst.sys_c_sec_user a
+							LEFT JOIN ibs.t5_org b
+							ON a.ORG_ID=b.ORG_ID
+							AND b.ORG_TYPE_ID='EO'
+							WHERE    {#condition#}
+							ORDER BY a.user_id
 							]]>
 					</value>
-						<condition name="PER_BRANCH_ID" hidden="true" source="session{org_id}">
+						<condition name="ORG_ID0" hidden="true" source="session{org_id}">
 							<value>
-							<![CDATA[(b.PER_BRANCH_ID='#data#' )]]>
+							<![CDATA[(b.ORG_ID='#data#' or b.BRANCH_ORG_ID='#data#' or b.HEAD_ORG_ID='#data#' )]]>
 							</value>
 						</condition>
 						<condition name="txt_user_id" label="帐号">

@@ -70,7 +70,7 @@ public class EmpExsXzSubmitServerCallBack implements IServerAction {
 			if (rs.next()) {
 				
 				if (rs.getDouble("EXS_BZJX_SUM") != rs.getDouble("EXS_XZ")) {
-					rrequest.getWResponse().getMessageCollector().success("存量维护薪酬合计与实际季度存量维护薪酬合计不一致，无法提交！", "", false);
+					rrequest.getWResponse().getMessageCollector().success("存量维护薪酬合计与实际季度存量维护薪酬合计不一致，无法提交！", false);
 					
 
 				}else{
@@ -88,11 +88,11 @@ public class EmpExsXzSubmitServerCallBack implements IServerAction {
 					pstmt.close();
 					pstmtVal.close();
 					rs.close();
-					rrequest.getWResponse().getMessageCollector().success("数据处理完成！", "", false);
+					rrequest.getWResponse().getMessageCollector().success("数据处理完成！", false);
 				
 				}
 			}else{
-				rrequest.getWResponse().getMessageCollector().alert("没有要提交的数据或其它指标未维护，无法提交！", "", false);
+				rrequest.getWResponse().getMessageCollector().alert("没有要提交的数据或其它指标未维护，无法提交！", false);
 				
 			}
 			
@@ -160,4 +160,3 @@ public class EmpExsXzSubmitServerCallBack implements IServerAction {
 		return "完成";
 	}
 }
-

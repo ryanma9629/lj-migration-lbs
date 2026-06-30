@@ -9,7 +9,9 @@
 
 	<header>${top.header}</header>
 	<vpanel id="common_vpanel" width="1300px" align="center" title="">
-		<report id="title" extends="title.report1" width="1300px"></report>
+		<html id="claim_fnc_txn_title"><![CDATA[
+			<div style="width:1300px;margin:0 auto;padding:8px 0 4px 0;color:#154BA0;font-weight:bold;">理财交易认领</div>
+		]]></html>
 		<report id="list" title="凭证信息" type="list" personalizeclass="default" 
 		servervalidateclass="com.ljbank.market.Servervalidate_Fund;com.ljbank.market.Util"
 		interceptor="com.customer.interceptor.InterceptorClaimFncTxn" top="10px" >
@@ -112,7 +114,6 @@
 				<col column="EMP_ORG_NM" label="认领人机构" displaytype="hidden"></col>
 				<col column="RATIO" label="*认领比例(%)">
 					<inputbox styleproperty="style='width:90%'"
-						jsvalidate="isNumeric(不是合法数字);isNotEmpty(不可以为空值)"
 						servervalidate="isClaimRatio(@{RATIO})" 
 						/>
 				</col>
@@ -170,9 +171,9 @@
 								,EMP_ORG_ID = #{usr_org_id}
 								,EMP_ORG_NM = #{usr_org_nm}
 								,CLAIM_DT=#{current_time}
-							where TXN_NO=@{TXN_NO__old}
-							and EMP_ID=@{EMP_ID_Hid__old}
-							and TXN_DT=@{TXN_DT__old};
+							where TXN_NO=@{TXN_NO}
+							and EMP_ID=@{EMP_ID_Hid}
+							and TXN_DT=@{TXN_DT};
 							
 							
 							

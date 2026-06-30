@@ -299,7 +299,7 @@ public class SubmitClaimDep1 implements IServerAction {
 					String sql1="";
 					sql1 = "update IBS.T1_VUCH_EMP_RELA set CLAIM_STATUS_ID='1',CLAIM_DT=?,FH_VERIFY_EMP_ID=?,FH_VERIFY_EMP_NM=?,VERIFY_EMP_ID=? " +
 							", FH_VERIFY_DT=null,VERIFY_DT=null "+
-							", REMARK='认领工号'||?||' 姓名 '||?||' 认领时间'||?||' 备注'||REMARK1, REMARK1='' where VUCH_NBR=? and EMP_ID=? and coalesce(CLAIM_STATUS_ID,'0')='0' " ;
+							", REMARK=CONCAT('认领工号',?,' 姓名 ',?,' 认领时间',?,' 备注',COALESCE(REMARK1,'')), REMARK1='' where VUCH_NBR=? and EMP_ID=? and coalesce(CLAIM_STATUS_ID,'0')='0' " ;
 					
 					PreparedStatement pstmt = null;
 					pstmt = conn.prepareStatement(sql1);
@@ -316,7 +316,7 @@ public class SubmitClaimDep1 implements IServerAction {
 					
 					
 					System.out.println("======step1: 点击提交按钮将刷新CLAIM_STATUS_ID='1-待审核'==============");
-					rrequest.getWResponse().getMessageCollector().success("提交成功！", "", false);// 向前台提示一条信息，这里还可以终止后续处理
+					rrequest.getWResponse().getMessageCollector().success("提交成功！", false);// 向前台提示一条信息，这里还可以终止后续处理
 					rrequest.authorize("dtl", Consts.BUTTON_PART, "type{save}", "disabled", "true");
 					rrequest.authorize("dtl", Consts.BUTTON_PART, "sub", "disabled", "true");
 					rrequest.setAttribute("dtl_ACCESSMODE", "readonly");

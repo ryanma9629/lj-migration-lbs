@@ -9,7 +9,6 @@
 	<page id="system_page_list" js="/webresources/script/validate.js">
 		<header>${top.header}</header>
 		<vpanel id="common_vpanel" align="center" width="1000px">
-			<report id="title" extends="title.report1"></report>
 			<report id="report1" title="所有功能列表" type="listform" pagesize="10|20|-1"
 				navigate="${navigatepagesizepage1.report3.navigate}" width="1000px"
 				scrollheight="450px">
@@ -83,7 +82,6 @@
 		<header>${top.header}</header>
 		<vpanel id="common_vpanel" parenttitle="组" align="center"
 			width="1000px">
-			<report id="title" extends="title.report1"></report>
 			<report id="report1" title="组别" type="listform" cellresize="0"
 				celldrag="0" pagesize="6|20|-1" navigate="${navigatepagesizepage1.report3.navigate}"
 				width="1000px" scrollheight="200px">
@@ -227,7 +225,7 @@
 							<inputbox styleproperty="style='width:99%'">
 								<autocomplete columns="USER_NAME;ORG_ID;ORG_NM"
 									colvaluecondition="USER_ID like '%#USER_ID#%'"
-									dataset="select a.user_id ,a.user_name,b.ORG_ID,b.ORG_NM from CST.SYS_C_SEC_USER a left join PUB.PERSONNEL b on a.user_id=b.per_id  where 1=1 {#condition#}  order by user_name "></autocomplete>
+									dataset="select a.user_id,a.user_name,b.ORG_ID,b.ORG_NM from CST.SYS_C_SEC_USER a left join IBS.T5_ORG b on a.ORG_ID=b.ORG_ID and b.ORG_TYPE_ID='EO' where 1=1 {#condition#} order by user_name"></autocomplete>
 							</inputbox>
 						</col>
 
@@ -253,8 +251,8 @@
 								ON A.USER_ID =B.USER_ID
 								LEFT JOIN CST.SYS_C_SEC_GROP C
 								ON A.GROUP_ID=C.GROUP_ID
-								LEFT JOIN PUB.PERSONNEL D
-								ON A.USER_ID=D.PER_ID
+								LEFT JOIN IBS.T5_ORG D
+								ON B.ORG_ID=D.ORG_ID AND D.ORG_TYPE_ID='EO'
 								WHERE B.IS_ENABLE='Y' AND C.SERVICE_ID='060' AND {#condition#} 
 								ORDER BY D.ORG_ID, A.USER_ID
 							]]>
@@ -368,9 +366,11 @@
 									datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
 							</params>
 							<value>
-								insert into
-								cst.sys_c_app_mnlt(id=uuid{},group_id=#{url_group_id},@{menu_id},@{page_id},@{page_name},@{url_param},
-								@{seq},@{is_show},lm_user=#{user_id},lm_time=#{current_time});
+								insert into cst.sys_c_app_mnlt
+								(id,group_id,menu_id,page_id,page_name,url_param,seq,is_show,lm_user,lm_time)
+								values
+								(uuid{},#{url_group_id},@{menu_id},@{page_id},@{page_name},@{url_param},
+								case when @{seq}='' then null else @{seq} end,@{is_show},#{user_id},#{current_time});
 							</value>
 						</insert>
 						<update>
@@ -380,9 +380,15 @@
 									datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
 							</params>
 							<value>
-								update
-								cst.sys_c_app_mnlt(@{menu_id},@{page_id},@{page_name},@{url_param},
-								@{seq},@{is_show},lm_user=#{user_id},lm_time=#{current_time})
+								update cst.sys_c_app_mnlt
+								set menu_id=@{menu_id},
+									page_id=@{page_id},
+									page_name=@{page_name},
+									url_param=@{url_param},
+									seq=case when @{seq}='' then null else @{seq} end,
+									is_show=@{is_show},
+									lm_user=#{user_id},
+									lm_time=#{current_time}
 								where id=@{id__old};
 							</value>
 						</update>
@@ -399,7 +405,7 @@
 						<col column="{sequence:1}" label="序号" width="100px" />
 						<col column="group_id" label="组别" displaytype="hidden">
 						</col>
-						<col column="child_group_id" label="子组">
+						<col column="CHLID_GROUP_ID" label="子组">
 							<inputbox styleproperty="style='width:98%'"></inputbox>
 						</col>
 						<col column="seq" label="次序">
@@ -412,7 +418,7 @@
 						<select>
 							<value>
 							<![CDATA[
-							select group_id,child_group_id,seq,lm_user,lm_time 
+							select group_id,CHLID_GROUP_ID,seq,lm_user,lm_time 
 							from cst.sys_c_sec_gppc
 							where {#condition#} order by seq  ]]>
 							</value>
@@ -430,8 +436,10 @@
 								<param name="url_group_id" value="url{txt_group_id}"></param>
 							</params>
 							<value>
-								insert into
-								cst.sys_c_sec_gppc(group_id=#{url_group_id},@{child_group_id},@{seq},lm_user=#{user_id},lm_time=#{current_time});
+								insert into cst.sys_c_sec_gppc
+								(group_id,CHLID_GROUP_ID,seq,lm_user,lm_time)
+								values
+								(#{url_group_id},@{CHLID_GROUP_ID},case when @{seq}='' then null else @{seq} end,#{user_id},#{current_time});
 							</value>
 						</insert>
 						<update>
@@ -441,16 +449,19 @@
 									datatype="timestamp{yyyy-MM-dd HH:mm:ss}"></param>
 							</params>
 							<value>
-								update
-								cst.sys_c_sec_gppc(@{child_group_id},@{seq},lm_user=#{user_id},lm_time=#{current_time})
+								update cst.sys_c_sec_gppc
+								set CHLID_GROUP_ID=@{CHLID_GROUP_ID},
+									seq=case when @{seq}='' then null else @{seq} end,
+									lm_user=#{user_id},
+									lm_time=#{current_time}
 								where group_id=@{group_id__old} 
-								and child_group_id=@{child_group_id__old} ;
+								and CHLID_GROUP_ID=@{CHLID_GROUP_ID__old} ;
 							</value>
 						</update>
 						<delete>
 							delete from cst.sys_c_sec_gppc where
 							group_id=@{group_id__old} and
-							child_group_id=@{child_group_id__old};
+							CHLID_GROUP_ID=@{CHLID_GROUP_ID__old};
 						</delete>
 					</sql>
 				</report>
@@ -495,7 +506,6 @@
 	<page id="system_privilege" js="/webresources/script/validate.js">
 		<header>${top.header}</header>
 		<vpanel id="common_vpanel" align="center" width="1000px">
-			<report id="title" extends="title.report1"></report>
 			<report id="report1" title="权限" type="listform" pagesize="7|20|-1"
 				navigate="${navigatepagesizepage1.report3.navigate}" cellresize="0"
 				celldrag="0" width="1000px" scrollheight="200px">

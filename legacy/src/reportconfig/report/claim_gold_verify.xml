@@ -8,8 +8,9 @@
 
 		<header>${top.header}</header>
 		<vpanel id="common_vpanel" width="1300px" align="center" title="">
-
-			<report id="title" extends="title.report1" width="1300px"></report>
+			<html id="claim_gold_verify_title"><![CDATA[
+				<div style="width:1300px;margin:0 auto;padding:8px 0 4px 0;color:#154BA0;font-weight:bold;">贵金属认领审核</div>
+			]]></html>
 			<report id="select" type="editablelist" width="1500px" top="10px" scrollwidth="1300px"
 				rowselect="multiple-checkbox" pagesize="15|20|-1" personalizeclass="default">
 
@@ -113,7 +114,7 @@
 									, VERIFY_DT=#{current_time}
 									, VERIFY_EMP_ID=#{user_id}     
 									, REMARK1=@{REMARK1}
-									, REMARK=REMARK||'审批时间'||#{current_time1}||'审批工号'||#{user_id}||'审批理由页面批复通过。'                     
+									, REMARK=CONCAT(COALESCE(REMARK,''),'审批时间',#{current_time1},'审批工号',#{user_id},'审批理由页面批复通过。')                     
 								WHERE CLAIM_STATUS_ID='1' 
 								AND TXN_RUN_NBR=@{p_txn_nbr} AND EMP_ID=@{p_emp_id} AND TXN_DT=@{p_txn_dt}
 								;
@@ -217,7 +218,7 @@
 								, VERIFY_DT=#{current_time}
 								, VERIFY_EMP_ID=#{user_id}     
 								, REMARK1=@{REMARK1}                 
-								, REMARK=REMARK||'审批时间'||#{current_time1}||'审批工号'||#{user_id}||'审批未通过'
+								, REMARK=CONCAT(COALESCE(REMARK,''),'审批时间',#{current_time1},'审批工号',#{user_id},'审批未通过')
 							WHERE CLAIM_STATUS_ID='1' 
 							AND TXN_RUN_NBR=@{TXN_RUN_NBR__old} AND EMP_ID=@{EMP_ID__old} AND TXN_DT=@{TXN_DT__old}
 							;

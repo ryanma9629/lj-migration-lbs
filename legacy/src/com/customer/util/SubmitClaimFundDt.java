@@ -53,7 +53,7 @@ public class SubmitClaimFundDt implements IServerAction {
 
 		Connection conn = Config.getInstance().getDataSource("ds_db2").getConnection();// 取DB2数据源配置
 		
-		String sqlcnt="SELECT count(1) as cnt FROM IBS.T1_FUND_DT_EMP_RELA WHERE SERIAL_NO=? AND EMP_ID=? and RATIO<>0 and CLAIM_STATUS_ID in ('1','2','5','6','21') with ur";
+		String sqlcnt="SELECT count(1) as cnt FROM IBS.T1_FUND_DT_EMP_RELA WHERE SERIAL_NO=? AND EMP_ID=? and RATIO<>0 and CLAIM_STATUS_ID in ('1','2','5','6','21')";
 		PreparedStatement pstmtCnt = null;
 		try {
 			pstmtCnt = conn.prepareStatement(sqlcnt);
@@ -71,7 +71,7 @@ public class SubmitClaimFundDt implements IServerAction {
 				
 			}else{
 				try { // 提交按钮补充校验判断凭证认领剩余比例
-					String sqlvalidate = "SELECT 100-coalesce(SUM(ratio),0) AS inratio FROM IBS.T1_FUND_DT_EMP_RELA WHERE SERIAL_NO=? and CLAIM_STATUS_ID in ('1','2','5','6','21') with ur";
+					String sqlvalidate = "SELECT 100-coalesce(SUM(ratio),0) AS inratio FROM IBS.T1_FUND_DT_EMP_RELA WHERE SERIAL_NO=? and CLAIM_STATUS_ID in ('1','2','5','6','21')";
 					
 					PreparedStatement pstmt0 = null;
 					pstmt0 = conn.prepareStatement(sqlvalidate);
@@ -107,7 +107,7 @@ public class SubmitClaimFundDt implements IServerAction {
 							return "提交失败！";
 						}
 						
-						String sqlUpd= "update IBS.T1_FUND_DT_EMP_RELA set CLAIM_STATUS_ID='1', CLAIM_DT=?, REMARK='认领时间'||?||'认领工号'||?||'认领理由'||REMARK1, EMP_NM=?,EMP_ORG_ID=?, EMP_ORG_NM=? where SERIAL_NO=? and EMP_ID=? ";
+						String sqlUpd= "update IBS.T1_FUND_DT_EMP_RELA set CLAIM_STATUS_ID='1', CLAIM_DT=?, REMARK=CONCAT('认领时间',?,'认领工号',?,'认领理由',COALESCE(REMARK1,'')), EMP_NM=?,EMP_ORG_ID=?, EMP_ORG_NM=? where SERIAL_NO=? and EMP_ID=? ";
 						
 						PreparedStatement pstmt = null;
 						pstmt = conn.prepareStatement(sqlUpd);
@@ -120,7 +120,7 @@ public class SubmitClaimFundDt implements IServerAction {
 						pstmt.setString(7, ser_no);
 						pstmt.setString(8, old_emp_id);
 						pstmt.executeUpdate();
-						rrequest.getWResponse().getMessageCollector().success("提交成功！", "", false);// 向前台提示一条信息，这里还可以终止后续处理
+						rrequest.getWResponse().getMessageCollector().success("提交成功！", false);// 向前台提示一条信息，这里还可以终止后续处理
 						rrequest.authorize("dtl", Consts.BUTTON_PART, "type{save}", "disabled", "true");
 						rrequest.authorize("dtl", Consts.BUTTON_PART, "sub", "disabled", "true");
 						rrequest.setAttribute("dtl_ACCESSMODE", "readonly");

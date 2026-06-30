@@ -43,7 +43,7 @@ public class Servervalidate_lnBlChg {
 		
 		if (mea_dt != null && !mea_dt.trim().equals("") && emp_id != null && !emp_id.trim().equals("") && vuch_nbr != null && !vuch_nbr.trim().equals("")){
 			Connection conn = Config.getInstance().getDataSource("ds_db2").getConnection();// 取DB2数据源配置
-			String sqlcnt="SELECT count(1) as cnt FROM IBS.T2_EMP_LN_PROFIT_BL_CHG WHERE MEASURE_DT=? and EMP_ID=? and VUCH_NBR=?  with ur";
+			String sqlcnt="SELECT count(1) as cnt FROM IBS.T2_EMP_LN_PROFIT_BL_CHG WHERE MEASURE_DT=? and EMP_ID=? and VUCH_NBR=?";
 			PreparedStatement pstmtCnt = null;
 			pstmtCnt = conn.prepareStatement(sqlcnt);
 			

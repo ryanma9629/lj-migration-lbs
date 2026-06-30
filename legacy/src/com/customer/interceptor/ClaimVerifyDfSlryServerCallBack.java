@@ -71,7 +71,7 @@ public class ClaimVerifyDfSlryServerCallBack implements IServerAction {
 					String sql = "UPDATE IBS.T1_DF_SLRY_EMP_RELA SET CLAIM_STATUS_ID='2' "
 							+ ", VERIFY_DT=?"
 							+ ", VERIFY_EMP_ID=? "
-							+ ", REMARK=REMARK||'审批时间'||?||'审批工号'||?||'审批理由页面批复通过。' "
+							+ ", REMARK=CONCAT(COALESCE(REMARK,''),'审批时间',?,'审批工号',?,'审批理由页面批复通过。') "
 							+ "WHERE CLAIM_STATUS_ID='1' "
 							+ "AND AGENT_NO=? "
 							+ "AND EMP_ID=? "
@@ -102,8 +102,7 @@ public class ClaimVerifyDfSlryServerCallBack implements IServerAction {
 			}
 
 		}
-		rrequest.getWResponse().getMessageCollector().success("数据处理完成！", "", false);
+		rrequest.getWResponse().getMessageCollector().success("数据处理完成！", false);
 		return "调用成功!!!";
 	}
 }
-

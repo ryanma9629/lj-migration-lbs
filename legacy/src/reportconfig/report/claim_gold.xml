@@ -102,10 +102,7 @@
 				<col column="EMP_ORG_ID" label="认领人机构号" displaytype="hidden"></col>
 				<col column="EMP_ORG_NM" label="认领人机构名称"></col>
 				<col column="RATIO" label="*认领比例(%)">
-					<inputbox styleproperty="style='width:90%'"
-						jsvalidate="isNumeric(不是合法数字);isNotEmpty(不可以为空值)"
-						servervalidate="isClaimRatio()" 
-						/><!--  -->
+					<inputbox styleproperty="style='width:90%'" /><!--  -->
 				</col>
 				<col column="CLAIM_STATUS_NM" label="认领状态"></col>
 				<col column="CLAIM_DT" label="认领日期" br="true"></col>
@@ -148,17 +145,17 @@
 					</params>
 					<value>
 						<![CDATA[
-							update IBS.GOLD_EMP_RELA
-							set RATIO = @{RATIO}
-								,CLAIM_STATUS_ID='0'
-								,EMP_ID = #{user_id}
+						update IBS.GOLD_EMP_RELA
+						set RATIO = @{RATIO}
+							,CLAIM_STATUS_ID='0'
+							,EMP_ID = #{user_id}
 								,EMP_NM = #{user_name}
-								,EMP_ORG_ID = #{usr_org_id}
-								,EMP_ORG_NM = #{usr_org_nm}
-								,CLAIM_DT=#{current_time}
-							where TXN_RUN_NBR=@{TXN_RUN_NBR__old}
-							and EMP_ID=@{EMP_ID_Hid__old}
-							and TXN_DT=@{TXN_DT__old}
+							,EMP_ORG_ID = #{usr_org_id}
+							,EMP_ORG_NM = #{usr_org_nm}
+							,CLAIM_DT=#{current_time}
+						where TXN_RUN_NBR=@{TXN_RUN_NBR}
+						and EMP_ID=@{EMP_ID_Hid}
+						and TXN_DT=@{TXN_DT}
 						]]>
 					</value>
 				</update>

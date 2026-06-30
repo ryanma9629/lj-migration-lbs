@@ -142,7 +142,7 @@ public class TestPersonnel {
 		
 		if (emp_id != null && !emp_id.trim().equals("") ){
 			Connection conn = Config.getInstance().getDataSource("ds_db2").getConnection();// 取DB2数据源配置
-			String sqlcnt="SELECT count(1) as cnt FROM IBS.T2_EMP_BILL_INCOME WHERE CHG_DT=? and EMP_ID=?  with ur";
+			String sqlcnt="SELECT count(1) as cnt FROM IBS.T2_EMP_BILL_INCOME WHERE CHG_DT=? and EMP_ID=?";
 			PreparedStatement pstmtCnt = null;
 			pstmtCnt = conn.prepareStatement(sqlcnt);
 			

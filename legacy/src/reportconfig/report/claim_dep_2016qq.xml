@@ -9,7 +9,9 @@
 		<header>${top.header}</header>
 		<vpanel id="common_vpanel" width="1300px" align="center" title="">
 
-			<report id="title" extends="title.report1" width="1300px"></report>
+			<html id="claim_dep_2016qq_title"><![CDATA[
+				<div style="width:1300px;margin:0 auto;padding:8px 0 4px 0;color:#154BA0;font-weight:bold;">蛐蛐网活动存款认领</div>
+			]]></html>
 			<report id="select" type="form" title="账户信息" width="1300px"
 				interceptor="com.customer.interceptor.InterceptorClaimDep2016QQ"
 				top="10px" personalizeclass="default">
@@ -62,8 +64,7 @@
 							FROM IBS.T1_VUCH_DETAIL		
 							WHERE COALESCE(MARKETING_NO,'') in ('2016qq') 
 							and {#condition#}
-							%SQL% 
-							WITH UR
+							%SQL%
 							
 							
 						    ]]>
@@ -86,7 +87,7 @@
 					<col column="VUCH_NBR" label="凭证号" displaytype="hidden" align="left"
 						valuestyleproperty="style='mso-nubmer-format:\@'"></col><!-- displaytype="hidden" -->
 					<col column="EMP_ID" label="存款联系人" valuestyleproperty="style='mso-nubmer-format:\@'">
-						<inputbox styleproperty="style='width:90%'"></inputbox>
+						<inputbox type="textbox" styleproperty="style='width:90%'"></inputbox>
 					</col>
 
 					<col column="VERIFY_DT" label="审批时间" displaytype="hidden"></col>
@@ -131,15 +132,6 @@
 						</params>
 						<value><!--只可以修改存款联系人  -->
 							<![CDATA[
-								update IBS.T1_VUCH_EMP_RELA
-								set EMP_ID = @{EMP_ID}
-								    ,VERIFY_DT=#{current_time}
-								    ,VERIFY_EMP_ID=#{user_id}
-								    ,REMARK=#{current_time1}||'有权人:'||#{user_id}||'蛐蛐网活动认领输入界面修改存款联系人。'
-								where VUCH_NBR=@{VUCH_NBR__old}
-								and COALESCE(MARKETING_NO,'') in ('2016qq') 
-								;
-								
 								Insert into IBS.T6_VUCH_EMP_RELA_CHANGE_LOG 
 								(
 									 VUCH_NBR              
@@ -160,26 +152,36 @@
 									,CHANGE_TYPE
 									,CHANGE_FLAG          
 								)      
-								Values
-								(
-									 @{VUCH_NBR__old}
-									,@{EMP_ID__old}
+								select
+									 VUCH_NBR
+									,EMP_ID
 									,'100'
-									,'6'
-									,@{CLAIM_DT__old}
-									,@{VERIFY_DT__old}
-									,@{VERIFY_EMP_ID__old}
-									,@{REMARK__old}
+									,CLAIM_STATUS_ID
+									,CLAIM_DT
+									,VERIFY_DT
+									,VERIFY_EMP_ID
+									,REMARK
 									,@{EMP_ID}
 									,'100'
 									,'6'
 									,#{current_time1}
 								    ,#{current_time1}
 									,#{user_id}
-									,#{current_time}||'有权人:'||#{user_id}||'通过蛐蛐网认领页面调整认领,调整前认领人为：'||@{EMP_ID__old}||'调整后认领人为：'  ||@{EMP_ID} 
+									,CONCAT(#{current_time},'有权人:',#{user_id},'通过蛐蛐网认领页面调整认领,调整前认领人为：',EMP_ID,'调整后认领人为：',@{EMP_ID}) 
 								    ,'U'
 								    ,'0'
-								)
+								from IBS.T1_VUCH_EMP_RELA
+								where VUCH_NBR=@{VUCH_NBR}
+								and COALESCE(MARKETING_NO,'') in ('2016qq') 
+								;
+								
+								update IBS.T1_VUCH_EMP_RELA
+								set EMP_ID = @{EMP_ID}
+								    ,VERIFY_DT=#{current_time}
+								    ,VERIFY_EMP_ID=#{user_id}
+								    ,REMARK=CONCAT(#{current_time1},'有权人:',#{user_id},'蛐蛐网活动认领输入界面修改存款联系人。')
+								where VUCH_NBR=@{VUCH_NBR}
+								and COALESCE(MARKETING_NO,'') in ('2016qq') 
 								;
 							]]>
 						</value>

@@ -8,7 +8,9 @@
 
 		<header>${top.header}</header>
 		<vpanel id="common_vpanel" width="1300px" align="center" title="">
-			<report id="title" extends="title.report1" width="1300px"></report>
+			<html id="claim_verify_accfs_title"><![CDATA[
+				<div style="width:1300px;margin:0 auto;padding:8px 0 4px 0;color:#154BA0;font-weight:bold;">认领审核</div>
+			]]></html>
 		</vpanel>
 		<tabpanel id="tp1" margin_bottom="50px" titlestyle="2" align="center"
 			width="1300px" top="10px" titlewidth="100px" contextmenu="true"
@@ -155,7 +157,7 @@
 								SET CLAIM_STATUS_ID='2'
 									, VERIFY_DT=#{current_time}
 									, VERIFY_EMP_ID=#{user_id}     
-									, REMARK=REMARK||' 终审工号'||#{user_id}||' 姓名'||#{user_nm}||' 时间'||#{current_dt}||' '||#{current_tm}||' 备注终审通过。'                        
+									, REMARK=CONCAT(COALESCE(REMARK,''),' 终审工号',#{user_id},' 姓名',#{user_nm},' 时间',#{current_dt},' ',#{current_tm},' 备注终审通过。')                        
 								WHERE CLAIM_STATUS_ID='21' 
 								AND VUCH_NBR=@{param_vuch} AND EMP_ID=@{param_emp}
 								;
@@ -173,7 +175,7 @@
 							    SET NEW_CLAIM_STATUS_ID='2'  								         
 								,NEW_FIN_VERIFY_DT=#{current_time}        
 								,NEW_FIN_VERIFY_EMP_ID=#{user_id}    
-								,NEW_REMARK=NEW_REMARK||' 终审工号'||#{user_id}||' 姓名'||#{user_nm}||' 时间'||#{current_dt}||' '||#{current_tm}||' 备注终审通过。'
+								,NEW_REMARK=CONCAT(COALESCE(NEW_REMARK,''),' 终审工号',#{user_id},' 姓名',#{user_nm},' 时间',#{current_dt},' ',#{current_tm},' 备注终审通过。')
 								WHERE VUCH_NBR=@{param_vuch} AND NEW_EMP_ID=@{param_emp}
 								AND CHANGE_FLAG='0'
 								and NEW_CLAIM_STATUS_ID = '21' 
@@ -444,7 +446,7 @@
 							;
 							
 							UPDATE IBS.T1_VUCH_EMP_RELA   
-							SET	 REMARK=REMARK||' 终审工号'||#{user_id}||' 姓名'||#{user_nm}||' 时间'||#{current_dt}||' '||#{current_tm}||' 备注'||REMARK1
+							SET	 REMARK=CONCAT(COALESCE(REMARK,''),' 终审工号',#{user_id},' 姓名',#{user_nm},' 时间',#{current_dt},' ',#{current_tm},' 备注',COALESCE(REMARK1,''))
 								, REMARK1=''    
 							WHERE CLAIM_STATUS_ID='3' 
 							AND VUCH_NBR=@{VUCH_NBR__old} AND EMP_ID=@{EMP_ID__old}
@@ -460,7 +462,7 @@
 						    SET NEW_CLAIM_STATUS_ID='3'  								         
 							,NEW_FIN_VERIFY_DT=#{current_time}        
 							,NEW_FIN_VERIFY_EMP_ID=#{user_id}    
-							,NEW_REMARK=NEW_REMARK||' 终审工号'||#{user_id}||' 姓名'||#{user_nm}||' 时间'||#{current_dt}||' '||#{current_tm}||' 备注'||@{REMARK1}
+							,NEW_REMARK=CONCAT(COALESCE(NEW_REMARK,''),' 终审工号',#{user_id},' 姓名',#{user_nm},' 时间',#{current_dt},' ',#{current_tm},' 备注',COALESCE(@{REMARK1},''))
 							WHERE NEW_CLAIM_STATUS_ID='21' 
 							AND VUCH_NBR=@{VUCH_NBR__old} AND NEW_EMP_ID=@{EMP_ID__old}
 							AND CHANGE_FLAG='0'

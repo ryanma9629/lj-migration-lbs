@@ -102,13 +102,13 @@ public class BrachDxOverServerCallBack implements IServerAction {
 					
 					
 				}else{
-					rrequest.getWResponse().getMessageCollector().alert("没有审核通过的数据，无法结束！", "", false);
+					rrequest.getWResponse().getMessageCollector().alert("没有审核通过的数据，无法结束！", false);
 				}
 				//System.out.println("-----------------这里");
 				pstmtSh.close();
 				resultSetSh.close();
 			}else{
-				rrequest.getWResponse().getMessageCollector().alert("没有审核通过的数据，无法结束！", "", false);
+				rrequest.getWResponse().getMessageCollector().alert("没有审核通过的数据，无法结束！", false);
 			}
 			
 			
@@ -125,8 +125,7 @@ public class BrachDxOverServerCallBack implements IServerAction {
 		}
 		
 		
-		rrequest.getWResponse().getMessageCollector().success("数据处理完成！", "", false);
+		rrequest.getWResponse().getMessageCollector().success("数据处理完成！", false);
 		return "成功!!!";
 	}
 }
-

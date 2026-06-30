@@ -1,0 +1,19 @@
+USE cst;
+
+DELETE FROM sys_c_sec_pvlt
+WHERE PAGE_ID IN ('claim_verify_exs', 'verify_no_exs');
+
+DELETE FROM sys_c_sec_page
+WHERE PAGE_ID IN ('claim_verify_exs', 'verify_no_exs');
+
+INSERT INTO sys_c_sec_page
+  (PAGE_ID, PAGE_NAME, PAGE_DESCRIPTION, SERVICE_ID, HITS, LM_USER, LM_TIME)
+VALUES
+  ('claim_verify_exs', CONVERT(0xE5AD98E9878FE5AEA2E688B7E694AFE8A18CE8AEA4E9A286E5AEA1E6A0B8 USING utf8mb4), CONVERT(0xE5AD98E9878FE5AEA2E688B7E694AFE8A18CE8AEA4E9A286E5AEA1E6A0B8 USING utf8mb4), '060', 0, 'seed', NOW()),
+  ('verify_no_exs', CONVERT(0xE5AD98E9878FE5AEA2E688B7E694AFE8A18CE8AEA4E9A286E5AEA1E6A0B8E4B88DE9809AE8BF87 USING utf8mb4), CONVERT(0xE5AD98E9878FE5AEA2E688B7E694AFE8A18CE8AEA4E9A286E5AEA1E6A0B8E4B88DE9809AE8BF87 USING utf8mb4), '060', 0, 'seed', NOW());
+
+INSERT INTO sys_c_sec_pvlt
+  (ID, PRIVILEGE_ID, PAGE_ID, COMPONENT_ID, PART_TYPE, PART_ID, PERMISSION_TYPE, PERMISSION_VALUE, LM_USER, LM_TIME)
+VALUES
+  ('pvlt_claim_verify_exs', 'admin_priv', 'claim_verify_exs', 'common_vpanel', NULL, NULL, 'display', 'true', 'seed', NOW()),
+  ('pvlt_verify_no_exs', 'admin_priv', 'verify_no_exs', 'common_vpanel', NULL, NULL, 'display', 'true', 'seed', NOW());

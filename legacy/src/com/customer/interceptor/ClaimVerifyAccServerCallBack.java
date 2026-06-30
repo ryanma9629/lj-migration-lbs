@@ -56,7 +56,7 @@ public class ClaimVerifyAccServerCallBack implements IServerAction {
 			Map<String, String> mCustomizedData) {
 		System.out
 				.println("调用executeSeverAction(ReportRequest rrequest,IComponentConfigBean ccbean,List<Map<String,String>> lstData)方法...");
-//		rrequest.getWResponse().getMessageCollector().success("数据处理中...",false);//("批量审核通过，数据处理中...");//("批量审核通过，数据处理中...", "", false);//向前台提示一条信息，这里还可以终止后续处理
+//		rrequest.getWResponse().getMessageCollector().success("数据处理中...",false);//("批量审核通过，数据处理中...");//("批量审核通过，数据处理中...", false);//向前台提示一条信息，这里还可以终止后续处理
 		// printLstParams(lstData);//打印客户端传过来的参数
 		String user_id = (String) rrequest.getRequest().getSession().getAttribute("user_id");// 审核人
 		String user_nm = (String) rrequest.getRequest().getSession().getAttribute("user_name");
@@ -99,7 +99,7 @@ public class ClaimVerifyAccServerCallBack implements IServerAction {
 							+ ", FH_VERIFY_DT=?"
 							+ ", FH_VERIFY_EMP_ID=? "
 							+ ", FH_VERIFY_EMP_NM=? "
-							+ ", REMARK=REMARK||' 初审工号'||?||' 姓名'||?||' 时间'||?||' 备注初审通过。' "
+							+ ", REMARK=CONCAT(COALESCE(REMARK,''),' 初审工号',?,' 姓名',?,' 时间',?,' 备注初审通过。') "
 							+ "WHERE CLAIM_STATUS_ID ='1' "
 							+ "AND VUCH_NBR=? "
 							+ "AND EMP_ID=? " 
@@ -107,7 +107,7 @@ public class ClaimVerifyAccServerCallBack implements IServerAction {
 					String sql2 ="UPDATE IBS.T6_VUCH_EMP_RELA_CHANGE_LOG SET NEW_CLAIM_STATUS_ID='21' "
 						+ ",NEW_VERIFY_DT=? "
 						+ ",NEW_VERIFY_EMP_ID=? "
-						+ ",NEW_REMARK=NEW_REMARK||' 初审工号'||?||' 姓名'||?||' 时间'||?||' 备注初审通过。' "
+						+ ",NEW_REMARK=CONCAT(COALESCE(NEW_REMARK,''),' 初审工号',?,' 姓名',?,' 时间',?,' 备注初审通过。') "
 						+ "WHERE NEW_CLAIM_STATUS_ID in ('1','2') "
 						+ "AND VUCH_NBR=? "
 						+ "AND NEW_EMP_ID=? "
@@ -117,7 +117,7 @@ public class ClaimVerifyAccServerCallBack implements IServerAction {
 					String sql3 ="UPDATE IBS.T1_VUCH_EMP_RELA SET RVS_STATUS_ID='21' "
 						+ ",RVS_CLAIM_EMP_ID=? "
 						+ ",RVS_CLAIM_DT=? "
-						+ ",REMARK=REMARK||' 初审工号'||?||' 姓名'||?||' 时间'||?||' 备注初审通过。' "
+						+ ",REMARK=CONCAT(COALESCE(REMARK,''),' 初审工号',?,' 姓名',?,' 时间',?,' 备注初审通过。') "
 						+ "WHERE RVS_STATUS_ID in ('1','2') "
 						+ "AND VUCH_NBR=? AND EMP_ID=? "
 						;
@@ -174,8 +174,7 @@ public class ClaimVerifyAccServerCallBack implements IServerAction {
 			}
 
 		}
-		rrequest.getWResponse().getMessageCollector().success("数据处理完成！", "", false);
+		rrequest.getWResponse().getMessageCollector().success("数据处理完成！", false);
 		return "调用成功!!!";
 	}
 }
-

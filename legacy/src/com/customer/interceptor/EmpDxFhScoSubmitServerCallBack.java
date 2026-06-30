@@ -122,8 +122,7 @@ public class EmpDxFhScoSubmitServerCallBack implements IServerAction {
 			
 
 		}
-		rrequest.getWResponse().getMessageCollector().success("数据处理完成！", "", false);
+		rrequest.getWResponse().getMessageCollector().success("数据处理完成！", false);
 		return "成功!!!";
 	}
 }
-

@@ -3,11 +3,13 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.wabacus.com ../xsd/wabacus.applications.xsd">
 	<!--我的认领 -->
-	<page id="my_claimed"
-		js="/webresources/script/validate.js,/js/demo.js,/js/common.js"><!-- /webresources/script/validate.js -->
-		<header>${top.header}</header>
+		<page id="my_claimed"
+			js="/webresources/script/validate.js,/js/demo.js,/js/common.js"><!-- /webresources/script/validate.js -->
+			<header>${top.header}</header>
 		<vpanel id="common_vpanel" width="1300px" align="center">
-			<report id="title" extends="title.report1" width="1300px"></report>
+			<html id="my_claimed_title"><![CDATA[
+				<div style="width:1300px;margin:0 auto;padding:8px 0 4px 0;color:#154BA0;font-weight:bold;">我的认领</div>
+			]]></html>
 		</vpanel>
 		
 		<tabpanel id="tp1" margin_bottom="50px" titlestyle="2" align="center"
@@ -66,8 +68,8 @@
 									,A.EMP_NM 
 									,A.CLAIM_DT
 									,COALESCE(A.VERIFY_EMP_ID,'') 	AS VERIFY_EMP_ID
-									,(coalesce(A.FH_VERIFY_EMP_NM,'')||'|'||COALESCE(E.EMP_NM,A.VERIFY_EMP_ID)) AS VERIFY_EMP_NM
-									,(coalesce(TO_CHAR(A.FH_VERIFY_DT,'YYYY-MM-DD'),'')||'|'||coalesce(TO_CHAR(A.VERIFY_DT,'YYYY-MM-DD'),'')) as VERIFY_DT
+									,CONCAT(coalesce(A.FH_VERIFY_EMP_NM,''),'|',COALESCE(E.EMP_NM,A.VERIFY_EMP_ID)) AS VERIFY_EMP_NM
+									,CONCAT(coalesce(DATE_FORMAT(A.FH_VERIFY_DT,'%Y-%m-%d'),''),'|',coalesce(DATE_FORMAT(A.VERIFY_DT,'%Y-%m-%d'),'')) as VERIFY_DT
 									,A.REMARK AS CLAIM_INFO
 							FROM 	IBS.T1_VUCH_EMP_RELA	A
 							inner join IBS.T9_BIZ_TYPE bt on bt.BIZ_TYPE_NM=A.BIZ_TYPE_NM 
@@ -152,7 +154,7 @@
 						else if(CLAIM_STATUS_ID.equals("4")) CLAIM_STATUS_ID="4-撤销";
 						else if(CLAIM_STATUS_ID.equals("5")) CLAIM_STATUS_ID="5-超时自动审批";
 						else if(CLAIM_STATUS_ID.equals("6")) CLAIM_STATUS_ID="6-事中认领自动审核通过";
-						if(BIZ_TYPE_NM.equals("储蓄存款")||BIZ_TYPE_NM.equals("对公存款")){
+						if(BIZ_TYPE_NM_NEW.equals("储蓄存款")||BIZ_TYPE_NM_NEW.equals("对公存款")){
 							VUCH_NBR="<a style='TEXT-DECORATION:underline' href='ShowReport.wx?PAGEID=acc_detal_info&VUCH_NBR="+VUCH_NBR+"&EMP_ID="+EMP_ID+"'>"+VUCH_NBR+"</a>";
 						}
 					*/
@@ -195,7 +197,7 @@
 						<col column="NEW_CLAIM_DT_V" label="调整日期 " ></col>
 						<col column="NEW_VERIFY_EMP_NM" label="初\终审批人 " width="130px"></col>
 						<col column="NEW_VERIFY_DT" label="初\终审批日期 " width="150px"></col>
-						<col property="NEW_REMARK" column="{non-fromdb}" label="备注 "></col>
+						<col column="NEW_REMARK" label="备注 "></col>
 						
 						<!-- 
 						<col column="NEW_VERIFY_EMP_ID" label="调整人" width="80px"></col>
@@ -238,9 +240,8 @@
 									,C.ORG_ID AS NEW_EMP_ORG_ID     
 									,C.ORG_NM AS NEW_EMP_ORG_NM     
 									,A.NEW_RATIO                    
-									,(coalesce(TO_CHAR(A.NEW_VERIFY_DT,'YYYY-MM-DD'),'')||'|'||coalesce(TO_CHAR(A.NEW_FIN_VERIFY_DT,'YYYY-MM-DD'),'')) as NEW_VERIFY_DT        
-									,coalesce(A.NEW_VERIFY_EMP_NM,'')||'|'||coalesce(A.NEW_FIN_VERIFY_EMP_NM,'') as NEW_VERIFY_EMP_NM           
-									,A.NEW_VERIFY_EMP_NM  
+									,CONCAT(coalesce(DATE_FORMAT(A.NEW_VERIFY_DT,'%Y-%m-%d'),''),'|',coalesce(DATE_FORMAT(A.NEW_FIN_VERIFY_DT,'%Y-%m-%d'),'')) as NEW_VERIFY_DT        
+									,CONCAT(coalesce(A.NEW_VERIFY_EMP_NM,''),'|',coalesce(A.NEW_FIN_VERIFY_EMP_NM,'')) as NEW_VERIFY_EMP_NM           
 									,coalesce(rs.RVS_STATUS_NM,'') as RVS_STATUS_NM
 									,A.NEW_CLAIM_STATUS_ID 
 									,A.NEW_REMARK 
@@ -313,29 +314,7 @@
 								</inputbox>
 							</condition>
 						</select>
-
 					</sql>
-					<format>
-						<imports>
-							<import>com.ljbank.util.*</import>
-							<import>java.util.*</import>
-							<import>java.text.*</import>
-							<import>com.wabacus.system.*</import>
-						</imports>
-						<value>
-						<!--  
-				 		CHANGE_TYPE=CHANGE_TYPE==null?"":CHANGE_TYPE.trim();
-						if(CHANGE_TYPE.equals("U")) CHANGE_TYPE="认领调整";
-						else if(CHANGE_TYPE.equals("I")) CHANGE_TYPE="新增认领";
-						else if(CHANGE_TYPE.equals("D")) CHANGE_TYPE="撤销认领";
-					    -->
-					<![CDATA[
-						
-						NEW_REMARK="<a style='TEXT-DECORATION:underline' href='ShowReport.wx?PAGEID=remark_info&VUCH_NBR="+VUCH_NBR+"&OLD_EMP_ID="+OLD_EMP_ID+"&NEW_EMP_ID="+NEW_EMP_ID+"&OLD_RATIO="+OLD_RATIO+"&NEW_RATIO="+NEW_RATIO+"&OLD_CLAIM_DT="+OLD_CLAIM_DT+"'>查询详情</a>";
-					
-					]]>
-			 		</value>
-					</format>
 				</report>
 			</vpanel>
 			<vpanel id="vp3" width="1300px" align="center" parenttitle="我的贵金属认领" margin_top="10px">
@@ -925,7 +904,7 @@
 								,A.NEW_VERIFY_EMP_ID   
 								,A.NEW_FIN_VERIFY_EMP_ID      
 								,A.NEW_CLAIM_STATUS_ID 
-								,(A.OLD_REMARK ||A.NEW_REMARK) as REMARK 
+								,CONCAT(COALESCE(A.OLD_REMARK,''),COALESCE(A.NEW_REMARK,'')) as REMARK 
 						FROM	IBS.T6_VUCH_EMP_RELA_CHANGE_LOG		A 
 						inner JOIN	IBS.T1_VUCH_DETAIL					B
 						ON		A.VUCH_NBR=B.VUCH_NBR

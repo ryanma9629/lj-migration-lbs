@@ -63,7 +63,7 @@ public class InterceptorClaimFncDitlTxn extends AbsInterceptorDefaultAdapter {
 					if(resultSetSQL_BUTTON.getInt("cnt") > 0 && resultSetSQL_BUTTON.getInt("is_inst")!=1 && resultSetSQL_BUTTON.getInt("self")==0 && resultSetSQL_BUTTON.getDouble("val_ro")!=100) {
 						String SQL_INSRT = "insert into ibs.T1_FNC_TXN_EMP_RELA(TXN_NO,VUCH_NBR,EMP_ID,RATIO,CLAIM_STATUS_ID,ORG_ID,ORG_NM,CST_NM,IDENTN_NO,BIZ_TYPE_CD,BIZ_TYPE_NM,TXN_DT,EMP_NM,EMP_ORG_ID,EMP_ORG_NM,TXN_AMT,PRD_CD,PRD_NM)" +
 						"select TXN_NO , VUCH_NBR, ?,0,'7', ORG_ID, ORG_NM, CST_NM, IDENTN_NO, BIZ_TYPE_CD, BIZ_TYPE_NM, TXN_DT, ?, ?, ?, TXN_AMT, PRD_CD, PRD_NM " +
-						"from ibs.T1_FNC_TXN_EMP_RELA where TXN_NO=? and TXN_DT=? fetch first 1 row only";
+						"from ibs.T1_FNC_TXN_EMP_RELA where TXN_NO=? and TXN_DT=? limit 1";
 						System.out.println("SQL="+SQL_INSRT);
 						PreparedStatement pstmt = conn.prepareStatement(SQL_INSRT);
 						pstmt.setString(1, user_id); 

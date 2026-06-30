@@ -9,7 +9,11 @@
 		<header>${top.header}</header>
 		<vpanel id="common_vpanel" width="1300px" align="center" title="">
 
-			<report id="title" extends="title.report1" width="1300px"></report>
+			<html id="claimed_change_title"><![CDATA[
+				<div style="width:1300px;margin:0 auto;padding:8px 0 4px 0;font-size:24px;font-weight:bold;color:#154BA0;">
+					认领调整
+				</div>
+			]]></html>
 			<report id="select" type="listform" title="账户信息" width="1300px"
 				top="10px" personalizeclass="default"
 				interceptor="com.customer.interceptor.InterceptorClaimedChange" rowselect="single"><!-- InterceptorClaimedChange -->
@@ -331,7 +335,7 @@
 								,'0'
 								,#{current_time}
 								
-								,' 调整人工号'||#{user_id}||' 姓名'||#{user_nm}||' 时间'||#{current_dt}||' '||#{current_tm}||' 备注认领调整。'
+								,CONCAT(' 调整人工号',#{user_id},' 姓名',#{user_nm},' 时间',#{current_dt},' ',#{current_tm},' 备注认领调整。')
 								,'U'
 								,'0'
 							)
@@ -380,7 +384,7 @@
 								,#{current_time}                                                    
 								,#{current_time}                                                    
 								,#{user_id}                                                  
-								,@{REMARK}||'有权人通过认领调整页面新增。' 
+								,CONCAT(COALESCE(@{REMARK},''),'有权人通过认领调整页面新增。') 
       
 							   ,@{EMP_NM}               
 							   ,@{EMP_ORG_ID}        
@@ -435,7 +439,7 @@
 								,#{current_time1}
 							    ,#{current_time1}
 								,#{user_id}
-								,#{current_time1}||'有权人:'||#{user_id}||'认领调整页面添加认领信息。'
+								,CONCAT(#{current_time1},'有权人:',#{user_id},'认领调整页面添加认领信息。')
 								,'I'
 							)
 							;
@@ -445,7 +449,7 @@
 					
 					update IBS.T1_VUCH_EMP_RELA 
 							set 
-								   REMARK =REMARK||' 调整人工号'||#{user_id}||' 姓名'||#{user_nm}||' 时间'||#{current_time1}||' 备注认领撤销。' 
+								   REMARK =CONCAT(COALESCE(REMARK,''),' 调整人工号',#{user_id},' 姓名',#{user_nm},' 时间',#{current_time1},' 备注认领撤销。') 
 								   ,CLAIM_STATUS_ID='4'
 								   ,RVS_STATUS_ID='4'
 							       ,RVS_DT=#{current_time}
@@ -516,7 +520,7 @@
 							,0
 							,'4'
 							,#{current_time}
-							,' 调整人工号'||#{user_id}||' 姓名'||#{user_nm}||' 时间'||#{current_dt}||' '||#{current_tm}||' 备注认领撤销。' 
+								,CONCAT(' 调整人工号',#{user_id},' 姓名',#{user_nm},' 时间',#{current_dt},' ',#{current_tm},' 备注认领撤销。') 
 							from IBS.T1_VUCH_EMP_RELA
 							where VUCH_NBR=@{VUCH_NBR__old}
 							and EMP_ID=#{user_id}

@@ -39,10 +39,12 @@ public class ClaimedRvsFsServerCallBack implements IServerAction {
 			Map<String, String> mCustomizedData) {
 		System.out
 				.println("调用executeSeverAction(ReportRequest rrequest,IComponentConfigBean ccbean,List<Map<String,String>> lstData)方法...");
-//		rrequest.getWResponse().getMessageCollector().success("数据处理中...",false);//("批量审核通过，数据处理中...");//("批量审核通过，数据处理中...", "", false);//向前台提示一条信息，这里还可以终止后续处理
+//		rrequest.getWResponse().getMessageCollector().success("数据处理中...",false);//("批量审核通过，数据处理中...");//("批量审核通过，数据处理中...", false);//向前台提示一条信息，这里还可以终止后续处理
 		// printLstParams(lstData);//打印客户端传过来的参数
 		String user_id = (String) rrequest.getRequest().getSession()
 				.getAttribute("user_id");// 审核人
+		String user_nm = (String) rrequest.getRequest().getSession()
+				.getAttribute("user_name");
 		Date date = new Date();
 		/* dt认领时间 VERIFY_DT */
 		SimpleDateFormat dateformat = new SimpleDateFormat("yyyy-MM-dd");
@@ -56,7 +58,6 @@ public class ClaimedRvsFsServerCallBack implements IServerAction {
 		
 		String vuch_nbr = "";
 		String emp_id = "";
-		Double ration = 0.0;
 		if (lstData == null || lstData.size() == 0) {
 			System.out.println("无参数");
 		} else {
@@ -70,9 +71,6 @@ public class ClaimedRvsFsServerCallBack implements IServerAction {
 					if (entryTmp.getKey().equals("EMP_ID")) {
 						emp_id = entryTmp.getValue();
 					}
-					if (entryTmp.getKey().equals("RATIO")) {
-						ration = Double.valueOf(entryTmp.getValue());
-					}
 				}
 				System.out.println("页面勾选的凭证号:" + vuch_nbr + "      员工号为："
 						+ emp_id);
@@ -81,24 +79,44 @@ public class ClaimedRvsFsServerCallBack implements IServerAction {
 				try {
 
 					PreparedStatement pstmt = null;
+					PreparedStatement pstmt2 = null;
 					String sql = "UPDATE IBS.T1_VUCH_EMP_RELA SET RVS_STATUS_ID='2' "
 							+ ", RVS_CLAIM_DT=?"
 							+ ", RVS_CLAIM_EMP_ID=? "
-							+ ", REMARK=REMARK||'调整审批批量通过。' "
-							+ ", RATIO=? "
+							+ ", REMARK=CONCAT(COALESCE(REMARK,''),'调整审批批量通过。') "
+							+ ", RATIO=RVS_RATIO "
 							+ "WHERE RVS_STATUS_ID ='1' "
 							+ "AND VUCH_NBR=? "
 							+ "AND EMP_ID=?";
+					String sql2 = "UPDATE IBS.T6_VUCH_EMP_RELA_CHANGE_LOG "
+							+ "SET NEW_CLAIM_STATUS_ID='2' "
+							+ ", NEW_FIN_VERIFY_DT=? "
+							+ ", NEW_FIN_VERIFY_EMP_ID=? "
+							+ ", NEW_FIN_VERIFY_EMP_NM=? "
+							+ ", NEW_REMARK=CONCAT(COALESCE(NEW_REMARK,''),'调整审批批量通过。') "
+							+ "WHERE NEW_CLAIM_STATUS_ID='1' "
+							+ "AND VUCH_NBR=? "
+							+ "AND NEW_EMP_ID=? "
+							+ "AND CHANGE_FLAG='0'";
 					
 					pstmt = conn.prepareStatement(sql);
 					pstmt.setString(1, dt);
 					pstmt.setString(2, user_id);
-					pstmt.setDouble(3, ration);
-					pstmt.setString(4, vuch_nbr);
-					pstmt.setString(5, emp_id);
+					pstmt.setString(3, vuch_nbr);
+					pstmt.setString(4, emp_id);
 					pstmt.executeUpdate();
 					System.out.println(sql);
+
+					pstmt2 = conn.prepareStatement(sql2);
+					pstmt2.setString(1, dts);
+					pstmt2.setString(2, user_id);
+					pstmt2.setString(3, user_nm);
+					pstmt2.setString(4, vuch_nbr);
+					pstmt2.setString(5, emp_id);
+					pstmt2.executeUpdate();
+					System.out.println(sql2);
 					pstmt.close();
+					pstmt2.close();
 					
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -115,8 +133,7 @@ public class ClaimedRvsFsServerCallBack implements IServerAction {
 			}
 
 		}
-		rrequest.getWResponse().getMessageCollector().success("数据处理完成！", "", false);
+		rrequest.getWResponse().getMessageCollector().success("数据处理完成！", false);
 		return "调用成功!!!";
 	}
 }
-

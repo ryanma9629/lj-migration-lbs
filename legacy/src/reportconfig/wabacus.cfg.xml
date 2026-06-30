@@ -78,6 +78,46 @@
 	<report-files>
 		<report-file>report/system_menu.xml</report-file>
 		<report-file>report/system_parameter.xml</report-file>
+		<report-file>report/system_security.xml</report-file>
+		<report-file>report/system_info.xml</report-file>
+		<report-file>report/system_help.xml</report-file>
+		<report-file>report/system_user.xml</report-file>
+		<report-file>report/system_account.xml</report-file>
+		<report-file>report/system_account_branch.xml</report-file>
 		<report-file>report/basic.xml</report-file>
+		<report-file>report/claim_ybdb.xml</report-file>
+		<report-file>report/claim_ybdb_verify.xml</report-file>
+		<report-file>report/ybdb_detail.xml</report-file>
+		<report-file>report/claim_df_slry.xml</report-file>
+		<report-file>report/claim_dfSlry_verify.xml</report-file>
+		<report-file>report/claim_dep.xml</report-file>
+		<report-file>report/claim_dep_2016qq.xml</report-file>
+		<report-file>report/claim_dep_FH.xml</report-file>
+		<report-file>report/claim_ln.xml</report-file>
+		<report-file>report/claim_fnc.xml</report-file>
+		<report-file>report/claim_fnc_change.xml</report-file>
+		<report-file>report/claim_fnc_detail.xml</report-file>
+		<report-file>report/claim_fnc_verify.xml</report-file>
+		<report-file>report/claim_thd.xml</report-file>
+		<report-file>report/claim_thd_verify.xml</report-file>
+		<report-file>report/claim_hpf.xml</report-file>
+		<report-file>report/claim_fund.xml</report-file>
+		<report-file>report/claim_fund_verify.xml</report-file>
+		<report-file>report/claim_gold.xml</report-file>
+		<report-file>report/claim_gold_verify.xml</report-file>
+		<report-file>report/claim_verify_acc.xml</report-file>
+		<report-file>report/claim_verify_acc_fs.xml</report-file>
+		<report-file>report/claim_verify_exs.xml</report-file>
+		<report-file>report/claim_verify_exs_fh.xml</report-file>
+		<report-file>report/claimed_change.xml</report-file>
+		<report-file>report/claimed_change_fs.xml</report-file>
+		<report-file>report/claimed_relationship.xml</report-file>
+		<report-file>report/my_claimed.xml</report-file>
+		<report-file>report/resource_manager_yj.xml</report-file>
+		<report-file>report/resource_manager_yj_detail.xml</report-file>
+		<report-file>report/resource_manager_yj_q.xml</report-file>
+		<report-file>report/emp_certificate.xml</report-file>
+		<report-file>report/emp_gdq.xml</report-file>
+		<report-file>report/claim_info.xml</report-file>
 	</report-files>
 </wabacus-config>

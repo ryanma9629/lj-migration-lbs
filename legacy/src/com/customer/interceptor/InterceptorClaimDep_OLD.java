@@ -63,7 +63,7 @@ public class InterceptorClaimDep_OLD extends AbsInterceptorDefaultAdapter {
 					} else {
 						/************************** step3 判断输入的凭证号是否存在配卡 *************************************************/
 						// SQL1输入的是存折，并且配有卡，则只能对卡进行认领
-						String SQL1 = "Select WITH_CARD_F, ORG_ID, ORG_NM, CST_NM, BIZ_TYPE_NM, VUCH_STATUS_NM, OPEN_DT from IBS.T1_VUCH_DETAIL where VUCH_NBR=? with ur";
+						String SQL1 = "Select WITH_CARD_F, ORG_ID, ORG_NM, CST_NM, BIZ_TYPE_NM, VUCH_STATUS_NM, OPEN_DT from IBS.T1_VUCH_DETAIL where VUCH_NBR=?";
 						pstmt = conn.prepareStatement(SQL1);
 						pstmt.setString(1, vuch_nbr);
 						ResultSet resultSet1 = pstmt.executeQuery();

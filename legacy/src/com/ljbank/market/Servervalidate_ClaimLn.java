@@ -37,7 +37,7 @@ public class Servervalidate_ClaimLn {
 			if(user_id.equals(usr_org_id)){
 				System.out.println("机构用户");
 				sql = "select 100-coalesce(sum(RATIO),0) as inratio from IBS.T1_VUCH_EMP_RELA r inner join ibs.T5_ORG og on og.ORG_ID=r.EMP_ID and og.ORG_LEVEL_ID in ('1','2') and og.ORG_TYPE_ID='EO' where VUCH_NBR='" + vuch_nbr
-				+ "' and CLAIM_STATUS_ID in ('1','2','5','6') with ur";
+				+ "' and CLAIM_STATUS_ID in ('1','2','5','6')";
 			}else{
 			}*/
 			

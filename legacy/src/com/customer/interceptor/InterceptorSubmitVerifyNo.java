@@ -61,7 +61,7 @@ public class InterceptorSubmitVerifyNo  implements IServerAction{
         try
         {
         	  //存款业绩填写完成后，点击提交按钮将刷新CLAIM_STATUS_ID="1-待审核" 【认领状态（0-暂存；1-待审核；2-已审核；3-未通过；4-撤销）】，并填写提交时间
-            String sql1="update IBS.T1_VUCH_EMP_RELA set CLAIM_STATUS_ID='1', CLAIM_DT=?, REMARK=?||remark where VUCH_NBR=? and EMP_ID=? and coalesce(CLAIM_STATUS_ID,'0')='0' ";
+            String sql1="update IBS.T1_VUCH_EMP_RELA set CLAIM_STATUS_ID='1', CLAIM_DT=?, REMARK=CONCAT(?,COALESCE(remark,'')) where VUCH_NBR=? and EMP_ID=? and coalesce(CLAIM_STATUS_ID,'0')='0' ";
 
 	        PreparedStatement pstmt=null;
         	pstmt=conn.prepareStatement(sql1);
@@ -71,7 +71,7 @@ public class InterceptorSubmitVerifyNo  implements IServerAction{
 	        pstmt.setString(4,user_id);
 	        pstmt.executeUpdate();
 	        System.out.println("======step1: 点击提交按钮将刷新CLAIM_STATUS_ID='1-待审核'==============");
-	        rrequest.getWResponse().getMessageCollector().success("提交成功！", "", false);//向前台提示一条信息，这里还可以终止后续处理
+	        rrequest.getWResponse().getMessageCollector().success("提交成功！", false);//向前台提示一条信息，这里还可以终止后续处理
 			rrequest.authorize("dtl", Consts.BUTTON_PART, "type{save}",	"disabled", "true");
 			rrequest.authorize("dtl", Consts.BUTTON_PART, "sub", "disabled", "true");
 			rrequest.setAttribute("dtl_ACCESSMODE", "readonly");

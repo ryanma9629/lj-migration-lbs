@@ -9,7 +9,6 @@
 		<header>${top.header}</header>
 		<vpanel id="common_vpanel" width="1300px" align="center" title="">
 
-			<report id="title" extends="title.report1" width="1300px"></report>
 			<report id="select" type="editablelist" width="1500px" top="10px" scrollwidth="1300px"
 				rowselect="multiple-checkbox" pagesize="15|20|-1" personalizeclass="default">
 
@@ -46,7 +45,7 @@
 				<sql datasource="ds_db2">
 					<select>
 						<value><![CDATA[
-							Select RE.*,S.CLAIM_STATUS_NM,re.EMP_ID as EMP_ID_Hid,ou.BRANCH_ORG_ID,ou.BRANCH_ORG_NM,ou.HEAD_ORG_ID,re.EMP_ID as EMP_ID_Hid
+							Select RE.*,S.CLAIM_STATUS_NM,re.EMP_ID as EMP_ID_Hid,ou.BRANCH_ORG_ID,ou.BRANCH_ORG_NM,ou.HEAD_ORG_ID
 							from IBS.T1_YBDB_EMP_RELA re
 							inner join IBS.T5_ORG ou ON ou.ORG_ID=re.BRANCH_NO AND ou.ORG_TYPE_ID='AO'
 							left join IBS.T9_CLAIM_STATUS_TYPE S ON S.CLAIM_STATUS_ID=RE.CLAIM_STATUS_ID	
@@ -116,7 +115,7 @@
 									, VERIFY_DT=#{current_time}
 									, VERIFY_EMP_ID=#{user_id}     
 									, REMARK1=@{REMARK1}
-									, REMARK=REMARK||'审批时间'||#{current_time1}||'审批工号'||#{user_id}||'审批理由页面批复通过。'                     
+									, REMARK=CONCAT(COALESCE(REMARK,''),'审批时间',#{current_time1},'审批工号',#{user_id},'审批理由页面批复通过。')                     
 								WHERE CLAIM_STATUS_ID='1' 
 								AND INSURE_NO=@{p_insure_no} AND EMP_ID=@{p_emp_id} AND INSURE_DATE=@{p_insure_dt}
 								;
@@ -225,7 +224,7 @@
 								, VERIFY_DT=#{current_time}
 								, VERIFY_EMP_ID=#{user_id}     
 								, REMARK1=@{REMARK1}                 
-								, REMARK=REMARK||'审批时间'||#{current_time1}||'审批工号'||#{user_id}||'审批未通过'
+								, REMARK=CONCAT(COALESCE(REMARK,''),'审批时间',#{current_time1},'审批工号',#{user_id},'审批未通过')
 							WHERE CLAIM_STATUS_ID='1' 
 							AND INSURE_NO=@{INSURE_NO__old} AND EMP_ID=@{EMP_ID__old} AND INSURE_DATE=@{INSURE_DATE__old}
 							;

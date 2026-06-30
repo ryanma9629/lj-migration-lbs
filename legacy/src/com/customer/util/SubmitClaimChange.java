@@ -332,7 +332,7 @@ public class SubmitClaimChange implements IServerAction {
 				pstmt2.executeUpdate();
 				
 				System.out.println("点击提交按钮将刷新RVS_STATUS_ID='1-调整待审'");
-				rrequest.getWResponse().getMessageCollector().success("提交成功！", "", false);// 向前台提示一条信息，这里还可以终止后续处理
+				rrequest.getWResponse().getMessageCollector().success("提交成功！", false);// 向前台提示一条信息，这里还可以终止后续处理
 				rrequest.authorize("dtl", Consts.BUTTON_PART, "type{save}", "disabled", "true");
 				rrequest.authorize("dtl", Consts.BUTTON_PART, "type{delete}", "disabled", "true");
 				rrequest.authorize("dtl", Consts.BUTTON_PART, "sub", "disabled", "true");

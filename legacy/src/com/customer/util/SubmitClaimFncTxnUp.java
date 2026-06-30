@@ -58,7 +58,7 @@ public class SubmitClaimFncTxnUp implements IServerAction {
 
 		Connection conn = Config.getInstance().getDataSource("ds_db2").getConnection();// 取DB2数据源配置
 		
-		String sqlcnt="SELECT count(1) as cnt FROM IBS.T1_FNC_TXN_EMP_RELA WHERE TXN_NO=? and TXN_DT=? and EMP_ID=? and RATIO<>0 and CLAIM_STATUS_ID in ('1','2','5','6') with ur";
+		String sqlcnt="SELECT count(1) as cnt FROM IBS.T1_FNC_TXN_EMP_RELA WHERE TXN_NO=? and TXN_DT=? and EMP_ID=? and RATIO<>0 and CLAIM_STATUS_ID in ('1','2','5','6')";
 		PreparedStatement pstmtCnt = null;
 		try {
 			pstmtCnt = conn.prepareStatement(sqlcnt);
@@ -95,7 +95,7 @@ public class SubmitClaimFncTxnUp implements IServerAction {
 						pstmt.setString(8, txn_run_nbr);
 						pstmt.setString(9, txn_dt);
 						pstmt.executeUpdate();
-						rrequest.getWResponse().getMessageCollector().success("提交成功！", "", false);// 向前台提示一条信息，这里还可以终止后续处理
+						rrequest.getWResponse().getMessageCollector().success("提交成功！", false);// 向前台提示一条信息，这里还可以终止后续处理
 						
 				} catch (Exception e) {
 					e.printStackTrace();

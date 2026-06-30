@@ -66,7 +66,7 @@ public class InterceptorClaimDep_NEW_FH extends AbsInterceptorDefaultAdapter {
 				}
 
 				// COALESCE(MARKETING_NO,0)
-				String SQL = "Select  WITH_CARD_F, ORG_ID, ORG_NM, BRANCH_ORG_NM, BRANCH_ORG_ID, CST_NM, BIZ_TYPE_NM, VUCH_STATUS_NM, OPEN_DT, COALESCE(MARKETING_NO,'') as MARKETING_NO from IBS.T1_VUCH_DETAIL where VUCH_NBR=? and  VUCH_TYPE_ID in ('10','11','12','13','14','15','16','17','18') with ur";
+				String SQL = "Select  WITH_CARD_F, ORG_ID, ORG_NM, BRANCH_ORG_NM, BRANCH_ORG_ID, CST_NM, BIZ_TYPE_NM, VUCH_STATUS_NM, OPEN_DT, COALESCE(MARKETING_NO,'') as MARKETING_NO from IBS.T1_VUCH_DETAIL where VUCH_NBR=? and  VUCH_TYPE_ID in ('10','11','12','13','14','15','16','17','18')";
 
 				String VUCH_ORG_ID = ""; // 获取凭证所属机构号码
 				String VUCH_ORG_NM = ""; // 获取凭证所属机构名
@@ -120,7 +120,7 @@ public class InterceptorClaimDep_NEW_FH extends AbsInterceptorDefaultAdapter {
 						
 
 							// SQL_Other:查询是否含有他人认领信息、查询人认领信息
-							String SQL_Other = "SELECT COALESCE(SUM(CASE WHEN EMP_ID = '' THEN 1 ELSE 0 END ),0) AS EMP_ID_CNT, COALESCE(SUM(CASE WHEN EMP_ID<>'' THEN 1 ELSE 0 END),0) AS OTHER_EMP_ID_CNT FROM IBS.T1_VUCH_EMP_RELA WHERE VUCH_NBR=? with ur";
+							String SQL_Other = "SELECT COALESCE(SUM(CASE WHEN EMP_ID = '' THEN 1 ELSE 0 END ),0) AS EMP_ID_CNT, COALESCE(SUM(CASE WHEN EMP_ID<>'' THEN 1 ELSE 0 END),0) AS OTHER_EMP_ID_CNT FROM IBS.T1_VUCH_EMP_RELA WHERE VUCH_NBR=?";
 							pstmt = conn.prepareStatement(SQL_Other);
 							pstmt.setString(1, vuch_nbr);
 							ResultSet resultSetOther = pstmt.executeQuery();

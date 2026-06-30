@@ -5,13 +5,17 @@
 
 	<!-- 大堂经理认领存款衍生变更页面 “存量储蓄存款认领” 此页面用于解决资源类客户经理老业绩认领以及公司业务部其他问题 分行管理员可以登录此页面对业绩进行调整认领，直接认领2018-01-01年之前的业绩 -->
 
-	<page id="claim_dep_FH" onload="refreshComponentDisplay('claim_dep_FH',null)"
+	<page id="claim_dep_FH"
 		js="/webresources/script/validate.js,/js/demo.js,/js/common.js">
 
 		<header>${top.header}</header>
 		<vpanel id="common_vpanel" width="1300px" align="center" title="">
 
-			<report id="title" extends="title.report1" width="1300px"></report>
+			<html id="claim_dep_fh_title"><![CDATA[
+				<div style="width:1300px;margin:0 auto;padding:8px 0 4px 0;font-size:24px;font-weight:bold;color:#154BA0;">
+					存量储蓄存款认领
+				</div>
+			]]></html>
 			<report id="select" type="form" title="账户信息" width="1300px"
 				interceptor="com.customer.interceptor.InterceptorClaimDep_NEW_FH"
 				top="10px" personalizeclass="default">
@@ -62,7 +66,6 @@
 							FROM IBS.T1_VUCH_DETAIL		
 							WHERE COALESCE(MARKETING_NO,'') not in ('2016qq') 
 							and {#condition#}
-							WITH UR
 							
 						    ]]>
 						</value>
@@ -164,7 +167,7 @@
 							jsvalidate="isNotEmpty(员工号不可以为空)" styleproperty="style='width:90%'">
 							<autocomplete columns="EMP_NM; EMP_ORG_ID; EMP_ORG_NM"
 								colvaluecondition="EMP_ID like '%#EMP_ID#%'"
-								dataset="select * from (Select EMP_ID, EMP_NM, ORG_ID as EMP_ORG_ID, ORG_NM as EMP_ORG_NM from IBS.T5_EMP ) where 1=1 {#condition#}  order by EMP_NM "></autocomplete>
+								dataset="select * from (Select EMP_ID, EMP_NM, ORG_ID as EMP_ORG_ID, ORG_NM as EMP_ORG_NM from IBS.T5_EMP ) emp where 1=1 {#condition#}  order by EMP_NM "></autocomplete>
 						</inputbox>
 
 					</col>
@@ -253,7 +256,7 @@
 									,CLAIM_DT = #{current_time}
 									,VERIFY_DT = #{current_time}
 									,VERIFY_EMP_ID = #{user_id}
-									,REMARK = #{current_time1}||'分行管理员'||#{user_id}||'登录claim_dep_FH页面，对业绩直接分配'
+									,REMARK = CONCAT(#{current_time1},'分行管理员',#{user_id},'登录claim_dep_FH页面，对业绩直接分配')
 									,REMARK1 = @{REMARK1}
 								where VUCH_NBR = @{VUCH_NBR__old}
 								and EMP_ID = ''

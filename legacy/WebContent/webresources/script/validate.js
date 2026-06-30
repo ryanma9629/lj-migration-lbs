@@ -17,6 +17,160 @@ String.prototype.trim = function()
     return this.replace( /(^\s*)|(\s*$)/g, "" );
 };
 
+// Wabacus-generated scripts in this legacy app expect a few helper functions
+// that are missing in the current runtime bundle. Provide narrow shims that
+// match the metadata/id conventions used by the generated pages.
+if (typeof getInputboxIdByParentElementObj === "undefined")
+{
+	function getInputboxIdByParentElementObj(parentEleObj)
+	{
+		if(!parentEleObj) return null;
+		var inputboxid = parentEleObj.getAttribute ? parentEleObj.getAttribute("inputboxid") : null;
+		if(inputboxid) return inputboxid;
+		var id = parentEleObj.getAttribute ? parentEleObj.getAttribute("id") : null;
+		if(id)
+		{
+			var tdIndex = id.indexOf("__td");
+			if(tdIndex > 0) return id.substring(0, tdIndex);
+			return id;
+		}
+		var valueName = parentEleObj.getAttribute ? parentEleObj.getAttribute("value_name") : null;
+		if(!valueName) return null;
+		var tableObj = parentEleObj;
+		while(tableObj)
+		{
+			if(tableObj.tagName && String(tableObj.tagName).toUpperCase() === "TABLE")
+			{
+				break;
+			}
+			tableObj = tableObj.parentNode;
+		}
+		if(!tableObj) return null;
+		var refreshGuid = tableObj.getAttribute ? tableObj.getAttribute("refreshComponentGuid") : null;
+		if(!refreshGuid && tableObj.getAttribute)
+		{
+			var tableId = tableObj.getAttribute("id");
+			if(tableId && tableId.indexOf("_data") > 0)
+			{
+				refreshGuid = tableId.substring(0, tableId.indexOf("_data"));
+			}
+		}
+		if(!refreshGuid) return null;
+		return refreshGuid + "_wxcol_" + valueName;
+	}
+}
+
+if (typeof getInputboxParentElementObjByTagName === "undefined")
+{
+	function getInputboxParentElementObjByTagName(eleObj, tagName)
+	{
+		if(!eleObj || !tagName) return null;
+		tagName = String(tagName).toUpperCase();
+		while(eleObj)
+		{
+			if(eleObj.tagName && String(eleObj.tagName).toUpperCase() === tagName)
+			{
+				return eleObj;
+			}
+			eleObj = eleObj.parentNode;
+		}
+		return null;
+	}
+}
+
+if (typeof getInputboxMetadataObj === "undefined")
+{
+	function getInputboxMetadataObj(boxId)
+	{
+		if(!boxId) return null;
+		var metadataObj = document.getElementById("span_" + boxId + "_span");
+		if(metadataObj) return metadataObj;
+		var rowIndexFlag = boxId.lastIndexOf("__");
+		if(rowIndexFlag > 0)
+		{
+			return document.getElementById("span_" + boxId.substring(0, rowIndexFlag) + "_span");
+		}
+		return null;
+	}
+}
+
+// Legacy editablelist2 add-row code still calls fillInputBoxToTd() with the
+// older Wabacus signature. Route that call back into the generated one-arg
+// renderer by attaching the intended row-scoped inputbox id to the target TD.
+if (typeof fillInputBoxToTd === "function" && fillInputBoxToTd.length === 1)
+{
+	var legacyGeneratedFillInputBoxToTd = fillInputBoxToTd;
+	fillInputBoxToTd = function(parentTdObj)
+	{
+		if(arguments.length > 3 && arguments[3] && arguments[3].tagName)
+		{
+			parentTdObj = arguments[3];
+			if(parentTdObj.getAttribute && !parentTdObj.getAttribute("inputboxid") && arguments[5])
+			{
+				parentTdObj.setAttribute("inputboxid", arguments[5]);
+			}
+		}
+		var result = legacyGeneratedFillInputBoxToTd(parentTdObj);
+		legacyBindSelectboxChangeAsBlur(parentTdObj);
+		return result;
+	};
+}
+
+function legacyBindSelectboxChangeAsBlur(parentTdObj)
+{
+	if(!parentTdObj || !parentTdObj.getElementsByTagName) return;
+	var selectObjs = parentTdObj.getElementsByTagName("SELECT");
+	if(!selectObjs || selectObjs.length === 0) return;
+	for(var i = 0; i < selectObjs.length; i++)
+	{
+		var selectObj = selectObjs[i];
+		if(!selectObj || selectObj.getAttribute("legacy-change-bound") === "true") continue;
+		var onblurHandler = selectObj.onblur;
+		if(typeof onblurHandler === "function")
+		{
+			selectObj.onchange = (function(handler){
+				return function()
+				{
+					return handler.call(this);
+				};
+			})(onblurHandler);
+			selectObj.setAttribute("legacy-change-bound", "true");
+		}
+	}
+}
+
+if (typeof getUpdateColDestObj === "function")
+{
+	var legacyGetUpdateColDestObj = getUpdateColDestObj;
+	getUpdateColDestObj = function(parentObj, reportguid, fallbackObj)
+	{
+		var result = legacyGetUpdateColDestObj.apply(this, arguments);
+		if((result === null || typeof result === "undefined") && typeof fallbackObj !== "undefined")
+		{
+			return fallbackObj;
+		}
+		return result;
+	};
+}
+
+if (typeof getPropertyValueFromHtmlProperties === "undefined")
+{
+	function getPropertyValueFromHtmlProperties(htmlProperties, propertyName)
+	{
+		if(!htmlProperties) return ["", ""];
+		if(!propertyName) return [htmlProperties, ""];
+		var pattern = new RegExp("(^|\\s)" + propertyName + "\\s*=\\s*(\"([^\"]*)\"|'([^']*)'|([^\\s>]+))", "i");
+		var match = pattern.exec(htmlProperties);
+		if(!match) return [htmlProperties, ""];
+		var value = typeof match[3] !== "undefined" ? match[3] :
+					(typeof match[4] !== "undefined" ? match[4] :
+					(typeof match[5] !== "undefined" ? match[5] : ""));
+		var remained = (htmlProperties.substring(0, match.index) + " " +
+						htmlProperties.substring(match.index + match[0].length)).replace(/\s+/g, " ").trim();
+		return [remained, value];
+	}
+}
+
 function isAlphaNumeric( strValue,boxObj,paramsObj)
 {
 	return checkExp( /^\w*$/gi, strValue );
@@ -268,16 +422,6 @@ function ChangeRatio(strValue)
 
 
 }
-
-
-
-
-
-
-
-
-
-
 
 
 

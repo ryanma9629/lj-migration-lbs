@@ -8,8 +8,9 @@
 
 		<header>${top.header}</header>
 		<vpanel id="common_vpanel" width="1300px" align="center" title="">
-
-			<report id="title" extends="title.report1" width="1300px"></report>
+			<html id="claim_verify_exs_fh_title"><![CDATA[
+				<div style="width:1300px;margin:0 auto;padding:8px 0 4px 0;color:#154BA0;font-weight:bold;">存量客户分行认领审核</div>
+			]]></html>
 			<report id="select" type="editablelist" width="1300px" top="10px" 
 				rowselect="multiple-checkbox" pagesize="15|20|-1" personalizeclass="default">
 
@@ -130,7 +131,7 @@
 								SET CLAIM_STATUS_ID='2'
 									, VERIFY_DT=#{current_time}
 									, VERIFY_EMP_ID=#{user_id}     
-									, REMARK=REMARK||'审批时间'||#{current_time1}||'审批工号'||#{user_id}||'审批理由页面批复存量客户分行行审核通过。'                        
+									, REMARK=CONCAT(COALESCE(REMARK,''),'审批时间',#{current_time1},'审批工号',#{user_id},'审批理由页面批复存量客户分行行审核通过。')                        
 								WHERE CLAIM_STATUS_ID='21' 
 								AND VUCH_NBR=@{param_vuch} AND EMP_ID=@{param_emp}
 								;
@@ -277,7 +278,7 @@
 							;
 							
 							UPDATE IBS.T1_VUCH_EMP_RELA   
-							SET	 REMARK=REMARK||'审批时间'||#{current_time1}||'审批工号'||#{user_id}||'审批理由分行审批不通过'||REMARK1
+							SET	 REMARK=CONCAT(COALESCE(REMARK,''),'审批时间',#{current_time1},'审批工号',#{user_id},'审批理由分行审批不通过',COALESCE(REMARK1,''))
 								, REMARK1=''    
 							WHERE CLAIM_STATUS_ID='3' 
 							AND VUCH_NBR=@{VUCH_NBR__old} AND EMP_ID=@{EMP_ID__old}

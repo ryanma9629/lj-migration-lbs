@@ -9,7 +9,6 @@
 		<header>${top.header}</header>
 		<vpanel id="common_vpanel" width="1300px" align="center" title="">
 
-			<report id="title" extends="title.report1" width="1300px"></report>
 			<report id="select" type="editablelist" width="1500px" top="10px" scrollwidth="1300px"
 				rowselect="multiple-checkbox" pagesize="15|20|-1" personalizeclass="default">
 
@@ -112,7 +111,7 @@
 									, VERIFY_DT=#{current_time}
 									, VERIFY_EMP_ID=#{user_id}     
 									, REMARK1=@{REMARK1}
-									, REMARK=REMARK||'审批时间'||#{current_time1}||'审批工号'||#{user_id}||'审批理由页面批复通过。'                     
+									, REMARK=CONCAT(COALESCE(REMARK,''),'审批时间',#{current_time1},'审批工号',#{user_id},'审批理由页面批复通过。')                     
 								WHERE CLAIM_STATUS_ID='1' 
 								AND AGENT_NO=@{p_agent_no} AND EMP_ID=@{p_emp_id} AND CLAIM_DT=@{p_claim_dt}
 								;
@@ -216,7 +215,7 @@
 								, VERIFY_DT=#{current_time}
 								, VERIFY_EMP_ID=#{user_id}     
 								, REMARK1=@{REMARK1}                 
-								, REMARK=REMARK||'审批时间'||#{current_time1}||'审批工号'||#{user_id}||'审批未通过'
+								, REMARK=CONCAT(COALESCE(REMARK,''),'审批时间',#{current_time1},'审批工号',#{user_id},'审批未通过')
 							WHERE CLAIM_STATUS_ID='1' 
 							AND AGENT_NO=@{AGENT_NO__old} AND EMP_ID=@{EMP_ID__old} AND CLAIM_DT=@{CLAIM_DT__old}
 							;

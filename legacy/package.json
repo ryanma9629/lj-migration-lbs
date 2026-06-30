@@ -1,0 +1,13 @@
+{
+  "name": "lbs-legacy-playwright-tools",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Local Playwright tooling for the legacy LBIBS runtime",
+  "scripts": {
+    "pw:check": "node scripts/playwright-smoke.mjs",
+    "pw:codegen": "playwright codegen --channel=chrome http://127.0.0.1:18080/LBIBS/jsp/login/login.html"
+  },
+  "devDependencies": {
+    "playwright": "1.61.1"
+  }
+}

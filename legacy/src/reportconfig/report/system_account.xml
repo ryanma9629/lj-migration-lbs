@@ -6,6 +6,8 @@
 
 	
 	<page id="system_user_account_form" js="/webresources/script/validate.js,/js/demo.js">
+		<header>${top.header}</header>
+		<vpanel id="common_vpanel" align="center" width="1000px">
 		<report id="report1" title="人员帐号" type="editabledetail">
 			<interceptor>
 				<imports>
@@ -110,12 +112,12 @@
 				</value>
 			</format>
 		</report>
+		</vpanel>
 	</page>
 	<!-- user account 2012-5-7 -->
 	<page id="system_user_account" js="/webresources/script/validate.js">
 		<header>${top.header}</header>
 		<vpanel id="common_vpanel" align="center" width="1000px">
-			<report id="title" extends="title.report1"></report>
 			<report id="report1" title="人员列表" type="editablelist"
 				personalizeclass="default" pagesize="10|20|-1"
 				navigate="${navigatepagesizepage1.report3.navigate}" width="1000px"

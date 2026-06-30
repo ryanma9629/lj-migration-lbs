@@ -6,6 +6,8 @@
 
 
 	<page id="system_user_account_form_branch" js="/webresources/script/validate.js,/js/demo.js">
+		<header>${top.header}</header>
+		<vpanel id="common_vpanel" align="center" width="1000px">
 		<report id="report1" title="人员帐号" type="editabledetail">
 			<interceptor>
 				<imports>
@@ -68,11 +70,10 @@
 			<sql>
 				<select>
 					<value>
-					<![CDATA[select user_id,user_name,password,is_enable,department
-											 from cst.sys_c_sec_user  a
-left join pub.personnel b
- on a.user_ID=b.per_id
-																						 
+							<![CDATA[select a.user_id,a.user_name,a.password,a.is_enable,a.department
+											 from cst.sys_c_sec_user a
+left join ibs.t5_org b
+ on a.org_id=b.org_id and b.org_type_id='EO'
 									where  {#condition#} order by a.user_id]]>
 					</value>
 					<condition name="txt_user_id" hidden="true">
@@ -83,7 +84,7 @@ left join pub.personnel b
 					<condition name="branch_id" source="session{branch_id}"
 						hidden="true">
 						<value>
-						<![CDATA[(b.PER_BRANCH_ID= '#data#' )]]>
+						<![CDATA[(b.BRANCH_ORG_ID= '#data#' or b.ORG_ID='#data#' )]]>
 						</value>
 					</condition>
 
@@ -120,12 +121,12 @@ left join pub.personnel b
 				</value>
 			</format>
 		</report>
+		</vpanel>
 	</page>
 	<!-- user account 2012-5-7 -->
 	<page id="system_user_account_branch" js="/webresources/script/validate.js">
 		<header>${top.header}</header>
 		<vpanel id="common_vpanel" align="center" width="1000px">
-			<report id="title" extends="title.report1"></report>
 			<report id="report1" title="人员列表" type="editablelist"
 				personalizeclass="default" pagesize="10|20|-1"
 				navigate="${navigatepagesizepage1.report3.navigate}" width="1000px"
@@ -145,10 +146,10 @@ left join pub.personnel b
 				<sql>
 					<select>
 						<value>
-							<![CDATA[select user_id,user_name,is_enable,department
-											 from cst.sys_c_sec_user   a
-left join pub.personnel b
- on a.user_ID=b.per_id
+							<![CDATA[select a.user_id,a.user_name,a.is_enable,a.department
+											 from cst.sys_c_sec_user a
+left join ibs.t5_org b
+ on a.org_id=b.org_id and b.org_type_id='EO'
 											 where  {#condition#} order by a.user_id
 							]]>
 					</value>
@@ -165,7 +166,7 @@ left join pub.personnel b
 						<condition name="branch_id" source="session{branch_id}"
 							hidden="true">
 							<value>
-						<![CDATA[(b.PER_BRANCH_ID= '#data#' )]]>
+						<![CDATA[(b.BRANCH_ORG_ID= '#data#' or b.ORG_ID='#data#' )]]>
 							</value>
 						</condition>
 

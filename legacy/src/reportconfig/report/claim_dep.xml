@@ -9,7 +9,9 @@
 		<header>${top.header}</header>
 		<vpanel id="common_vpanel" width="1300px" align="center" title="">
 
-			<report id="title" extends="title.report1" width="1300px"></report>
+			<html id="claim_dep_title"><![CDATA[
+				<div style="width:1300px;margin:0 auto;padding:8px 0 4px 0;color:#154BA0;font-weight:bold;">存款认领</div>
+			]]></html>
 			<report id="select" type="form" title="账户信息" width="1300px"
 				interceptor="com.customer.interceptor.InterceptorClaimDep_NEW" top="10px" 
 				personalizeclass="default"><!-- com.customer.interceptor.InterceptorClaimDep_OLD   CopyOfInterceptorClaimDep-->
@@ -64,7 +66,6 @@
 							FROM IBS.T1_VUCH_DETAIL		
 							WHERE COALESCE(MARKETING_NO,'') not in ('2016qq') 
 							and {#condition#}
-							WITH UR
 							
 						    ]]>
 						</value>

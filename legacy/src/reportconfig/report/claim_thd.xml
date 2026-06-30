@@ -137,7 +137,7 @@
 								,EMP_ORG_ID = #{usr_org_id}
 								,EMP_ORG_NM = #{usr_org_nm}
 								,CLAIM_DT=#{current_time}
-							where TXN_RUN_NBR=@{TXN_RUN_NBR__old}
+							where TXN_RUN_NBR=@{TXN_RUN_NBR}
 						]]>
 					</value>
 				</update>

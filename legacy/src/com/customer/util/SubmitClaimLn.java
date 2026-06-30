@@ -74,7 +74,7 @@ public class SubmitClaimLn implements IServerAction {
 			
 			//分行用户认领对公存款 分行用户且为公司贷款
 			if(user_id.equals(usr_org_id) && (rsBrch.getString("ORG_LEVEL_ID")).equals("2") && rsBrch.getString("BIZ_TYPE_NM").equals("公司贷款")){
-				String sqlValRO = "SELECT COALESCE(SUM(CASE WHEN EMP_ID=? THEN ratio ELSE 0 END ),0) AS ro, 100-COALESCE(SUM(CASE WHEN EMP_ID<>?  and CLAIM_STATUS_ID in ('1','2','5','6') THEN ratio ELSE 0 END),0) AS inratio FROM IBS.T1_VUCH_EMP_RELA r inner join ibs.T5_ORG og on og.ORG_ID=r.EMP_ID and og.ORG_LEVEL_ID='2' and og.ORG_TYPE_ID='EO' WHERE VUCH_NBR=? with ur";
+				String sqlValRO = "SELECT COALESCE(SUM(CASE WHEN EMP_ID=? THEN ratio ELSE 0 END ),0) AS ro, 100-COALESCE(SUM(CASE WHEN EMP_ID<>?  and CLAIM_STATUS_ID in ('1','2','5','6') THEN ratio ELSE 0 END),0) AS inratio FROM IBS.T1_VUCH_EMP_RELA r inner join ibs.T5_ORG og on og.ORG_ID=r.EMP_ID and og.ORG_LEVEL_ID='2' and og.ORG_TYPE_ID='EO' WHERE VUCH_NBR=?";
 				
 				PreparedStatement pstmtValRO = null;
 				pstmtValRO = conn.prepareStatement(sqlValRO);
@@ -101,7 +101,7 @@ public class SubmitClaimLn implements IServerAction {
 					return "提交失败！";
 				}else{
 					String sql1="";
-					sql1 = "update IBS.T1_VUCH_EMP_RELA set CLAIM_STATUS_ID='2', CLAIM_DT=?,VERIFY_DT='"+dt+"',VERIFY_EMP_ID='无需审批', REMARK='认领时间'||?||'认领工号'||?||'认领理由'||REMARK1, REMARK1=''  where VUCH_NBR=? and EMP_ID=? and coalesce(CLAIM_STATUS_ID,'0')='0' ";
+					sql1 = "update IBS.T1_VUCH_EMP_RELA set CLAIM_STATUS_ID='2', CLAIM_DT=?,VERIFY_DT='"+dt+"',VERIFY_EMP_ID='无需审批', REMARK=CONCAT('认领时间',?,'认领工号',?,'认领理由',COALESCE(REMARK1,'')), REMARK1=''  where VUCH_NBR=? and EMP_ID=? and coalesce(CLAIM_STATUS_ID,'0')='0' ";
 					
 					PreparedStatement pstmt = null;
 					pstmt = conn.prepareStatement(sql1);
@@ -112,7 +112,7 @@ public class SubmitClaimLn implements IServerAction {
 					pstmt.setString(5, user_id);
 					pstmt.executeUpdate();
 					
-					rrequest.getWResponse().getMessageCollector().success("提交成功！", "", false);
+					rrequest.getWResponse().getMessageCollector().success("提交成功！", false);
 					rrequest.authorize("dtl", Consts.BUTTON_PART, "type{save}", "disabled", "true");
 					rrequest.authorize("dtl", Consts.BUTTON_PART, "sub", "disabled", "true");
 					rrequest.setAttribute("dtl_ACCESSMODE", "readonly");
@@ -143,7 +143,7 @@ public class SubmitClaimLn implements IServerAction {
 				"select 0 as ro, ratio as inratio FROM IBS.T1_VUCH_EMP_RELA r inner join ibs.T5_ORG og on og.ORG_ID=r.EMP_ID and og.ORG_LEVEL_ID='2' and og.ORG_TYPE_ID='EO' where r.VUCH_NBR=? and CLAIM_STATUS_ID in ('1','2','5','6') and BIZ_TYPE_NM='公司贷款'" +
 				")";
 				
-				//sqlvalidate = "SELECT COALESCE(SUM(CASE WHEN EMP_ID=? THEN ratio ELSE 0 END ),0) AS ro, 100-COALESCE(SUM(CASE WHEN EMP_ID<>?  and CLAIM_STATUS_ID in ('1','2','5','6') THEN ratio ELSE 0 END),0) AS inratio FROM IBS.T1_VUCH_EMP_RELA WHERE VUCH_NBR=? with ur";
+				//sqlvalidate = "SELECT COALESCE(SUM(CASE WHEN EMP_ID=? THEN ratio ELSE 0 END ),0) AS ro, 100-COALESCE(SUM(CASE WHEN EMP_ID<>?  and CLAIM_STATUS_ID in ('1','2','5','6') THEN ratio ELSE 0 END),0) AS inratio FROM IBS.T1_VUCH_EMP_RELA WHERE VUCH_NBR=?";
 				PreparedStatement pstmt0 = null;
 				pstmt0 = conn.prepareStatement(sqlvalidate);
 				pstmt0.setString(1, user_id);
@@ -171,7 +171,7 @@ public class SubmitClaimLn implements IServerAction {
 					// 【认领状态（0-暂存；1-待审核；2-已审核；3-未通过；4-撤销; 5-超时自动审批）】，并填写提交时间
 					String sql1 = "";
 					
-					sql1 = "update IBS.T1_VUCH_EMP_RELA set CLAIM_STATUS_ID='1', CLAIM_DT=?, REMARK='认领时间'||?||'认领工号'||?||'认领理由'||REMARK1, REMARK1=''  where VUCH_NBR=? and EMP_ID=? and coalesce(CLAIM_STATUS_ID,'0')='0' ";
+					sql1 = "update IBS.T1_VUCH_EMP_RELA set CLAIM_STATUS_ID='1', CLAIM_DT=?, REMARK=CONCAT('认领时间',?,'认领工号',?,'认领理由',COALESCE(REMARK1,'')), REMARK1=''  where VUCH_NBR=? and EMP_ID=? and coalesce(CLAIM_STATUS_ID,'0')='0' ";
 					
 					String sql2 = "Update IBS.T1_LN_LOBBY_MANAGER_RELA Set CLAIM_DT=? where BIZ_DIL_NBR=? AND MANAGER_EMP_ID=?";
 					
@@ -194,7 +194,7 @@ public class SubmitClaimLn implements IServerAction {
 					pstmt1.executeUpdate();
 					//System.out.println("======step2: 点击提交按钮将IBS.T1_LN_LOBBY_MANAGER_RELA刷新CLAIM_DT为提交的统一时间============");
 					
-					rrequest.getWResponse().getMessageCollector().success("提交成功！", "", false);// 向前台提示一条信息，这里还可以终止后续处理
+					rrequest.getWResponse().getMessageCollector().success("提交成功！", false);// 向前台提示一条信息，这里还可以终止后续处理
 					rrequest.authorize("dtl", Consts.BUTTON_PART, "type{save}", "disabled", "true");
 					rrequest.authorize("dtl", Consts.BUTTON_PART, "sub", "disabled", "true");
 					rrequest.setAttribute("dtl_ACCESSMODE", "readonly");

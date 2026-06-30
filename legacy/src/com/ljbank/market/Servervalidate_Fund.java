@@ -27,7 +27,7 @@ public class Servervalidate_Fund {
 		
 		RATIO = RATIO.trim();
 		Connection conn = Config.getInstance().getDataSource("ds_db2").getConnection();// 取DB2数据源配置
-		String sqlcnt="SELECT count(1) as cnt FROM IBS.T1_FUND_TXN_EMP_RELA WHERE TXN_NO=? and TXN_DT=? and EMP_ID=? and RATIO<>0 and CLAIM_STATUS_ID in ('1','2','5','6','21') with ur";
+		String sqlcnt="SELECT count(1) as cnt FROM IBS.T1_FUND_TXN_EMP_RELA WHERE TXN_NO=? and TXN_DT=? and EMP_ID=? and RATIO<>0 and CLAIM_STATUS_ID in ('1','2','5','6','21')";
 		PreparedStatement pstmtCnt = null;
 		pstmtCnt = conn.prepareStatement(sqlcnt);
 		
@@ -46,7 +46,7 @@ public class Servervalidate_Fund {
 		}
 		
 		try {
-			String sql = "SELECT 100-coalesce(SUM(ratio),0) AS inratio FROM IBS.T1_FUND_TXN_EMP_RELA WHERE TXN_NO=? and TXN_DT=? and CLAIM_STATUS_ID in ('1','2','5','6','21') with ur" 
+			String sql = "SELECT 100-coalesce(SUM(ratio),0) AS inratio FROM IBS.T1_FUND_TXN_EMP_RELA WHERE TXN_NO=? and TXN_DT=? and CLAIM_STATUS_ID in ('1','2','5','6','21')" 
 				;
 			PreparedStatement pstmt = null;
 			pstmt = conn.prepareStatement(sql);
@@ -96,7 +96,7 @@ public class Servervalidate_Fund {
 			
 			RATIO = RATIO.trim();
 			Connection conn = Config.getInstance().getDataSource("ds_db2").getConnection();// 取DB2数据源配置
-			String sqlcnt="SELECT count(1) as cnt FROM IBS.T1_FUND_CST_EMP_RELA WHERE IDENTN_NO=? and  EMP_ID=? and RATIO<>0 and CLAIM_STATUS_ID in ('1','2','5','6','21') with ur";
+			String sqlcnt="SELECT count(1) as cnt FROM IBS.T1_FUND_CST_EMP_RELA WHERE IDENTN_NO=? and  EMP_ID=? and RATIO<>0 and CLAIM_STATUS_ID in ('1','2','5','6','21')";
 			PreparedStatement pstmtCnt = null;
 			pstmtCnt = conn.prepareStatement(sqlcnt);
 			
@@ -114,7 +114,7 @@ public class Servervalidate_Fund {
 			}
 			
 			try {
-				String sql = "SELECT 100-coalesce(SUM(ratio),0) AS inratio FROM IBS.T1_FUND_CST_EMP_RELA WHERE IDENTN_NO=? and CLAIM_STATUS_ID in ('1','2','5','6','21') with ur" 
+				String sql = "SELECT 100-coalesce(SUM(ratio),0) AS inratio FROM IBS.T1_FUND_CST_EMP_RELA WHERE IDENTN_NO=? and CLAIM_STATUS_ID in ('1','2','5','6','21')" 
 					;
 				PreparedStatement pstmt = null;
 				pstmt = conn.prepareStatement(sql);
@@ -164,7 +164,7 @@ public class Servervalidate_Fund {
 			
 			RATIO = RATIO.trim();
 			Connection conn = Config.getInstance().getDataSource("ds_db2").getConnection();// 取DB2数据源配置
-			String sqlcnt="SELECT count(1) as cnt FROM IBS.T1_FUND_DT_EMP_RELA WHERE SERIAL_NO=? and  EMP_ID=? and RATIO<>0 and CLAIM_STATUS_ID in ('1','2','5','6','21') with ur";
+			String sqlcnt="SELECT count(1) as cnt FROM IBS.T1_FUND_DT_EMP_RELA WHERE SERIAL_NO=? and  EMP_ID=? and RATIO<>0 and CLAIM_STATUS_ID in ('1','2','5','6','21')";
 			PreparedStatement pstmtCnt = null;
 			pstmtCnt = conn.prepareStatement(sqlcnt);
 			
@@ -182,7 +182,7 @@ public class Servervalidate_Fund {
 			}
 			
 			try {
-				String sql = "SELECT 100-coalesce(SUM(ratio),0) AS inratio FROM IBS.T1_FUND_DT_EMP_RELA WHERE SERIAL_NO=? and CLAIM_STATUS_ID in ('1','2','5','6','21') with ur" 
+				String sql = "SELECT 100-coalesce(SUM(ratio),0) AS inratio FROM IBS.T1_FUND_DT_EMP_RELA WHERE SERIAL_NO=? and CLAIM_STATUS_ID in ('1','2','5','6','21')" 
 					;
 				PreparedStatement pstmt = null;
 				pstmt = conn.prepareStatement(sql);
