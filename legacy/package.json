@@ -5,7 +5,8 @@
   "description": "Local Playwright tooling for the legacy LBIBS runtime",
   "scripts": {
     "pw:check": "node scripts/playwright-smoke.mjs",
-    "pw:codegen": "playwright codegen --channel=chrome http://127.0.0.1:18080/LBIBS/jsp/login/login.html"
+    "pw:codegen": "playwright codegen --channel=chrome http://127.0.0.1:18080/LBIBS/jsp/login/login.html",
+    "pw:claim-gold-demo": "node scripts/claim-gold-demo-flow.mjs"
   },
   "devDependencies": {
     "playwright": "1.61.1"

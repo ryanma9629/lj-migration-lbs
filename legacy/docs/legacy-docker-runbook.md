@@ -346,20 +346,19 @@ The current Docker profile is still intentionally reduced, but it now includes t
 ### `claim_gold`
 
 - Main page loads after login with the seeded demo row:
-  - `VUCH_NBR=GOLDVUCH0001`
+  - `VUCH_NBR=GOLDVUCH1001`
 - Save flow is validated for the demo row:
-  - `GOLDDEMO0000001` can persist `RATIO=80.00` while moving to `CLAIM_STATUS_ID='0'`.
+  - `claimer_gold` can persist `RATIO=40.00` for `GOLDDEMO1001` while moving it to `CLAIM_STATUS_ID='0'`.
 - Submit flow is validated for the demo row:
-  - `GOLDDEMO0000001` can move from `CLAIM_STATUS_ID='0'` to `CLAIM_STATUS_ID='1'`.
-  - The original remaining-share behavior is also preserved:
-    - submit inserts a companion `EMP_ID='000000'` row at `CLAIM_STATUS_ID='7'` for the unclaimed remainder.
+  - `claimer_gold` can move `GOLDDEMO1001` through the original page flow and hand it off for review.
+  - In the current demo verification, the original partial-share remainder row is not materialized by the restored runtime, so this behavior remains deferred rather than patched.
 
 ### `claim_gold_verify`
 
 - Main verify page loads after login and shows the seeded pending gold row.
 - Review/approve chain is validated for the demo flow:
-  - `GOLDDEMO0000001` / `EMP_ID='admin'` can move from `CLAIM_STATUS_ID='1'` to `CLAIM_STATUS_ID='2'`.
-  - `VERIFY_DT='2026-06-27'` and `VERIFY_EMP_ID='admin'` are written as expected.
+  - `verifier_gold` can approve `GOLDDEMO1001` after `claimer_gold` submits it.
+  - `VERIFY_EMP_ID='verifier_gold'` is written as expected.
 
 ### Known deferred gap
 

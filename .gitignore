@@ -32,6 +32,7 @@ classes/
 
 # Project-specific generated output
 legacy/build/
+tools/
 
 # Logs and temp files
 *.log

@@ -296,13 +296,15 @@ They should not block major module recovery unless explicitly promoted back into
 
 - `claim_gold_verify` approve path is restored, but `claim_gold_vfy_no` reject popup is not yet fully verified end-to-end.
   - Current status:
-    - Main verify page loads and shows pending row `GOLDDEMO0000001`.
-    - Single-row approve action works for demo row `GOLDDEMO0000001`, moving `EMP_ID='admin'` from `CLAIM_STATUS_ID='1'` to `CLAIM_STATUS_ID='2'`.
+    - `claimer_gold` can open `claim_gold`, save demo row `GOLDDEMO1001`, and submit it.
+    - `verifier_gold` can open `claim_gold_verify` and approve `GOLDDEMO1001`, moving it from `CLAIM_STATUS_ID='1'` to `CLAIM_STATUS_ID='2'`.
     - Reject popup branch has not yet been replayed through a full browser-side save and DB state verification cycle.
+    - Partial-ratio submit currently does not materialize the expected remainder split row in MySQL demo verification; this was observed during the restored flow and is deferred rather than patched in the application code.
   - Suggested later follow-up:
     - Open `claim_gold_vfy_no` from the verify page.
     - Submit one reject case through the real popup save flow.
     - Verify whether this popup still needs current-value binding or popup-specific Wabacus save adaptation.
+    - Recheck the original `SubmitClaimGold` remainder-row behavior only when we shift from demo chain recovery back to business-rule fidelity work.
 
 ## Claim Verify Acc Module
 

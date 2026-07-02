@@ -1,7 +1,8 @@
 USE cst;
 
 DELETE FROM sys_c_sec_pvlt
-WHERE PAGE_ID IN ('claim_gold', 'claim_gold_verify', 'claim_gold_vfy_no');
+WHERE PAGE_ID IN ('claim_gold', 'claim_gold_verify', 'claim_gold_vfy_no')
+   OR ID IN ('pvlt_gold_claimer_home', 'pvlt_gold_verifier_home');
 
 DELETE FROM sys_c_sec_page
 WHERE PAGE_ID IN ('claim_gold', 'claim_gold_verify', 'claim_gold_vfy_no');
@@ -18,4 +19,9 @@ INSERT INTO sys_c_sec_pvlt
 VALUES
   ('pvlt_claim_gold', 'admin_priv', 'claim_gold', 'common_vpanel', NULL, NULL, 'display', 'true', 'seed', NOW()),
   ('pvlt_claim_gold_verify', 'admin_priv', 'claim_gold_verify', 'common_vpanel', NULL, NULL, 'display', 'true', 'seed', NOW()),
-  ('pvlt_claim_gold_vfy_no', 'admin_priv', 'claim_gold_vfy_no', 'common_vpanel', NULL, NULL, 'display', 'true', 'seed', NOW());
+  ('pvlt_claim_gold_vfy_no', 'admin_priv', 'claim_gold_vfy_no', 'common_vpanel', NULL, NULL, 'display', 'true', 'seed', NOW()),
+  ('pvlt_gold_claimer_home', 'gold_claimer_priv', 'home', 'common_vpanel', NULL, NULL, 'display', 'true', 'seed', NOW()),
+  ('pvlt_gold_claimer_claim_gold', 'gold_claimer_priv', 'claim_gold', 'common_vpanel', NULL, NULL, 'display', 'true', 'seed', NOW()),
+  ('pvlt_gold_verifier_home', 'gold_verifier_priv', 'home', 'common_vpanel', NULL, NULL, 'display', 'true', 'seed', NOW()),
+  ('pvlt_gold_verifier_claim_gold_verify', 'gold_verifier_priv', 'claim_gold_verify', 'common_vpanel', NULL, NULL, 'display', 'true', 'seed', NOW()),
+  ('pvlt_gold_verifier_claim_gold_vfy_no', 'gold_verifier_priv', 'claim_gold_vfy_no', 'common_vpanel', NULL, NULL, 'display', 'true', 'seed', NOW());
