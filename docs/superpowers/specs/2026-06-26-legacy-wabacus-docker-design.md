@@ -11,7 +11,7 @@ The current repository state shows several constraints:
 - `legacy/src/com/customer/util/DruidDataSourceUtil.java` already provides a configurable datasource implementation suitable for MySQL.
 - The repository does not currently include an obvious build file such as `pom.xml`, `build.gradle`, or `build.xml`.
 - `legacy/WebContent/WEB-INF/lib` is not a complete runtime dependency set, so startup will require supplying missing jars.
-- The table DDL is stored in `refs/table_structures_utf8.txt`.
+- The original DB2 table DDL is stored in `data/table_structures_utf8_db2.sql`.
 - Existing report XML and Java code contain DB2-specific SQL syntax such as `with ur` and `fetch first 1 row only`.
 
 ## Goal
@@ -45,7 +45,7 @@ Responsibilities:
 
 - Run a MySQL version with good compatibility for older Java applications
 - Initialize a dedicated database for the app
-- Execute a MySQL-adjusted form of `refs/table_structures_utf8.txt`
+- Execute a MySQL-adjusted form of `data/table_structures_utf8_db2.sql`
 - Optionally load minimal seed data required for system page validation
 
 Version choice:
@@ -201,7 +201,7 @@ Mitigation:
 
 1. Inventory missing runtime dependencies and identify the likely Tomcat/JDK/Wabacus baseline.
 2. Create Docker directory structure and compose definition.
-3. Convert `refs/table_structures_utf8.txt` into an executable MySQL initialization script.
+3. Convert `data/table_structures_utf8_db2.sql` into an executable MySQL initialization script.
 4. Switch datasource configuration from DB2 to MySQL.
 5. Boot containers and fix startup-level dependency and configuration failures.
 6. Validate 1 to 3 system pages and fix the first wave of SQL compatibility issues.

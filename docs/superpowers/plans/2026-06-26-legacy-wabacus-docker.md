@@ -4,7 +4,7 @@
 
 **Goal:** Run the legacy JSP/Wabacus application inside Docker with MySQL replacing DB2, and verify login plus the `home`, `system_menu`, and `system_parameter` page paths against seeded MySQL data.
 
-**Architecture:** Use a two-container `docker compose` stack: MySQL provides `cst` and `ibs` schemas initialized from a converted form of `refs/table_structures_utf8.txt`, while a Tomcat container compiles and deploys the legacy webapp from source at build time. Keep the Wabacus datasource name `ds_db2` to minimize XML churn, but repoint it to MySQL and patch only the startup-critical DB2 incompatibilities.
+**Architecture:** Use a two-container `docker compose` stack: MySQL provides `cst` and `ibs` schemas initialized from a converted form of `data/table_structures_utf8_db2.sql`, while a Tomcat container compiles and deploys the legacy webapp from source at build time. Keep the Wabacus datasource name `ds_db2` to minimize XML churn, but repoint it to MySQL and patch only the startup-critical DB2 incompatibilities.
 
 **Tech Stack:** Docker Compose, MySQL 5.7, Tomcat 8.5 + JDK 8, shell scripting, Python 3 for DDL conversion, JSP/Servlet 2.4, Wabacus XML config, Java source compilation with `javac`
 
@@ -33,7 +33,7 @@
 
 ### Files to Read While Implementing
 
-- `refs/table_structures_utf8.txt`
+- `data/table_structures_utf8_db2.sql`
 - `legacy/WebContent/WEB-INF/web.xml`
 - `legacy/src/reportconfig/report/basic.xml`
 - `legacy/src/reportconfig/report/system_menu.xml`
@@ -215,7 +215,7 @@ Expected: command exits non-zero because the generated schema file is not presen
 from pathlib import Path
 import re
 
-source = Path("refs/table_structures_utf8.txt")
+source = Path("data/table_structures_utf8_db2.sql")
 target = Path("docker/mysql/init/01-schema.sql")
 
 text = source.read_text(encoding="utf-8-sig")

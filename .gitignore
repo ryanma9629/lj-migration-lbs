@@ -34,6 +34,8 @@ classes/
 
 # Project-specific generated output
 legacy/build/
+legacy/node_modules/
+legacy/scripts/
 tools/
 
 # Logs and temp files
